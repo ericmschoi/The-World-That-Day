@@ -1,0 +1,24 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Claude Code personal settings
+.claude/settings.local.json
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.iml
+
+# Backend
+server/build/
+server/.gradle/
+server/out/
+
+# Frontend
+web/node_modules/
+web/dist/
+web/playwright-report/
+web/test-results/

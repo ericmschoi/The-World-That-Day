@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "env": {
+    "CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH": "1"
+  },
+  "permissions": {
+    "deny": [
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(!.env.example)",
+      "Bash(git push --force *)",
+      "Bash(git push -f *)",
+      "Bash(git push --force-with-lease *)",
+      "Bash(git push origin main *)",
+      "Bash(git push origin HEAD:main *)",
+      "Bash(git push origin --delete *)",
+      "Bash(git reset --hard *)",
+      "Bash(git rebase *)",
+      "Bash(git commit --amend *)",
+      "Bash(git branch -D *)",
+      "Bash(git branch -d *)",
+      "Bash(git add -A *)",
+      "Bash(git add --all *)",
+      "Bash(git add . *)",
+      "Bash(gh pr merge *)",
+      "Bash(gh repo delete *)"
+    ],
+    "ask": [
+      "Edit(./CLAUDE.md)",
+      "Edit(./docs/product-brief.md)",
+      "Edit(./.claude/**)"
+    ],
+    "allow": [
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git branch --show-current)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git switch *)",
+      "Bash(git checkout -b *)",
+      "Bash(./gradlew *)",
+      "Bash(npm run *)",
+      "Bash(npm test *)",
+      "Bash(npx playwright test *)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr list *)",
+      "Bash(gh repo view *)",
+      "Bash(gh auth status *)",
+      "Bash(git remote -v)",
+      "WebSearch",
+      "WebFetch(domain:developers.kakao.com)",
+      "WebFetch(domain:apis.map.kakao.com)",
+      "WebFetch(domain:api.ncloud-docs.com)",
+      "WebFetch(domain:developers.google.com)",
+      "WebFetch(domain:cloud.google.com)",
+      "WebFetch(domain:api.wikimedia.org)",
+      "WebFetch(domain:en.wikipedia.org)",
+      "WebFetch(domain:ko.wikipedia.org)",
+      "WebFetch(domain:commons.wikimedia.org)",
+      "WebFetch(domain:www.wikidata.org)",
+      "WebFetch(domain:www.data.go.kr)",
+      "WebFetch(domain:www.kogl.or.kr)",
+      "WebFetch(domain:map.ngii.go.kr)",
+      "WebFetch(domain:www.vworld.kr)",
+      "WebFetch(domain:www.archives.go.kr)",
+      "WebFetch(domain:www.ehistory.go.kr)",
+      "WebFetch(domain:api.visitkorea.or.kr)",
+      "WebFetch(domain:data.kma.go.kr)"
+    ]
+  }
+}
