@@ -14,8 +14,8 @@
   - 화면에 보이는 서비스 이름: The World That Day
 - 제품 정의서: `docs/product-brief.md` (PM만 수정)
 - 로드맵: `docs/roadmap.md` (planner 작성, PM 승인)
-- 기술 스택 (PM 초안, M0 끝에 확정):
-  - 백엔드: Java 21, Spring Boot 3, Spring Data JPA, PostgreSQL, Flyway, Gradle
+- 기술 스택 (2026-10-10 PM 확정):
+  - 백엔드: Java 21, Spring Boot 4 (4.1.x), Spring Data JPA, PostgreSQL, Flyway, Gradle
   - 프론트엔드: React, TypeScript, Vite
   - 테스트: JUnit 5, MockMvc, WireMock, Testcontainers / Vitest, Testing Library, MSW, Playwright
 - 폴더 구조:
@@ -117,7 +117,7 @@ REPORT_MODE: notify
 2. **검증된 출처만**: 구현에는 `docs/research/` 에서 확신도가 "확인됨"인 출처만 쓴다. 아니라면 구현하지 말고 보고한다. 약관 조항(캐싱, 저장, 출처 표시, 상업 이용)은 리서치 문서에 적힌 대로 지킨다.
 3. **외부 연동 격리**: 외부 출처는 하나씩 어댑터 뒤에 두고, 타임아웃을 걸고, 실패하면 그 섹션만 비운다.
 4. **API 키**: 에이전트는 키를 발급받거나 읽거나 쓰지 않는다. 실제 호출 확인이 필요하면 PM이 실행할 명령(키는 `$ENV_VAR` 형태)을 보고서에 적는다.
-5. **테스트**: 테스트는 외부 네트워크를 호출하지 않는다. 외부 응답은 녹화한 fixture와 목(WireMock, MSW)으로 대신한다.
+5. **테스트**: 테스트는 외부 네트워크를 호출하지 않는다. 외부 응답은 fixture와 목(WireMock, MSW)으로 대신한다. 카카오·네이버·Google 응답과 지도 화면은 공식 문서의 필드 구조로 만든 합성 fixture와 SDK 스텁을 쓰고 실제 응답을 커밋하지 않는다. 복제를 허용하는 출처(Wikimedia 등)는 녹화 fixture를 써도 되며, 녹화 일자·원 URL·라이선스를 함께 적는다.
 6. **개인정보**: 로그에 생년월일과 장소를 함께 남기지 않는다. 테스트와 예시에는 실제 사람의 생년월일을 쓰지 않고 `docs/product-brief.md` 12절의 데모 입력만 쓴다.
 7. **계정·약관**: 에이전트는 어떤 서비스에도 가입하거나 약관에 동의하지 않는다. 필요하면 PM에게 요청한다.
 
