@@ -442,7 +442,7 @@ curl -sS -G "https://maps.googleapis.com/maps/api/staticmap" \
 
 ### 그때/지금 슬라이더 조합 후보
 
-전제(T2): 과거 쪽 후보는 국토정보플랫폼에서 PM이 미리 골라 받는 항공사진 하나뿐이다. 2009년 이전 사진은 정사영상이 아니어서 겹치기는 안 되고 나란히 보기만 된다. T2 D2(형식 변환·자르기가 "변경금지"에 걸리는지)가 풀리기 전까지 과거 쪽은 `link_only` 다 (T2 `aerial-imagery.md` 7절, 10절 D2).
+전제(T2): 과거 쪽 후보는 국토정보플랫폼에서 PM이 미리 골라 받는 항공사진 하나뿐이다. 2010년 이전 촬영분은 정사영상으로 제공되지 않아(문서 기준, 정사영상원시영상 시간범위와의 충돌은 T2 B3로 확인) 겹치기는 안 되고 나란히 보기만 된다. T2 D2(형식 변환·자르기가 "변경금지"에 걸리는지)가 풀리기 전까지 과거 쪽은 `link_only` 다 (T2 `aerial-imagery.md` 7절, 10절 D2).
 
 | 조합 | 과거 (T2) | 현재 (T3) | 화면 형태 | 약관상 성립 여부 | 근거 |
 |---|---|---|---|---|---|
@@ -567,5 +567,5 @@ curl -sS -G "https://maps.googleapis.com/maps/api/staticmap" \
 | # | URL | 내용 | 확인 일자 |
 |---|---|---|---|
 | S1 | https://devtalk.kakao.com/t/skyview/151446 | 카카오 DevTalk 질의응답 (질문 2026-09-01, 답변자 "Map" 2026-09-02, 직원 여부 표시 없음). 스카이뷰 영리 서비스 "활용 가능", API는 촬영일 정보를 주지 않음, `setMapTypeId` 전환은 쿼터 차감 아님 | 2026-10-09 |
-| S2 | https://devtalk.kakao.com/t/local-api-sdk/150397 | T1 단서 [D2]와 같음. 실시간 호출이면 다른 회사 지도 SDK와 함께 써도 약관 이슈 없음 | T1 2026-10-09 |
+| S2 | https://devtalk.kakao.com/t/local-api-sdk/150397 | T1 단서 [S2]와 같음. 실시간 호출이면 다른 회사 지도 SDK와 함께 써도 약관 이슈 없음 | T1 2026-10-09 |
 | S3 | https://community.cesium.com/t/google-maps-instead-of-bing-maps-please/13095/2 | Cesium 커뮤니티 포럼. Google Maps Platform 약관 3.2.3(e) "No Use With Non-Google Maps"를 인용하며 Street View와 비Google 지도를 한 화면에 두는 것을 예로 듦. 인용 시점의 약관 판본 불명 | 2026-10-09 |
