@@ -1,0 +1,70 @@
+package io.github.ericmschoi.theworldthatday;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.io.IOException;
+import java.util.List;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.env.YamlPropertySourceLoader;
+import org.springframework.core.env.PropertySource;
+import org.springframework.core.io.ClassPathResource;
+
+/**
+ * Raw values in application.yml (plan M1a "설정" table, T2 (4)). Reads the file as written, before
+ * placeholders are resolved, so a default added to a secret placeholder is caught.
+ */
+class ApplicationConfigTest {
+
+  private static PropertySource<?> yml;
+
+  @BeforeAll
+  static void load() throws IOException {
+    List<PropertySource<?>> sources =
+        new YamlPropertySourceLoader()
+            .load("application.yml", new ClassPathResource("application.yml"));
+    assertThat(sources).hasSize(1);
+    yml = sources.getFirst();
+  }
+
+  private static String value(String key) {
+    Object raw = yml.getProperty(key);
+    return raw == null ? null : raw.toString();
+  }
+
+  @Test
+  void schemaIsManagedByFlywayOnly() {
+    assertThat(value("spring.jpa.hibernate.ddl-auto")).isEqualTo("validate");
+    assertThat(value("spring.jpa.open-in-view")).isEqualTo("false");
+  }
+
+  @Test
+  void databasePasswordHasNoDefault() {
+    assertThat(value("spring.datasource.password")).isEqualTo("${POSTGRES_PASSWORD}");
+  }
+
+  @Test
+  void datasourceUrlUsesComposeVariables() {
+    assertThat(value("spring.datasource.url"))
+        .isEqualTo(
+            "jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/${POSTGRES_DB:the_world_that_day}");
+  }
+
+  @Test
+  void rootEnvFileImportIsOptional() {
+    assertThat(value("spring.config.import")).isEqualTo("optional:file:../.env[.properties]");
+  }
+
+  @Test
+  void serverPortMatchesWebProxyContract() {
+    assertThat(value("server.port")).isEqualTo("8080");
+  }
+
+  @Test
+  void actuatorExposesOnlyHealthUnderApiWithoutDetails() {
+    assertThat(value("management.endpoints.web.base-path")).isEqualTo("/api");
+    assertThat(value("management.endpoints.web.exposure.include")).isEqualTo("health");
+    assertThat(value("management.endpoint.health.show-details")).isEqualTo("never");
+    assertThat(value("management.endpoints.web.discovery.enabled")).isEqualTo("false");
+  }
+}
