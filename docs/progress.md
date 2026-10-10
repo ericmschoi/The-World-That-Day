@@ -29,3 +29,7 @@
 | 2026-10-10 | code-reviewer | M1b 리뷰 1차 | 승인 (권장 9) | 85f3c9d 기준 |
 | 2026-10-10 | frontend-dev | M1b T2 후속 (리뷰 권장 1·2) | 완료 (25/0, 391줄) | 9793902 5dfa34c |
 | 2026-10-10 | code-reviewer | M1b 후속 확인 | 승인 | 5dfa34c 기준 |
+| 2026-10-11 | orchestrator | M1a: main 병합 (PR #2 반영) | 완료 | cba251a |
+| 2026-10-11 | backend-dev | M1a T2 | 완료 (check 8/0, Testcontainers PG 17.11) · PM 결정 필요(Ryuk) | 7cb5bb5 |
+| 2026-10-11 | test-engineer | M1a T5 | 완료 (33/0, 5회 반복, 204줄) | 92eefc3 |
+| 2026-10-11 | code-reviewer | M1a 리뷰 1차 | 승인 (권장 5) | 92eefc3 기준 |

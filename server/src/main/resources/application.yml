@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: the-world-that-day
+  config:
+    # Root .env shared with docker-compose.yml. bootRun runs in server/, so ../ is
+    # the repository root. Ignored when the file is missing (CI, tests).
+    import: optional:file:../.env[.properties]
+  # Defaults match docker-compose.yml. The password has no default on purpose.
+  datasource:
+    url: jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/${POSTGRES_DB:the_world_that_day}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD}
+  jpa:
+    # Schema changes go through Flyway only.
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      # Actuator health is exposed as GET /api/health (contract with web/).
+      base-path: /api
+      exposure:
+        include: health
+      # GET /api must not list actuator links.
+      discovery:
+        enabled: false
+  endpoint:
+    health:
+      show-details: never
+      # Boot 4 enables liveness/readiness groups by default, which adds a
+      # "groups" field to the response. Keep the body to {"status":"UP"}.
+      probes:
+        enabled: false
