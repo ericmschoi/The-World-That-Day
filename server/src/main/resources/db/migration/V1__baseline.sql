@@ -1,0 +1,1 @@
+-- Baseline migration. Creates no tables; domain tables start at V2.

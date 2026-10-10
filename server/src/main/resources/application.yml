@@ -1,6 +1,20 @@
 spring:
   application:
     name: the-world-that-day
+  config:
+    # Root .env shared with docker-compose.yml. bootRun runs in server/, so ../ is
+    # the repository root. Ignored when the file is missing (CI, tests).
+    import: optional:file:../.env[.properties]
+  # Defaults match docker-compose.yml. The password has no default on purpose.
+  datasource:
+    url: jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/${POSTGRES_DB:the_world_that_day}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD}
+  jpa:
+    # Schema changes go through Flyway only.
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
 
 server:
   port: 8080
