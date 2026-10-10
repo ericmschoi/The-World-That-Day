@@ -1,6 +1,7 @@
 import { http, HttpResponse } from 'msw'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { server } from '../mocks/server'
+import { takeUnhandledRequests } from '../test/unhandledRequests'
 import { ApiError, apiGet, getHealth } from './client'
 
 afterEach(() => {
@@ -56,5 +57,9 @@ describe('api client', () => {
         /without a matching request handler[\s\S]*\/api\/__unhandled__/,
       ),
     )
+    // Expected here, so take it off the list that fails the test in setup.ts.
+    expect(takeUnhandledRequests()).toEqual([
+      `GET ${window.location.origin}/api/__unhandled__`,
+    ])
   })
 })
