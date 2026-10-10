@@ -1,0 +1,48 @@
+name: server-ci
+
+on:
+  pull_request:
+    paths:
+      - "server/**"
+      - "docker-compose.yml"
+      - ".github/workflows/server-ci.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "server/**"
+      - "docker-compose.yml"
+      - ".github/workflows/server-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  server:
+    # GitHub-hosted Ubuntu runners include Docker, which Testcontainers uses.
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Java 21 (Temurin)
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          # MIT-licensed cache provider; the default "enhanced" provider is
+          # proprietary and requires accepting separate terms of use.
+          cache-provider: basic
+
+      - name: Run tests and format check
+        run: ./gradlew check
