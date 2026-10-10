@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: the-world-that-day
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      # Actuator health is exposed as GET /api/health (contract with web/).
+      base-path: /api
+      exposure:
+        include: health
+      # GET /api must not list actuator links.
+      discovery:
+        enabled: false
+  endpoint:
+    health:
+      show-details: never
+      # Boot 4 enables liveness/readiness groups by default, which adds a
+      # "groups" field to the response. Keep the body to {"status":"UP"}.
+      probes:
+        enabled: false
