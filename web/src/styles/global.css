@@ -1,0 +1,32 @@
+:root {
+  --color-text: #1f2328;
+  --color-muted: #59636e;
+  --color-border: #d8dee4;
+  --color-bg: #fff;
+  --color-accent: #2f4a6d;
+  --color-focus: #0969da;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Apple SD Gothic Neo',
+    'Malgun Gothic',
+    'Noto Sans KR',
+    sans-serif;
+  line-height: 1.6;
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-text-size-adjust: 100%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  overflow-wrap: break-word;
+  word-break: keep-all;
+}
