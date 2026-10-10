@@ -44,6 +44,15 @@ describe('api client', () => {
     expect(fetchSpy).not.toHaveBeenCalled()
   })
 
+  it('rejects paths that leave /api/ after normalization without sending a request', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+
+    await expect(apiGet('/api/../health')).rejects.toThrow(
+      'Only /api/ paths are allowed',
+    )
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
   it('fails a request that has no MSW handler', async () => {
     // MSW logs the unhandled request; keep test output clean but still check it.
     const consoleError = vi
