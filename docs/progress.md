@@ -16,3 +16,16 @@
 | 2026-10-09 | code-reviewer | M0 리뷰 1차 | 수정 요청 (필수 1: T3 2차 출처 근거 열, 권장 6) | 96f2d12 기준 |
 | 2026-10-09 | data-researcher | 리뷰 1차 수정 (T1·T2·T3·T4·T6) | 완료 (필수 1·권장 6 반영) | 46a999f 7ed64eb c79ff17 9b455cf d25f2fe 2a764ff |
 | 2026-10-09 | code-reviewer | M0 리뷰 2차 | 승인 (권장 1: 정사영상 표현 2곳, 비차단) | 2a764ff 기준 |
+| 2026-10-10 | planner | M1 계획 (roadmap 갱신, m1a, m1b) + PM 결정 반영 | 완료 · PM 승인 | cdd5c6e (m1a·roadmap), a310894 (m1b, chore/bootstrap-web) |
+| 2026-10-10 | orchestrator | CLAUDE.md 0절·7절 5항 (PM 승인) | 완료 | ef88467 |
+| 2026-10-10 | frontend-dev | M1b T1 | 완료 (lint·format·typecheck·build 통과, 117줄) | 336f7ed |
+| 2026-10-10 | frontend-dev | M1b T2 | 완료 (테스트 5/0, 누적 제품 160줄) | 6ea91ea |
+| 2026-10-10 | backend-dev | M1a T1 | 완료 (check 3/0, Boot 4.1.1·Gradle 9.8.1, 84줄) | 68525b3 720bcfb |
+| 2026-10-10 | frontend-dev | M1b T3 | 완료 (테스트 14/0, 누적 제품 345줄) | c1674d1 146ceec |
+| 2026-10-10 | backend-dev | M1a T4 | 완료 (server-ci.yml, check 3/0) | 999b76d |
+| 2026-10-10 | frontend-dev | M1b T4 | 완료 (web-ci.yml, 테스트 14/0, 누적 384줄) | 76f6c8c |
+| 2026-10-10 | backend-dev | M1a T3 | 완료 (compose config 5/0, check 3/0) | 4e4a252 |
+| 2026-10-10 | test-engineer | M1b T5 | 완료 (23/0, 5회 반복 안정, 보정 384줄) | 85f3c9d |
+| 2026-10-10 | code-reviewer | M1b 리뷰 1차 | 승인 (권장 9) | 85f3c9d 기준 |
+| 2026-10-10 | frontend-dev | M1b T2 후속 (리뷰 권장 1·2) | 완료 (25/0, 391줄) | 9793902 5dfa34c |
+| 2026-10-10 | code-reviewer | M1b 후속 확인 | 승인 | 5dfa34c 기준 |
