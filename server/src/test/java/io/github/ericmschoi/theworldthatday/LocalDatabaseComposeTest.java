@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
-/** Root docker-compose.yml and .env.example (plan M1a T3, T5 (3)). */
+/** Root docker-compose.yml and .env.example (plan M1a T3, T5 (3); chore-m1-followups T1). */
 class LocalDatabaseComposeTest {
 
   private static Map<Object, Object> dbService() {
@@ -48,16 +48,19 @@ class LocalDatabaseComposeTest {
   }
 
   @Test
-  void envExampleListsRequiredNames() {
+  void envExampleListsRequiredNamesUncommented() {
     List<String> lines = RepositoryFiles.read(".env.example").lines().toList();
 
-    assertThat(lines)
-        .contains(
-            "POSTGRES_DB=",
-            "POSTGRES_USER=",
-            "POSTGRES_PASSWORD=",
-            "POSTGRES_PORT=",
-            "WIKIMEDIA_USER_AGENT=");
+    assertThat(lines).contains("POSTGRES_PASSWORD=", "WIKIMEDIA_USER_AGENT=");
+  }
+
+  @Test
+  void envExampleListsOptionalNamesCommentedOut() {
+    // An empty optional value would override the application.yml default (chore-m1-followups T1).
+    List<String> lines = RepositoryFiles.read(".env.example").lines().toList();
+
+    assertThat(lines).contains("# POSTGRES_DB=", "# POSTGRES_USER=", "# POSTGRES_PORT=");
+    assertThat(lines).doesNotContain("POSTGRES_DB=", "POSTGRES_USER=", "POSTGRES_PORT=");
   }
 
   @Test
