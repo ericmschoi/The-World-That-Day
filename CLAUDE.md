@@ -24,7 +24,7 @@
   - `data/` 큐레이션 데이터 (대표 명소, 지역 별칭, 미리 골라둔 미디어)
   - `docs/plans/` 기능별 계획서, `docs/research/` 데이터 출처 검증 문서
 - 실행 명령 (M1 확정, 저장소 루트 기준):
-  - DB: `docker compose up -d db` — 루트 `.env` 필요(`.env.example` 복사 후 `POSTGRES_PASSWORD` 입력, 값을 안 정한 선택 항목 줄은 지운다)
+  - DB: `docker compose up -d db` — 루트 `.env` 필요(`.env.example` 복사 후 `POSTGRES_PASSWORD` 입력. 선택 항목은 주석(`# NAME=`) 그대로 두고, 바꿀 때만 주석을 풀어 값을 넣는다)
   - 서버: `cd server && ./gradlew bootRun` (http://localhost:8080, 헬스 체크 `GET /api/health`)
   - 웹: `cd web && npm ci && npm run dev` (http://localhost:5173, `/api` 는 8080으로 프록시)
 - 테스트 명령: `cd server && ./gradlew test` (Docker 실행 중이어야 함, Testcontainers 사용), `cd web && npm test`
