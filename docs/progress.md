@@ -33,3 +33,8 @@
 | 2026-10-11 | backend-dev | M1a T2 | 완료 (check 8/0, Testcontainers PG 17.11) · PM 결정 필요(Ryuk) | 7cb5bb5 |
 | 2026-10-11 | test-engineer | M1a T5 | 완료 (33/0, 5회 반복, 204줄) | 92eefc3 |
 | 2026-10-11 | code-reviewer | M1a 리뷰 1차 | 승인 (권장 5) | 92eefc3 기준 |
+| 2026-10-11 | planner | M3 계획 (chore + M3a1~a3, M3b1~b2, roadmap) | 완료 · PM 승인(전부 추천안), 단 사진·영상 인라인 요구로 M3 미디어 계획 수정 대기 | chore 계획만 커밋 |
+| 2026-10-11 | orchestrator | CLAUDE.md 0절 실행·테스트·린트 명령 (PM 위임) | 완료 | (이 커밋 묶음) |
+| 2026-10-11 | backend-dev | chore T1 | 완료 (check 47/0) | dd7a4b4 ec84378 |
+| 2026-10-11 | test-engineer | chore T2 | 완료 (50/0, 3회) | 8f2b66b |
+| 2026-10-11 | code-reviewer | chore 리뷰 | 승인 (권장 4) | 8f2b66b 기준 |
