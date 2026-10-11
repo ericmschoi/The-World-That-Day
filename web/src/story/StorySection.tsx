@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react'
+import type { SectionId } from './sections'
 import styles from './StorySection.module.css'
 
 export type SectionStatus = 'loading' | 'empty' | 'error' | 'ready'
 
 type Props = {
-  id: string
+  id: SectionId
   title: string
   status: SectionStatus
   children?: ReactNode
