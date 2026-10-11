@@ -23,9 +23,14 @@
   - `web/` 프론트엔드
   - `data/` 큐레이션 데이터 (대표 명소, 지역 별칭, 미리 골라둔 미디어)
   - `docs/plans/` 기능별 계획서, `docs/research/` 데이터 출처 검증 문서
-- 실행 명령: (M1에서 확정 후 PM이 갱신) 예정: `docker compose up -d db`, `cd server && ./gradlew bootRun`, `cd web && npm run dev`
-- 테스트 명령: (M1에서 확정) 예정: `cd server && ./gradlew test`, `cd web && npm test`
-- 린트·포맷 명령: (M1에서 확정)
+- 실행 명령 (M1 확정, 저장소 루트 기준):
+  - DB: `docker compose up -d db` — 루트 `.env` 필요(`.env.example` 복사 후 `POSTGRES_PASSWORD` 입력, 값을 안 정한 선택 항목 줄은 지운다)
+  - 서버: `cd server && ./gradlew bootRun` (http://localhost:8080, 헬스 체크 `GET /api/health`)
+  - 웹: `cd web && npm ci && npm run dev` (http://localhost:5173, `/api` 는 8080으로 프록시)
+- 테스트 명령: `cd server && ./gradlew test` (Docker 실행 중이어야 함, Testcontainers 사용), `cd web && npm test`
+  - 서버 전체 검사(테스트 + 포맷): `cd server && ./gradlew check`
+- 린트·포맷 명령: `cd server && ./gradlew spotlessCheck` (수정: `./gradlew spotlessApply`), `cd web && npm run lint && npm run format:check && npm run typecheck` (수정: `npm run format`)
+- CI: GitHub Actions `server-ci`(`server/**` 등 변경 시 `./gradlew check`), `web-ci`(`web/**` 변경 시 lint·format·typecheck·test·build)
 - 기본 브랜치: `main`
 
 ## 1. 팀 구성
