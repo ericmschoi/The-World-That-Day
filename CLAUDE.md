@@ -131,7 +131,7 @@ Do not guess and continue. Stop, and write what you tried plus 2–3 options wit
 3. **Isolate external integrations**: put each external source behind its own adapter, set timeouts, and on failure leave only that section empty.
 4. **API keys**: agents never issue, read or write keys. If a real call needs to be verified, put the command for the PM to run in the report, with keys as `$ENV_VAR`.
 5. **Tests**: tests never call the external network. Replace external responses with fixtures and mocks (WireMock, MSW). Kakao, Naver and Google responses and map screens use synthetic fixtures built from the field structure in their official docs, plus SDK stubs; real responses are never committed. Sources that allow copying (Wikimedia, etc.) may use recorded fixtures, stored with the recording date, original URL and license.
-6. **Privacy**: never log a date of birth together with a place. Tests and examples never use a real person's date of birth; use only the demo inputs in `docs/product-brief.md` §12.
+6. **Privacy**: never log a date of birth together with a place. Tests and examples never use a real person's date of birth; use the demo inputs in `docs/product-brief.md` §12, plus dates of publicly known historical events and boundary values (for example a leap day). Those are event dates, not anyone's birthday (PM decision M3-P13, 2026-10-11).
 7. **Accounts and terms**: agents never sign up for any service or accept any terms. Ask the PM when needed.
 
 ## 8. Resuming in a new session
