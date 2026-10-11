@@ -1,6 +1,6 @@
 /* Mobile first: 360px is the base width; wider screens keep a centered column. */
 .main {
-  max-width: 40rem;
+  max-width: var(--content-max-width);
   margin: 0 auto;
-  padding: 1.5rem 1rem 3rem;
+  padding: var(--space-5) var(--space-4) var(--space-7);
 }
