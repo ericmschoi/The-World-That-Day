@@ -1,6 +1,6 @@
 # M1 후속 정리 (chore)
 
-> 브랜치: `chore/m1-followups` · 작성: planner · 상태: PM 승인 대기
+> 브랜치: `chore/m1-followups` · 작성: planner · 상태: PM 승인 (2026-10-11)
 > 기준: M1 리뷰에서 미룬 권장 항목(오케스트레이터 전달, 2026-10-10), `docs/plans/m1a-bootstrap-server.md`, `docs/plans/m1b-bootstrap-web.md`, `CLAUDE.md` 4절·7절
 > 위치: M3 앞의 작은 PR (로드맵 M3 절, 결정 M3-P2). M3a1(`feat/wiki-events-source`)과 바꾸는 파일이 겹치지 않으므로, 이 PR을 연 뒤에는 머지를 기다리지 않고 M3a1을 `main` 에서 시작해도 된다.
 
