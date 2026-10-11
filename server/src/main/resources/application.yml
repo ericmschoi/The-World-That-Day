@@ -36,3 +36,15 @@ management:
       # "groups" field to the response. Keep the body to {"status":"UP"}.
       probes:
         enabled: false
+
+# Shared settings for every Wikimedia call (plan M3a1). An empty user-agent turns all
+# Wikimedia sources off: no request is sent and a WARN is logged once at startup.
+wikimedia:
+  user-agent: ${WIKIMEDIA_USER_AGENT:}
+  connect-timeout: 2s
+  read-timeout: 4s
+  # GET only, on connect/read timeouts and 502/503/504. Other 4xx/5xx and 429 are not retried.
+  max-retries: 1
+  # Upper bound for a 429 Retry-After. The host gets no requests until the window ends.
+  rate-limit-max-wait: 120s
+  kowiki-api-url: https://ko.wikipedia.org/w/api.php

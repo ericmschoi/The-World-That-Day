@@ -1,0 +1,8 @@
+# Test-only overrides. Spring Boot loads classpath:/config/application.yml after
+# classpath:/application.yml, so these win in every @SpringBootTest context.
+# Tests never call the real network (CLAUDE.md 7.5): every Wikimedia URL points at
+# localhost, and Wikimedia is off unless a test turns it on. Tests that talk to WireMock
+# extend WikimediaWireMockTest, which sets the real port and a User-Agent.
+wikimedia:
+  user-agent: ""
+  kowiki-api-url: http://localhost:9/w/api.php
