@@ -38,6 +38,14 @@ describe('StorySection', () => {
     expect(screen.getByText('준비된 내용')).toBeInTheDocument()
   })
 
+  it('accepts only story section ids (checked by typecheck)', () => {
+    render(
+      // @ts-expect-error 'weather' is not a SectionId
+      <StorySection id="weather" title="날씨" status="empty" />,
+    )
+    expect(screen.getByRole('region')).toHaveAttribute('id', 'weather')
+  })
+
   it('keeps a ready section visible next to a failed one', () => {
     render(
       <>

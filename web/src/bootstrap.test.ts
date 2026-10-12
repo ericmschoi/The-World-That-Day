@@ -10,8 +10,10 @@ import viteConfig from '../vite.config.ts?raw'
 
 // Every file under src (lazy: only the paths are used).
 const allPaths = Object.keys(import.meta.glob('/src/**/*'))
-// Vitest stubs `*.module.css` even with `?raw`, so CSS Modules are left to the
-// C1/C2 grep commands in the plan; plain CSS and all code are read here.
+// Code and plain CSS are read here; CSS Modules are left out of this glob.
+// Since M3b1 (vite.config.ts `test.css.include`) `.css?raw` reads give the real
+// text, and src/styles/cssRules.test.ts checks every CSS file, modules
+// included (colours, font sizes, filters, absolute URLs).
 const sourceFiles = import.meta.glob<string>(
   ['/src/**/*.{ts,tsx,css}', '!/src/**/*.module.css'],
   { query: '?raw', import: 'default', eager: true },
@@ -90,10 +92,14 @@ describe('C1/C2 product code rules', () => {
     expect(offenders).toEqual([])
   })
 
-  it('C2: has no absolute http(s) URLs outside test files', () => {
+  // Mock data is test-only, as in the M3b1 plan's C6 check.
+  it('C2: has no absolute http(s) URLs outside test files and mocks', () => {
     const url = /https?:\/\//
     const offenders = Object.keys(sourceFiles).filter(
-      (p) => !isTestFile(p) && url.test(sourceFiles[p]),
+      (p) =>
+        !isTestFile(p) &&
+        !p.startsWith('/src/mocks/') &&
+        url.test(sourceFiles[p]),
     )
     expect(offenders).toEqual([])
     expect(indexHtml).not.toMatch(url)

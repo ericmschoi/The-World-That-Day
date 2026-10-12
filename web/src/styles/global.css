@@ -1,18 +1,8 @@
+@import './tokens.css';
+
 :root {
-  --color-text: #1f2328;
-  --color-muted: #59636e;
-  --color-border: #d8dee4;
-  --color-bg: #fff;
-  --color-accent: #2f4a6d;
-  --color-focus: #0969da;
-  font-family:
-    system-ui,
-    -apple-system,
-    'Apple SD Gothic Neo',
-    'Malgun Gothic',
-    'Noto Sans KR',
-    sans-serif;
-  line-height: 1.6;
+  font-family: var(--font-family-base);
+  line-height: var(--line-height-body);
   color: var(--color-text);
   background: var(--color-bg);
   -webkit-text-size-adjust: 100%;
@@ -29,4 +19,27 @@ body {
   min-width: 320px;
   overflow-wrap: break-word;
   word-break: keep-all;
+}
+
+h1,
+h2,
+h3 {
+  line-height: var(--line-height-heading);
+}
+
+a {
+  color: var(--color-accent);
+}
+
+/* Turn transitions and animations off for people who ask for less motion.
+   M3b3's muted-autoplay exception reads the same media query. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
