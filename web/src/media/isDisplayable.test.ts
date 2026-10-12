@@ -70,10 +70,45 @@ describe('isDisplayable', () => {
     expect(isDisplayable(without(sameDayPhoto, { [field]: '' }))).toBe(false)
   })
 
-  // CLAUDE.md 7.1 and product brief 6.2: no capture time, not shown.
-  // The M3b1 plan T2 (4) expects `true` here; open PM decision.
-  it('rejects a photo whose capture time is unknown', () => {
-    expect(isDisplayable(undatedPhoto)).toBe(false)
+  // PM decision 2026-10-11: shown, labeled "촬영 시점 미상" (see dateLabel).
+  it('accepts a photo whose capture time is unknown', () => {
+    expect(undatedPhoto.date_precision).toBeNull()
+    expect(isDisplayable(undatedPhoto)).toBe(true)
+    expect(
+      isDisplayable(
+        without(sameDayPhoto, { captured_at: null, date_precision: null }),
+      ),
+    ).toBe(true)
+  })
+
+  it.each([
+    ['source_url', 'javascript:alert(1)'],
+    ['source_url', 'data:text/html,hi'],
+    ['source_url', '//commons.example.org/wiki/File:Example.jpg'],
+    ['license_url', 'javascript:alert(1)'],
+    ['url', 'ftp://media.example.org/Example.jpg'],
+    ['thumbnail_url', ' javascript:alert(1)'],
+    ['embed_url', 'vbscript:msgbox'],
+  ])('rejects a non-http(s) %s: %j', (field, value) => {
+    expect(isDisplayable(without(sameDayPhoto, { [field]: value }))).toBe(false)
+  })
+
+  it('rejects a video source with a non-http(s) url', () => {
+    const bad = { url: 'javascript:alert(1)', mime: 'video/webm', height: 480 }
+    expect(isDisplayable(without(videoFile, { video_sources: [bad] }))).toBe(
+      false,
+    )
+  })
+
+  it('accepts http and https URLs in any letter case', () => {
+    expect(
+      isDisplayable(
+        without(sameDayPhoto, {
+          source_url: 'HTTPS://commons.example.org/wiki/File:Example.jpg',
+          license_url: 'http://creativecommons.org/licenses/by-sa/4.0/',
+        }),
+      ),
+    ).toBe(true)
   })
 
   it('checks the required fields of the other display modes', () => {

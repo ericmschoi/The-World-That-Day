@@ -114,6 +114,14 @@ describe('dateLabel', () => {
     ],
     ['captured_at missing', photo(null, 'day', { kind: 'same_day', years: 0 })],
     [
+      'date_precision null (unknown) with a same_day relation',
+      photo('1988-09-17', null, { kind: 'same_day', years: 0 }),
+    ],
+    [
+      'date_precision null (unknown) with a same_year relation',
+      photo('1988', null, { kind: 'same_year', years: 0 }),
+    ],
+    [
       'date_relation missing',
       { ...sameDayPhoto, date_relation: undefined } as unknown as Media,
     ],

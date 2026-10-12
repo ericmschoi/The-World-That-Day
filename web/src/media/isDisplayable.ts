@@ -3,13 +3,17 @@ import type { Media } from './types'
 const filled = (value: unknown) =>
   typeof value === 'string' && value.trim() !== ''
 
+// URLs end up in `href`/`src`, so only http(s) passes (no `javascript:`).
+const httpUrl = (value: unknown) =>
+  typeof value === 'string' && /^https?:\/\/\S/i.test(value)
+
 const LICENSE_STATUSES: readonly unknown[] = ['free', 'other', 'unknown']
 
 // Checks the server's normalization once more (M3a3 rule R1 and the required
 // fields of each display mode). A record that fails is hidden, never turned
 // into a link. `license` may be null: the caption says "라이선스 확인 안 됨".
-// Capture time must exist (`captured_at` or `current`): CLAUDE.md 7.1 and
-// product brief 6.2. The M3b1 plan says otherwise; waiting on a PM decision.
+// Capture time may be unknown (PM decision 2026-10-11): the caption then says
+// "촬영 시점 미상" with no badge, so it is never shown as that day's.
 export function isDisplayable(media: Media): boolean {
   const hasCaption =
     [
@@ -17,16 +21,22 @@ export function isDisplayable(media: Media): boolean {
       media.type,
       media.display_mode,
       media.source_name,
-      media.source_url,
       media.attribution,
       media.retrieved_at,
-    ].every(filled) && LICENSE_STATUSES.includes(media.license_status)
+    ].every(filled) &&
+    httpUrl(media.source_url) &&
+    LICENSE_STATUSES.includes(media.license_status)
+  const urlsSafe = [
+    media.url,
+    media.thumbnail_url,
+    media.embed_url,
+    media.license_url,
+    ...(media.video_sources ?? []).map((source) => source.url),
+  ].every((value) => value == null || httpUrl(value))
   const hasPlace =
     (Number.isFinite(media.lat) && Number.isFinite(media.lng)) ||
     filled(media.place_ref)
-  const hasCaptureTime =
-    filled(media.captured_at) || media.date_precision === 'current'
-  if (!hasCaption || !hasPlace || !hasCaptureTime) return false
+  if (!hasCaption || !urlsSafe || !hasPlace) return false
 
   switch (media.display_mode) {
     case 'image':
