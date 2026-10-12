@@ -4,7 +4,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.springframework.stereotype.Component;
@@ -12,12 +14,13 @@ import org.springframework.stereotype.Component;
 /**
  * Picks the lines of one "사건"/"문화" section that fall exactly on a date and turns them into plain
  * text (plan M3a1, "파서 규칙"). The text is the original sentence with only link brackets, bold and
- * italic quotes, references, comments and file/category links removed.
+ * italic quotes, references, comments and file/category links removed, and HTML entities written as
+ * the character they stand for (plan M3a1b).
  *
  * <p>{@code skippedLines} counts dropped lines that may describe the date: lines of that date (and
- * their sub-lines) with a template, an external link or an unknown format such as a date range, and
- * lines whose leading year or date cannot be read at all (BC years, unknown formats). Lines that
- * clearly belong to another date are not counted.
+ * their sub-lines) with a template, an external link, an HTML tag, an entity outside the known list
+ * or an unknown format such as a date range, and lines whose leading year or date cannot be read at
+ * all (BC years, unknown formats). Lines that clearly belong to another date are not counted.
  */
 @Component
 public class WikitextEventParser {
@@ -46,6 +49,16 @@ public class WikitextEventParser {
       Pattern.compile("\\[\\[\\s*(?:파일|그림|분류|File|Image|Category)\\s*:", Pattern.CASE_INSENSITIVE);
   private static final Pattern LINK = Pattern.compile("\\[\\[([^\\[\\]|]*)(?:\\|([^\\[\\]]*))?]]");
   private static final Pattern QUOTES = Pattern.compile("'{2,}");
+  private static final Pattern HTML_TAG =
+      Pattern.compile("</?[A-Za-z][A-Za-z0-9]*(?:\\s[^<>]*)?/?>");
+  private static final Pattern ENTITY =
+      Pattern.compile("&(?:#(\\d{1,7})|#[xX](\\p{XDigit}{1,6})|([A-Za-z][A-Za-z0-9]*));");
+
+  /** Named entities that are decoded. {@code &nbsp;} becomes a plain space, as in M3a1. */
+  private static final Map<String, String> NAMED_ENTITIES =
+      Map.of(
+          "amp", "&", "lt", "<", "gt", ">", "quot", "\"", "apos", "'", "nbsp", " ", "ndash", "–",
+          "mdash", "—", "hellip", "…", "middot", "·");
 
   public Result parse(String wikitext, KoWikiPageKind kind, LocalDate date) {
     List<ParsedEvent> events = new ArrayList<>();
@@ -102,8 +115,11 @@ public class WikitextEventParser {
 
   /** Adds the body as an event and returns 0, or returns 1 when the line has to be skipped. */
   private static int emit(String body, List<ParsedEvent> events) {
-    if (body.contains("{{") || body.contains("[http")) {
-      return 1; // never rewrite templates or external links
+    if (body.contains("{{")
+        || body.contains("[http")
+        || HTML_TAG.matcher(body).find()
+        || ENTITY.matcher(body).results().anyMatch(entity -> character(entity) == null)) {
+      return 1; // never rewrite templates, external links or tags, nor guess an entity
     }
     Set<String> links = new LinkedHashSet<>();
     StringBuilder plain = new StringBuilder();
@@ -114,19 +130,39 @@ public class WikitextEventParser {
       String label = alias == null || alias.isBlank() ? target.replace('_', ' ') : alias;
       link.appendReplacement(plain, Matcher.quoteReplacement(label));
       String title =
-          target.replace('_', ' ').replaceFirst("#.*", "").replaceFirst("^:", "").strip();
+          decode(target).replace('_', ' ').replaceFirst("#.*", "").replaceFirst("^:", "").strip();
       if (!title.isEmpty()) {
         links.add(title);
       }
     }
     link.appendTail(plain);
-    String text =
-        QUOTES.matcher(plain).replaceAll("").replace("&nbsp;", " ").replaceAll("\\s+", " ").strip();
+    String text = decode(QUOTES.matcher(plain).replaceAll("")).replaceAll("\\s+", " ").strip();
     if (text.isEmpty()) {
       return 1;
     }
     events.add(new ParsedEvent(text, List.copyOf(links)));
     return 0;
+  }
+
+  /** Decodes every entity; {@link #emit} has already skipped lines with an unknown one. */
+  private static String decode(String text) {
+    return ENTITY.matcher(text).replaceAll(entity -> Matcher.quoteReplacement(character(entity)));
+  }
+
+  /** The character an entity stands for, or {@code null} when it is unknown or not a character. */
+  private static String character(MatchResult entity) {
+    if (entity.group(3) != null) {
+      return NAMED_ENTITIES.get(entity.group(3));
+    }
+    int code =
+        entity.group(1) != null
+            ? Integer.parseInt(entity.group(1))
+            : Integer.parseInt(entity.group(2), 16);
+    boolean character =
+        code > 0
+            && Character.isValidCodePoint(code)
+            && Character.getType(code) != Character.SURROGATE;
+    return character ? Character.toString(code) : null;
   }
 
   /** Drops file and category links, including links nested in their captions. */
