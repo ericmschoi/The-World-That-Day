@@ -1,8 +1,9 @@
 # 영상·공식 임베드 출처 — 출처 검증
 
-> 작업: T1 (V1, V7 일부) · 계획서: docs/plans/m3-video-sources-research.md · 조사 일자: 2026-10-10 ~ 2026-10-11 · 작성: data-researcher
+> 작업: T1 (V1, V7 일부), T2 (V2·V3·V4) · 계획서: docs/plans/m3-video-sources-research.md · 조사 일자: 2026-10-10 ~ 2026-10-11 · 작성: data-researcher
 > 이 문서의 약관 해석은 법률 자문이 아니다. 확신도 기준은 `docs/plans/m0-source-research.md` 의 "확신도 기준"을 따른다.
-> 이 문서는 T1~T5가 나눠 채운다. 지금은 **T1(V1 Commons 동영상 자동 검색, V7 일부)** 부분만 있다. V2~V6 자리와 1·7·9·10절의 최종본은 T2~T5가 채운다.
+> 이 문서는 T1~T5가 나눠 채운다. 지금은 **T1(V1 Commons 동영상 자동 검색, V7 일부)** 과 **T2(V2 YouTube 자동 검색, V3 공식 채널, V4 임베드 약관)** 부분이 있다. V5·V6 자리와 1·7·9·10절의 최종본은 T3~T5가 채운다.
+> T2는 키를 쓰지 않았다. YouTube Data API 응답은 공식 문서로만 봤고, 실제 호출은 6절 PM 확인 명령으로 남겼다. 키 없이 받은 것은 YouTube oEmbed(`https://www.youtube.com/oembed`) 응답과 채널 페이지 제목뿐이다. 영상은 재생하지 않았다. 영상 ID는 웹 검색 결과(단서)에서 얻었고, 제목·채널은 oEmbed 응답(YouTube가 직접 준 값)으로 확인했다.
 > 실제 응답은 모두 키 없이 WebFetch로 받았다. WebFetch는 User-Agent를 바꿀 수 없어 도구 기본 User-Agent로 요청했다(서비스 구현은 M3a1 공통 설정의 User-Agent를 쓴다). 미디어 파일은 내려받지 않았고, 응답 원문은 저장소에 넣지 않았다. 2026-10-10 요청은 세션 한도로 중단되었다가 2026-10-11에 이어서 했다(11절 확인 일자 참조).
 > "맞음" 판정은 사람(data-researcher)이 **파일 제목과, 받아 본 경우 설명·촬영일 필드**로 했다. 영상을 재생해 보지 않았다. "애매"는 그날 장면이 들어 있을 수 있지만 편집물·복원 비교·다큐멘터리라 제목만으로 판정할 수 없는 것이다.
 
@@ -16,9 +17,19 @@
 - **촬영일 필드(`DateTimeOriginal`)가 기록 영상에서는 업로드·복원 날짜인 경우가 있다**(예: 1969년 달 착륙 영상인데 2019-07-21) [82]. 그대로 쓰면 6.1절 정직한 날짜 표기를 어긴다 → 정확도 규칙 보정 제안(7절).
 - Commons 핫링크는 정책상 "가능하지만 권장하지 않음"이다 [7]. 브라우저 `<video>` 재생을 막는 근거는 찾지 못했지만 실제 재생은 확인하지 않았다(6절 PM 확인 명령).
 
+(아래는 V2·V3·V4 중간 요약이다.)
+
+- **YouTube Data API 쿼터 구조가 2026-06-01에 바뀌었다.** `search.list` 는 별도 버킷에서 **기본 하루 100회**(호출당 1)이고, `videos.list`·`channels.list`·`playlistItems.list` 등은 나머지 메서드 합계 하루 10,000단위(호출당 1)다. 초기화는 태평양 시간 자정이다 [83][84][89]. M3a5 계획서의 "기본 쿼터 10,000의 80% = 8,000단위" 예산은 `search.list` 에는 맞지 않는다(9절).
+- **`channelId` 는 채널 하나만 받는다** [85]. 허용 채널이 3개면 사건 하나에 `search.list` 3회다. 날짜당 `normal` 사건이 3개면 하루 100회로 새 날짜를 약 11개(80% 상한이면 8~9개)만 처리할 수 있다. 채널을 KTV 아카이브 하나로 줄이면 약 26개다(7절 추정). 다른 방식(채널 한정 없이 1회 검색 후 거르기, 채널 업로드 목록 색인)은 PM 확인 명령 Y3·Y1 결과와 약관 해석(10절)에 달렸다.
+- **공식 채널 근거**: e영상역사관 누리집이 "유튜브(KTV 아카이브)"(`@KTV_archive`)를 [111], KTV 누리집이 `youtube.com/user/chKTV520`(KTV 국민방송)을 [107][108], 국가기록원 누리집이 "국가기록원기록온" 채널을 링크한다 [113]. 채널 ID 후보는 YouTube 채널 페이지 제목으로 이름이 맞는 것까지 확인했고, 핸들과 ID의 연결은 PM 명령 Y1(`channels.list`, 4단위)로 확정한다.
+- **국내 사건 공식 영상이 실제로 있다(키 없이 oEmbed로 확인).** KTV 아카이브 「대한뉴스 제1715호-서울 올림픽 개막」 [120], KTV 아카이브 1986년 서울아시안게임 개막식 영상 [122], KTV 국민방송 「1986년 9월 20일 오늘 #제10회 #아시안게임 #개막」 [123]. 다만 대한뉴스 제목에는 날짜가 없고 회차 번호만 있다. 날짜는 V5(대한뉴스 회차 색인)로 맞춰야 한다.
+- **임베드 약관**: 플레이어 뷰포트 200×200 이상, 플레이어 앞에 어떤 요소도 겹치지 않음, 자동 재생은 플레이어가 절반 넘게 보일 때만, 한 화면에 자동 재생 YouTube 플레이어는 하나만 [100]. 공식 플레이어 매개변수 목록에 `mute` 가 없다 [102]. 음소거 자동 재생은 IFrame Player API의 `mute()`·`playVideo()` 로 한다 [103]. `youtube-nocookie.com` 은 공식 "개인정보 보호 강화 모드"다 [104].
+- **임베드 불가 영상은 미리 거를 수 있지만 완전하지 않다.** 검색 단계 `videoEmbeddable=true` [85], 확인 단계 `status.embeddable` [87]로 거른다. 그래도 Content ID 등으로 막힐 수 있다고 공식 문서가 적고 있다 [87]. 그래서 재생할 때 IFrame API `onError` 101/150이 오면 그 항목을 숨기는 안전장치가 필요하다 [103].
+- **서비스 의무가 새로 생긴다.** API를 쓰면 YouTube 이용약관 링크와 개인정보처리방침(YouTube API 사용 고지, Google 개인정보처리방침 링크)을 화면에 둬야 하고(III.A.1·2), YouTube가 출처임을 밝혀야 한다(III.F.2.a) [98][101]. 제품 정의서에는 없는 요구다(9절).
+
 ## 2. 확인할 질문과 답
 
-질문은 계획서 V1·V7(일부)과 공통 질문이다. V2~V6 행은 T2~T4가 더한다.
+질문은 계획서 V1·V7(일부)·V2·V3·V4와 공통 질문이다. V5·V6 행은 T3·T4가 더한다. "확인됨 (문서)"는 공식 문서 조항으로 확인했고 실제 키 호출은 하지 않았다는 뜻이다.
 
 | # | 질문 | 출처 | 답 | 확신도 | 근거 |
 |---|---|---|---|---|---|
@@ -41,6 +52,33 @@
 | 공통-2 | 출처 표시에 필요한 값 | Commons | 작가(`Artist`), 라이선스 이름·링크, 원문 페이지(`descriptionurl`). 저작권자가 지정한 표시 방법이 있으면 그것을 따른다 | 확인됨 | [7][79] |
 | 공통-3 | 해상도별 대략 용량(모바일) | Commons | `bandwidth`(초당 비트, 관찰값)×길이로 계산: 3분 22초 파일 기준 240p VP9 약 7.8 MB, 480p VP9 약 18.5 MB, 원본 27.5 MB [79]. 4분 30초 파일 240p 약 7.3 MB [80]. 3시간 16분 원본 622 MB인 파일도 있다 [82]. `bandwidth` 의 정의는 공식 문서에서 찾지 못했다 | 부분 확인 (계산은 관찰값 기준) | [79][80][82] |
 | 공통-4 | 캐싱·저장 | Commons | 파일은 복사하지 않는다(안전장치 1). 검색 결과(파일 이름·점수)만 캐시한다. 파일 사용 조건은 파일 라이선스를 따르고, API 예절 문서는 응답 캐시를 권장한다 | 확인됨 | day-events.md [19][20] |
+| V2-1 | 필요한 키 종류 | YouTube Data API | API 키 하나(서버 전용). 비공개 사용자 데이터를 요청하지 않으므로 OAuth 2.0은 필요 없다("OAuth 2.0 토큰이 없는 요청은 API 키를 보내야 한다") [94]. 키는 `x-goog-api-key` 헤더로 보낸다(URL `key=` 는 노출 위험이 있다고 적혀 있다) [96]. 발급 절차는 6절 | 확인됨 (문서) | [94][95][96] |
+| V2-2 | 기본 일일 쿼터 | YouTube Data API | 2026-06-01부터 세분 쿼터: `search.list` 하루 100회, `videos.insert` 하루 100회, 그 밖 메서드 합계 하루 10,000단위. 초기화는 태평양 시간 자정(한국 시간 16:00 서머타임 기간, 17:00 그 밖). 사용량은 Google Cloud 콘솔 할당량 페이지에서 본다 | 확인됨 (문서) | [83][84][89][90] |
+| V2-3 | 호출당 비용 | YouTube Data API | `search.list` 호출당 1(검색 버킷, 다음 페이지도 1회씩 더 든다), `videos.list`·`channels.list`·`playlistItems.list` 각 1단위. 잘못된 요청도 최소 1 | 확인됨 (문서) | [83][85][86][92][93] |
+| V2-4 | 쿼터를 넘으면, 늘리려면 | YouTube Data API | 403 `quotaExceeded` [91]. 증설은 돈으로 사지 않고 "API 준수 감사" 뒤 Audit and Quota Extension Form으로 신청한다. 처리 기간은 적혀 있지 않다 [90], 개발자 정책 III.D.3 [98]. 요금(과금) 여부·결제 계정 필요 여부를 적은 공식 문서는 찾지 못했다 | 확인됨 (증설 절차) / 미확인 (요금·결제 계정) | [90][91][98] |
+| V2-5 | 채널 한정 검색 | YouTube Data API | `channelId` 는 "그 채널이 만든 리소스만" 돌려주며, 문서에는 값 하나만 적혀 있다(쉼표 목록 언급 없음). 채널이 N개면 사건 하나에 N회. `type=video` + `channelId` 이면 결과는 최대 500개까지다 | 확인됨 (문서) / 여러 ID를 받는지는 미확인(문서에 없음 — 하나로 본다) | [85] |
+| V2-6 | 검색에서 임베드 가능만 받기 | YouTube Data API | `videoEmbeddable=true`(반드시 `type=video` 와 함께) | 확인됨 (문서) | [85] |
+| V2-7 | `status.embeddable` 로 임베드 허용 확인 | YouTube Data API | `videos.list?part=status` 의 `status.embeddable`. 검색 결과에는 이 필드가 없다 [88]. 문서는 "업로더가 임베드를 허용해도 플랫폼 정책이나 제3자 권리 주장(Content ID 등) 때문에 임베드 재생이 막힐 수 있다"고 적는다. `id` 는 쉼표 목록이고 최대 개수는 문서에 없다(미확인) | 확인됨 (문서) | [86][87][88] |
+| V2-8 | 응답 날짜 필드가 게시일뿐인가 | YouTube Data API | 검색 결과는 `snippet.publishedAt`(게시 일시)뿐이다 [88]. `videos` 에는 `recordingDetails.recordingDate`("촬영 일시")가 있지만 업로더가 넣는지, 기록 영상에서 무엇이 들어 있는지는 미확인 [87]. 6.1절에 따라 `publishedAt` 은 쓰지 않는다 | 확인됨 (필드) / 미확인 (`recordingDate` 실제 값 — PM 명령 Y4) | [87][88] |
+| V2-9 | 결과 캐시 허용 기간 | YouTube Data API | 키로 받은 공개 데이터는 "Non-Authorized Data"(사용자 인증 없이 받는 데이터)다. "제한된 양"을 필요한 만큼, **최대 30일** 임시 저장할 수 있고 30일이 지나면 지우거나 새로 받아야 한다(III.E.4.d). 저장한 데이터는 최신으로 유지하려고 노력해야 한다(III.E.4.e·f). 영상 자체는 내려받기·저장 금지(III.E.1.a) | 확인됨 (문서) / "제한된 양"의 범위는 해석 필요(10절 Y-D3) | [98] |
+| V2-10 | 표시 조건 | YouTube Data API | YouTube가 출처임을 분명히(III.F.2.a), YouTube 표시를 가리지 않음(III.F.2.c), 브랜드 가이드에 맞는 출처 표시(약관 §10.3) — 여러 출처를 섞은 화면은 YouTube 아이콘, 로고는 YouTube로 링크 [101]. YouTube 이용약관 링크와 "이용하면 YouTube 약관에 동의한다"는 문구(III.A.1), 개인정보처리방침(상시 접근, YouTube API 사용 고지, Google 개인정보처리방침 링크)(III.A.2) | 확인됨 (문서) | [97][98][101] |
+| V2-11 | 비상업 여부 | YouTube Data API | API 서비스 약관과 개발자 정책에 비상업 한정 조항은 없다. 상업 조건은 광고 조항뿐이다: YouTube 영상 위·안의 광고 판매 금지(III.G.1.c), API 데이터가 있는 페이지 광고는 YouTube 밖 자료가 독립 가치를 줄 때만(III.G.1.d), 시청 유료화 금지(III.F.3) | 확인됨 (문서) | [97][98] |
+| V2-12 | 키 없이 임베드 허용만 확인 (oEmbed 등) | YouTube oEmbed | `https://www.youtube.com/oembed?url=<watch 주소>&format=json` 은 키 없이 제목·채널 이름·채널 주소·썸네일·iframe html을 준다(실제 응답) [120]~[125][127]. 비공개 자료에 401을 준다는 것은 oEmbed 명세 내용이고 [106], YouTube 공식 문서에서 oEmbed나 임베드 불가 영상의 응답을 설명한 곳은 찾지 못했다. 표본 1개는 403을 줬고 이유는 모른다 [126]. 서버가 이것을 자동으로 부르는 것이 YouTube 이용약관의 "자동화된 수단" 접근 제한에 걸리는지도 해석이 필요하다 [105] | 부분 확인 (동작은 관찰, 근거 문서 없음) | [105][106][120]~[127] |
+| V3-1 | 공식 채널과 기관 누리집 근거 | KTV·e영상역사관·국가기록원 | 3.2절 공식 채널 표. 근거 URL(기관 누리집의 링크)은 3개 채널 모두 확인 | 확인됨 (근거 URL) | [107]~[113] |
+| V3-2 | 채널 ID | YouTube | 후보 3개: KTV 아카이브 `UC8_LPVE4Yuc6KF0opF6uS_w`, KTV 국민방송 `UCIMOytYIzaUpoAM2bpT4JZQ`, 국가기록원기록온 `UCtk3SPfRDV8VFGQnR7FfsKQ`. 각 `/channel/<ID>` 페이지 제목이 채널 이름과 같다 [116][117][118]. ID 자체는 웹 검색·Wikidata·논문 참고문헌에서 얻은 단서다. 핸들(누리집이 링크한 주소)과 ID의 연결은 키 없이 확인하지 못했다(채널 페이지 본문·RSS가 도구에서 보이지 않음 [119][128]) | 부분 확인 (PM 명령 Y1으로 확정) | [115]~[119][128] |
+| V3-3 | 채널 이용 조건 | KTV·e영상역사관 | e영상역사관: "온라인을 통해 제공하는 모든 자료에 대한 저작권은 한국정책방송원에 있습니다" [112]. KTV 저작권정책: 공공누리 표시 자료는 유형대로 자유 이용, 표시 없는 자료는 문의 [110]. 두 문서 모두 YouTube 임베드는 다루지 않는다. KTV 아카이브 채널 설명에 "부분발췌, 상업적 이용 등 무단사용을 금합니다"라는 문구가 있다는 검색 결과가 있다(단서, 채널 페이지에서 직접 확인 못 함 — PM 명령 Y1의 `description`) | 확인됨 (누리집 문서) / 미확인 (채널 설명 문구) | [110][112] |
+| V4-1 | iframe 조건 | YouTube 임베드 | 뷰포트 200×200 px 이상, 16:9는 480×270 이상 권장 [100][102][103]. `HTTP Referer` 로 클라이언트를 밝혀야 하고 없으면 오류 153 [100][103][104] → iframe에 `referrerpolicy="no-referrer"` 를 쓰면 안 된다. 중첩 iframe으로 정책을 피하면 안 된다(III.I.21) [98] | 확인됨 (문서) | [98][100][102][103][104] |
+| V4-2 | 음소거 자동 재생 | YouTube 임베드 | 자동 재생 자체는 금지가 아니다. 조건: "플레이어가 보이고 절반 넘게 보이기 전에는 자동 재생을 시작하면 안 된다", "한 화면에 자동 재생하는 YouTube 플레이어는 동시에 하나만" [100]. 공식 플레이어 매개변수 목록(21개)에 `mute` 가 없다 [102]. IFrame API에 `mute()`·`unMute()`·`playVideo()`·`pauseVideo()` 와 브라우저가 자동 재생을 막으면 오는 `onAutoplayBlocked` 이벤트가 있다 [103]. 자동 재생된 임베드는 조회수에 들어가지 않는다 [104] | 확인됨 (문서) / `mute=1` 매개변수는 문서에 없음 | [100][102][103][104] |
+| V4-3 | 겹치기·가리기 금지 | YouTube 임베드 | "YouTube 임베드 플레이어의 어느 부분 앞에도 오버레이, 프레임, 그 밖의 시각 요소를 표시하면 안 된다" [100]. 플레이어 일부·기능의 수정·차단 금지(III.I.6), 광고 방해 금지(III.I.5), 플레이어 안 링크 가리기 금지(III.I.4) [98]. 정책 안내서는 동의·재생 조작용 오버레이를 허용 예로 들어 [99] 필수 최소 기능 문서와 다르다 → 엄격한 쪽([100])을 따르는 것을 추천 | 확인됨 (문서) | [98][99][100] |
+| V4-4 | `youtube-nocookie.com` | YouTube 임베드 | 공식 "개인정보 보호 강화 모드": 임베드 주소의 도메인을 `www.youtube-nocookie.com` 으로 바꾸면 되고, 웹사이트 임베드에서만 된다. 임베드 시청이 시청자의 YouTube 이용 경험에 영향을 주지 않고 광고는 비개인화된다. 쿠키를 쓰지 않는다는 문구는 없다 [104]. IFrame API 문서는 이 도메인을 언급하지 않는다 [103] → nocookie iframe에 IFrame API를 붙이는 조합은 미확인(M3b3 브라우저 확인) | 확인됨 (모드) / 미확인 (IFrame API 조합) | [103][104] |
+| V4-5 | IFrame Player API 조건 | YouTube 임베드 | 브라우저가 `postMessage` 를 지원해야 하고, iframe `src` 에 `enablejsapi=1`, API 스크립트는 `https://www.youtube.com/iframe_api`. 이미 있는 iframe에 `new YT.Player(<iframe id>)` 로 붙일 수 있다. `origin` 매개변수(우리 웹 주소)를 넣으라고 권한다 [102][103]. **원시 `postMessage` 메시지 형식은 문서화되어 있지 않다** [103] → API 스크립트를 쓰는 것을 추천(M3b3 계획의 "postMessage로 일시정지·재생" 구현 방식 보정) | 확인됨 (문서) | [102][103] |
+| V4-6 | 관련 영상 | YouTube 임베드 | 관련 영상은 끌 수 없고 `rel=0` 이면 같은 채널 영상이 나온다 [102]. 관련 영상 링크를 막는 것은 금지 [99] | 확인됨 (문서) | [99][102] |
+| V4-7 | 임베드 불가 영상을 보여 주기 전에 알 수 있나 | YouTube | (1) 검색 단계 `videoEmbeddable=true` [85]. (2) 확인 단계 `videos.list`: `status.embeddable=true`, `status.privacyStatus=public`, `contentDetails.regionRestriction` 에 KR이 막혀 있지 않음, `contentDetails.contentRating.ytRating` 이 `ytAgeRestricted` 가 아님(연령 제한 영상은 대부분의 외부 사이트에서 볼 수 없다 [104]) [87]. (3) 그래도 막힐 수 있으므로(V2-7) 재생 시 `onError` 101·150("소유자가 임베드 재생을 허용하지 않음"), 100(없음), 5(HTML5 재생 불가), 153(Referer 없음)이면 그 항목을 화면에서 숨긴다 [103]. (4) 키 없는 oEmbed는 V2-12 | (1)(2)(3) 확인됨 (문서) / (4) 부분 확인 | [85][87][103][104] |
+| V4-8 | 업로더 허락과 YouTube 이용약관 | YouTube | YouTube 이용약관은 "임베드 가능한 YouTube 플레이어로 영상을 보여 줄 수 있다"고 적고, 업로더는 다른 사용자에게 서비스를 통한 접근을 허락한다. 업로더는 YouTube Studio에서 "퍼가기 허용"을 끌 수 있다 [104][105] | 확인됨 (문서) | [104][105] |
+| 공통-1 | 날짜 정밀도 | YouTube | V2-8. 대한뉴스 영상은 제목에 회차만 있다(예: "대한뉴스 제1715호-서울 올림픽 개막" [120]) → 날짜는 V5 회차 색인(1715호 = 1988-09-17, archive-media.md [38]). KTV 국민방송의 "YYYY년 M월 D일 오늘" 영상은 제목에 사건 날짜가 있다 [123] | 확인됨 (제목 형식) | [120][123] |
+| 공통-2 | 출처 표시에 필요한 값 | YouTube | `snippet.channelTitle`, 영상 주소, "YouTube" 표시(V2-10) | 확인됨 (문서) | [87][98][101] |
+| 공통-3 | 용량 | YouTube | 우리가 파일을 받지 않고 YouTube 플레이어가 화질을 정한다. 대략 용량은 문서에 없다 | 미확인 (해당 적음) | — |
+| 공통-4 | 캐싱·저장 | YouTube | V2-9: 메타데이터 최대 30일, 영상 저장 금지 | 확인됨 (문서) | [98] |
 
 ## 3. 출처 카드
 
@@ -118,7 +156,109 @@
 
 #### 3.2 V2·V3·V4 — YouTube 자동 검색·공식 채널·임베드 약관
 
-(T2에서 작성)
+##### 출처 — YouTube Data API v3 (공식 채널 영상 자동 검색, V2)
+- 구분: 제품 정의서 6.2절 고르는 순서 2단계("업로더가 임베드를 허용한 공식 채널 영상")의 자동 검색 경로. M3a5의 선행 조건
+- 제공 기관 / 공식 문서: Google(YouTube) / 쿼터 비용 표 [83], 시작 안내 [84], `search.list` [85], `videos.list` [86], `videos` 리소스 [87], `search` 리소스 [88], 개정 이력 [89], 쿼터·준수 감사 [90], 오류 [91], `channels.list` [92], `playlistItems.list` [93], 사용자 인증 정보 [94], Google Cloud API 키 [95][96], API 서비스 약관 [97], 개발자 정책 [98], 정책 안내서 [99], 필수 최소 기능 [100], 브랜드 가이드 [101]
+- 무엇을 얻나: 검색어·채널·게시일 범위로 찾은 영상 ID, 제목, 설명, 채널 ID·이름, 게시 일시, 썸네일(`search.list`) [88]. 영상 ID로 임베드 허용·공개 상태·라이선스·아동용 여부, 길이, 지역 제한, 연령 제한, 촬영 일시(업로더가 넣었을 때), 전체 설명(`videos.list`) [87]. 채널 핸들 → 채널 ID와 업로드 재생목록 ID(`channels.list`) [92], 재생목록의 영상 목록(`playlistItems.list`) [93]
+- 접근 방법: REST API. `GET https://www.googleapis.com/youtube/v3/search` [85], `/videos`, `/channels`, `/playlistItems`
+- 인증·키: API 키 필요(서버 전용, 환경변수 제안 `YOUTUBE_API_KEY` — 계획서와 같음). Google Cloud 콘솔에서 PM이 만든다(절차는 6절). 승인 대기 없이 바로 만들어지는 것으로 문서에 적혀 있다 [95]. OAuth 불필요 [94]. 키는 `x-goog-api-key` 헤더로 보낸다 [96]. 키를 공개 저장소에 넣으면 안 되고(III.D.1.d), 서비스 하나에 API 프로젝트 하나다(III.D.1.c) [98]
+- 요금·쿼터: 2026-06-01부터 세분 쿼터 [89]. `search.list` 기본 하루 100회(호출당 1, 별도 버킷), 그 밖 메서드 합계 하루 10,000단위(`videos.list`·`channels.list`·`playlistItems.list` 호출당 1). 다음 페이지는 1회씩 더 든다. 잘못된 요청도 최소 1. 초기화는 태평양 시간 자정 [83][84][90]. 초과하면 403 `quotaExceeded` [91]. 증설은 준수 감사 후 신청서로, 처리 기간은 정해져 있지 않다 [90][98]. 90일 연속 사용하지 않으면 접근이 제한될 수 있다(III.D.4) [98]. 요금(과금)·결제 계정 필요 여부는 공식 문서에서 찾지 못했다(미확인)
+- 커버리지: 키 없이 셀 수 없다(미확인). 키 없이 oEmbed로 확인한 예는 5절 V2 표
+- 날짜 정밀도: 검색 결과의 날짜는 게시 일시(`publishedAt`)뿐이다 [88] — 쓰지 않는다. `recordingDetails.recordingDate` 의 실제 값은 미확인 [87]. 실제 촬영 시점은 제목·설명에 적힌 날짜, 대한뉴스는 회차 번호로 V5 색인
+- 응답 메타데이터: `search`: `id.videoId`, `snippet.publishedAt`·`channelId`·`channelTitle`·`title`·`description`·`thumbnails`·`liveBroadcastContent` [88]. `videos`: `status.embeddable`·`privacyStatus`·`license`(`youtube`/`creativeCommon`)·`madeForKids`, `contentDetails.duration`(ISO 8601)·`regionRestriction`·`contentRating.ytRating`, `recordingDetails`, `snippet.title`(최대 100자)·`description`(최대 5000바이트)·`thumbnails`(default 120×90, medium 320×180, high 480×360, standard 640×480, maxres 1280×720), `player.embedHtml` [87]. 좌표: `recordingDetails` 에 위치 정보가 들어갈 수 있다고 적혀 있지만 실제 값은 미확인 [87]. 라이선스 필드: `status.license` 있음
+- 라이선스·약관 핵심:
+  - 화면 표시: 영상은 YouTube 임베드 플레이어로만 보여 준다(V4 카드). YouTube 이용약관이 임베드 플레이어로 보여 주는 것을 허용한다 [105]
+  - 캐싱·저장: 메타데이터(영상 ID·제목·점수 등)는 "제한된 양"을 최대 30일. 30일이 지나면 지우거나 새로 받는다(III.E.4.d). 영상은 내려받기·캐시·저장 금지(III.E.1.a) [98]. M3a4 결과 캐시 TTL 7일은 이 안이다
+  - 상업 이용: 비상업 한정 조항 없음. 광고 조항만 있다(III.G.1.c·d), 시청 유료화 금지(III.F.3) [98]. 약관에 상업 이용 제한 조항은 없다 [97]
+  - 출처 표시: YouTube가 출처임을 분명히(III.F.2.a), 브랜드 가이드에 맞게(약관 §10.3) [97][98]. 여러 출처를 섞은 화면에는 YouTube 아이콘을 쓰고, 로고·아이콘은 YouTube로 링크한다 [101]. 플레이어 자체의 YouTube 표시로 충분한지는 문서에 없다(미확인) → 캡션에 "YouTube · <채널 이름>" 을 두는 것을 추천
+  - 변경 허용: 플레이어 수정·차단 금지(III.I.6), 오디오·비디오 분리 금지(III.I.7) [98]. 썸네일 크기 조절에 대한 조항은 찾지 못했다(미확인). 우리는 플레이어를 그대로 쓴다
+  - 서비스 전체 의무: YouTube 이용약관 링크와 "이용하면 YouTube 약관에 동의" 문구(III.A.1), 개인정보처리방침(III.A.2), 아동용 영상은 추적을 끈다(III.E.4.j — 우리는 추적을 하지 않음) [98]
+  - 해석이 갈리는 조항: III.E.2.a "Data Aggregation"(같은 콘텐츠 소유자의 채널 데이터만 모을 수 있다) [98], 안내서의 "YouTube API 데이터를 다른 데이터와 합치지 말 것" [99]. 같은 안내서는 "다른 플랫폼 영상과 함께 YouTube 영상을 보여 주는 검색 엔진"을 허용 예로 들고 출처를 구분하라고 한다 [99] → 10절 Y-D3
+- 이 서비스에 맞는가: **조건부** — 국내 사건 공식 영상(KTV 아카이브 대한뉴스 등)을 자동으로 찾을 수 있는 경로는 사실상 이것뿐이다(Commons 0건, 5절). 다만 `search.list` 하루 100회가 처리량을 크게 제한하고, PM 키 호출 전까지 "확인됨"이 될 수 없다.
+  - 비상업일 때: 약관 조건 그대로. 허용 채널(3.2절 표)만, 임베드 가능만, 결과 캐시 30일 이하
+  - 상업일 때: 비상업 조항이 없어 같다. 광고를 붙이면 III.G.1.d(독립 가치) 판단이 더 필요하다
+- 항목별 확신도:
+  | 항목 | 확신도 | 근거 (URL, 확인 일자) |
+  |---|---|---|
+  | 접근 방법 (필수) | 부분 확인 (문서 확인, 실제 호출은 PM 대기) | [85][86][92][93] 2026-10-11 |
+  | 인증·키 | 확인됨 (문서) | [94][95][96] 2026-10-11 |
+  | 요금·쿼터 | 확인됨 (쿼터, 문서) / 미확인 (요금·결제 계정) | [83][84][89][90] 2026-10-11 |
+  | 커버리지 (필수) | 미확인 (키 필요 — PM 명령 Y2·Y3). 키 없이 공식 채널 영상 4건 존재 확인 | [120]~[123] 2026-10-11 |
+  | 날짜 정밀도 | 확인됨 (게시일뿐, 문서) / 미확인 (`recordingDate` 실제 값) | [87][88] 2026-10-11 |
+  | 캐싱·저장 (필수) | 확인됨 (30일, 문서) / "제한된 양" 해석 필요 | [98] 2026-10-11 |
+  | 출처 표시 (필수) | 확인됨 (문서) | [97][98][101] 2026-10-11 |
+  | 상업 이용 (필수) | 확인됨 (비상업 조항 없음, 광고 조항) | [97][98] 2026-10-11 |
+  | 변경 허용 (미디어 출처면 필수) | 확인됨 (플레이어 변경 금지) / 미확인 (썸네일 크기 조절) | [98] 2026-10-11 |
+  | 채널 한정 검색 (계획서 V2 질문) | 확인됨 (채널 하나, 문서) | [85] 2026-10-11 |
+  | `status.embeddable` (계획서 V2 질문) | 확인됨 (문서, 완전하지 않음이 문서에 적힘) | [87] 2026-10-11 |
+- 확신도: **부분 확인 (PM 호출 대기)** — 문서 조항은 모두 확인했다. 실제 응답(검색 결과 수, `recordingDate`, 채널 ID)은 6절 Y1~Y4를 PM이 실행한 뒤 갱신한다
+- 샘플 응답 확인: 키가 필요해 하지 않았다. 키 없는 oEmbed 응답만 [120]~[127]
+- 근거 링크: [83]~[106], [120]~[127]
+- PM 확인 명령: 6절 Y1~Y5
+
+##### 출처 — 공식 채널 목록 (V3)
+- 구분: 계획서 V3. M3a5 설정값 `youtube.allowed-channels` 의 후보
+- 제공 기관 / 공식 문서: 한국정책방송원(KTV, 문화체육관광부 소속) — KTV 누리집 [107][108][109], 저작권정책 [110], e영상역사관 [111][112]; 행정안전부 국가기록원 [113]
+- 무엇을 얻나: 허용 채널 목록(채널 ID)과 각 채널이 공식이라는 근거
+- 접근 방법: 기관 누리집의 YouTube 링크(근거), 채널 ID는 `channels.list?forHandle=` / `forUsername=` (PM 명령 Y1)
+- 인증·키: 근거 확인은 키 없음. ID 확정은 `YOUTUBE_API_KEY`(1단위씩)
+- 요금·쿼터: Y1 합계 4단위
+
+공식 채널 표 (확인 일자 2026-10-11):
+
+| 채널 | 운영 기관 | 기관 누리집의 링크 (근거) | 채널 ID (후보) | ID 근거 | 내용 | 확신도 |
+|---|---|---|---|---|---|---|
+| KTV 아카이브 | 한국정책방송원 | e영상역사관 첫 화면 관련사이트 "유튜브(KTV 아카이브)" → `https://www.youtube.com/@KTV_archive` [111] | `UC8_LPVE4Yuc6KF0opF6uS_w` | `/channel/<ID>` 페이지 제목 "KTV 아카이브" [117]. 영상 3건의 oEmbed `author_url` 이 `@KTV_archive` [120][121][122]. ID는 웹 검색에서 얻은 단서 | 대한뉴스 등 기록 영상. 국내 사건 1순위 | 근거 URL 확인됨 / ID 부분 확인 (Y1) |
+| KTV 국민방송 | 한국정책방송원 | KTV 누리집 바닥글 "유튜브", "KTV 유튜브" 메뉴, 모바일 채널안내 → `https://www.youtube.com/user/chKTV520` [107][108][109] | `UCIMOytYIzaUpoAM2bpT4JZQ` | 페이지 제목 "KTV 국민방송" [116], Wikidata Q11664024의 YouTube 채널 ID(P2397) [115]. 영상 oEmbed는 `author_name` "KTV 국민방송", `author_url` `@KTV_korea` [123] — `chKTV520` 과 `@KTV_korea` 가 같은 채널인지는 Y1 | 정책 방송, "YYYY년 M월 D일 오늘" 기록 클립 | 근거 URL 확인됨 / ID 부분 확인 (Y1) |
+| 국가기록원기록온 | 행정안전부 국가기록원 | 국가기록원 첫 화면 바닥글 "국가기록원 유튜브" → `https://www.youtube.com/c/국가기록원기록온/videos` [113] | `UCtk3SPfRDV8VFGQnR7FfsKQ` | 페이지 제목 "국가기록원기록온" [118]. ID는 2018년 학술 논문 참고문헌(단서). 핸들 `@NAK.archiveson` 페이지 제목도 같다 [119] | 기록 소개·해설 영상. 사건 당일 영상의 비중은 미확인 | 근거 URL 확인됨 / ID 부분 확인 (Y1) |
+| (e영상역사관) | 한국정책방송원 | 별도 채널 없이 KTV 아카이브를 링크한다 [111] | — | — | — | 확인됨 |
+
+허용 채널 밖 후보 (M3-P14에 따라 지금은 쓰지 않음, PM이 넓힐 때만 — 10절 Y-D1):
+
+| 채널 | 근거 | 표본 날짜와의 관계 | 확신도 |
+|---|---|---|---|
+| NASA (`@NASA`) | nasa.gov 첫 화면 "Follow NASA" → `https://www.youtube.com/@NASA` [114]. ID 미확인 | 1969-07-20 | 근거 URL 확인됨 / ID 미확인 |
+| Olympic Games (`@Olympics`) | oEmbed: 「Seoul 1988 - Opening Ceremony \| Seoul 1988 Replays」 [124]. olympics.com 누리집의 링크는 요청 시간 초과로 확인하지 못함 | 1988-09-17 개막식 전체 | 미확인 (공식 근거) |
+| 서울특별시 | Wikidata Q8684 P2397 `UCokYEohXuS2NH1Rld-Ssu4A` [115]. 누리집 링크 확인 안 함 | 서울 행사 | 미확인 |
+| 대통령기록관 | pa.go.kr 첫 화면에서 YouTube 링크를 찾지 못함 | — | 미확인 |
+| 방송사 채널(부산MBC, JTBC Sports, KBS 등) | oEmbed [125][127] | 1988·2002 영상 많음 | 언론사 — 안전장치 3(통신사·언론사는 공식 임베드로만) 해석 대상. 넣지 않는 것을 추천 |
+
+- 라이선스·약관 핵심: 채널 영상의 임베드는 YouTube 이용약관(임베드 플레이어 허용)과 업로더의 "퍼가기 허용" 설정을 따른다 [104][105]. 기관 문서: e영상역사관은 온라인 자료의 저작권이 한국정책방송원에 있다고 적고 [112], KTV 저작권정책은 공공누리 표시가 없는 자료는 문의하라고 한다 [110]. 둘 다 YouTube 임베드를 따로 다루지 않는다. KTV 아카이브 채널 설명의 "부분발췌, 상업적 이용 등 무단사용" 금지 문구(단서)는 내려받아 잘라 쓰는 것을 막는 문구로 읽히고 임베드는 해당하지 않는다고 볼 여지가 크지만, 이 해석은 법률 자문이 아니며 10절 Y-D4에 둔다
+- 이 서비스에 맞는가: **조건부** — 근거 URL은 확인됐고 ID만 Y1로 확정하면 된다
+- 확신도: 부분 확인 (근거 URL 확인됨, 채널 ID는 PM 명령 Y1 대기)
+- 근거 링크: [107]~[119], [115](Wikidata — 단서)
+
+##### 출처 — YouTube 임베드 플레이어 (V4)
+- 구분: 계획서 V4. `display_mode: video_embed`, `provider: youtube`
+- 제공 기관 / 공식 문서: Google(YouTube) / 필수 최소 기능 [100], 플레이어 매개변수 [102], IFrame Player API [103], 임베드·개인정보 보호 강화 모드 도움말 [104], YouTube 이용약관 [105], 개발자 정책 III.I [98], 정책 안내서 [99]
+- 무엇을 얻나: 영상 ID로 iframe 플레이어. 키 필요 없음
+- 접근 방법: 웹 임베드 `https://www.youtube-nocookie.com/embed/<videoId>?…` + IFrame Player API 스크립트 `https://www.youtube.com/iframe_api`
+- 인증·키: 없음. 브라우저가 `Referer` 를 보내야 한다 [100][103]
+- 요금·쿼터: 없음(Data API 쿼터와 무관). 문서에 제한 없음
+- 날짜 정밀도·응답 메타데이터: 해당 없음(메타데이터는 Data API 카드)
+- 라이선스·약관 핵심 (질문별 답은 2절 V4-1~V4-8):
+  - 크기: 뷰포트 200×200 이상 [100] → 16:9 플레이어는 가로 356px 이상이어야 한다. 작은 카드나 썸네일 격자에 플레이어를 넣으면 안 된다
+  - 자동 재생: 절반 넘게 보일 때만 시작, 한 화면에 자동 재생 YouTube 플레이어 하나만 [100]. 음소거는 IFrame API `mute()` [103]
+  - 겹치기: 플레이어 앞에 아무것도 겹치지 않는다 [100]. 캡션·출처·날짜 표시는 플레이어 아래에 둔다
+  - `Referer`: 없애면 오류 153 [103][104]
+  - 관련 영상·광고·플레이어 안 링크를 막거나 가리지 않는다 [98][99]
+  - 캐싱: 영상은 저장하지 않는다(플레이어 재생만) [98]
+- 제안하는 임베드 주소 (M3a5 계획서 값과 대조):
+  - 계획서: `https://www.youtube-nocookie.com/embed/<ID>?autoplay=1&mute=1&playsinline=1&enablejsapi=1&rel=0`
+  - 제안: `https://www.youtube-nocookie.com/embed/<ID>?playsinline=1&rel=0&enablejsapi=1&origin=<웹 origin>`
+  - 이유: `autoplay=1` 은 iframe이 불려 오면 바로 재생을 시작하므로 `loading="lazy"` 로 화면 근처에서 불려 올 때 "절반 넘게 보이기 전 자동 재생 금지" [100]를 어길 수 있다. `mute` 는 공식 매개변수 목록에 없다 [102]. 대신 웹이 IFrame API로 플레이어가 50% 넘게 보일 때 `mute()` → `playVideo()`, 화면 밖이면 `pauseVideo()`, 다른 플레이어가 재생 중이면 시작하지 않는다 [100][103]. `origin` 은 IFrame API를 쓸 때 넣으라고 권한다 [102][103] — 서버 설정에 웹 origin 값이 필요하다(로컬 `http://localhost:5173`)
+- 이 서비스에 맞는가: **적합** — 키 없이, 공식 방식으로, 제품 정의서 6.2절(음소거 자동 재생, 원 제공자 플레이어)을 지킬 수 있다. 조건은 위 크기·자동 재생·겹치기 규칙
+- 항목별 확신도:
+  | 항목 | 확신도 | 근거 (URL, 확인 일자) |
+  |---|---|---|
+  | iframe 조건 (크기, Referer) | 확인됨 (문서) | [100][102][103][104] 2026-10-11 |
+  | 음소거 자동 재생 | 확인됨 (조건·API 함수) / `mute=1` 매개변수는 문서에 없음 | [100][102][103] 2026-10-11 |
+  | 겹치기·가리기 금지 | 확인됨 (문서) | [98][100] 2026-10-11 |
+  | `youtube-nocookie.com` | 확인됨 (모드) / 미확인 (IFrame API와 함께 쓰기) | [103][104] 2026-10-11 |
+  | IFrame Player API 조건 | 확인됨 (문서, 원시 postMessage 형식은 문서에 없음) | [103] 2026-10-11 |
+  | 임베드 불가 사전 감지 | 확인됨 (Data API 필드 + 재생 오류 코드) / 부분 확인 (키 없는 oEmbed) | [85][87][103][106][126] 2026-10-11 |
+- 확신도: **확인됨** (공식 문서 조항 기준. nocookie + IFrame API 조합만 M3b3 브라우저 확인)
+- 근거 링크: [98]~[106]
 
 #### 3.3 V5 — e영상역사관·대한뉴스 날짜 검색
 
@@ -142,33 +282,46 @@
 | Commons (c-1) `Videos taken on YYYY-MM-DD` | 없음 | 같음 | 1 (날짜마다) | 같음 | 확인됨 | 사용 (날짜 확실, 사건 일치는 따로 확인) |
 | Commons (c-2) `deepcat:"YYYY-MM-DD"` | 없음 | 같음 | 1 | 같음 | 확인됨 | 쓰지 않음 |
 
+V2 행 (T2). 마지막 열은 "V2 판단"이다. 비용은 사건 하나 기준이다.
+
+| 경로 | 키 (환경변수, 서버 전용) | 쿼터·속도 제한 | 요청 한 번당 비용 | 캐시 허용 | 확신도 | V2 판단 |
+|---|---|---|---|---|---|---|
+| YouTube (Y-a) `search.list` 채널 한정 (`channelId` + `q` + `type=video` + `videoEmbeddable=true`) | `YOUTUBE_API_KEY` | `search.list` 하루 100회(별도 버킷), 태평양 시간 자정 초기화 [83][89] | 허용 채널 수만큼 (3채널이면 3회) [85] | 메타데이터 최대 30일, 이후 삭제·갱신(III.E.4.d) [98] | 부분 확인 (PM 호출 대기) | 정확하지만 비싸다. 채널을 KTV 아카이브 하나로 줄이면 1회 |
+| YouTube (Y-b) `search.list` 채널 한정 없음 + 허용 채널 ID로 거르기 | 같음 | 같음 | 1회 | 같음 | 부분 확인 (PM 호출 대기) | 싸지만 상위 결과에 허용 채널이 들어오는지 미확인 (PM 명령 Y3) |
+| YouTube (Y-c) 채널 업로드 목록 색인 (`channels.list` → `playlistItems.list`) 후 우리 쪽 제목 검색 | 같음 | 일반 버킷 하루 10,000단위 [83] | 검색 0회. 색인은 영상 50개당 1단위 [93], 30일 안에 갱신 | 30일, "제한된 양" 해석 필요 [98] | 부분 확인 (채널 영상 수 미확인 — Y1 `videoCount`) | 검색 버킷을 쓰지 않는 대안. 약관 해석(10절 Y-D3) 뒤에만 |
+| YouTube (Y-d) `videos.list` 확인 (`status`, `contentDetails`, `recordingDetails`, `snippet`) | 같음 | 일반 버킷 10,000단위 | 1단위 (ID 여러 개를 쉼표로 묶음, 최대 개수 미확인) [86] | 같음 | 부분 확인 (PM 호출 대기) | 필수. 임베드·공개·지역·연령 확인 |
+| YouTube oEmbed (키 없음) | 없음 | 문서 없음 | 영상당 1 | 문서 없음 | 부분 확인 (응답은 관찰, 공식 문서 없음) | 서버 자동 검사에는 쓰지 않음(근거 문서 없음, 자동 접근 조항 [105]). 리서치·수동 확인용 |
+| YouTube 임베드 재생 오류 (`onError` 101/150/100/5/153) | 없음 (브라우저) | 없음 | 0 | 해당 없음 | 확인됨 (문서) [103] | 필수 안전장치. 오류면 그 항목 숨김 (M3b3) |
+
 ## 4. 미디어 레코드 필드 매핑
 
-`docs/plans/m3a3-event-media.md` 의 공용 미디어 형식 기준. V2~V6 열은 T2~T4가 더한다.
+`docs/plans/m3a3-event-media.md` 의 공용 미디어 형식 기준. V5·V6 열은 T3·T4가 더한다. YouTube 열은 공식 문서 필드 이름 기준이고 실제 응답으로는 확인하지 않았다(PM 명령 Y4).
 
-| 필드 | Commons 동영상 (`video_file`) |
-|---|---|
-| id | 계산: `commons-` + `pageid` (검색 응답 `pages[].pageid`) |
-| type | 고정값: `video` |
-| display_mode | 고정값: `video_file` |
-| url | 응답 필드: `imageinfo.url` / `videoinfo.url` (원본). `utm_*` 쿼리는 그대로 두거나 떼도 같은 파일이다(뗄지 여부는 구현 선택, 미확인 영향 없음) |
-| thumbnail_url | 응답 필드: `thumburl` (`iiurlwidth` 를 표준 폭으로 요청 — 예 330) [6] |
-| thumbnail_width / thumbnail_height | 응답 필드: `thumbwidth` / `thumbheight` (요청 폭 기준 값. 실제 JPEG는 표준 폭) |
-| video_sources | 응답 필드: `videoinfo.derivatives[]` → `{url: src, mime: type, height}`, `height` 작은 것부터. `video/webm` 변환본을 앞에, `video/quicktime` 변환본을 뒤에. 원본은 마지막 |
-| duration_seconds | 응답 필드: `duration` |
-| embed_url / provider / render / link_only_reason | 고정값: `null` |
-| source_name | 고정값: `Wikimedia Commons` |
-| source_url | 응답 필드: `descriptionurl` |
-| license | 응답 필드: `extmetadata.LicenseShortName` (없으면 `null`) |
-| license_status | 계산: M3a3 허용 목록 대조 (`free`/`other`/`unknown`) |
-| license_url | 응답 필드: `extmetadata.LicenseUrl` |
-| attribution | 계산: `Artist`(HTML 제거, 없으면 `Credit`, 둘 다 없으면 "작가 정보 없음") + 라이선스 + `Wikimedia Commons` (M3a3과 같음) |
-| description | 응답 필드: `extmetadata.ImageDescription` (HTML 제거) |
-| captured_at / date_precision | 계산: `DateTimeOriginal` 을 M3a3 파서로. **단, 7절 제안 R-V3: 사건 날짜보다 늦은 값은 업로드·복원일로 보고 `null`**. `extmetadata.DateTime`(업로드 시각)은 쓰지 않는다 |
-| lat·lng 또는 place_ref | 표본 동영상에는 좌표가 없었다 → `place_ref`(사건의 `scope` 기준). `GPSLatitude`·`GPSLongitude` 가 있으면 사용(미확인 — 표본에 없음) |
-| retrieved_at | 계산: 조회 시각 |
+| 필드 | Commons 동영상 (`video_file`) | YouTube 공식 채널 영상 (`video_embed`) |
+|---|---|---|
+| id | 계산: `commons-` + `pageid` (검색 응답 `pages[].pageid`) | 계산: `youtube-` + `id`(videos) / `id.videoId`(search) [87][88] |
+| type | 고정값: `video` | 고정값: `video` |
+| display_mode | 고정값: `video_file` | 고정값: `video_embed` |
+| url | 응답 필드: `imageinfo.url` / `videoinfo.url` (원본). `utm_*` 쿼리는 그대로 두거나 떼도 같은 파일이다(뗄지 여부는 구현 선택, 미확인 영향 없음) | 고정값: `null` (M3a3 R5) |
+| thumbnail_url | 응답 필드: `thumburl` (`iiurlwidth` 를 표준 폭으로 요청 — 예 330) [6] | 응답 필드: `snippet.thumbnails.medium.url` (320×180) 또는 `high` [87]. iframe을 늦게 불러오기 전 자리 표시용. 썸네일을 눌러 재생을 시작한다면 120×70 이상 [100] |
+| thumbnail_width / thumbnail_height | 응답 필드: `thumbwidth` / `thumbheight` (요청 폭 기준 값. 실제 JPEG는 표준 폭) | 응답 필드: 고른 썸네일의 `width` / `height` (16:9 비율 계산용) [87] |
+| video_sources | 응답 필드: `videoinfo.derivatives[]` → `{url: src, mime: type, height}`, `height` 작은 것부터. `video/webm` 변환본을 앞에, `video/quicktime` 변환본을 뒤에. 원본은 마지막 | 고정값: `null` |
+| duration_seconds | 응답 필드: `duration` | 계산: `contentDetails.duration`(ISO 8601, 예 `PT3M12S`) → 초 [87] |
+| embed_url / provider / render / link_only_reason | 고정값: `null` | 계산: `embed_url` = `https://www.youtube-nocookie.com/embed/<id>?playsinline=1&rel=0&enablejsapi=1&origin=<웹 origin>` (3.2절 V4 카드), `provider` = `youtube`, `render` = `null`, `link_only_reason` = `null` |
+| source_name | 고정값: `Wikimedia Commons` | 응답 필드: `snippet.channelTitle` (예 "KTV 아카이브") [87] |
+| source_url | 응답 필드: `descriptionurl` | 계산: `https://www.youtube.com/watch?v=<id>` |
+| license | 응답 필드: `extmetadata.LicenseShortName` (없으면 `null`) | 고정값: `provider-terms` (M3a3 규칙: 제공사 임베드). `status.license` 가 `creativeCommon` 이어도 임베드로만 쓰므로 같게 둔다 |
+| license_status | 계산: M3a3 허용 목록 대조 (`free`/`other`/`unknown`) | 고정값: `other` |
+| license_url | 응답 필드: `extmetadata.LicenseUrl` | 고정값: `https://www.youtube.com/t/terms` [105] |
+| attribution | 계산: `Artist`(HTML 제거, 없으면 `Credit`, 둘 다 없으면 "작가 정보 없음") + 라이선스 + `Wikimedia Commons` (M3a3과 같음) | 계산: `snippet.channelTitle` + " · YouTube" (YouTube가 출처임을 밝힘, III.F.2.a [98]) |
+| description | 응답 필드: `extmetadata.ImageDescription` (HTML 제거) | 응답 필드: `snippet.description` (videos 응답, 검색 응답보다 길다) [87][88] |
+| captured_at / date_precision | 계산: `DateTimeOriginal` 을 M3a3 파서로. **단, 7절 제안 R-V3: 사건 날짜보다 늦은 값은 업로드·복원일로 보고 `null`**. `extmetadata.DateTime`(업로드 시각)은 쓰지 않는다 | 계산: 제목·설명에 **적힌** 날짜를 M3a3 파서로. 대한뉴스 제목("대한뉴스 제NNNN호-…")은 회차 번호로 V5 색인의 제작일 → `approx`(M3a5 규칙). `recordingDetails.recordingDate` 는 R-V3과 같은 규칙(사건 날짜보다 늦으면 `null`)으로만. `snippet.publishedAt` 은 쓰지 않는다 [87][88] |
+| lat·lng 또는 place_ref | 표본 동영상에는 좌표가 없었다 → `place_ref`(사건의 `scope` 기준). `GPSLatitude`·`GPSLongitude` 가 있으면 사용(미확인 — 표본에 없음) | `place_ref`(사건의 `scope` 기준). `recordingDetails` 의 위치 값은 미확인 |
+| retrieved_at | 계산: 조회 시각 | 계산: 조회 시각 (30일 안에 다시 받는 기준, III.E.4.d [98]) |
 
 결론: Commons 동영상은 라이선스와 관계없이 `display_mode: video_file`(원 출처 핫링크)이다. `link_only` 는 실제 재생이 기술적으로 막힌 것이 확인될 때만이다(6절 명령 결과가 200/206이 아니면 PM에게 보고). 비상업·상업 모두 같고, 상업이면 `license_status: free` 만 쓰는 선택지가 생긴다(M3a3 결정 범위).
+
+결론 (YouTube): 허용 채널의 임베드 가능 영상은 `display_mode: video_embed`(`provider: youtube`)다. `videos.list` 에서 `embeddable=false`·비공개·KR 지역 차단·연령 제한이면 레코드를 만들지 않는다(`link_only` 로 두지 않음 — 화면에 띄울 수 없으면 쓰지 않는다는 6.2절). 재생 중 `onError` 101/150이 오면 웹이 그 항목을 숨긴다. 비상업·상업 모두 같다.
 
 ## 5. 데모·표본 날짜 판단
 
@@ -193,6 +346,21 @@
 - (b-3) 맞음 5: TV clip of Buzz, AP11 FINAL APPROACH, Landing - first steps, MSC TV Transmission, Nixon speaking. 애매 1: Buzz Descends Comparison(복원 비교). 아님 1: Flight of Apollo 11 0:50~3:14 since launch(발사) [72].
 - (c-1) 맞음 1: Nixon speaking with astronauts on the Moon [60].
 
+### 표본 날짜 결과 표 (V2 — 키 없이 찾은 예시)
+
+`search.list` 는 키가 필요해 결과 수를 세지 못했다(PM 명령 Y2·Y3). 아래는 웹 검색(단서)으로 찾은 영상 ID를 YouTube oEmbed로 확인한 **존재 예시**이고 대표 표본이 아니다. "허용 채널"은 3.2절 공식 채널 표 3개다. 판정은 제목 기준이고 영상은 재생하지 않았다. oEmbed가 200과 iframe html을 줬다는 것이 임베드 허용의 공식 증거는 아니다(V2-12) — Y4로 `status.embeddable` 을 확인한다.
+
+| 날짜 (tone 예상) | 허용 채널 영상 (oEmbed 확인) | 날짜 단서 | 판정 | 허용 채널 밖 영상 (참고) |
+|---|---|---|---|---|
+| 1988-09-17 (normal) | KTV 아카이브 「대한뉴스 제1715호-서울 올림픽 개막」 `1CwplL71AKI` [120] | 제목에 날짜 없음. 1715호 제작연도 칸 1988-09-17 (archive-media.md [38]) → V5 색인으로 맞춤 | 맞음 (사건어 "서울 올림픽 개막") | Olympic Games 「Seoul 1988 - Opening Ceremony \| Seoul 1988 Replays」 `KeWSC7iCnpM` [124]. 부산MBC `hdLBbmu_its`(제목에 1988.09.17), 2024 강원 동계청소년올림픽 채널 `nPZ16kzPaL8`(명장면 편집) [127] |
+| 2002-06-22 (normal) | 키 없이 찾지 못함 | — | 미확인 (Y2) | JTBC Sports 「… 2002 FIFA 월드컵 한국/일본 \| 8강 연장전, 승부차기 \| 대한민국 VS 스페인」 `6Kr-_veieNw` [125] (방송사). 다른 방송사 영상 1건은 oEmbed 403 [126] |
+| 1995-03-15 | 사건 없음 | — | 해당 없음 | — |
+| 1950-06-25 (tragic) | 검색하지 않음 (M3a4 규칙) | — | 해당 없음 | — |
+| 1969-07-20 (normal) | KTV 아카이브 「대한뉴스 제736호-사람이 달에 내리다-아폴로 11호 제1신-」 `dcJ7U2Eg4VM` [121] | 제목에 날짜 없음. 검색 결과 설명에 "제작일 1969-07-26", 내용은 7월 16일 발사 장면이라는 단서(미확인) | 애매 (제목은 착륙, 단서상 내용은 발사·제작일은 6일 뒤) | NASA 채널 [114] (영상 미확인) |
+| 1986-09-20 (normal) | KTV 국민방송 「1986년 9월 20일 오늘 #제10회 #아시안게임 #개막」 `f1EG3w5l1Xc` [123]. KTV 아카이브 1986년 서울아시안게임 개막식 현장 영상 `4q5L1rZKOM0` [122] | 앞 영상은 제목에 사건 날짜. 뒤 영상은 연도와 "개막식"만 | 맞음 2 (앞 영상은 "오늘" 회고 편집물이라 촬영 시점 표기는 7절 R-Y3) | — |
+| 2000-02-29 (normal) | 키 없이 찾지 못함 | — | 미확인 (Y2) | — |
+| 2014-04-16 (tragic) | 검색하지 않음 | — | 해당 없음 | — |
+
 ### 데모 입력 판단
 
 | 데모 입력 (12절) | 출처 | 얻을 수 있는 것 | 얻을 수 없는 것 | 근거 | 확신도 |
@@ -200,10 +368,15 @@
 | 1988-09-17 + 서울 | Commons 동영상 | 없음 | 올림픽 개막식 영상 (모든 경로 0건, 개막식 범주는 사진 5장뿐) | [25][26][35]~[39][54][64][71], day-events.md [50] | 확인됨 |
 | 2002-06-22 + 광주 서구 풍암동 | Commons 동영상 | 없음 | 한국-스페인전 영상 | [29][31][42][43][45][53][65][73] | 확인됨 |
 | 1995-03-15 + 서울대학교병원 | Commons 동영상 | 없음 (사건 없음) | — | [18][68][75] | 확인됨 |
+| 1988-09-17 + 서울 | YouTube 공식 채널 | KTV 아카이브 대한뉴스 제1715호 "서울 올림픽 개막" 임베드 (존재·채널 확인, 임베드 허용은 Y4) | 개막식 전체 중계(허용 채널 밖 Olympic Games 채널에 있음, Y-D1) | [120][124], archive-media.md [38] | 부분 확인 (PM 호출 대기) |
+| 2002-06-22 + 광주 서구 풍암동 | YouTube 공식 채널 | 미확인 (Y2) | 허용 채널에서 찾은 영상 없음. 방송사 영상은 허용 채널 밖 | [125] | 미확인 |
+| 1995-03-15 + 서울대학교병원 | YouTube 공식 채널 | 없음 (사건 없음) | — | [18] | 확인됨 |
 
 ## 6. PM이 실행할 확인 명령
 
-키가 필요한 명령은 없다. 아래 두 명령은 **브라우저 핫링크 재생이 기술적으로 막히지 않는지**(V1-10의 미확인 부분)를 서버 밖에서 한 번 확인하는 것이다. 파일 앞 1 KB만 받는다. 결과 파일은 저장소에 두지 않는다(`-o /dev/null`).
+### 6.1 V1 Commons (키 없음)
+
+V1에는 키가 필요한 명령이 없다. 아래 두 명령은 **브라우저 핫링크 재생이 기술적으로 막히지 않는지**(V1-10의 미확인 부분)를 서버 밖에서 한 번 확인하는 것이다. 파일 앞 1 KB만 받는다. 결과 파일은 저장소에 두지 않는다(`-o /dev/null`).
 
 ```bash
 # 근거: [7] Commons 외부 재사용 안내(핫링크 가능·비권장), [80] 변환본 주소
@@ -222,6 +395,76 @@ curl -sS -o /dev/null -A "$WIKIMEDIA_USER_AGENT" -H "Referer: http://localhost:5
 ```
 
 브라우저의 WebM·VP9 재생 지원(특히 iOS Safari)은 이 작업 범위 밖이다. 변환본에 360p QuickTime(mp4v) 항목이 있다는 것만 확인했다 [79][80]. TimedMediaHandler 문서는 이 형식을 iOS 17.4 이전 기기용 대체본이라고 설명한다 [5]. 실제 재생은 M3b3에서 확인한다.
+
+### 6.2 V2·V3 YouTube Data API (PM이 키 발급 후 실행)
+
+**키 발급 절차 (PM, 공식 문서 수준).** 에이전트는 이 절차를 실행하지 않았다.
+
+1. Google Cloud 콘솔에서 이 서비스 전용 프로젝트를 하나 만든다. 개발자 정책은 서비스 하나에 API 프로젝트를 정확히 하나 두라고 한다(III.D.1.c) [98]. 시작 안내는 Google 계정과 콘솔 프로젝트가 필요하다고 적는다 [84].
+2. "API 및 서비스 → 라이브러리"에서 **YouTube Data API v3** 를 사용 설정한다. 사용 설정 페이지에 있어야 한다 [84].
+3. "API 및 서비스 → 사용자 인증 정보 → 사용자 인증 정보 만들기 → **API 키**" [94][95]. "서비스 계정을 통해 API 호출 인증" 옵션은 고르지 않는다. 선택 사항이고 우리 용도가 아니다 [95].
+4. **API 제한사항**: "키 제한"에서 YouTube Data API v3 하나만 고른다. 콘솔에서는 API 제한을 하나 이상 넣어야 키가 만들어진다 [95].
+5. **애플리케이션 제한사항**: 서버 키이므로 "IP 주소"(배포 서버 IP, IPv4·IPv6·CIDR) [95]. "웹사이트"(HTTP 리퍼러) 제한은 브라우저용이라 서버 호출에는 맞지 않는다. 로컬 개발 PC는 IP가 바뀔 수 있으니 로컬에서는 API 제한만 두는 방식은 PM이 정한다.
+6. 값은 루트 `.env` 의 `YOUTUBE_API_KEY` 에만 둔다(서버 전용, `VITE_` 금지). 공개 저장소에 키를 넣으면 개발자 정책 위반이다(III.D.1.d) [98].
+7. 약관: API 서비스 약관은 API를 이용하면 동의한 것으로 보고(§2.2), 조직을 대신하면 그 조직을 대표할 권한이 있다고 본다(§3.3) [97]. 동의 주체는 PM이다. 콘솔이 별도 동의 화면을 띄우는지, 결제 계정을 요구하는지는 문서에서 확인하지 못했다(미확인).
+8. 쿼터 확인: 콘솔 "할당량" 페이지에서 `search.list` 하루 100회 버킷과 일반 10,000단위 버킷이 보이는지 본다 [83].
+
+**확인 명령.** bash 기준(zsh에서는 먼저 `bash` 실행). `.env` 의 값을 셸 환경변수 `YOUTUBE_API_KEY` 로 불러온 상태에서 실행한다. 키는 URL에 넣지 않고 `x-goog-api-key` 헤더로 보낸다 [96]. `jq` 가 필요하다. 출력에는 키가 들어가지 않는다. 예상 사용량: 검색 버킷 9회, 일반 버킷 5단위. 날짜·검색어는 계획서 표본만 쓴다(`tragic` 날짜 제외).
+
+```bash
+# 근거: [92] channels.list (forHandle 은 @ 붙여도 됨, 1단위), [85] search.list (검색 버킷 1회), [86][87] videos.list (1단위)
+YT=https://www.googleapis.com/youtube/v3
+
+# Y1 — 기관 누리집이 링크한 핸들·사용자명 → 채널 ID, 업로드 목록, 영상 수, 채널 설명 (4단위)
+for h in @KTV_archive @KTV_korea @NAK.archiveson; do
+  curl -sS -G "$YT/channels" -H "x-goog-api-key: $YOUTUBE_API_KEY" \
+    --data-urlencode "part=id,snippet,contentDetails,statistics" --data-urlencode "forHandle=$h" \
+  | jq --arg h "$h" '{handle:$h, error:.error.message, items:[.items[]? | {id, title:.snippet.title, customUrl:.snippet.customUrl, uploads:.contentDetails.relatedPlaylists.uploads, videoCount:.statistics.videoCount, description:(.snippet.description[0:300])}]}'
+done
+curl -sS -G "$YT/channels" -H "x-goog-api-key: $YOUTUBE_API_KEY" \
+  --data-urlencode "part=id,snippet" --data-urlencode "forUsername=chKTV520" \
+| jq '{user:"chKTV520", error:.error.message, items:[.items[]? | {id, title:.snippet.title, customUrl:.snippet.customUrl}]}'
+# 확인할 것: (1) id 가 3.2절 후보 UC8_LPVE4Yuc6KF0opF6uS_w / UCIMOytYIzaUpoAM2bpT4JZQ / UCtk3SPfRDV8VFGQnR7FfsKQ 와 같은지
+# (2) chKTV520 과 @KTV_korea 가 같은 id 인지 (3) KTV 아카이브 description 의 이용 제한 문구 (4) videoCount (Y-c 색인 비용 추정)
+
+# Y2 — 채널 한정 검색 (검색 버킷 8회). Y1 id 가 후보와 다르면 아래 값을 Y1 값으로 바꾼다
+ARCHIVE=UC8_LPVE4Yuc6KF0opF6uS_w
+KTV=UCIMOytYIzaUpoAM2bpT4JZQ
+NAK=UCtk3SPfRDV8VFGQnR7FfsKQ
+yt_search () {  # $1 채널 ID (빈 문자열이면 채널 한정 없음), $2 검색어
+  local ch=()
+  if [ -n "$1" ]; then ch=(--data-urlencode "channelId=$1"); fi
+  curl -sS -G "$YT/search" -H "x-goog-api-key: $YOUTUBE_API_KEY" \
+    --data-urlencode "part=snippet" --data-urlencode "type=video" --data-urlencode "videoEmbeddable=true" \
+    --data-urlencode "maxResults=25" --data-urlencode "regionCode=KR" --data-urlencode "relevanceLanguage=ko" \
+    "${ch[@]}" --data-urlencode "q=$2" \
+  | jq --arg q "$2" '{q:$q, total:.pageInfo.totalResults, error:.error.errors[0].reason, items:[.items[]? | {id:.id.videoId, ch:.snippet.channelTitle, chId:.snippet.channelId, title:.snippet.title, published:.snippet.publishedAt}]}'
+}
+yt_search "$ARCHIVE" "서울 올림픽 개막"              # 1988-09-17
+yt_search "$KTV"     "1988년 9월 17일 서울올림픽"
+yt_search "$NAK"     "서울올림픽"
+yt_search "$ARCHIVE" "아시안게임 개막"                # 1986-09-20
+yt_search "$KTV"     "1986년 9월 20일 아시안게임"
+yt_search "$ARCHIVE" "아폴로 11호"                    # 1969-07-20
+yt_search "$KTV"     "2002 월드컵 스페인"              # 2002-06-22
+yt_search "$ARCHIVE" "지하철 7호선 개통"               # 2000-02-29
+
+# Y3 — 채널 한정 없이 1회 검색 후 허용 채널만 남기는 방식(Y-b)이 쓸 만한지 (검색 버킷 1회)
+yt_search "" "1988 서울올림픽 개막식"
+# 확인할 것: 상위 25개 중 chId 가 ARCHIVE/KTV/NAK 인 결과 수
+
+# Y4 — 임베드·공개·지역·연령·촬영일 확인 (1단위). Y2·Y3에서 맞아 보이는 ID를 IDS 뒤에 쉼표로 더한다
+IDS=1CwplL71AKI,dcJ7U2Eg4VM,4q5L1rZKOM0,f1EG3w5l1Xc,KeWSC7iCnpM,x_HVvF-A5OY
+curl -sS -G "$YT/videos" -H "x-goog-api-key: $YOUTUBE_API_KEY" \
+  --data-urlencode "part=snippet,status,contentDetails,recordingDetails" --data-urlencode "id=$IDS" \
+| jq '{error:.error.message, items:[.items[]? | {id, ch:.snippet.channelTitle, title:.snippet.title, published:.snippet.publishedAt, recorded:.recordingDetails.recordingDate, embeddable:.status.embeddable, privacy:.status.privacyStatus, license:.status.license, kids:.status.madeForKids, duration:.contentDetails.duration, region:.contentDetails.regionRestriction, age:.contentDetails.contentRating.ytRating, desc:(.snippet.description[0:200])}]}'
+# 확인할 것: (1) embeddable (특히 oEmbed 403이 난 x_HVvF-A5OY) (2) recorded 가 있는지, 있으면 업로드일인지 촬영일인지
+# (3) 대한뉴스 설명에 "제작일" 이 적혀 있는지 (4) 응답에 없는 ID (삭제·비공개)
+
+# Y5 — 콘솔 "API 및 서비스 → YouTube Data API v3 → 할당량"에서 사용량이 검색 9회 / 일반 5단위 근처인지 확인 (명령 없음)
+```
+
+결과 전달: 출력(JSON)을 data-researcher에게 주면 3.2절 채널 ID, 5절 V2 표, 자동 검색 경로 표의 확신도를 "확인됨"으로 갱신한다(M3a5 T0 완료 기준). 출력에는 키가 없지만, 혹시 오류 메시지에 키 일부가 보이면 그 줄은 빼고 준다.
 
 ## 7. 이 영역 추천안
 
@@ -246,6 +489,27 @@ curl -sS -o /dev/null -A "$WIKIMEDIA_USER_AGENT" -H "Referer: http://localhost:5
 | R-V8 | (없음) | 대표 링크가 사건이 아닐 수 있다(V7-5). 줄 안의 링크 중 QID의 P585/P580이 사건 날짜와 같은 것을 우선하는 방안을 planner가 검토 | [13][17][22][23] |
 | R-V9 | `tragic` 사건은 영상 찾지 않음 | 유지. 6·25 검색 결과에 전쟁 기록 영상이 섞인다 | [50][51] |
 
+### V2·V3·V4 추천안 (T2, 최종 추천은 T5)
+
+- 1순위 (YouTube 안에서): **(Y-a) KTV 아카이브 채널 한정 `search.list`**(`q` = 사건 대표 링크 제목, `type=video`, `videoEmbeddable=true`) → **(Y-d) `videos.list` 한 번으로 묶어 확인** → 대한뉴스 제목이면 회차 번호로 V5 색인 날짜 대조. 사건 하나당 검색 1회 + 일반 1단위. 국내 사건 기록 영상이 이 채널에 있다는 것은 확인했다 [120][122].
+- 다음 채널(KTV 국민방송, 국가기록원기록온)을 더할지는 Y2 결과로 정한다. 채널 하나를 더할 때마다 사건당 검색 1회가 늘어난다.
+- 대안: (Y-b) 채널 한정 없는 1회 검색은 Y3에서 허용 채널 결과가 상위에 충분히 나올 때만. (Y-c) 업로드 목록 색인은 검색 버킷을 쓰지 않지만 "제한된 양" 해석(Y-D3)이 정해진 뒤에만.
+- 임베드: 3.2절 V4 카드의 제안 주소(`autoplay`·`mute` 없이, `origin` 포함)와 IFrame API로 50% 넘게 보일 때 `mute()`→`playVideo()`, 한 화면에 하나만. 재생 오류(101/150 등)면 숨김.
+- 쓰지 않음: 서버에서 oEmbed로 임베드 가능 여부를 자동 판정하는 것(공식 근거 없음, V2-12). 허용 채널 밖 영상(M3-P14).
+- 하루 처리량 추정(검색 버킷 100회, 80%인 80회를 상한으로 볼 때): 채널 1개면 사건 80개, `normal` 사건이 날짜당 최대 3개면 **새 날짜 약 26개/일**. 채널 3개면 사건 26개 → **새 날짜 약 8~9개/일**. 캐시(최대 30일) 안의 같은 날짜는 0회. 일반 버킷(10,000)은 `videos.list` 가 사건당 1단위라 사실상 남는다. T5가 최종 표로 정리한다.
+
+### 정확도 규칙 제안 — YouTube (M3a4·M3a5 계획서와 대조, V2 근거)
+
+| # | 현재 (M3a4·M3a5) | 제안 | 근거 |
+|---|---|---|---|
+| R-Y1 | 촬영 시점은 제목·설명에 명시된 날짜만, `publishedAt` 은 쓰지 않음 | 유지. `recordingDetails.recordingDate` 는 Commons R-V3과 같은 규칙(사건 날짜보다 늦으면 `null`)으로만 쓴다 | [87][88] |
+| R-Y2 | 대한뉴스는 `approx` | 제목 형식 "대한뉴스 제NNNN호-<꼭지 제목>" 에서 회차 번호를 읽어 V5 색인의 제작일과 대조한다. 회차 번호가 없으면 날짜 일치 점수를 주지 않는다 | [120][121], archive-media.md [38] |
+| R-Y3 | (없음) | KTV 국민방송의 "YYYY년 M월 D일 오늘 …" 제목은 사건 날짜를 적은 회고 편집물이다. 날짜 일치로는 보되, 촬영 시점을 `day` 로 표기할지는 planner·PM이 정한다(편집물이라 그날 찍은 장면만인지 모름). 제안: `captured_at` 은 비우고 "촬영 시점 미상"으로 표시 | [123] |
+| R-Y4 | 허용 채널 대조 | 채널 이름(`channelTitle`)이 아니라 채널 ID(`channelId`)로 대조한다. 이름은 같은 이름의 다른 채널과 섞일 수 있다 | [88] |
+| R-Y5 | `status.embeddable` 이 true인 것만 | 추가로 `privacyStatus=public`, `regionRestriction` 에 KR 차단 없음, `ytRating` 이 `ytAgeRestricted` 아님. 재생 오류는 웹에서 숨김 | [87][103][104] |
+| R-Y6 | 대한뉴스 가장 가까운 회차 ±7일, `approx` | 대한뉴스 "제1신"처럼 다른 날 장면이 섞인 보도 회차가 나온다(제736호는 착륙 제목이지만 단서상 발사 장면, 제작일은 6일 뒤). ±7일 규칙으로는 붙는다. `approx`(그 무렵) 표기로 충분한지, 꼭지 제목의 사건어 일치를 필수로 둘지 planner가 검토 | [121] |
+| R-Y7 | (없음) | 길이 상한(R-V7)을 `contentDetails.duration` 에도 적용한다 | [87] |
+
 ## 8. 위험
 
 1. **국내 사건 영상이 거의 없다** — 표본의 국내 사건 4개 날짜 모두 0건. Commons 동영상만으로는 "그날의 사건" 영상이 대부분 비어 보인다(정상 결과이지만 사용자 기대와 다를 수 있음). M3a5 경로가 필요하다.
@@ -257,11 +521,30 @@ curl -sS -o /dev/null -A "$WIKIMEDIA_USER_AGENT" -H "Referer: http://localhost:5
 7. **"맞음" 판정 한계** — 제목·설명으로만 판정했고 영상을 보지 않았다. 잔혹한 장면 여부도 제목으로만 봤다.
 8. **약관 해석은 법률 자문이 아니다.**
 
+V2·V3·V4 위험 (T2):
+
+9. **`search.list` 하루 100회** — 2026-06-01 세분 쿼터로 생긴 제한이다 [89]. 사용자가 많거나 처음 보는 날짜가 많으면 그날 YouTube 영상이 빠진다(오류가 아니라 정상 동작으로 처리). 증설은 준수 감사가 필요하고 기간이 정해져 있지 않다 [90].
+10. **"확인됨" 전에는 구현할 수 없다** — Data API 경로는 PM 키 호출(6.2절) 전까지 부분 확인이다(`CLAUDE.md` 7절 2항). M3a5 T0이 선행이다.
+11. **채널 ID 오인** — 후보 ID는 이름 일치까지만 확인했다. 같은 이름의 다른 채널일 가능성을 Y1이 없앤다.
+12. **임베드 허용이어도 막힐 수 있다** — 공식 문서가 Content ID 등을 이유로 적는다 [87]. 웹의 `onError` 숨김 처리가 없으면 화면에 오류 플레이어가 남는다.
+13. **플레이어 크기·겹치기 규칙** — 200×200 미만이나 플레이어 위 캡션·버튼 겹치기는 정책 위반이다 [100]. 결과 화면 디자인(M3b1·M3b3)에 영향을 준다.
+14. **`autoplay=1&mute=1` 주소** — `mute` 는 공식 매개변수가 아니고 [102], `autoplay=1` 은 "절반 넘게 보이기 전 자동 재생 금지"를 어길 수 있다 [100]. 지금 M3a5·M3b3 계획서 값이다.
+15. **nocookie + IFrame API 조합** — 공식 문서에 없다 [103][104]. 안 되면 `www.youtube.com/embed` 로 바꾸거나 개인정보 보호 강화 모드를 포기해야 한다(M3b3 확인).
+16. **기관 이용 조건** — e영상역사관은 온라인 자료 저작권이 한국정책방송원에 있다고 적고 [112], KTV 아카이브 채널 설명에 무단사용 금지 문구가 있다는 단서가 있다. YouTube 임베드는 YouTube 이용약관이 허용하는 방식이지만 [105], 기관의 뜻과 다르게 읽힐 수 있다(Y-D4).
+17. **약관 개정** — API 서비스 약관·개발자 정책은 2026-09-14에 갱신됐고, 변경은 게시 30일 뒤부터 효력이 있다(§2.3) [97]. 구현 직전에 다시 본다.
+
 ## 9. 제품 정의서 가정과 다른 점
 
 (최종본은 T5. V1 결과만.)
 
 - 1절 한 줄 설명·5절의 "그날 … 짧은 영상": Commons 자동 검색으로는 표본의 국내 사건 날짜에서 영상을 하나도 얻지 못했다. 세계 사건(1969-07-20)만 얻었다. 또 Commons 영상은 "짧은" 영상이 아닐 수 있다(3시간 16분 파일).
+
+V2·V3·V4 결과 (T2):
+
+- 제품 정의서 6.2절·계획서에는 YouTube Data API를 쓸 때 생기는 **서비스 전체 의무**가 없다: YouTube 이용약관 링크와 "이용하면 YouTube 약관에 동의" 문구(III.A.1), 개인정보처리방침(상시 접근, YouTube API 사용 고지, Google 개인정보처리방침 링크)(III.A.2), YouTube 출처 표시(III.F.2.a) [98][101]. 화면(바닥글·정책 페이지)에 넣을 일이 생긴다.
+- 6.2절 "영상은 화면에 보이면 음소거로 자동 재생"은 YouTube 정책과 맞는다. 다만 YouTube는 **절반 넘게 보일 때**, **한 화면에 하나만**을 요구한다 [100]. 플레이어는 **200×200 이상**이어야 한다 [100].
+- M3a5 계획서 가정과 다른 점: (1) 쿼터 예산 "기본 10,000의 80% = 8,000단위"는 `search.list` 에 맞지 않는다 — `search.list` 는 별도 버킷 하루 100회다 [83][89]. 설정값을 검색 횟수 상한(예: 80회)과 일반 단위 상한으로 나눠야 한다. 초기화 시각은 태평양 시간 자정 [83]. (2) 임베드 주소의 `autoplay=1&mute=1` (3.2절 V4 카드의 제안 주소 참조). (3) 결과 캐시 TTL 상한은 30일 [98]. M3a4의 7일은 그 안이다.
+- M3b3 계획서의 "`postMessage` 로 일시정지·재생": 원시 메시지 형식은 문서에 없다. IFrame API 스크립트(`YT.Player`)를 쓰는 것이 공식 방식이다 [103].
 
 ## 10. PM 결정 필요
 
@@ -271,6 +554,14 @@ curl -sS -o /dev/null -A "$WIKIMEDIA_USER_AGENT" -H "Referer: http://localhost:5
 2. **V1-D2 촬영일이 사건보다 늦은 기록 영상 처리** — (a) 버림, (b) 사건 범주 직속·P10이면 "촬영 시점 미상"으로 표시하고 붙임, (c) 설명문 날짜를 촬영일로 씀. **추천 (b)**: 6.1절을 지키면서 맞는 영상(예: 달 착륙 복원 영상)을 살린다. (c)는 설명문 해석이 틀릴 위험이 있다.
 3. **V1-D3 영상 길이 상한** — (a) 10분, (b) 30분, (c) 상한 없음(작은 변환본만 재생). **추천 (a)**: "짧은 영상"이라는 제품 정의와 모바일 용량.
 4. **V1-D4 Commons에 자유 라이선스로 올라온 언론사 영상(예: 뉴스타파)** — 안전장치 3(통신사·언론사 자료는 공식 임베드로만)이 이런 파일에도 적용되는지 해석이 애매하다(근거: `docs/plans/m3a3-event-media.md` "안전장치" 3항, `CLAUDE.md` 7절 1항 네 번째 줄). (a) 자유 라이선스이므로 허용, (b) 언론사 이름을 `media.excluded-credits` 에 더해 제외. **추천 (a)**, 단 권리자 요청 시 차단 목록으로 대응. 이 해석은 법률 자문이 아니다. 표본에서 이런 파일은 `tragic` 날짜에만 나와 지금 화면에 영향은 없다.
+
+V2·V3·V4에서 나온 질문 (T2). 다음 리서치 작업(T3·T4)을 막는 것은 없다. T5 요약에 모은다.
+
+5. **Y-D1 허용 채널 범위** — (a) KTV 아카이브 하나, (b) KTV 아카이브 + KTV 국민방송 + 국가기록원기록온, (c) (b) + 국제 공식 채널(NASA, Olympic Games 등, M3-P14 변경 필요). **추천 (a)로 시작하고 Y2 결과로 (b)를 검토**: 국내 사건 기록 영상이 KTV 아카이브에 있고 [120][122], 채널마다 사건당 검색 1회가 늘어난다. 방송사 채널은 안전장치 3 해석 문제가 있어 넣지 않는 것을 추천.
+6. **Y-D2 하루 100회 검색 제한 대응** — (a) 채널 한정 검색 + 결과 캐시(최대 30일), 넘으면 그날은 건너뜀, (b) 채널 한정 없는 1회 검색 후 거르기(Y3 결과에 달림), (c) 업로드 목록 색인(Y-D3에 달림), (d) 준수 감사 후 쿼터 증설 신청(PM 작업, 기간 미정). **추천 (a)**, 공개 배포(#5)를 정할 때 (d).
+7. **Y-D3 약관 해석: 데이터 모으기·합치기와 "제한된 양"** — 개발자 정책 III.E.2.a(같은 콘텐츠 소유자의 채널 데이터만 모을 수 있다), 정책 안내서의 "YouTube API 데이터를 다른 데이터와 합치지 말 것", III.E.4.d의 "제한된 양을 임시로" [98][99]. 우리 화면은 여러 공식 채널의 검색 결과를 Commons·위키백과 자료와 한 화면에 보여 준다. 안내서는 "다른 플랫폼 영상과 함께 YouTube 영상을 보여 주는 검색 엔진"을 허용 예로 들고 출처를 구분하라고 한다 [99]. 내 읽기로는 III.E.2는 통계·분석 데이터를 모으는 것을 겨냥한 조항으로 보이지만 확정할 수 없다. (a) 출처를 분명히 구분해 보여 주는 지금 설계로 진행, (b) YouTube 영상은 별도 묶음으로만 보여 줌, (c) Google에 문의. 업로드 목록 전체 색인(Y-c)은 "제한된 양"을 넘는다고 볼 수 있어 (a)여도 쓰지 않는 것을 추천. 이 해석은 법률 자문이 아니다.
+8. **Y-D4 기관의 이용 조건과 임베드** — e영상역사관 영상자료 이용 안내("온라인을 통해 제공하는 모든 자료에 대한 저작권은 한국정책방송원에 있습니다") [112], KTV 저작권정책(공공누리 표시 없는 자료는 문의) [110], KTV 아카이브 채널 설명의 무단사용 금지 문구(단서, Y1로 확인). (a) YouTube 이용약관의 임베드 허용과 업로더의 퍼가기 허용 설정을 근거로 비상업 임베드 진행, (b) KTV 아카이브팀(ktvarchive@korea.kr, 영상은 nanuri@ktv.go.kr)에 서면 확인 후 진행. **추천 (a) + 차단 목록 대비**, 공개 배포 전에는 (b). 이 해석은 법률 자문이 아니다.
+9. **Y-D5 서비스 의무 반영 위치** — YouTube 이용약관 링크·개인정보처리방침·YouTube 출처 표시를 어느 기능에서 만들지(M3b3 또는 별도 기능). planner가 계획에 넣도록 PM이 정한다.
 
 ## 11. 근거 링크
 
@@ -358,5 +649,53 @@ curl -sS -o /dev/null -A "$WIKIMEDIA_USER_AGENT" -H "Referer: http://localhost:5
 | 80 | https://commons.wikimedia.org/w/api.php?action=query&titles=File:AP11_FINAL_APPROACH.ogv&prop=videoinfo&viprop=url%7Csize%7Cmime%7Cmediatype%7Cderivatives%7Cextmetadata&viurlwidth=320&viextmetadatafilter=DateTimeOriginal%7CLicenseShortName%7CLicenseUrl%7CArtist%7CCredit%7CImageDescription%7CAttributionRequired%7CUsageTerms%7CRestrictions%7CNonFree&format=json&formatversion=2 | Commons videoinfo 실제 응답 — AP11 FINAL APPROACH (변환본 3개, 320 요청 → 250px 포스터, 촬영일 1969-07-20) | 2026-10-10 |
 | 81 | https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%20deepcat%3A%22Apollo%2011%22%20insource%3A%221969-07-20%22&srnamespace=6&srlimit=50&format=json | Commons 검색 — deepcat Apollo 11 + insource "1969-07-20" (7건) | 2026-10-11 |
 | 82 | https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=filetype%3Avideo%20incategory%3A%22Apollo%2011%22&gsrnamespace=6&gsrlimit=10&prop=imageinfo&iiprop=url%7Csize%7Cmime%7Cextmetadata&iiurlwidth=330&iiextmetadatafilter=DateTimeOriginal%7CLicenseShortName%7CArtist&format=json&formatversion=2 | Commons 검색 생성기 + imageinfo 실제 응답 — 한 번에 5개 파일의 원본·포스터(330px)·길이·라이선스·촬영일 (업로드일이 촬영일 자리에 든 예 3개, 3시간 16분·622 MB 파일) | 2026-10-11 |
+| 83 | https://developers.google.com/youtube/v3/determine_quota_cost | YouTube Data API — 쿼터 비용 표 (`search.list`·`videos.insert` 별도 버킷 하루 100회·호출당 1, 그 밖 합계 10,000단위, `videos.list`·`channels.list`·`playlistItems.list` 1, 태평양 시간 자정 초기화, 다음 페이지도 비용, 잘못된 요청도 최소 1, 2026-10-08 갱신) | 2026-10-11 |
+| 84 | https://developers.google.com/youtube/v3/getting-started | YouTube Data API — 시작 안내 (Google 계정·콘솔 프로젝트, API 사용 설정, 기본 할당 100/100/10,000, 2026-09-14 갱신) | 2026-10-11 |
+| 85 | https://developers.google.com/youtube/v3/docs/search/list | `search.list` (하루 100회, `channelId` 는 그 채널 리소스만·`type=video` 면 최대 500개, `videoEmbeddable` 은 `type=video` 필수, `q` 의 `-`·`\|` 연산자, `maxResults` 0~50, `totalResults` 는 근삿값, 2026-09-14 갱신) | 2026-10-11 |
+| 86 | https://developers.google.com/youtube/v3/docs/videos/list | `videos.list` (1단위, `id` 쉼표 목록·최대 개수 없음, `part` 15개, 2026-09-14 갱신) | 2026-10-11 |
+| 87 | https://developers.google.com/youtube/v3/docs/videos | `videos` 리소스 (`status.embeddable` 과 Content ID 등으로 여전히 막힐 수 있다는 주석, `publishedAt`, `recordingDetails.recordingDate`, `duration`, `regionRestriction`, `ytRating`, `thumbnails` 크기, `license`, `madeForKids`, 2026-10-08 갱신) | 2026-10-11 |
+| 88 | https://developers.google.com/youtube/v3/docs/search | `search` 리소스 (`id.videoId`, `snippet.publishedAt`·`channelId`·`channelTitle`·`title`·`description`·`thumbnails`, 임베드 필드 없음, 2026-09-14 갱신) | 2026-10-11 |
+| 89 | https://developers.google.com/youtube/v3/revision_history | YouTube Data API 개정 이력 (2026-06-01 세분 쿼터: `videos.insert`·`search.list` 별도 버킷, 증설은 Quota Extension Form) | 2026-10-11 |
+| 90 | https://developers.google.com/youtube/v3/guides/quota_and_compliance_audits | 쿼터·준수 감사 (증설 전 감사, Audit and Quota Extension Form, 기간 미정, 2026-09-14 갱신) | 2026-10-11 |
+| 91 | https://developers.google.com/youtube/v3/docs/errors | YouTube Data API 오류 (`quotaExceeded` 403, `forbidden` 403, 2026-09-14 갱신) | 2026-10-11 |
+| 92 | https://developers.google.com/youtube/v3/docs/channels/list | `channels.list` (1단위, `forHandle` 은 `@` 붙여도 됨, `forUsername`, `id` 쉼표 목록, 2026-09-14 갱신) | 2026-10-11 |
+| 93 | https://developers.google.com/youtube/v3/docs/playlistItems/list | `playlistItems.list` (1단위, `maxResults` 0~50, 업로드 재생목록 예제, 2026-09-14 갱신) | 2026-10-11 |
+| 94 | https://developers.google.com/youtube/registering_an_application | 사용자 인증 정보 (Create credentials > API key, OAuth 토큰이 없는 요청은 API 키, 키 제한 권장, 2026-09-14 갱신) | 2026-10-11 |
+| 95 | https://docs.cloud.google.com/docs/authentication/api-keys | Google Cloud — API 키 관리 (만들기 절차, 콘솔은 API 제한 하나 이상 필수, 애플리케이션 제한 웹사이트/IP 주소, 서비스 계정 결합은 선택). cloud.google.com 주소에서 301 이동 | 2026-10-11 |
+| 96 | https://docs.cloud.google.com/docs/authentication/api-keys-use | Google Cloud — API 키 사용 (`x-goog-api-key` 헤더 권장, `key=` 는 URL 노출 위험, 2026-10-09 갱신) | 2026-10-11 |
+| 97 | https://developers.google.com/youtube/terms/api-services-terms-of-service | YouTube API 서비스 약관 (§2.2 동의, §2.3 변경 30일, §3.3 조직, §10.3 브랜드 표시, §15 쿼터, §24 종료, 비상업 조항 없음, 2026-09-14 갱신) | 2026-10-11 |
+| 98 | https://developers.google.com/youtube/terms/developer-policies | YouTube API 개발자 정책 (III.A.1·2 약관 링크·개인정보처리방침, III.D.1 키, III.D.3 증설, III.D.4 90일, III.E.1.a 영상 저장 금지, III.E.2 Data Aggregation, III.E.4.d 30일, III.E.4.j 아동용, III.F.2 출처, III.F.3 유료화 금지, III.G 광고, III.I.4·5·6·7·21 플레이어, 2026-09-14 갱신) | 2026-10-11 |
+| 99 | https://developers.google.com/youtube/terms/developer-policies-guide | 개발자 정책 안내서 (데이터 합치기 금지 예, 다른 플랫폼과 함께 보여 주는 검색 엔진 허용 예, 동의·재생 조작 오버레이 허용 예, 관련 영상 차단 금지, 2026-09-14 갱신) | 2026-10-11 |
+| 100 | https://developers.google.com/youtube/terms/required-minimum-functionality | 필수 최소 기능 (뷰포트 200×200, 플레이어 앞 오버레이 금지, 절반 넘게 보일 때만 자동 재생, 자동 재생 플레이어 하나만, 썸네일 120×70, `HTTP Referer` 식별, 2026-09-14 갱신) | 2026-10-11 |
+| 101 | https://developers.google.com/youtube/terms/branding-guidelines | YouTube 브랜드 가이드 (API가 있는 페이지에 로고, 혼합 출처는 YouTube 아이콘, 로고는 YouTube로 링크, 가리거나 바꾸지 않음, 2025-08-20 갱신) | 2026-10-11 |
+| 102 | https://developers.google.com/youtube/player_parameters | 플레이어 매개변수 (지원 매개변수 21개에 `mute` 없음, `autoplay`, `playsinline`, `enablejsapi`, `origin`, `rel` 2018 변경, 200×200, 2026-09-16 갱신) | 2026-10-11 |
+| 103 | https://developers.google.com/youtube/iframe_api_reference | IFrame Player API (`iframe_api` 스크립트, `postMessage` 지원 필요, 기존 iframe에 `YT.Player`, `mute()`·`playVideo()`·`pauseVideo()`, `onAutoplayBlocked`, `onError` 2·5·100·101·150·153, `origin` 권장, 원시 postMessage·nocookie·`host` 언급 없음, 2026-09-29 갱신) | 2026-10-11 |
+| 104 | https://support.google.com/youtube/answer/171780?hl=en | YouTube 고객센터 — 동영상 퍼가기 (개인정보 보호 강화 모드 `youtube-nocookie.com`, 비개인화 광고, 자동 재생 임베드는 조회수 미반영, "퍼가기 허용" 설정, 연령 제한 영상, 오류 153). 갱신일 표시 없음 | 2026-10-11 |
+| 105 | https://www.youtube.com/t/terms | YouTube 이용약관 (임베드 가능한 플레이어로 영상 표시 허용, 다른 사용자에게 서비스를 통한 접근 허락, 자동화된 수단 접근 제한, 2022-01-05 시행본) | 2026-10-11 |
+| 106 | https://oembed.com/ | oEmbed 명세 (401 = 비공개 리소스, 404, YouTube 요청 예시) — YouTube 공식 문서 아님 | 2026-10-11 |
+| 107 | https://www.ktv.go.kr/ | KTV 국민방송 누리집 첫 화면 (바닥글 "유튜브" → `youtube.com/user/chKTV520`) | 2026-10-11 |
+| 108 | https://m.ktv.go.kr/etc/channel | KTV 모바일 채널안내 ("KTV 유튜브" → `m.youtube.com/user/chKTV520`) | 2026-10-11 |
+| 109 | https://www.ktv.go.kr/online/social | KTV 누리집 "KTV 유튜브" 메뉴 (`youtube.com/user/chKTV520`) | 2026-10-11 |
+| 110 | https://www.ktv.go.kr/guide/copyright | KTV 저작권정책 (공공누리 유형별 조건, 표시 없는 자료는 문의 044-204-8468·ktvarchive@korea.kr) | 2026-10-11 |
+| 111 | https://www.ehistory.go.kr/ | e영상역사관 첫 화면 (관련사이트 "유튜브(KTV 아카이브)" → `youtube.com/@KTV_archive`) | 2026-10-11 |
+| 112 | https://www.ehistory.go.kr/info/announce?tab=2 | e영상역사관 영상자료 이용 안내 (나누리 신청, 온라인 자료 저작권은 한국정책방송원, 아카이브팀 연락처) | 2026-10-11 |
+| 113 | http://www.archives.go.kr/next/viewMainNew.do | 국가기록원 첫 화면 (바닥글 "국가기록원 유튜브" → `youtube.com/c/국가기록원기록온/videos`). archives.go.kr 에서 302 이동 | 2026-10-11 |
+| 114 | https://www.nasa.gov/ | NASA 첫 화면 ("Follow NASA" → `youtube.com/@NASA`) | 2026-10-11 |
+| 115 | https://query.wikidata.org/sparql?format=json&query=SELECT%20%3Fitem%20%3Flabel%20%3Fyt%20WHERE%20%7B%20%3Fitem%20wdt%3AP2397%20%3Fyt%20.%20%3Fitem%20rdfs%3Alabel%20%3Flabel%20.%20FILTER(LANG(%3Flabel)%3D%22ko%22)%20FILTER(CONTAINS(%3Flabel%2C%22%EA%B5%AD%EA%B0%80%EA%B8%B0%EB%A1%9D%EC%9B%90%22)%20%7C%7C%20CONTAINS(%3Flabel%2C%22KTV%22)%20%7C%7C%20CONTAINS(%3Flabel%2C%22%EB%8C%80%ED%86%B5%EB%A0%B9%EA%B8%B0%EB%A1%9D%EA%B4%80%22)%20%7C%7C%20CONTAINS(%3Flabel%2C%22%ED%95%9C%EA%B5%AD%EC%A0%95%EC%B1%85%EB%B0%A9%EC%86%A1%EC%9B%90%22)%20%7C%7C%20CONTAINS(%3Flabel%2C%22%EB%AC%B8%ED%99%94%EC%B2%B4%EC%9C%A1%EA%B4%80%EA%B4%91%EB%B6%80%22)%20%7C%7C%20CONTAINS(%3Flabel%2C%22%EC%84%9C%EC%9A%B8%ED%8A%B9%EB%B3%84%EC%8B%9C%22)%20%7C%7C%20CONTAINS(%3Flabel%2C%22%EA%B5%AD%EB%B0%A9%ED%99%8D%EB%B3%B4%EC%9B%90%22))%20%7D%20LIMIT%20100 | Wikidata SPARQL — YouTube 채널 ID(P2397): KTV 국민방송 Q11664024 `UCIMOytYIzaUpoAM2bpT4JZQ`, 서울특별시 Q8684 `UCokYEohXuS2NH1Rld-Ssu4A` (커뮤니티 자료 — 단서) | 2026-10-11 |
+| 116 | https://www.youtube.com/channel/UCIMOytYIzaUpoAM2bpT4JZQ | YouTube 채널 페이지 — 제목 "KTV 국민방송" (본문은 도구에서 보이지 않음) | 2026-10-11 |
+| 117 | https://www.youtube.com/channel/UC8_LPVE4Yuc6KF0opF6uS_w | YouTube 채널 페이지 — 제목 "KTV 아카이브" | 2026-10-11 |
+| 118 | https://www.youtube.com/channel/UCtk3SPfRDV8VFGQnR7FfsKQ | YouTube 채널 페이지 — 제목 "국가기록원기록온" | 2026-10-11 |
+| 119 | https://www.youtube.com/@KTV_archive | YouTube 핸들 페이지 제목 "KTV 아카이브"(본문 882자, 채널 ID 없음). 같은 방식으로 `youtube.com/user/chKTV520` → "KTV 국민방송", `youtube.com/c/국가기록원기록온/videos`·`youtube.com/@NAK.archiveson` → "국가기록원기록온" | 2026-10-11 |
+| 120 | https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=1CwplL71AKI&format=json | oEmbed 실제 응답 — 「대한뉴스 제1715호-서울 올림픽 개막」, KTV 아카이브, `author_url` `@KTV_archive`, iframe `youtube.com/embed/1CwplL71AKI?feature=oembed` | 2026-10-11 |
+| 121 | https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=dcJ7U2Eg4VM&format=json | oEmbed 실제 응답 — 「대한뉴스 제736호-사람이 달에 내리다-아폴로 11호 제1신-」, KTV 아카이브 | 2026-10-11 |
+| 122 | https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=4q5L1rZKOM0&format=json | oEmbed 실제 응답 — 1986년 서울아시안게임 개막식 현장 영상, KTV 아카이브 | 2026-10-11 |
+| 123 | https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=f1EG3w5l1Xc&format=json | oEmbed 실제 응답 — 「1986년 9월 20일 오늘 #제10회 #아시안게임 #개막」, KTV 국민방송, `author_url` `@KTV_korea` | 2026-10-11 |
+| 124 | https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=KeWSC7iCnpM&format=json | oEmbed 실제 응답 — 「Seoul 1988 - Opening Ceremony \| Seoul 1988 Replays」, Olympic Games, `@Olympics` | 2026-10-11 |
+| 125 | https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=6Kr-_veieNw&format=json | oEmbed 실제 응답 — 2002 월드컵 8강 대한민국 VS 스페인, JTBC Sports | 2026-10-11 |
+| 126 | https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=x_HVvF-A5OY&format=json | oEmbed 실제 응답 — HTTP 403 (2회, 이유 미확인) | 2026-10-11 |
+| 127 | https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=M7lc1UVf-VE&format=json | oEmbed 실제 응답 — Google 예제 영상(필드 구조 확인: title, author_name, author_url, type, width, height, provider_name, thumbnail_url, html). 같은 형식으로 `hdLBbmu_its`(부산MBC, 제목에 1988.09.17), `nPZ16kzPaL8`(2024 강원 동계청소년올림픽 채널) | 2026-10-11 |
+| 128 | https://www.youtube.com/feeds/videos.xml?channel_id=UC_x5XG1OV2P6uZZ5FSM9Ttw | YouTube 채널 RSS — Google for Developers는 200, 같은 형식의 KTV 국민방송·KTV 아카이브 후보 ID는 404(이유 미확인, 채널 ID 확인 수단으로 쓰지 못함) | 2026-10-11 |
+
+단서로만 쓴 자료(근거 아님): 웹 검색 결과의 KTV 아카이브 채널 설명 문구와 대한뉴스 영상 설명(제작일), 국가기록원 채널 ID가 실린 2018년 학술 논문 참고문헌(accesson.kr·KCI), 나무위키·제3자 통계 사이트. 모두 2026-10-11.
 
 이전 문서 근거(이 문서에서 "day-events.md [n]"으로 참조): [14] Wikimedia APIs Access policy(User-Agent), [19] API:Etiquette(캐시 권장), [20] Wikimedia 재단 이용 약관, [24] WDQS 사용자 설명서, [46] Commons 라이선스 정책, [47] CommonsMetadata 확장, [50] 서울 올림픽 개막식 범주 — 모두 2026-10-09 확인, `docs/research/day-events.md` 11절.
