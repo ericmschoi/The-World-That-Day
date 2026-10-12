@@ -85,13 +85,23 @@ describe('isDisplayable', () => {
     ['source_url', 'javascript:alert(1)'],
     ['source_url', 'data:text/html,hi'],
     ['source_url', '//commons.example.org/wiki/File:Example.jpg'],
-    ['license_url', 'javascript:alert(1)'],
+    ['source_url', '/wiki/File:Example.jpg'],
     ['url', 'ftp://media.example.org/Example.jpg'],
+    ['thumbnail_url', 'javascript:alert(1)'],
     ['thumbnail_url', ' javascript:alert(1)'],
+    ['thumbnail_url', 'data:image/png;base64,AAAA'],
     ['embed_url', 'vbscript:msgbox'],
   ])('rejects a non-http(s) %s: %j', (field, value) => {
     expect(isDisplayable(without(sameDayPhoto, { [field]: value }))).toBe(false)
   })
+
+  // M3b1b T1 (4), M3a3 R9: only the license link is dropped (see MediaCaption).
+  it.each(['javascript:alert(1)', 'mailto:someone@example.org', '/license'])(
+    'keeps a record whose only bad URL is license_url %j',
+    (license_url) => {
+      expect(isDisplayable(without(sameDayPhoto, { license_url }))).toBe(true)
+    },
+  )
 
   it('rejects a video source with a non-http(s) url', () => {
     const bad = { url: 'javascript:alert(1)', mime: 'video/webm', height: 480 }

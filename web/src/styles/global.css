@@ -31,6 +31,13 @@ a {
   color: var(--color-accent);
 }
 
+/* Keyboard focus on every link (card caption links included). Browsers skip
+   :focus-visible on mouse clicks, so the ring shows only for keyboard users. */
+a:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus);
+  outline-offset: var(--focus-ring-offset);
+}
+
 /* Turn transitions and animations off for people who ask for less motion.
    M3b3's muted-autoplay exception reads the same media query. */
 @media (prefers-reduced-motion: reduce) {

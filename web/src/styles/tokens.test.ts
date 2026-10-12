@@ -103,16 +103,35 @@ describe('tokens.css', () => {
     expect(contrastRatio(color(fg), color(bg))).toBeGreaterThanOrEqual(4.5)
   })
 
-  it('--color-focus on --color-bg meets the non-text rule (3:1)', () => {
+  it.each(['--color-bg', '--color-surface', '--color-tragic-bg'])(
+    '--color-focus on %s meets the non-text rule (3:1)',
+    (bg) => {
+      expect(
+        contrastRatio(color('--color-focus'), color(bg)),
+      ).toBeGreaterThanOrEqual(3)
+    },
+  )
+
+  // Caption links and the date badge sit on the card surface (M3b1b T2).
+  it('--color-accent on --color-surface meets AA for text (4.5:1)', () => {
     expect(
-      contrastRatio(color('--color-focus'), color('--color-bg')),
-    ).toBeGreaterThanOrEqual(3)
+      contrastRatio(color('--color-accent'), color('--color-surface')),
+    ).toBeGreaterThanOrEqual(4.5)
   })
 })
 
 describe('global.css', () => {
   it('loads the tokens', () => {
     expect(globalCss).toMatch(/@import\s+['"]\.\/tokens\.css['"]/)
+  })
+
+  it('rings focused links with the focus token, lengths from tokens', () => {
+    const rule = /(?:^|\n)a:focus-visible\s*\{([^}]*)\}/.exec(globalCss)
+    expect(rule).not.toBeNull()
+    expect(rule?.[1]).toMatch(
+      /outline:\s*var\(--focus-ring-width\)\s+solid\s+var\(--color-focus\);/,
+    )
+    expect(rule?.[1]).toMatch(/outline-offset:\s*var\(--focus-ring-offset\);/)
   })
 
   it('turns motion off under prefers-reduced-motion', () => {

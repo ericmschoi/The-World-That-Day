@@ -1,0 +1,53 @@
+/* Media card (docs/plans/m3b1-design-foundation.md, "미디어 카드 모양"):
+   the photo on top at its own ratio, the caption below. No crop, no filter. */
+.card {
+  margin: 0 0 var(--space-5);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.image {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 70vh;
+  margin: 0 auto;
+  object-fit: contain;
+}
+
+.caption {
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  border-top: var(--border-width) solid var(--color-border);
+  font-size: var(--font-size-caption);
+}
+
+.when,
+.description,
+.meta,
+.links {
+  margin: var(--space-1) 0 0;
+}
+
+.when {
+  margin-top: 0;
+  font-weight: 600;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0 var(--space-2);
+  border: var(--border-width) solid var(--color-accent);
+  border-radius: var(--radius-control);
+  color: var(--color-accent);
+}
+
+.description {
+  font-size: var(--font-size-body);
+}
+
+.meta {
+  color: var(--color-muted);
+}

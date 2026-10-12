@@ -86,3 +86,18 @@ export const unlicensedPhoto: Media = {
   attribution: '작가 정보 없음 · 라이선스 확인 안 됨 · Wikimedia Commons',
   description: null,
 }
+
+// 1988-09-17: a photo whose year is an estimate ("circa 1987"), one year
+// before the requested date.
+export const approximatePhoto: Media = {
+  ...sameDayPhoto,
+  id: 'example-commons-1987-approx',
+  url: 'https://media.example.org/commons/Example_1987_approx.jpg',
+  thumbnail_url:
+    'https://media.example.org/commons/thumb/640px-Example_1987_approx.jpg',
+  source_url: 'https://commons.example.org/wiki/File:Example_1987_approx.jpg',
+  description: '올림픽 경기장 건설 현장',
+  captured_at: '1987',
+  date_precision: 'approx',
+  date_relation: { kind: 'approximate', years: -1 },
+}

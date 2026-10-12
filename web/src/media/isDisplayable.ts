@@ -4,7 +4,7 @@ const filled = (value: unknown) =>
   typeof value === 'string' && value.trim() !== ''
 
 // URLs end up in `href`/`src`, so only http(s) passes (no `javascript:`).
-const httpUrl = (value: unknown) =>
+export const isHttpUrl = (value: unknown): value is string =>
   typeof value === 'string' && /^https?:\/\/\S/i.test(value)
 
 // `video_sources` is null or an array of objects whose `url` is http(s).
@@ -16,7 +16,7 @@ function videoSourcesSafe(value: unknown): boolean {
     (source: unknown) =>
       typeof source === 'object' &&
       source !== null &&
-      httpUrl((source as { url?: unknown }).url),
+      isHttpUrl((source as { url?: unknown }).url),
   )
 }
 
@@ -38,14 +38,13 @@ export function isDisplayable(media: Media): boolean {
       media.attribution,
       media.retrieved_at,
     ].every(filled) &&
-    httpUrl(media.source_url) &&
+    isHttpUrl(media.source_url) &&
     LICENSE_STATUSES.includes(media.license_status)
-  const urlsSafe = [
-    media.url,
-    media.thumbnail_url,
-    media.embed_url,
-    media.license_url,
-  ].every((value) => value == null || httpUrl(value))
+  // M3a3 R9. `license_url` is left out on purpose: a bad one only drops the
+  // "라이선스" link in the caption, the card itself is still shown.
+  const urlsSafe = [media.url, media.thumbnail_url, media.embed_url].every(
+    (value) => value == null || isHttpUrl(value),
+  )
   const sourcesSafe = videoSourcesSafe(media.video_sources)
   const hasPlace =
     (Number.isFinite(media.lat) && Number.isFinite(media.lng)) ||
