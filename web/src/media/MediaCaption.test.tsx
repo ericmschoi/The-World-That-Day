@@ -1,5 +1,7 @@
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import userEvent from '@testing-library/user-event'
+import { afterEach, describe, expect, it } from 'vitest'
+import globalCss from '../styles/global.css?raw'
 import { sameDayPhoto, undatedPhoto } from '../mocks/fixtures/media/photos'
 import { MediaCaption } from './MediaCaption'
 import type { Media } from './types'
@@ -56,5 +58,27 @@ describe('MediaCaption', () => {
     const first = container.querySelector('figcaption > p')
     expect(first).toHaveTextContent(/^촬영 시점 미상$/)
     expect(first?.querySelector('span')).toBeNull()
+  })
+
+  describe('keyboard focus (M3b1b T2)', () => {
+    // Vitest blanks CSS imports, so load the real global.css text. jsdom does
+    // not resolve var(), so the declared value is checked, not the colour.
+    const style = document.createElement('style')
+    afterEach(() => style.remove())
+
+    it('Tab reaches 원문 보기 and the global focus ring applies', async () => {
+      style.textContent = globalCss.replace(/@import[^;]*;/, '')
+      document.head.append(style)
+      renderCaption(sameDayPhoto)
+      await userEvent.tab()
+      const link = screen.getByRole('link', { name: '원문 보기' })
+      expect(link).toHaveFocus()
+      expect(link.matches('a:focus-visible')).toBe(true)
+      expect(getComputedStyle(link).outline).toBe(
+        'var(--focus-ring-width) solid var(--color-focus)',
+      )
+      await userEvent.tab()
+      expect(screen.getByRole('link', { name: '라이선스' })).toHaveFocus()
+    })
   })
 })
