@@ -56,6 +56,7 @@ class WikimediaHttpClientRetryRulesTest {
             Duration.ofMillis(300),
             1,
             Duration.ofSeconds(120),
+            3,
             URI.create(wikimedia.baseUrl() + PATH)),
         clock);
   }

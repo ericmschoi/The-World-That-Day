@@ -15,7 +15,9 @@ import tools.jackson.databind.json.JsonMapper;
 /**
  * MediaWiki Action API ({@code action=parse}): one request for the section list and revision, then
  * one request per "사건"/"문화" section, pinned to that revision with {@code oldid}. Requests are
- * serial. Any failure makes the whole page unavailable so both sections come from one revision.
+ * serial. Any failure makes the whole page unavailable so both sections come from one revision. An
+ * API error {@code ratelimited} (sent with HTTP 200) is handled like a 429: no retry, and the host
+ * is blocked through {@link WikimediaHttpClient#blockHost}.
  */
 @Component
 public class ActionApiKoWikiClient implements KoWikiClient {
@@ -23,6 +25,7 @@ public class ActionApiKoWikiClient implements KoWikiClient {
   static final String SOURCE = "kowiki";
   static final String EVENTS = "사건";
   static final String CULTURE = "문화";
+  static final String RATELIMITED = "ratelimited";
 
   private static final Logger log = LoggerFactory.getLogger(ActionApiKoWikiClient.class);
 
@@ -111,7 +114,13 @@ public class ActionApiKoWikiClient implements KoWikiClient {
       return null;
     }
     try {
-      return json.readTree(body);
+      JsonNode tree = json.readTree(body);
+      if (RATELIMITED.equals(tree.path("error").path("code").asString(null))) {
+        http.blockHost(uri);
+        failed(title, "api error " + RATELIMITED);
+        return null;
+      }
+      return tree;
     } catch (JacksonException e) {
       failed(title, "invalid JSON");
       return null;

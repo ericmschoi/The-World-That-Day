@@ -22,9 +22,16 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 
-/** Plan M3a1 T2 (4)~(5): requests per page, pinned revision, missing pages, failures. */
+/**
+ * Plan M3a1 T2 (4)~(5): requests per page, pinned revision, missing pages, failures. Plan M3a1b T1
+ * (2): the API error {@code ratelimited} blocks the host.
+ */
+@ExtendWith(OutputCaptureExtension.class)
 class ActionApiKoWikiClientTest {
 
   @RegisterExtension
@@ -33,9 +40,11 @@ class ActionApiKoWikiClientTest {
 
   private static final String PATH = "/w/api.php";
 
+  private final MutableClock clock =
+      new MutableClock(Instant.parse("2026-01-01T00:00:00Z"), ClockConfig.SERVICE_ZONE);
   private final KoWikiClient client = client();
 
-  private static KoWikiClient client() {
+  private KoWikiClient client() {
     WikimediaProperties properties =
         new WikimediaProperties(
             "TheWorldThatDay-test/0 (https://github.com/ericmschoi/The-World-That-Day)",
@@ -43,9 +52,8 @@ class ActionApiKoWikiClientTest {
             Duration.ofMillis(300),
             1,
             Duration.ofSeconds(120),
+            3,
             URI.create(wikimedia.baseUrl() + PATH));
-    MutableClock clock =
-        new MutableClock(Instant.parse("2026-01-01T00:00:00Z"), ClockConfig.SERVICE_ZONE);
     return new ActionApiKoWikiClient(
         new WikimediaHttpClient(properties, clock), properties, KoWikiFixtures.JSON);
   }
@@ -203,5 +211,38 @@ class ActionApiKoWikiClientTest {
     assertThat(client.fetch("9월 17일").state()).isEqualTo(State.UNAVAILABLE);
     assertThat(client.fetch("1988년").state()).isEqualTo(State.UNAVAILABLE);
     assertThat(requests()).hasSize(2);
+  }
+
+  @Test
+  void ratelimitedErrorBlocksTheHostLikeA429WithoutRetry(CapturedOutput output) {
+    wikimedia.stubFor(
+        get(urlPathEqualTo(PATH)).willReturn(okJson(read("synthetic/synthetic-ratelimited.json"))));
+
+    assertThat(client.fetch("9월 17일").state()).isEqualTo(State.UNAVAILABLE);
+    assertThat(requests()).as("HTTP 200 + ratelimited is not retried").hasSize(1);
+    assertThat(output.getAll()).contains("title=9월 17일 cause=api error ratelimited");
+
+    clock.advance(Duration.ofSeconds(29));
+    assertThat(client.fetch("9월 17일").state()).isEqualTo(State.UNAVAILABLE);
+    assertThat(requests()).as("host still blocked at 29s").hasSize(1);
+
+    clock.advance(Duration.ofSeconds(2));
+    wikimedia.resetAll();
+    stubPage("9월 17일", "09-17", "1:events", "2:culture");
+    assertThat(client.fetch("9월 17일").state()).isEqualTo(State.FOUND);
+    assertThat(requests()).as("sent again at 31s").hasSize(3);
+  }
+
+  @Test
+  void ratelimitedSectionRequestStopsThePageAndBlocksOtherPagesOfTheHost() {
+    stubPage("9월 17일", "09-17", "2:culture");
+    wikimedia.stubFor(
+        get(urlPathEqualTo(PATH))
+            .withQueryParam("section", equalTo("1"))
+            .willReturn(okJson(read("synthetic/synthetic-ratelimited.json"))));
+
+    assertThat(client.fetch("9월 17일").state()).isEqualTo(State.UNAVAILABLE);
+    assertThat(client.fetch("1988년").state()).isEqualTo(State.UNAVAILABLE);
+    assertThat(requests()).extracting(event -> param(event, "section")).containsExactly(null, "1");
   }
 }
