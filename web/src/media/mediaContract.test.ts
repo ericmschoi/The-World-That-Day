@@ -90,12 +90,20 @@ describe('only http(s) URLs pass', () => {
     ['source_url', 'https://'],
     ['source_url', ' https://commons.example.org/wiki/File:Example.jpg'],
     ['source_url', 'file:///etc/passwd'],
-    ['license_url', 'mailto:someone@example.org'],
     ['url', 'blob:https://media.example.org/0001'],
     ['thumbnail_url', 'data:image/png;base64,AAAA'],
     ['thumbnail_url', '/relative/thumb.jpg'],
   ])('rejects %s = %j', (field, value) => {
     expect(isDisplayable(patch(sameDayPhoto, { [field]: value }))).toBe(false)
+  })
+
+  // M3b1b T1 (4): a bad license_url drops only the license link.
+  it('keeps a record whose license_url is not http(s)', () => {
+    expect(
+      isDisplayable(
+        patch(sameDayPhoto, { license_url: 'mailto:someone@example.org' }),
+      ),
+    ).toBe(true)
   })
 
   it('allows a null license_url (no license link)', () => {
