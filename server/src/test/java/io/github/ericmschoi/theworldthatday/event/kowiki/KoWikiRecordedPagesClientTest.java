@@ -39,12 +39,19 @@ class KoWikiRecordedPagesClientTest {
 
   private static final String PATH = "/w/api.php";
 
+  /**
+   * No test here is about timeouts. A short read timeout let a stalled machine time out every
+   * request of a run (plan M3a1b T3 flaky-test check); 2 seconds keeps a timeout from ever being
+   * mistaken for a page failure.
+   */
+  private static final Duration READ_TIMEOUT = Duration.ofSeconds(2);
+
   private static KoWikiClient client() {
     WikimediaProperties properties =
         new WikimediaProperties(
             "TheWorldThatDay-test/0 (https://github.com/ericmschoi/The-World-That-Day)",
             Duration.ofSeconds(2),
-            Duration.ofMillis(300),
+            READ_TIMEOUT,
             1,
             Duration.ofSeconds(120),
             3,

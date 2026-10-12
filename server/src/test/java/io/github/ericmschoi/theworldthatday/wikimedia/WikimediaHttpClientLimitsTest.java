@@ -50,6 +50,12 @@ class WikimediaHttpClientLimitsTest {
       "TheWorldThatDay-test/0 (https://github.com/ericmschoi/The-World-That-Day)";
   private static final int DELAY_MS = 200;
 
+  /**
+   * For tests that count requests but are not about the read timeout: a timed-out first attempt on
+   * a stalled machine would add a retry (plan M3a1b T3 flaky-test check).
+   */
+  private static final Duration NOT_UNDER_TEST = Duration.ofSeconds(2);
+
   private final MutableClock clock =
       new MutableClock(Instant.parse("2026-01-01T00:00:00Z"), ClockConfig.SERVICE_ZONE);
 
@@ -164,7 +170,7 @@ class WikimediaHttpClientLimitsTest {
             .inScenario("retry")
             .whenScenarioStateIs("recovered")
             .willReturn(ok("{}")));
-    WikimediaHttpClient client = client(Duration.ofMillis(300), 1);
+    WikimediaHttpClient client = client(NOT_UNDER_TEST, 1);
 
     assertThat(client.get("kowiki", "9월 17일", uri("localhost"))).isEqualTo(new Ok("{}"));
     assertThat(requestCount()).isEqualTo(2);
@@ -213,7 +219,7 @@ class WikimediaHttpClientLimitsTest {
   @Test
   void blockHostSkipsOnlyThatHostForThirtySeconds() {
     wikimedia.stubFor(get(urlPathEqualTo(PATH)).willReturn(ok("{}")));
-    WikimediaHttpClient client = client(Duration.ofMillis(300), 3);
+    WikimediaHttpClient client = client(NOT_UNDER_TEST, 3);
 
     client.blockHost(uri("localhost"));
 
@@ -232,7 +238,7 @@ class WikimediaHttpClientLimitsTest {
 
   @Test
   void blockHostIgnoresAUriWithoutHost() {
-    WikimediaHttpClient client = client(Duration.ofMillis(300), 3);
+    WikimediaHttpClient client = client(NOT_UNDER_TEST, 3);
 
     client.blockHost(null);
     client.blockHost(URI.create("/w/api.php"));

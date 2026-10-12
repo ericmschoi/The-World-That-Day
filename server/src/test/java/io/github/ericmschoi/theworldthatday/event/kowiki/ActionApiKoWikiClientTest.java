@@ -40,6 +40,12 @@ class ActionApiKoWikiClientTest {
 
   private static final String PATH = "/w/api.php";
 
+  /**
+   * No test here is about timeouts, and several count requests: a timed-out first attempt would add
+   * a retry. 2 seconds instead of 300 ms keeps a stalled machine from failing them (plan M3a1b T3).
+   */
+  private static final Duration READ_TIMEOUT = Duration.ofSeconds(2);
+
   private final MutableClock clock =
       new MutableClock(Instant.parse("2026-01-01T00:00:00Z"), ClockConfig.SERVICE_ZONE);
   private final KoWikiClient client = client();
@@ -49,7 +55,7 @@ class ActionApiKoWikiClientTest {
         new WikimediaProperties(
             "TheWorldThatDay-test/0 (https://github.com/ericmschoi/The-World-That-Day)",
             Duration.ofSeconds(2),
-            Duration.ofMillis(300),
+            READ_TIMEOUT,
             1,
             Duration.ofSeconds(120),
             3,
