@@ -7,6 +7,19 @@ const filled = (value: unknown) =>
 const httpUrl = (value: unknown) =>
   typeof value === 'string' && /^https?:\/\/\S/i.test(value)
 
+// `video_sources` is null or an array of objects whose `url` is http(s).
+// Anything else (a string, `[null]`, `[42]`) makes the record not displayable.
+function videoSourcesSafe(value: unknown): boolean {
+  if (value == null) return true
+  if (!Array.isArray(value)) return false
+  return value.every(
+    (source: unknown) =>
+      typeof source === 'object' &&
+      source !== null &&
+      httpUrl((source as { url?: unknown }).url),
+  )
+}
+
 const LICENSE_STATUSES: readonly unknown[] = ['free', 'other', 'unknown']
 
 // Checks the server's normalization once more (M3a3 rule R1 and the required
@@ -15,6 +28,7 @@ const LICENSE_STATUSES: readonly unknown[] = ['free', 'other', 'unknown']
 // Capture time may be unknown (PM decision 2026-10-11): the caption then says
 // "촬영 시점 미상" with no badge, so it is never shown as that day's.
 export function isDisplayable(media: Media): boolean {
+  if (typeof media !== 'object' || media === null) return false
   const hasCaption =
     [
       media.id,
@@ -31,12 +45,12 @@ export function isDisplayable(media: Media): boolean {
     media.thumbnail_url,
     media.embed_url,
     media.license_url,
-    ...(media.video_sources ?? []).map((source) => source.url),
   ].every((value) => value == null || httpUrl(value))
+  const sourcesSafe = videoSourcesSafe(media.video_sources)
   const hasPlace =
     (Number.isFinite(media.lat) && Number.isFinite(media.lng)) ||
     filled(media.place_ref)
-  if (!hasCaption || !urlsSafe || !hasPlace) return false
+  if (!hasCaption || !urlsSafe || !sourcesSafe || !hasPlace) return false
 
   switch (media.display_mode) {
     case 'image':
@@ -45,6 +59,7 @@ export function isDisplayable(media: Media): boolean {
     case 'video_embed':
       return filled(media.embed_url) && filled(media.provider)
     case 'video_file':
+      // `sourcesSafe` already guarantees an array of valid entries here.
       return filled(media.url) || (media.video_sources?.length ?? 0) > 0
     case 'sdk':
       return media.render != null && filled(media.provider)

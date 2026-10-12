@@ -100,6 +100,39 @@ describe('isDisplayable', () => {
     )
   })
 
+  // Malformed API data must hide the record, never throw during render.
+  it.each([
+    ['a string', 'https://media.example.org/Example.webm'],
+    ['an object', { url: 'https://media.example.org/Example.webm' }],
+    ['a number', 42],
+    ['an array with null', [null]],
+    ['an array with undefined', [undefined]],
+    ['an array with a number', [42]],
+    ['an array with a string', ['https://media.example.org/Example.webm']],
+    ['an array with an entry missing url', [{ mime: 'video/webm' }]],
+  ])('rejects video_sources that is %s, without throwing', (_name, value) => {
+    for (const media of [videoFile, sameDayPhoto]) {
+      const malformed = without(media, { video_sources: value })
+      expect(() => isDisplayable(malformed)).not.toThrow()
+      expect(isDisplayable(malformed)).toBe(false)
+    }
+  })
+
+  it('rejects a valid video source list mixed with a null entry', () => {
+    const good = videoFile.video_sources![0]
+    expect(
+      isDisplayable(without(videoFile, { video_sources: [good, null] })),
+    ).toBe(false)
+  })
+
+  it.each([null, undefined, 'media', 42])(
+    'returns false for a non-object record %j',
+    (value) => {
+      expect(() => isDisplayable(value as unknown as Media)).not.toThrow()
+      expect(isDisplayable(value as unknown as Media)).toBe(false)
+    },
+  )
+
   it('accepts http and https URLs in any letter case', () => {
     expect(
       isDisplayable(
