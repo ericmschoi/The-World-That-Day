@@ -22,15 +22,38 @@ const NEEDS: Partial<Record<DateRelation['kind'], DatePrecision[]>> = {
   approximate: ['approx'],
 }
 
+const isLeapYear = (year: number) =>
+  year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)
+
+const DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
+const daysInMonth = (year: number, month: number) =>
+  month === 2 && isLeapYear(year) ? 29 : DAYS_IN_MONTH[month - 1]
+
+// Rejects calendar values that do not exist (1988-13, 1988-09-32, 2001-02-29).
+function isRealDate(year: string, month?: string, day?: string): boolean {
+  if (month === undefined) return true
+  const m = Number(month)
+  if (m < 1 || m > 12) return false
+  if (day === undefined) return true
+  const d = Number(day)
+  return d >= 1 && d <= daysInMonth(Number(year), m)
+}
+
 function formatCapturedAt(media: Media): string | null {
   const shape = media.date_precision && SHAPES[media.date_precision]
   const parts = shape?.exec(media.captured_at ?? '')
   if (!parts) return null
   const [, year, month, day] = parts
+  if (!isRealDate(year, month, day)) return null
   return [`${year}년`, month && `${Number(month)}월`, day && `${Number(day)}일`]
     .filter(Boolean)
     .join(' ')
 }
+
+// Distance from the requested year, in the D1 wording ("N년 전" / "N년 뒤").
+const distance = (years: number) =>
+  years < 0 ? `${-years}년 전` : `${years}년 뒤`
 
 function badgeFor({ kind, years }: DateRelation): string | null {
   switch (kind) {
@@ -41,10 +64,12 @@ function badgeFor({ kind, years }: DateRelation): string | null {
     case 'same_year':
       return '같은 해'
     case 'approximate':
-      return '무렵'
+      // The year is an estimate, so the badge keeps "무렵" (product brief 6.1).
+      if (!Number.isInteger(years)) return null
+      return years === 0 ? '같은 해 무렵' : `${distance(years)} 무렵`
     case 'years_apart':
-      if (years < 0) return `${-years}년 전`
-      return years > 0 ? `${years}년 뒤` : null
+      if (!Number.isInteger(years)) return null
+      return years === 0 ? null : distance(years)
     default:
       return null
   }

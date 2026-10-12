@@ -63,10 +63,40 @@ describe('dateLabel', () => {
       '1990년 촬영',
     ],
     [
-      'approximate',
+      'approximate, same year',
       photo('1988', 'approx', { kind: 'approximate', years: 0 }),
-      '무렵',
+      '같은 해 무렵',
       '1988년 무렵 촬영(추정)',
+    ],
+    [
+      'approximate, earlier',
+      photo('1985', 'approx', { kind: 'approximate', years: -3 }),
+      '3년 전 무렵',
+      '1985년 무렵 촬영(추정)',
+    ],
+    [
+      'approximate, later',
+      photo('1990', 'approx', { kind: 'approximate', years: 2 }),
+      '2년 뒤 무렵',
+      '1990년 무렵 촬영(추정)',
+    ],
+    [
+      'leap day exists in a leap year (D = 2000-02-29)',
+      photo('2000-02-29', 'day', { kind: 'same_day', years: 0 }),
+      '같은 날',
+      '2000년 2월 29일 촬영',
+    ],
+    [
+      'last day of a 31-day month (D = 1988-09-17)',
+      photo('1988-08-31', 'day', { kind: 'same_year', years: 0 }),
+      '같은 해',
+      '1988년 8월 31일 촬영',
+    ],
+    [
+      'month 12 at month precision (D = 2002-06-22)',
+      photo('2001-12', 'month', { kind: 'years_apart', years: -1 }),
+      '1년 전',
+      '2001년 12월 촬영',
     ],
   ])('%s', (_name, media, badge, text) => {
     expect(dateLabel(media)).toEqual({ badge, text })
@@ -122,10 +152,57 @@ describe('dateLabel', () => {
       photo('1988', null, { kind: 'same_year', years: 0 }),
     ],
     [
+      'approximate with a non-integer distance',
+      photo('1988', 'approx', { kind: 'approximate', years: 0.5 }),
+    ],
+    [
+      'approximate with a missing distance',
+      photo('1988', 'approx', {
+        kind: 'approximate',
+        years: undefined,
+      } as unknown as Media['date_relation']),
+    ],
+    [
+      'years_apart with a non-integer distance',
+      photo('1987', 'year', { kind: 'years_apart', years: Number.NaN }),
+    ],
+    [
       'date_relation missing',
       { ...sameDayPhoto, date_relation: undefined } as unknown as Media,
     ],
   ])('falls back to 촬영 시점 미상 when inconsistent: %s', (_name, media) => {
     expect(dateLabel(media)).toEqual({ badge: null, text: '촬영 시점 미상' })
   })
+
+  // Calendar values that do not exist must not reach the caption.
+  it.each([
+    ['month 13', photo('1988-13', 'month', { kind: 'same_year', years: 0 })],
+    ['month 00', photo('1988-00', 'month', { kind: 'same_year', years: 0 })],
+    [
+      'month 13 at day precision',
+      photo('1988-13-17', 'day', { kind: 'same_year', years: 0 }),
+    ],
+    [
+      'September 32',
+      photo('1988-09-32', 'day', { kind: 'same_month', years: 0 }),
+    ],
+    [
+      'September 31 (30-day month)',
+      photo('1988-09-31', 'day', { kind: 'same_month', years: 0 }),
+    ],
+    ['day 00', photo('1988-09-00', 'day', { kind: 'same_month', years: 0 })],
+    [
+      'February 29 in a common year (2001-02-29)',
+      photo('2001-02-29', 'day', { kind: 'years_apart', years: 1 }),
+    ],
+    [
+      'February 30 in a leap year (2000-02-30)',
+      photo('2000-02-30', 'day', { kind: 'same_month', years: 0 }),
+    ],
+  ])(
+    'falls back to 촬영 시점 미상 for an impossible date: %s',
+    (_name, media) => {
+      expect(dateLabel(media)).toEqual({ badge: null, text: '촬영 시점 미상' })
+    },
+  )
 })

@@ -144,17 +144,20 @@ describe('dateLabel boundaries', () => {
     [
       'approximate a year off (D = 1988-09-17)',
       photo('1987', 'approx', { kind: 'approximate', years: -1 }),
-      '무렵',
+      '1년 전 무렵',
       '1987년 무렵 촬영(추정)',
     ],
   ])('%s', (_name, media, badge, text) => {
     expect(dateLabel(media)).toEqual({ badge, text })
   })
 
-  it('never shows 현재 모습 for current precision with a captured_at', () => {
+  it('shows 현재 모습 but no date for current precision with a leaked captured_at', () => {
     // R8: current precision has captured_at null; if a date leaks in, the
-    // label still says the capture time was not provided.
+    // badge stays 현재 모습 and the text still says it was not provided.
     const media = photo('1988-09-17', 'current', { kind: 'current', years: 0 })
-    expect(dateLabel(media).text).not.toMatch(/1988/)
+    expect(dateLabel(media)).toEqual({
+      badge: '현재 모습',
+      text: '촬영 시점 미제공',
+    })
   })
 })
