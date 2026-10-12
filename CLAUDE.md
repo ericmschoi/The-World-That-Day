@@ -125,13 +125,13 @@ Do not guess and continue. Stop, and write what you tried plus 2–3 options wit
    - Never copy or redistribute media files to our server or repository. Show them only from the original URL or through the original provider's official player (embed). The only exception is curated copies the PM obtains (decision #13).
    - Selection order: free licenses (Wikimedia Commons, KOGL Type 1) → official channel videos whose uploader allows embedding (for example, official YouTube channels) → other sources shown directly.
    - Do not take wire or news agency photos (Yonhap, AP, Getty Images, etc.) directly. Use them only through the provider's official embed feature.
-   - Every media item shows its source, license ("unverified" if unknown), capture time and precision. Media with an empty source or capture-time field is not shown.
+   - Every media item shows its source, license ("unverified" if unknown), and capture time with precision. Media with an empty source field is not shown. Media whose capture time is unknown is shown with the label "촬영 시점 미상" (capture time unknown) and never presented as being from that day (PM decision, 2026-10-11).
    - Keep a per-source blocklist so items can be taken down immediately if a rights holder asks. Revisit these principles when deciding on public deployment (decision #5).
 2. **Verified sources only**: implementation uses only sources whose confidence in `docs/research/` is "확인됨" (verified). Otherwise, do not implement; report it. Follow the terms (caching, storage, attribution, commercial use) exactly as the research documents state.
 3. **Isolate external integrations**: put each external source behind its own adapter, set timeouts, and on failure leave only that section empty.
 4. **API keys**: agents never issue, read or write keys. If a real call needs to be verified, put the command for the PM to run in the report, with keys as `$ENV_VAR`.
 5. **Tests**: tests never call the external network. Replace external responses with fixtures and mocks (WireMock, MSW). Kakao, Naver and Google responses and map screens use synthetic fixtures built from the field structure in their official docs, plus SDK stubs; real responses are never committed. Sources that allow copying (Wikimedia, etc.) may use recorded fixtures, stored with the recording date, original URL and license.
-6. **Privacy**: never log a date of birth together with a place. Tests and examples never use a real person's date of birth; use only the demo inputs in `docs/product-brief.md` §12.
+6. **Privacy**: never log a date of birth together with a place. Tests and examples never use a real person's date of birth; use the demo inputs in `docs/product-brief.md` §12, plus dates of publicly known historical events and boundary values (for example a leap day). Those are event dates, not anyone's birthday (PM decision M3-P13, 2026-10-11).
 7. **Accounts and terms**: agents never sign up for any service or accept any terms. Ask the PM when needed.
 
 ## 8. Resuming in a new session
