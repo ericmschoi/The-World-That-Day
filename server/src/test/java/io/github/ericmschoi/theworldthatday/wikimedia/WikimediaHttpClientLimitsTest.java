@@ -62,6 +62,7 @@ class WikimediaHttpClientLimitsTest {
             1,
             Duration.ofSeconds(120),
             maxConcurrent,
+            Duration.ofDays(7),
             URI.create(wikimedia.baseUrl() + PATH)),
         clock);
   }

@@ -53,9 +53,10 @@ class ActionApiKoWikiClientTest {
             1,
             Duration.ofSeconds(120),
             3,
+            Duration.ofDays(7),
             URI.create(wikimedia.baseUrl() + PATH));
     return new ActionApiKoWikiClient(
-        new WikimediaHttpClient(properties, clock), properties, KoWikiFixtures.JSON);
+        new WikimediaHttpClient(properties, clock), properties, KoWikiFixtures.JSON, clock);
   }
 
   /** Stubs the section list of {@code title} and the given sections, all from fixtures. */
@@ -90,8 +91,9 @@ class ActionApiKoWikiClientTest {
 
     KoWikiPage page = client.fetch("9월 17일");
 
-    assertThat(page.state()).isEqualTo(State.FOUND);
+    assertThat(page.state()).isEqualTo(State.FRESH);
     assertThat(page.revision()).isEqualTo(42604413L);
+    assertThat(page.fetchedAt()).isEqualTo(clock.instant());
     assertThat(page.eventsWikitext()).isEqualTo(wikitext("09-17-events.json"));
     assertThat(page.cultureWikitext()).isEqualTo(wikitext("09-17-culture.json"));
     List<ServeEvent> requests = requests();
@@ -143,7 +145,7 @@ class ActionApiKoWikiClientTest {
 
     KoWikiPage page = client.fetch("2000년");
 
-    assertThat(page.state()).isEqualTo(State.FOUND);
+    assertThat(page.state()).isEqualTo(State.FRESH);
     assertThat(page.eventsWikitext()).contains("시험 사건 다");
     assertThat(page.cultureWikitext()).isNull();
     assertThat(requests()).extracting(event -> param(event, "section")).containsExactly(null, "1");
@@ -157,7 +159,7 @@ class ActionApiKoWikiClientTest {
 
     KoWikiPage page = client.fetch("2월 29일");
 
-    assertThat(page).isEqualTo(new KoWikiPage("2월 29일", State.ABSENT, null, null, null));
+    assertThat(page).isEqualTo(new KoWikiPage("2월 29일", State.ABSENT, null, null, null, null));
     assertThat(requests()).hasSize(1);
   }
 
@@ -171,7 +173,7 @@ class ActionApiKoWikiClientTest {
 
     KoWikiPage page = client.fetch("9월 17일");
 
-    assertThat(page).isEqualTo(new KoWikiPage("9월 17일", State.UNAVAILABLE, null, null, null));
+    assertThat(page).isEqualTo(new KoWikiPage("9월 17일", State.UNAVAILABLE, null, null, null, null));
     assertThat(requests()).hasSize(4); // list, events, culture + one retry
   }
 
@@ -229,7 +231,7 @@ class ActionApiKoWikiClientTest {
     clock.advance(Duration.ofSeconds(2));
     wikimedia.resetAll();
     stubPage("9월 17일", "09-17", "1:events", "2:culture");
-    assertThat(client.fetch("9월 17일").state()).isEqualTo(State.FOUND);
+    assertThat(client.fetch("9월 17일").state()).isEqualTo(State.FRESH);
     assertThat(requests()).as("sent again at 31s").hasSize(3);
   }
 

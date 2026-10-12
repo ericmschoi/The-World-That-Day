@@ -49,6 +49,7 @@ class WikimediaHttpClientTest {
             1,
             Duration.ofSeconds(120),
             3,
+            Duration.ofDays(7),
             URI.create(wikimedia.baseUrl() + PATH));
     return new WikimediaHttpClient(properties, clock);
   }

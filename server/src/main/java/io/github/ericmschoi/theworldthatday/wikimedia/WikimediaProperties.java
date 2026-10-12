@@ -14,12 +14,16 @@ public record WikimediaProperties(
     int maxRetries,
     Duration rateLimitMaxWait,
     @DefaultValue("3") int maxConcurrentRequests,
+    @DefaultValue("7d") Duration cacheTtl,
     URI kowikiApiUrl) {
 
   public WikimediaProperties {
     userAgent = userAgent == null ? "" : userAgent.strip();
     if (maxConcurrentRequests < 1) {
       throw new IllegalArgumentException("wikimedia.max-concurrent-requests must be at least 1");
+    }
+    if (cacheTtl == null || cacheTtl.isNegative() || cacheTtl.isZero()) {
+      throw new IllegalArgumentException("wikimedia.cache-ttl must be positive, got: " + cacheTtl);
     }
     requireAbsoluteHttpUrl("wikimedia.kowiki-api-url", kowikiApiUrl);
   }

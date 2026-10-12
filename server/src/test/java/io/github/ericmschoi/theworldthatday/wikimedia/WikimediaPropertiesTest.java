@@ -19,7 +19,14 @@ class WikimediaPropertiesTest {
 
   private static WikimediaProperties withUrl(URI url) {
     return new WikimediaProperties(
-        "", Duration.ofSeconds(2), Duration.ofSeconds(4), 1, Duration.ofSeconds(120), 3, url);
+        "",
+        Duration.ofSeconds(2),
+        Duration.ofSeconds(4),
+        1,
+        Duration.ofSeconds(120),
+        3,
+        Duration.ofDays(7),
+        url);
   }
 
   @ParameterizedTest(name = "[{0}] is accepted")
@@ -66,6 +73,7 @@ class WikimediaPropertiesTest {
                     1,
                     Duration.ofSeconds(120),
                     maxConcurrent,
+                    Duration.ofDays(7),
                     URI.create("https://ko.wikipedia.org/w/api.php")))
         .withMessageContaining("wikimedia.max-concurrent-requests");
   }
@@ -131,5 +139,40 @@ class WikimediaPropertiesTest {
                     .getFailure()
                     .rootCause()
                     .hasMessageContaining("wikimedia.max-concurrent-requests"));
+  }
+
+  @ParameterizedTest(name = "cache-ttl {0} is rejected")
+  @ValueSource(strings = {"PT0S", "-PT1S"})
+  void nonPositiveCacheTtlIsRejected(String ttl) {
+    assertThatIllegalArgumentException()
+        .isThrownBy(
+            () ->
+                new WikimediaProperties(
+                    "",
+                    Duration.ofSeconds(2),
+                    Duration.ofSeconds(4),
+                    1,
+                    Duration.ofSeconds(120),
+                    3,
+                    Duration.parse(ttl),
+                    URI.create("https://ko.wikipedia.org/w/api.php")))
+        .withMessageContaining("wikimedia.cache-ttl");
+  }
+
+  @Test
+  void cacheTtlDefaultsToSevenDaysAndReadsDayUnits() {
+    String url = "wikimedia.kowiki-api-url=https://ko.wikipedia.org/w/api.php";
+    runner
+        .withPropertyValues(url)
+        .run(
+            context ->
+                assertThat(context.getBean(WikimediaProperties.class).cacheTtl())
+                    .isEqualTo(Duration.ofDays(7)));
+    runner
+        .withPropertyValues(url, "wikimedia.cache-ttl=1d")
+        .run(
+            context ->
+                assertThat(context.getBean(WikimediaProperties.class).cacheTtl())
+                    .isEqualTo(Duration.ofDays(1)));
   }
 }

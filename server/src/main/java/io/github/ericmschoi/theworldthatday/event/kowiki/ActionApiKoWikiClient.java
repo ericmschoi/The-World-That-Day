@@ -4,6 +4,7 @@ import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaHttpClient;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaProperties;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaResponse;
 import java.net.URI;
+import java.time.Clock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -32,12 +33,14 @@ public class ActionApiKoWikiClient implements KoWikiClient {
   private final WikimediaHttpClient http;
   private final WikimediaProperties properties;
   private final JsonMapper json;
+  private final Clock clock;
 
   public ActionApiKoWikiClient(
-      WikimediaHttpClient http, WikimediaProperties properties, JsonMapper json) {
+      WikimediaHttpClient http, WikimediaProperties properties, JsonMapper json, Clock clock) {
     this.http = http;
     this.properties = properties;
     this.json = json;
+    this.clock = clock;
   }
 
   @Override
@@ -76,7 +79,7 @@ public class ActionApiKoWikiClient implements KoWikiClient {
     if (cultureIndex != null && culture == null) {
       return KoWikiPage.unavailable(title);
     }
-    return new KoWikiPage(title, KoWikiPage.State.FOUND, revid, events, culture);
+    return new KoWikiPage(title, KoWikiPage.State.FRESH, revid, events, culture, clock.instant());
   }
 
   /** The section's wikitext, or {@code null} when the request fails. */

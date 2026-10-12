@@ -36,6 +36,7 @@
 | 파일 | 쓰임 |
 |---|---|
 | `synthetic/synthetic-02-29-*.json` | 윤일 날짜 문서 `2월 29일`: 절 번호가 1·2가 아닐 때(사건 2, 문화 3) 그 번호만 요청하는지 |
+| `synthetic/synthetic-02-29-next-*.json` | 같은 문서의 다음 판(`revid` 101, 사건 절만, 문화 절 없음): 캐시 갱신 시 행의 `revid`·본문이 바뀌는지(M3a1b) |
 | `synthetic/synthetic-2000-*.json` | 윤년 연도 문서 `2000년`: 문화 절이 없을 때(level 3 "문화"는 고르지 않음) 요청하지 않는지 |
 | `synthetic/synthetic-missingtitle.json` | 없는 문서 응답(`error.code` = `missingtitle`) |
 | `synthetic/synthetic-ratelimited.json` | HTTP 200에 담긴 속도 제한 응답(`error.code` = `ratelimited`, M3a1b). 필드 구조는 Action API 오류 형식(`code`·`info`·`docref`)을 따랐다 |
