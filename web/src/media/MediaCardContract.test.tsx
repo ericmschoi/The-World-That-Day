@@ -13,7 +13,7 @@ import type { Media } from './types'
 // (`MediaItem`), so the rules hold for what the user actually sees, not only
 // for the helper functions. Requested dates are the demo inputs (brief 12).
 
-const FALLBACK = '그날의 사진'
+const FALLBACK = '서울 사진'
 
 const patch = (media: Media, fields: Record<string, unknown>) =>
   ({ ...media, ...fields }) as Media
@@ -224,6 +224,24 @@ describe('unknown capture time is never presented as that day', () => {
     expect(firstLine(figure)).toHaveTextContent(/^촬영 시점 미상$/)
     expect(figure.textContent).not.toContain('1988년 9월 17일')
   })
+
+  // With no description the alt text is the caller's fallbackAlt, so the
+  // wording callers pass (M3b2 onward) must not hint at that day either.
+  it.each([
+    ['null', null],
+    ['blank', '   '],
+  ])(
+    'undated photo with a %s description: alt has no that-day hint',
+    (_c, description) => {
+      renderItem(patch(undatedPhoto, { description }))
+      const alt = screen.getByRole('img').getAttribute('alt') ?? ''
+      expect(alt).toBe(FALLBACK)
+      expect(alt).not.toContain('1988년 9월 17일')
+      for (const hint of THAT_DAY_HINTS) {
+        expect(alt).not.toContain(hint)
+      }
+    },
+  )
 })
 
 describe('inline display, never a link card or a rehosted file', () => {

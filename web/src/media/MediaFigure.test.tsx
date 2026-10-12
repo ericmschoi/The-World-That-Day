@@ -11,7 +11,7 @@ import { videoEmbed } from '../mocks/fixtures/media/modes'
 import { MediaFigure } from './MediaFigure'
 import type { Media } from './types'
 
-const FALLBACK = '서울의 그날 모습을 담은 사진'
+const FALLBACK = '서울 사진'
 
 const renderFigure = (media: Media) =>
   render(<MediaFigure media={media} fallbackAlt={FALLBACK} />)

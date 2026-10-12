@@ -12,7 +12,7 @@ import { MediaItem } from './MediaItem'
 import type { Media } from './types'
 
 const renderItem = (media: Media) =>
-  render(<MediaItem media={media} fallbackAlt="그날의 사진" />)
+  render(<MediaItem media={media} fallbackAlt="서울 사진" />)
 
 const patch = (media: Media, fields: Record<string, unknown>) =>
   ({ ...media, ...fields }) as Media
