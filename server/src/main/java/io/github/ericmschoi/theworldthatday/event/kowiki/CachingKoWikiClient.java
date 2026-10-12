@@ -11,14 +11,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Primary;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.TransactionException;
 
 /**
  * Wraps {@link ActionApiKoWikiClient} with the wikitext cache (plan M3a1b, table {@code
- * wiki_section_cache}). Younger than {@code wikimedia.cache-ttl}: {@code CACHED}, no request.
- * Otherwise the page is read again: success replaces the row ({@code FRESH}), failure falls back to
- * the old row ({@code STALE}) or {@code UNAVAILABLE} without one. Missing pages are not cached.
- * Only raw wikitext is stored, so parser changes never need a cache flush. A database error only
- * costs the cache: the page is still read from Wikipedia.
+ * wiki_section_cache}). A row is {@code CACHED} (no request) while {@code now < fetched_at +
+ * wikimedia.cache-ttl}; from exactly {@code fetched_at + cache-ttl} on, the page is read again:
+ * success replaces the row ({@code FRESH}), failure falls back to the old row ({@code STALE}) or
+ * {@code UNAVAILABLE} without one. Missing pages are not cached, and a row whose page is now
+ * missing is deleted so it can never come back as {@code STALE}. Only raw wikitext is stored, so
+ * parser changes never need a cache flush. A database error, including an unreachable database,
+ * only costs the cache: the page is still read from Wikipedia and nothing is thrown.
  */
 @Primary
 @Component
@@ -53,14 +56,28 @@ public class CachingKoWikiClient implements KoWikiClient {
     return switch (page.state()) {
       case FRESH -> save(page);
       case UNAVAILABLE -> cached.map(row -> page(title, row, State.STALE)).orElse(page);
+      case ABSENT -> {
+        if (cached.isPresent()) {
+          delete(title);
+        }
+        yield page;
+      }
       default -> page;
     };
+  }
+
+  private void delete(String title) {
+    try {
+      repository.deleteBySiteAndPageTitle(site(), title);
+    } catch (DataAccessException | TransactionException e) {
+      log.warn("Wiki section cache delete failed: title={} cause={}", title, cause(e));
+    }
   }
 
   private Optional<WikiSectionCache> find(String title) {
     try {
       return repository.findBySiteAndPageTitle(site(), title);
-    } catch (DataAccessException e) {
+    } catch (DataAccessException | TransactionException e) {
       log.warn("Wiki section cache read failed: title={} cause={}", title, cause(e));
       return Optional.empty();
     }
@@ -77,7 +94,7 @@ public class CachingKoWikiClient implements KoWikiClient {
           page.eventsWikitext(),
           page.cultureWikitext(),
           fetchedAt);
-    } catch (DataAccessException e) {
+    } catch (DataAccessException | TransactionException e) {
       log.warn("Wiki section cache write failed: title={} cause={}", page.title(), cause(e));
     }
     return new KoWikiPage(

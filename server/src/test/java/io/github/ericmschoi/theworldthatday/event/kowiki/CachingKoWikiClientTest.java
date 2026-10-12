@@ -320,4 +320,54 @@ class CachingKoWikiClientTest extends WikimediaWireMockTest {
   void ttlComesFromApplicationYml() {
     assertThat(properties.cacheTtl()).isEqualTo(Duration.ofDays(7));
   }
+
+  @Test
+  void ttlBoundaryIsExclusive() {
+    stubRecorded("9월 17일");
+    client.fetch("9월 17일");
+
+    clock.advance(properties.cacheTtl().minusNanos(1));
+    assertThat(client.fetch("9월 17일").state()).as("TTL - 1 ns").isEqualTo(State.CACHED);
+    assertThat(requestCount()).isEqualTo(3);
+
+    clock.advance(Duration.ofNanos(1));
+    assertThat(client.fetch("9월 17일").state()).as("exactly TTL").isEqualTo(State.FRESH);
+    assertThat(requestCount()).isEqualTo(6);
+  }
+
+  @Test
+  void rowOfAPageThatIsNowMissingIsDeletedAndNeverServedAsStale() {
+    stubPage("2월 29일", LEAP_PREFIX);
+    client.fetch("2월 29일");
+    expireCache();
+    wikimedia.resetAll();
+    wikimedia.stubFor(
+        get(urlPathEqualTo(KOWIKI_PATH))
+            .willReturn(okJson(read("synthetic/synthetic-missingtitle.json"))));
+
+    assertThat(client.fetch("2월 29일").state()).isEqualTo(State.ABSENT);
+    assertThat(rows("2월 29일")).isEmpty();
+
+    wikimedia.resetAll();
+    wikimedia.stubFor(get(urlPathEqualTo(KOWIKI_PATH)).willReturn(aResponse().withStatus(503)));
+    assertThat(client.fetch("2월 29일")).isEqualTo(KoWikiPage.unavailable("2월 29일"));
+  }
+
+  @Test
+  void missingPageDeletesOnlyItsOwnRow() {
+    stubPage("2월 29일", LEAP_PREFIX);
+    stubRecorded("9월 17일");
+    client.fetch("2월 29일");
+    client.fetch("9월 17일");
+    expireCache();
+    wikimedia.resetAll();
+    wikimedia.stubFor(
+        get(urlPathEqualTo(KOWIKI_PATH))
+            .willReturn(okJson(read("synthetic/synthetic-missingtitle.json"))));
+
+    client.fetch("2월 29일");
+
+    assertThat(rows("2월 29일")).isEmpty();
+    assertThat(rows("9월 17일")).hasSize(1);
+  }
 }

@@ -12,6 +12,11 @@ interface WikiSectionCacheRepository extends JpaRepository<WikiSectionCache, Lon
 
   Optional<WikiSectionCache> findBySiteAndPageTitle(String site, String pageTitle);
 
+  @Transactional
+  @Modifying
+  @Query("DELETE FROM WikiSectionCache c WHERE c.site = :site AND c.pageTitle = :title")
+  void deleteBySiteAndPageTitle(@Param("site") String site, @Param("title") String title);
+
   /** Inserts the page or replaces the row of the same site and title, even when two race. */
   @Transactional
   @Modifying
