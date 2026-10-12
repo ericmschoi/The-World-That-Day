@@ -10,8 +10,10 @@ import viteConfig from '../vite.config.ts?raw'
 
 // Every file under src (lazy: only the paths are used).
 const allPaths = Object.keys(import.meta.glob('/src/**/*'))
-// Vitest stubs `*.module.css` even with `?raw`, so CSS Modules are left to the
-// C1/C2 grep commands in the plan; plain CSS and all code are read here.
+// Code and plain CSS are read here; CSS Modules are left out of this glob.
+// Since M3b1 (vite.config.ts `test.css.include`) `.css?raw` reads give the real
+// text, and src/styles/cssRules.test.ts checks every CSS file, modules
+// included (colours, font sizes, filters, absolute URLs).
 const sourceFiles = import.meta.glob<string>(
   ['/src/**/*.{ts,tsx,css}', '!/src/**/*.module.css'],
   { query: '?raw', import: 'default', eager: true },
