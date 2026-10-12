@@ -67,4 +67,15 @@ class ApplicationConfigTest {
     assertThat(value("management.endpoint.health.show-details")).isEqualTo("never");
     assertThat(value("management.endpoints.web.discovery.enabled")).isEqualTo("false");
   }
+
+  @Test
+  void wikimediaSettingsMatchPlan() {
+    // Empty default: no User-Agent means Wikimedia is off (plan M3a1, PM decision #25).
+    assertThat(value("wikimedia.user-agent")).isEqualTo("${WIKIMEDIA_USER_AGENT:}");
+    assertThat(value("wikimedia.connect-timeout")).isEqualTo("2s");
+    assertThat(value("wikimedia.read-timeout")).isEqualTo("4s");
+    assertThat(value("wikimedia.max-retries")).isEqualTo("1");
+    assertThat(value("wikimedia.rate-limit-max-wait")).isEqualTo("120s");
+    assertThat(value("wikimedia.kowiki-api-url")).isEqualTo("https://ko.wikipedia.org/w/api.php");
+  }
 }
