@@ -25,9 +25,10 @@ import org.springframework.web.client.RestClientException;
 
 /**
  * The only way out to Wikimedia. Sends the configured User-Agent, applies the timeouts, retries a
- * GET once on timeouts and 502/503/504, and honours 429 Retry-After per host. Never throws for
- * remote failures; logs one WARN line with the source, the page title and the status or exception
- * type (never the URL or the body).
+ * GET once on timeouts and 502/503/504, and honours Retry-After per host on a 429 and on a 503 (an
+ * overload signal per the Wikimedia rate-limit guidance; such a 503 is not retried). Never throws
+ * for remote failures; logs one WARN line with the source, the page title and the status or
+ * exception type (never the URL or the body).
  */
 @Component
 public class WikimediaHttpClient {
@@ -35,7 +36,11 @@ public class WikimediaHttpClient {
   private static final Logger log = LoggerFactory.getLogger(WikimediaHttpClient.class);
   private static final Set<Integer> RETRYABLE = Set.of(502, 503, 504);
 
-  private record Reply(int status, String retryAfter, String body) {}
+  private record Reply(int status, String retryAfter, String body) {
+    boolean hasRetryAfter() {
+      return retryAfter != null && !retryAfter.isBlank();
+    }
+  }
 
   private final WikimediaProperties properties;
   private final HostRateLimiter rateLimiter;
@@ -62,7 +67,10 @@ public class WikimediaHttpClient {
     if (!properties.enabled()) {
       return new Unavailable(Reason.DISABLED);
     }
-    String host = uri.getAuthority();
+    String host = uri == null || uri.getHost() == null ? null : uri.getAuthority();
+    if (host == null) {
+      return fail(source, title, "no host in URI", Reason.INVALID_URI);
+    }
     if (rateLimiter.isBlocked(host)) {
       return fail(source, title, "skipped, rate limited", Reason.RATE_LIMITED);
     }
@@ -73,9 +81,9 @@ public class WikimediaHttpClient {
         if (reply.status() >= 200 && reply.status() < 300) {
           return new Ok(reply.body());
         }
-        if (reply.status() == 429) {
+        if (reply.status() == 429 || (reply.status() == 503 && reply.hasRetryAfter())) {
           rateLimiter.block(host, reply.retryAfter());
-          return fail(source, title, "status 429", Reason.RATE_LIMITED);
+          return fail(source, title, "status " + reply.status(), Reason.RATE_LIMITED);
         }
         if (!canRetry || !RETRYABLE.contains(reply.status())) {
           return fail(source, title, "status " + reply.status(), Reason.HTTP_ERROR);

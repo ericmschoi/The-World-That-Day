@@ -12,10 +12,15 @@ public sealed interface WikimediaResponse {
   enum Reason {
     /** {@code wikimedia.user-agent} is empty; no request was sent. */
     DISABLED,
-    /** A 429 was received, or the host is still inside its Retry-After window. */
+    /**
+     * A 429 (or a 503 with Retry-After) was received, or the host is still inside its Retry-After
+     * window.
+     */
     RATE_LIMITED,
     TIMEOUT,
     HTTP_ERROR,
-    IO_ERROR
+    IO_ERROR,
+    /** The URI has no host; no request was sent. */
+    INVALID_URI
   }
 }
