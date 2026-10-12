@@ -91,7 +91,7 @@ class CachingKoWikiClientFailureIsolationTest extends WikimediaWireMockTest {
     wikimedia.stubFor(
         get(urlPathEqualTo(KOWIKI_PATH))
             .willReturn(
-                okJson("{}").withFixedDelay((int) properties.readTimeout().toMillis() * 4)));
+                okJson("{}").withFixedDelay((int) properties.readTimeout().toMillis() + 1000)));
 
     KoWikiPage stale = client.fetch(TITLE);
 
@@ -134,7 +134,7 @@ class CachingKoWikiClientFailureIsolationTest extends WikimediaWireMockTest {
     wikimedia.stubFor(
         get(urlPathEqualTo(KOWIKI_PATH))
             .willReturn(
-                okJson("{}").withFixedDelay((int) properties.readTimeout().toMillis() * 4)));
+                okJson("{}").withFixedDelay((int) properties.readTimeout().toMillis() + 1000)));
 
     KoWikiPage page = client.fetch(TITLE);
 

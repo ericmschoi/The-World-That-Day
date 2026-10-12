@@ -40,12 +40,25 @@ class WikimediaHttpClientTest {
   private final MutableClock clock =
       new MutableClock(Instant.parse("2026-01-01T00:00:00Z"), ClockConfig.SERVICE_ZONE);
 
+  /**
+   * Tests that are not about the read timeout use 2 s: a timed-out first attempt on a stalled
+   * machine would add a retry to their request counts (plan M3a1b T3 flaky-test check).
+   */
+  private static final Duration READ_TIMEOUT = Duration.ofSeconds(2);
+
+  /** The test value of plan M3a1 T1 (4), for tests that check timeout behaviour. */
+  private static final Duration SHORT_READ_TIMEOUT = Duration.ofMillis(300);
+
   private WikimediaHttpClient client(String userAgent) {
+    return client(userAgent, READ_TIMEOUT);
+  }
+
+  private WikimediaHttpClient client(String userAgent, Duration readTimeout) {
     WikimediaProperties properties =
         new WikimediaProperties(
             userAgent,
             Duration.ofSeconds(2),
-            Duration.ofMillis(300),
+            readTimeout,
             1,
             Duration.ofSeconds(120),
             3,
@@ -115,7 +128,7 @@ class WikimediaHttpClientTest {
     wikimedia.stubFor(get(urlPathEqualTo(PATH)).willReturn(ok("{}").withFixedDelay(1500)));
 
     long start = System.nanoTime();
-    WikimediaResponse response = call(client(USER_AGENT));
+    WikimediaResponse response = call(client(USER_AGENT, SHORT_READ_TIMEOUT));
     Duration elapsed = Duration.ofNanos(System.nanoTime() - start);
 
     assertThat(response).isEqualTo(new Unavailable(Reason.TIMEOUT));

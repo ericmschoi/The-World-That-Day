@@ -48,12 +48,25 @@ class WikimediaHttpClientRetryRulesTest {
   private final MutableClock clock =
       new MutableClock(Instant.parse("2026-01-01T00:00:00Z"), ClockConfig.SERVICE_ZONE);
 
+  /**
+   * Tests that are not about the read timeout use 2 s: a timed-out first attempt on a stalled
+   * machine would add a retry to their request counts (plan M3a1b T3 flaky-test check).
+   */
+  private static final Duration READ_TIMEOUT = Duration.ofSeconds(2);
+
+  /** The test value of plan M3a1 T1 (4), for tests that check timeout behaviour. */
+  private static final Duration SHORT_READ_TIMEOUT = Duration.ofMillis(300);
+
   private WikimediaHttpClient client(String userAgent) {
+    return client(userAgent, READ_TIMEOUT);
+  }
+
+  private WikimediaHttpClient client(String userAgent, Duration readTimeout) {
     return new WikimediaHttpClient(
         new WikimediaProperties(
             userAgent,
             Duration.ofSeconds(2),
-            Duration.ofMillis(300),
+            readTimeout,
             1,
             Duration.ofSeconds(120),
             3,
@@ -117,7 +130,7 @@ class WikimediaHttpClientRetryRulesTest {
             .whenScenarioStateIs("fast")
             .willReturn(ok("{\"parse\":{}}")));
 
-    assertThat(call(client(USER_AGENT))).isEqualTo(new Ok("{\"parse\":{}}"));
+    assertThat(call(client(USER_AGENT, SHORT_READ_TIMEOUT))).isEqualTo(new Ok("{\"parse\":{}}"));
     assertThat(requestCount()).isEqualTo(2);
   }
 
