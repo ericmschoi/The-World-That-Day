@@ -11,6 +11,8 @@ import java.net.http.HttpTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.NestedExceptionUtils;
@@ -26,9 +28,11 @@ import org.springframework.web.client.RestClientException;
 /**
  * The only way out to Wikimedia. Sends the configured User-Agent, applies the timeouts, retries a
  * GET once on timeouts and 502/503/504, and honours Retry-After per host on a 429 and on a 503 (an
- * overload signal per the Wikimedia rate-limit guidance; such a 503 is not retried). Never throws
- * for remote failures; logs one WARN line with the source, the page title and the status or
- * exception type (never the URL or the body).
+ * overload signal per the Wikimedia rate-limit guidance; such a 503 is not retried). At most {@code
+ * wikimedia.max-concurrent-requests} requests are in flight across all Wikimedia hosts; each
+ * attempt waits up to the read timeout for a slot. Never throws for remote failures; logs one WARN
+ * line with the source, the page title and the status or exception type (never the URL or the
+ * body).
  */
 @Component
 public class WikimediaHttpClient {
@@ -45,9 +49,11 @@ public class WikimediaHttpClient {
   private final WikimediaProperties properties;
   private final HostRateLimiter rateLimiter;
   private final RestClient restClient;
+  private final Semaphore permits;
 
   public WikimediaHttpClient(WikimediaProperties properties, Clock clock) {
     this.properties = properties;
+    this.permits = new Semaphore(properties.maxConcurrentRequests(), true);
     this.rateLimiter = new HostRateLimiter(clock, properties.rateLimitMaxWait());
     HttpClient http = HttpClient.newBuilder().connectTimeout(properties.connectTimeout()).build();
     JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory(http);
@@ -67,16 +73,25 @@ public class WikimediaHttpClient {
     if (!properties.enabled()) {
       return new Unavailable(Reason.DISABLED);
     }
-    String host = uri == null || uri.getHost() == null ? null : uri.getAuthority();
+    String host = host(uri);
     if (host == null) {
       return fail(source, title, "no host in URI", Reason.INVALID_URI);
     }
-    if (rateLimiter.isBlocked(host)) {
-      return fail(source, title, "skipped, rate limited", Reason.RATE_LIMITED);
-    }
     for (int attempt = 0; ; attempt++) {
       boolean canRetry = attempt < properties.maxRetries();
+      if (rateLimiter.isBlocked(host)) {
+        return fail(source, title, "skipped, rate limited", Reason.RATE_LIMITED);
+      }
+      if (!acquirePermit()) {
+        return Thread.currentThread().isInterrupted()
+            ? fail(
+                source, title, "interrupted while waiting for a request slot", Reason.INTERRUPTED)
+            : fail(source, title, "no free request slot", Reason.BUSY);
+      }
       try {
+        if (rateLimiter.isBlocked(host)) { // blocked by another request while this one waited
+          return fail(source, title, "skipped, rate limited", Reason.RATE_LIMITED);
+        }
         Reply reply = restClient.get().uri(uri).exchangeForRequiredValue(this::read);
         if (reply.status() >= 200 && reply.status() < 300) {
           return new Ok(reply.body());
@@ -94,8 +109,40 @@ public class WikimediaHttpClient {
           String cause = NestedExceptionUtils.getMostSpecificCause(e).getClass().getSimpleName();
           return fail(source, title, cause, timeout ? Reason.TIMEOUT : Reason.IO_ERROR);
         }
+      } finally {
+        permits.release();
       }
     }
+  }
+
+  /**
+   * Blocks the host of {@code uri} as a 429 without Retry-After does (30 seconds). For rate limits
+   * that arrive inside a 2xx body, such as the Action API error {@code ratelimited}.
+   */
+  public void blockHost(URI uri) {
+    String host = host(uri);
+    if (host != null) {
+      rateLimiter.block(host, null);
+    }
+  }
+
+  /** The shared request slots; tests use it to occupy every slot. */
+  Semaphore permits() {
+    return permits;
+  }
+
+  /** False on timeout, or on interrupt with the interrupt flag set again. */
+  private boolean acquirePermit() {
+    try {
+      return permits.tryAcquire(properties.readTimeout().toNanos(), TimeUnit.NANOSECONDS);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      return false;
+    }
+  }
+
+  private static String host(URI uri) {
+    return uri == null || uri.getHost() == null ? null : uri.getAuthority();
   }
 
   private Reply read(HttpRequest request, ConvertibleClientHttpResponse response)

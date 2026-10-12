@@ -9,13 +9,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiPage.State;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaWireMockTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 
-/** The client bean is wired to the shared Wikimedia client and the Boot JSON mapper. */
+/**
+ * The client bean is the wikitext cache wrapped around the Action API client, wired to the shared
+ * Wikimedia client and the Boot JSON mapper.
+ */
 class KoWikiClientContextTest extends WikimediaWireMockTest {
 
   @Autowired private KoWikiClient client;
+  @Autowired private JdbcTemplate jdbc;
+
+  @BeforeEach
+  void emptyCache() {
+    jdbc.execute("TRUNCATE wiki_section_cache");
+  }
 
   @Test
   void clientBeanReadsTheRecordedYearPage() {
@@ -34,8 +45,8 @@ class KoWikiClientContextTest extends WikimediaWireMockTest {
 
     KoWikiPage page = client.fetch("1988년");
 
-    assertThat(client).isInstanceOf(ActionApiKoWikiClient.class);
-    assertThat(page.state()).isEqualTo(State.FOUND);
+    assertThat(client).isInstanceOf(CachingKoWikiClient.class);
+    assertThat(page.state()).isEqualTo(State.FRESH);
     assertThat(page.revision()).isEqualTo(42640701L);
     assertThat(requestCount()).isEqualTo(3);
   }

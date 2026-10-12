@@ -47,4 +47,10 @@ wikimedia:
   max-retries: 1
   # Upper bound for a 429 Retry-After. The host gets no requests until the window ends.
   rate-limit-max-wait: 120s
+  # Requests in flight at once, shared by every Wikimedia host (API etiquette: at most 3).
+  # A request waits up to read-timeout for a free slot; otherwise nothing is sent.
+  max-concurrent-requests: 3
+  # How long a cached Wikipedia section (table wiki_section_cache) is used without asking again.
+  # After that it is read again; if that fails, the old copy is used (state STALE).
+  cache-ttl: 7d
   kowiki-api-url: https://ko.wikipedia.org/w/api.php

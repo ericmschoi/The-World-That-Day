@@ -12,8 +12,13 @@ import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
-/** Plan M3a1 T2 (2) recorded fixtures and (3) synthetic boundary cases. */
+/**
+ * Plan M3a1 T2 (2) recorded fixtures and (3) synthetic boundary cases; plan M3a1b T1 (4) HTML tags
+ * and entities.
+ */
 class WikitextEventParserTest {
 
   private static final LocalDate SEOUL_OLYMPICS = LocalDate.of(1988, 9, 17);
@@ -202,6 +207,72 @@ class WikitextEventParserTest {
     @Test
     void missingSectionGivesNothing() {
       assertThat(parser.parse(null, DATE, LEAP_DAY)).isEqualTo(new Result(List.of(), 0));
+    }
+  }
+
+  @Nested
+  class HtmlTagsAndEntities {
+
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(strings = {"<br>", "<small>", "<sup>", "<span style="})
+    void lineWithTheTagIsSkippedAndCounted(String tag) {
+      String line =
+          parserCase("html-tags").lines().filter(l -> l.contains(tag)).findFirst().orElseThrow();
+
+      Result result = parser.parse("== 사건 ==\n" + line, DATE, LEAP_DAY);
+
+      assertThat(result.events()).isEmpty();
+      assertThat(result.skippedLines()).isEqualTo(1);
+    }
+
+    @Test
+    void tagLinesAndTagSubLinesOfTheDateAreSkippedButPlainAngleBracketsStay() {
+      Result result = parser.parse(parserCase("html-tags"), DATE, LEAP_DAY);
+
+      assertThat(texts(result)).containsExactly("시험 사건 버: 1 < 2 > 0.");
+      assertThat(result.skippedLines()).isEqualTo(5); // four lines and one sub-line; not 2001
+    }
+
+    @Test
+    void listedAndNumericEntitiesBecomeTheirCharacters() {
+      Result result = parser.parse(parserCase("entities"), DATE, LEAP_DAY);
+
+      assertThat(result.events())
+          .containsExactly(
+              new ParsedEvent("시험 사건 가 & 나.", List.of()),
+              new ParsedEvent("시험 사건 다 1–2.", List.of()),
+              new ParsedEvent("시험 사건 라 3–4.", List.of()),
+              new ParsedEvent("시험 사건 마 5–6.", List.of()),
+              new ParsedEvent("시험 사건 사 <small> 표기와 &lt; 표기.", List.of()),
+              new ParsedEvent("시험 사건 아… 열렸다.", List.of("시험 문서 아&자")));
+    }
+
+    @Test
+    void unknownNamedEntityAndNonCharacterLinesAreSkippedAndCounted() {
+      Result result = parser.parse(parserCase("entities"), DATE, LEAP_DAY);
+
+      assertThat(texts(result)).noneMatch(text -> text.contains("시험 사건 바"));
+      assertThat(texts(result)).noneMatch(text -> text.contains("시험 사건 차"));
+      assertThat(result.skippedLines()).isEqualTo(2); // &foo; and &#xD800;, not the 2001 line
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(
+        strings = {
+          "&quot;시험&quot; &apos;사건&apos; &mdash; &middot; &gt;",
+          "&#34;시험&#34; &#39;사건&#39; &#x2014; &#xB7; &#X3E;"
+        })
+    void everyListedNameMatchesItsCodePoint(String body) {
+      Result result = parser.parse("== 사건 ==\n* [[2000년]] - " + body, DATE, LEAP_DAY);
+
+      assertThat(texts(result)).containsExactly("\"시험\" '사건' — · >");
+    }
+
+    @Test
+    void ampersandWithoutSemicolonIsLeftAlone() {
+      Result result = parser.parse("== 사건 ==\n* [[2000년]] - 시험 A&B 사건 &amp 끝.", DATE, LEAP_DAY);
+
+      assertThat(texts(result)).containsExactly("시험 A&B 사건 &amp 끝.");
     }
   }
 }

@@ -50,7 +50,9 @@ public abstract class WikimediaWireMockTest {
   @DynamicPropertySource
   static void wikimediaUrls(DynamicPropertyRegistry registry) {
     registry.add("wikimedia.user-agent", () -> TEST_USER_AGENT);
-    registry.add("wikimedia.read-timeout", () -> "300ms");
+    // 2 s, not 300 ms: context tests count requests, and a timed-out first attempt on a stalled
+    // machine adds a retry. Timeout behaviour is tested with short timeouts in the unit tests.
+    registry.add("wikimedia.read-timeout", () -> "2s");
     registry.add("wikimedia.kowiki-api-url", () -> wikimedia.baseUrl() + KOWIKI_PATH);
   }
 

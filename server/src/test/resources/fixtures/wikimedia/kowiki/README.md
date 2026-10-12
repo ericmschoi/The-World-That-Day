@@ -36,9 +36,11 @@
 | 파일 | 쓰임 |
 |---|---|
 | `synthetic/synthetic-02-29-*.json` | 윤일 날짜 문서 `2월 29일`: 절 번호가 1·2가 아닐 때(사건 2, 문화 3) 그 번호만 요청하는지 |
+| `synthetic/synthetic-02-29-next-*.json` | 같은 문서의 다음 판(`revid` 101, 사건 절만, 문화 절 없음): 캐시 갱신 시 행의 `revid`·본문이 바뀌는지(M3a1b) |
 | `synthetic/synthetic-2000-*.json` | 윤년 연도 문서 `2000년`: 문화 절이 없을 때(level 3 "문화"는 고르지 않음) 요청하지 않는지 |
 | `synthetic/synthetic-missingtitle.json` | 없는 문서 응답(`error.code` = `missingtitle`) |
-| `synthetic/parser/synthetic-*.wikitext` | 파서 경계 사례(별칭 링크, 굵은 글씨, 각주·주석, 파일·분류 링크, 하위 줄, 링크 없는 날짜, 엔 대시, 템플릿, 외부 링크, 날짜 범위, 읽을 수 없는 연도). 날짜는 2000-02-29 |
+| `synthetic/synthetic-ratelimited.json` | HTTP 200에 담긴 속도 제한 응답(`error.code` = `ratelimited`, M3a1b). 필드 구조는 Action API 오류 형식(`code`·`info`·`docref`)을 따랐다 |
+| `synthetic/parser/synthetic-*.wikitext` | 파서 경계 사례(별칭 링크, 굵은 글씨, 각주·주석, 파일·분류 링크, 하위 줄, 링크 없는 날짜, 엔 대시, 템플릿, 외부 링크, 날짜 범위, 읽을 수 없는 연도, M3a1b의 HTML 태그·엔티티). 날짜는 2000-02-29 |
 
 503·429 같은 HTTP 오류는 본문이 필요 없어 WireMock 상태 코드로만 만든다.
 

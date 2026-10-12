@@ -20,8 +20,8 @@ Every photo and video shows its source and when it was actually taken (same day 
 flowchart LR
     M0["M0<br/>Data source research"]:::done
     M1["M1<br/>Server and web skeleton"]:::done
-    C["Cleanup<br/>M1 follow-ups"]:::doing
-    M3["M3<br/>The world that day"]:::next
+    C["Cleanup<br/>M1 follow-ups"]:::done
+    M3["M3<br/>The world that day"]:::doing
     M2["M2<br/>Place resolution and input"]:::todo
     M4["M4<br/>The neighborhood"]:::todo
     M5["M5<br/>The city's landmarks"]:::todo
@@ -38,12 +38,36 @@ flowchart LR
 |---|---|---|
 | M0 Data source research | Verify sources for place search, aerial photos, maps and street view, archive media, and day-of events | ✅ Done (PR #1) |
 | M1 Bootstrap | `server/` (Spring Boot + PostgreSQL) and `web/` (React) skeletons, CI, empty result screen | ✅ Done (PR #2, #3) |
-| M1 follow-ups | CI path filter, `.env.example` cleanup, documented commands | 🟡 In review |
-| M3 The world that day | Events by exact date for any birth date, event photos and videos, design foundation and shared media card | 🔵 Planning |
+| M1 follow-ups | CI path filter, `.env.example` cleanup, documented commands | ✅ Done (PR #4) |
+| M3 The world that day | Events by exact date for any birth date, event photos and videos, design foundation and shared media card | 🟡 In progress (4 of 18 PRs merged) |
 | M2 Place resolution and input | Classify the place as region / neighborhood / spot, pick from candidates, opening line | ⚪ Planned |
 | M4 The neighborhood | Then-and-now aerial photos, street view, neighborhood photos | ⚪ Planned |
 | M5 The city's landmarks | Curated landmarks per region with archive media | ⚪ Planned |
 | M6 Story polish and demo | Story flow, performance, source list, demo | ⚪ Planned |
+
+### M3 in detail
+
+| Feature | Status |
+|---|---|
+| Video source research (Commons, official YouTube channels, 대한뉴스, provider embeds) | 🟡 In review |
+| M3a1 Korean Wikipedia client and event parser | ✅ Done (PR #5) |
+| M3a1b Wikipedia call hardening and section cache | 🟡 In review |
+| M3a1c Merge and dedup events across pages | ⚪ Planned |
+| M3a2 "The world that day" API | ⚪ Planned |
+| M3a3 Event photos and shared media format | ⚪ Planned |
+| M3a4 Video search framework and accuracy rules | ⚪ Planned |
+| M3a4b Commons videos and result cache | ⚪ Planned |
+| M3a5 Official YouTube channel videos (KTV archive) | ⚪ Planned, API key ready |
+| M3a5b 대한뉴스 newsreel matching | ⚪ Planned, needs a one-time index |
+| M3b1 Design tokens and media label rules | ✅ Done (PR #6) |
+| M3b1b Shared media card | ✅ Done (PR #7) |
+| M3b2 "The world that day" section | ⚪ Planned |
+| M3b2b Day photos, tragic-event block, card accessibility, browser tests | ⚪ Planned |
+| M3b3 Inline video playback (Commons) | ⚪ Planned |
+| M3b3b Privacy policy and consent step | ⚪ Planned |
+| M3b3c Official YouTube embeds | ⚪ Planned |
+
+Provider image embeds (Getty and others) were dropped from M3: automatic search needs a paid contract. They will be reconsidered at the public deployment decision.
 
 M3 comes before M2 because events depend only on the date, their sources are already verified, and they need no API keys. See the [roadmap](docs/roadmap.md) for feature-level detail.
 

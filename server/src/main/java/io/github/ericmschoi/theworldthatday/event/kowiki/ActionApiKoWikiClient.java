@@ -4,6 +4,7 @@ import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaHttpClient;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaProperties;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaResponse;
 import java.net.URI;
+import java.time.Clock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -15,7 +16,9 @@ import tools.jackson.databind.json.JsonMapper;
 /**
  * MediaWiki Action API ({@code action=parse}): one request for the section list and revision, then
  * one request per "사건"/"문화" section, pinned to that revision with {@code oldid}. Requests are
- * serial. Any failure makes the whole page unavailable so both sections come from one revision.
+ * serial. Any failure makes the whole page unavailable so both sections come from one revision. An
+ * API error {@code ratelimited} (sent with HTTP 200) is handled like a 429: no retry, and the host
+ * is blocked through {@link WikimediaHttpClient#blockHost}.
  */
 @Component
 public class ActionApiKoWikiClient implements KoWikiClient {
@@ -23,18 +26,21 @@ public class ActionApiKoWikiClient implements KoWikiClient {
   static final String SOURCE = "kowiki";
   static final String EVENTS = "사건";
   static final String CULTURE = "문화";
+  static final String RATELIMITED = "ratelimited";
 
   private static final Logger log = LoggerFactory.getLogger(ActionApiKoWikiClient.class);
 
   private final WikimediaHttpClient http;
   private final WikimediaProperties properties;
   private final JsonMapper json;
+  private final Clock clock;
 
   public ActionApiKoWikiClient(
-      WikimediaHttpClient http, WikimediaProperties properties, JsonMapper json) {
+      WikimediaHttpClient http, WikimediaProperties properties, JsonMapper json, Clock clock) {
     this.http = http;
     this.properties = properties;
     this.json = json;
+    this.clock = clock;
   }
 
   @Override
@@ -73,7 +79,7 @@ public class ActionApiKoWikiClient implements KoWikiClient {
     if (cultureIndex != null && culture == null) {
       return KoWikiPage.unavailable(title);
     }
-    return new KoWikiPage(title, KoWikiPage.State.FOUND, revid, events, culture);
+    return new KoWikiPage(title, KoWikiPage.State.FRESH, revid, events, culture, clock.instant());
   }
 
   /** The section's wikitext, or {@code null} when the request fails. */
@@ -111,7 +117,13 @@ public class ActionApiKoWikiClient implements KoWikiClient {
       return null;
     }
     try {
-      return json.readTree(body);
+      JsonNode tree = json.readTree(body);
+      if (RATELIMITED.equals(tree.path("error").path("code").asString(null))) {
+        http.blockHost(uri);
+        failed(title, "api error " + RATELIMITED);
+        return null;
+      }
+      return tree;
     } catch (JacksonException e) {
       failed(title, "invalid JSON");
       return null;

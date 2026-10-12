@@ -14,9 +14,19 @@ public sealed interface WikimediaResponse {
     DISABLED,
     /**
      * A 429 (or a 503 with Retry-After) was received, or the host is still inside its Retry-After
-     * window.
+     * window or a {@link WikimediaHttpClient#blockHost} window.
      */
     RATE_LIMITED,
+    /**
+     * No request slot ({@code wikimedia.max-concurrent-requests}) was free within the read timeout;
+     * no request was sent.
+     */
+    BUSY,
+    /**
+     * The calling thread was interrupted while waiting for a request slot; no request was sent and
+     * the thread's interrupt flag is still set.
+     */
+    INTERRUPTED,
     TIMEOUT,
     HTTP_ERROR,
     IO_ERROR,
