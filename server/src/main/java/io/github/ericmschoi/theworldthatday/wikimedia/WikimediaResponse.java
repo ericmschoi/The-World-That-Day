@@ -22,6 +22,11 @@ public sealed interface WikimediaResponse {
      * no request was sent.
      */
     BUSY,
+    /**
+     * The calling thread was interrupted while waiting for a request slot; no request was sent and
+     * the thread's interrupt flag is still set.
+     */
+    INTERRUPTED,
     TIMEOUT,
     HTTP_ERROR,
     IO_ERROR,

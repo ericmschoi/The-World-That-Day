@@ -29,16 +29,20 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 
 /**
  * Plan M3a1b T1 (2)~(3): at most {@code max-concurrent-requests} Wikimedia requests in flight
  * across every host, a request that gets no slot within the read timeout is never sent, and the
  * host-block entry point used for the Action API error {@code ratelimited}.
  */
+@ExtendWith(OutputCaptureExtension.class)
 class WikimediaHttpClientLimitsTest {
 
   @RegisterExtension
@@ -245,5 +249,23 @@ class WikimediaHttpClientLimitsTest {
 
     wikimedia.stubFor(get(urlPathEqualTo(PATH)).willReturn(ok("{}")));
     assertThat(client.get("kowiki", "9월 17일", uri("localhost"))).isEqualTo(new Ok("{}"));
+  }
+
+  @Test
+  void interruptWhileWaitingForASlotIsNotBusyAndKeepsTheFlag(CapturedOutput output) {
+    wikimedia.stubFor(get(urlPathEqualTo(PATH)).willReturn(ok("{}")));
+    WikimediaHttpClient client = client(Duration.ofSeconds(2), 3);
+    client.permits().drainPermits();
+
+    Thread.currentThread().interrupt();
+    WikimediaResponse response = client.get("kowiki", "9월 17일", uri("localhost"));
+    boolean stillInterrupted = Thread.interrupted(); // also clears it for the next test
+
+    assertThat(response).isEqualTo(new Unavailable(Reason.INTERRUPTED));
+    assertThat(stillInterrupted).isTrue();
+    assertThat(requestCount()).isZero();
+    assertThat(output.getAll())
+        .contains("interrupted while waiting for a request slot")
+        .doesNotContain("no free request slot");
   }
 }

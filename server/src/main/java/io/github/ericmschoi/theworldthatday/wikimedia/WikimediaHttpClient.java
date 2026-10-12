@@ -83,7 +83,10 @@ public class WikimediaHttpClient {
         return fail(source, title, "skipped, rate limited", Reason.RATE_LIMITED);
       }
       if (!acquirePermit()) {
-        return fail(source, title, "no free request slot", Reason.BUSY);
+        return Thread.currentThread().isInterrupted()
+            ? fail(
+                source, title, "interrupted while waiting for a request slot", Reason.INTERRUPTED)
+            : fail(source, title, "no free request slot", Reason.BUSY);
       }
       try {
         if (rateLimiter.isBlocked(host)) { // blocked by another request while this one waited
@@ -128,6 +131,7 @@ public class WikimediaHttpClient {
     return permits;
   }
 
+  /** False on timeout, or on interrupt with the interrupt flag set again. */
   private boolean acquirePermit() {
     try {
       return permits.tryAcquire(properties.readTimeout().toNanos(), TimeUnit.NANOSECONDS);
