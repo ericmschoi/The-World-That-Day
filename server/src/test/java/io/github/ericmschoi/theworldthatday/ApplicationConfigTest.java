@@ -50,6 +50,13 @@ class ApplicationConfigTest {
             "jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/${POSTGRES_DB:the_world_that_day}");
   }
 
+  /** Plan M3a1c T1b: a cache read on a dead database fails well inside the day deadline. */
+  @Test
+  void connectionWaitIsShortAndValidationShorterStill() {
+    assertThat(value("spring.datasource.hikari.connection-timeout")).isEqualTo("1000");
+    assertThat(value("spring.datasource.hikari.validation-timeout")).isEqualTo("500");
+  }
+
   @Test
   void rootEnvFileImportIsOptional() {
     assertThat(value("spring.config.import")).isEqualTo("optional:file:../.env[.properties]");
@@ -77,5 +84,7 @@ class ApplicationConfigTest {
     assertThat(value("wikimedia.max-retries")).isEqualTo("1");
     assertThat(value("wikimedia.rate-limit-max-wait")).isEqualTo("120s");
     assertThat(value("wikimedia.kowiki-api-url")).isEqualTo("https://ko.wikipedia.org/w/api.php");
+    assertThat(value("wikimedia.kowiki-day-deadline")).isEqualTo("5s");
+    assertThat(value("wikimedia.dedup.min-link-overlap")).isEqualTo("0.6");
   }
 }

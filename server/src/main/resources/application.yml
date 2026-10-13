@@ -10,6 +10,18 @@ spring:
     url: jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/${POSTGRES_DB:the_world_that_day}
     username: ${POSTGRES_USER:postgres}
     password: ${POSTGRES_PASSWORD}
+    hikari:
+      # Milliseconds (Hikari binds a plain long; "1000ms" fails startup).
+      # How long a caller waits for a pooled connection (Hikari default 30s). A day of Korean
+      # Wikipedia events makes up to 2 database waits when the database is unreachable or the
+      # pool is exhausted (one read per page; the write is skipped after a failed read) inside
+      # wikimedia.kowiki-day-deadline (5s): 2 x 1s leaves the rest for the Wikipedia requests.
+      # A warm pool hands out connections in microseconds and a new local connection takes tens
+      # of milliseconds, so 1s is far above normal waits.
+      connection-timeout: 1000
+      # Hikari requires validation-timeout < connection-timeout (default 5s would let a hung
+      # database hold a borrow past the connection timeout while the connection is checked).
+      validation-timeout: 500
   jpa:
     # Schema changes go through Flyway only.
     hibernate:
@@ -53,4 +65,13 @@ wikimedia:
   # How long a cached Wikipedia section (table wiki_section_cache) is used without asking again.
   # After that it is read again; if that fails, the old copy is used (state STALE).
   cache-ttl: 7d
+  # Upper bound for one date of Korean Wikipedia events (plan M3a1c): both pages plus the link
+  # lookup. A date page that timed out skips the year page request (its cached copy is still used).
+  kowiki-day-deadline: 5s
+  dedup:
+    # Rule D3: two lines that share a specific main link are one event when their specific links
+    # (not countries, cities or year/date pages) overlap at least this much: shared specific links
+    # / specific links of the larger set. Above 0.5 so lines sharing only the tournament stay
+    # apart. Lines that both link countries or cities, none in common, never merge by D3.
+    min-link-overlap: 0.6
   kowiki-api-url: https://ko.wikipedia.org/w/api.php

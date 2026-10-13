@@ -1,4 +1,4 @@
-# 한국어 위키백과 fixture (M3a1 T2)
+# 한국어 위키백과 fixture (M3a1 T2, M3a1c T1)
 
 ## 녹화 fixture (이 폴더의 `*.json`)
 
@@ -29,6 +29,21 @@
 | `1995-events.json` | 1995년 (사건 절) | 42616845 | `https://ko.wikipedia.org/w/api.php?action=parse&oldid=42616845&prop=wikitext&section=1&format=json&formatversion=2` |
 | `1995-culture.json` | 1995년 (문화 절) | 42616845 | `https://ko.wikipedia.org/w/api.php?action=parse&oldid=42616845&prop=wikitext&section=2&format=json&formatversion=2` |
 
+## 링크 해석 녹화 fixture (`pageprops-*.json`, M3a1c T1)
+
+- 출처: 한국어 위키백과 MediaWiki Action API `action=query&prop=pageprops&ppprop=wikibase_item&redirects=1` 응답을 그대로 저장했다(바이트 수정 없음). 요청한 제목은 데모 날짜 사건 줄의 링크를 처음 나온 순서대로 `|` 로 묶은 것이고, `KoWikiEventSource` 가 보내는 요청과 같다.
+- 녹화 일자: 2026-10-12 (22:54~22:55 UTC), backend-dev가 `curl` 로 한 번씩 받았다. User-Agent는 공개값(#25 (a), 저장소 URL)을 썼다.
+- 라이선스: 위키백과 API 응답(문서 제목·문서 번호), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). 응답 안의 Wikidata 항목 ID(`wikibase_item`)는 Wikidata 데이터로 [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/).
+- 판 번호: `query` 응답에는 `revid` 가 없다(문서마다 `pageid` 만 있다). 해석 결과(넘겨주기, QID)는 녹화 시점의 것이다.
+- 응답에 든 넘겨주기: `서울` → `서울특별시`, `2002 FIFA 월드컵` → `2002년 FIFA 월드컵`.
+
+| 파일 | 데모 날짜 | 요청한 제목 | 원 URL |
+|---|---|---|---|
+| `pageprops-1988-09-17.json` | 1988-09-17 | 1988년 하계 올림픽, 대한민국, 서울, 서울특별시, KBS 1TV, KBS 2TV | `https://ko.wikipedia.org/w/api.php?action=query&prop=pageprops&ppprop=wikibase_item&redirects=1&titles=1988%eb%85%84+%ed%95%98%ea%b3%84+%ec%98%ac%eb%a6%bc%ed%94%bd%7c%eb%8c%80%ed%95%9c%eb%af%bc%ea%b5%ad%7c%ec%84%9c%ec%9a%b8%7c%ec%84%9c%ec%9a%b8%ed%8a%b9%eb%b3%84%ec%8b%9c%7cKBS+1TV%7cKBS+2TV&format=json&formatversion=2` |
+| `pageprops-2002-06-22.json` | 2002-06-22 | 2002 FIFA 월드컵, 2002년 FIFA 월드컵 | `https://ko.wikipedia.org/w/api.php?action=query&prop=pageprops&ppprop=wikibase_item&redirects=1&titles=2002+FIFA+%ec%9b%94%eb%93%9c%ec%bb%b5%7c2002%eb%85%84+FIFA+%ec%9b%94%eb%93%9c%ec%bb%b5&format=json&formatversion=2` |
+
+1995-03-15 은 그날 사건이 없어 링크 해석 요청을 보내지 않으므로 fixture가 없다.
+
 ## 합성 fixture (`synthetic/`)
 
 파일 이름이 모두 `synthetic-` 로 시작한다. 위키백과에서 받은 것이 아니라 손으로 쓴 것이고, 내용은 "시험 사건 가" 같은 중립 문장뿐이다. 실제 사건·인물을 담지 않는다.
@@ -40,6 +55,9 @@
 | `synthetic/synthetic-2000-*.json` | 윤년 연도 문서 `2000년`: 문화 절이 없을 때(level 3 "문화"는 고르지 않음) 요청하지 않는지 |
 | `synthetic/synthetic-missingtitle.json` | 없는 문서 응답(`error.code` = `missingtitle`) |
 | `synthetic/synthetic-ratelimited.json` | HTTP 200에 담긴 속도 제한 응답(`error.code` = `ratelimited`, M3a1b). 필드 구조는 Action API 오류 형식(`code`·`info`·`docref`)을 따랐다 |
+| `synthetic/dedup/synthetic-counterexample-*.wikitext` | 중복 제거 반례(M3a1c T2): 날짜 문서 문화 절의 "시험 대회 A조 경기 가"와 연도 문서 사건 절의 "시험 대회 A조 경기 나"가 대표 링크 `시험 대회` 만 공유한다. 겹침 계수 0.5가 기준값보다 낮아 둘 다 남아야 한다 |
+| `synthetic/dedup/synthetic-one-link-*.wikitext` | 보정한 D3(M3a1c T4·T5): 날짜 문서 문화 절의 링크 1개 줄(`2002 시험 대회`)이 연도 문서 문화 절의 같은 대회·다른 경기 줄(`2002년 시험 대회`, `시험 팀 다`, `시험 팀 라`)을 흡수하지 않아 둘 다 남아야 한다 |
+| `synthetic/dedup/synthetic-country-pair-*.wikitext` | 일반 링크 충돌(M3a1c T4 (6)·T5): 같은 대회 링크에 서로 다른 나라 쌍(`대한민국`·`스페인` / `독일`·`미국`)을 나라 문서 링크로만 단 두 줄. 경기 결과는 적지 않는다. 둘 다 남아야 한다 |
 | `synthetic/parser/synthetic-*.wikitext` | 파서 경계 사례(별칭 링크, 굵은 글씨, 각주·주석, 파일·분류 링크, 하위 줄, 링크 없는 날짜, 엔 대시, 템플릿, 외부 링크, 날짜 범위, 읽을 수 없는 연도, M3a1b의 HTML 태그·엔티티). 날짜는 2000-02-29 |
 
 503·429 같은 HTTP 오류는 본문이 필요 없어 WireMock 상태 코드로만 만든다.

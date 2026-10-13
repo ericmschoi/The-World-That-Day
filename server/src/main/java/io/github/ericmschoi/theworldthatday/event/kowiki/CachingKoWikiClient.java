@@ -21,7 +21,9 @@ import org.springframework.transaction.TransactionException;
  * {@code UNAVAILABLE} without one. Missing pages are not cached, and a row whose page is now
  * missing is deleted so it can never come back as {@code STALE}. Only raw wikitext is stored, so
  * parser changes never need a cache flush. A database error, including an unreachable database,
- * only costs the cache: the page is still read from Wikipedia and nothing is thrown.
+ * only costs the cache: the page is still read from Wikipedia and nothing is thrown. After a failed
+ * read the same call does not write either (plan M3a1c T4), so an unreachable database costs one
+ * connection wait per page, not two.
  */
 @Primary
 @Component
@@ -48,8 +50,15 @@ public class CachingKoWikiClient implements KoWikiClient {
   @Override
   public KoWikiPage fetch(String title) {
     Optional<WikiSectionCache> cached = find(title);
-    if (cached.isPresent()
-        && cached.get().fetchedAt().plus(properties.cacheTtl()).isAfter(clock.instant())) {
+    if (cached == null) { // the database failed: a write would only wait and fail the same way
+      KoWikiPage page = delegate.fetch(title);
+      if (page.state() != State.FRESH) {
+        return page;
+      }
+      log.debug("Wiki section cache write skipped: title={}", title);
+      return fresh(page, micros(page));
+    }
+    if (cached.isPresent() && isFresh(cached.get())) {
       return page(title, cached.get(), State.CACHED);
     }
     KoWikiPage page = delegate.fetch(title);
@@ -66,6 +75,18 @@ public class CachingKoWikiClient implements KoWikiClient {
     };
   }
 
+  @Override
+  public KoWikiPage cached(String title) {
+    return Optional.ofNullable(find(title))
+        .flatMap(row -> row)
+        .map(row -> page(title, row, isFresh(row) ? State.CACHED : State.STALE))
+        .orElseGet(() -> KoWikiPage.unavailable(title));
+  }
+
+  private boolean isFresh(WikiSectionCache row) {
+    return row.fetchedAt().plus(properties.cacheTtl()).isAfter(clock.instant());
+  }
+
   private void delete(String title) {
     try {
       repository.deleteBySiteAndPageTitle(site(), title);
@@ -74,18 +95,19 @@ public class CachingKoWikiClient implements KoWikiClient {
     }
   }
 
+  /** The cache row, if any, or {@code null} when the database failed. */
   private Optional<WikiSectionCache> find(String title) {
     try {
       return repository.findBySiteAndPageTitle(site(), title);
     } catch (DataAccessException | TransactionException e) {
       log.warn("Wiki section cache read failed: title={} cause={}", title, cause(e));
-      return Optional.empty();
+      return null;
     }
   }
 
   /** Stores the page and returns it with the stored {@code fetched_at} (microseconds). */
   private KoWikiPage save(KoWikiPage page) {
-    Instant fetchedAt = page.fetchedAt().truncatedTo(ChronoUnit.MICROS);
+    Instant fetchedAt = micros(page);
     try {
       repository.upsert(
           site(),
@@ -97,6 +119,14 @@ public class CachingKoWikiClient implements KoWikiClient {
     } catch (DataAccessException | TransactionException e) {
       log.warn("Wiki section cache write failed: title={} cause={}", page.title(), cause(e));
     }
+    return fresh(page, fetchedAt);
+  }
+
+  private static Instant micros(KoWikiPage page) {
+    return page.fetchedAt().truncatedTo(ChronoUnit.MICROS);
+  }
+
+  private static KoWikiPage fresh(KoWikiPage page, Instant fetchedAt) {
     return new KoWikiPage(
         page.title(),
         State.FRESH,

@@ -46,6 +46,7 @@ class WikimediaTestDefaultsTest {
     assertThat(properties.rateLimitMaxWait()).isEqualTo(Duration.ofSeconds(120));
     assertThat(properties.maxConcurrentRequests()).isEqualTo(3);
     assertThat(properties.cacheTtl()).isEqualTo(Duration.ofDays(7));
+    assertThat(properties.kowikiDayDeadline()).isEqualTo(Duration.ofSeconds(5));
   }
 
   @Test

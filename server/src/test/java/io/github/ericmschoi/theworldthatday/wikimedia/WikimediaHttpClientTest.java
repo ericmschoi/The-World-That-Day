@@ -63,6 +63,7 @@ class WikimediaHttpClientTest {
             Duration.ofSeconds(120),
             3,
             Duration.ofDays(7),
+            Duration.ofSeconds(5),
             URI.create(wikimedia.baseUrl() + PATH));
     return new WikimediaHttpClient(properties, clock);
   }
@@ -136,6 +137,25 @@ class WikimediaHttpClientTest {
     assertThat(requestCount()).isEqualTo(2);
     wikimedia.verify(
         2, getRequestedFor(urlPathEqualTo(PATH)).withHeader("User-Agent", equalTo(USER_AGENT)));
+  }
+
+  /** Plan M3a1c: the event source compares timeout counts to tell a stalled host. */
+  @Test
+  void timedOutAttemptsAreCountedPerHostAndOtherFailuresAreNot() {
+    WikimediaHttpClient client = client(USER_AGENT, SHORT_READ_TIMEOUT);
+    URI uri = URI.create(wikimedia.baseUrl() + PATH);
+    assertThat(client.timeouts(uri)).isZero();
+
+    wikimedia.stubFor(get(urlPathEqualTo(PATH)).willReturn(ok("{}").withFixedDelay(1500)));
+    call(client);
+    assertThat(client.timeouts(uri)).as("first attempt and its retry").isEqualTo(2);
+    assertThat(client.timeouts(URI.create("http://other.test/w/api.php"))).isZero();
+    assertThat(client.timeouts(URI.create("/relative"))).isZero();
+
+    wikimedia.resetAll();
+    wikimedia.stubFor(get(urlPathEqualTo(PATH)).willReturn(aResponse().withStatus(503)));
+    call(client);
+    assertThat(client.timeouts(uri)).as("a 503 is not a timeout").isEqualTo(2);
   }
 
   @Test

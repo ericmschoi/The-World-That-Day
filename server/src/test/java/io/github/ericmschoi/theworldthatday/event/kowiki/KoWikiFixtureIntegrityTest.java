@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,10 @@ import org.junit.jupiter.api.Test;
 class KoWikiFixtureIntegrityTest {
 
   private static final Path ROOT = Path.of("src/test/resources/fixtures/wikimedia/kowiki");
+  private static final String PAGEPROPS = "pageprops-";
+  private static final Pattern PAGEPROPS_ROW =
+      Pattern.compile(
+          "^\\| `(pageprops-[^`]+\\.json)` \\| (\\d{4}-\\d{2}-\\d{2}) \\| ([^|]+?) \\| `([^`]+)` \\|$");
   private static final Pattern PEOPLE_HEADING = Pattern.compile("==\\s*(탄생|사망|기념일)\\s*==");
   private static final Pattern LEVEL2_HEADING =
       Pattern.compile("(?m)^==(?!=)\\s*(.*?)\\s*==(?!=)\\s*$");
@@ -33,7 +38,12 @@ class KoWikiFixtureIntegrityTest {
     }
   }
 
+  /** Recorded page fixtures; the link lookup fixtures ({@code pageprops-*.json}) have no revid. */
   private static List<String> recordedJson() throws IOException {
+    return jsonFiles().stream().filter(name -> !name.startsWith(PAGEPROPS)).toList();
+  }
+
+  private static List<String> jsonFiles() throws IOException {
     try (Stream<Path> list = Files.list(ROOT)) {
       return list.map(path -> path.getFileName().toString())
           .filter(name -> name.endsWith(".json"))
@@ -121,6 +131,42 @@ class KoWikiFixtureIntegrityTest {
             assertThat(headings).as(prefix + " " + kind[0]).containsExactly(kind[1]);
             assertThat(text).as(prefix + " " + kind[0]).startsWith("== " + kind[1] + " ==");
           }
+        });
+  }
+
+  /** Plan M3a1c T1: the recorded link lookups are listed with URL, date and licence. */
+  @Test
+  void readmeListsEveryPagepropsFixtureWithItsRequestedTitles() throws IOException {
+    String readme = KoWikiFixtureReadme.text();
+    Map<String, String[]> rows = new java.util.LinkedHashMap<>();
+    for (String line : readme.split("\n")) {
+      Matcher row = PAGEPROPS_ROW.matcher(line.strip());
+      if (row.matches()) {
+        rows.put(row.group(1), new String[] {row.group(3), row.group(4)});
+      }
+    }
+
+    assertThat(rows.keySet())
+        .containsExactlyInAnyOrderElementsOf(
+            jsonFiles().stream().filter(name -> name.startsWith(PAGEPROPS)).toList())
+        .containsExactlyInAnyOrder("pageprops-1988-09-17.json", "pageprops-2002-06-22.json");
+    assertThat(readme).contains("2026-10-12").contains("CC BY-SA 4.0").contains("CC0");
+    rows.forEach(
+        (file, row) -> {
+          String titles = String.join("|", row[0].split(", "));
+          String encoded = // curl wrote its percent escapes in lower case
+              Pattern.compile("%[0-9A-F]{2}")
+                  .matcher(URLEncoder.encode(titles, StandardCharsets.UTF_8))
+                  .replaceAll(escape -> escape.group().toLowerCase());
+          assertThat(row[1])
+              .as(file)
+              .startsWith("https://ko.wikipedia.org/w/api.php?action=query&prop=pageprops")
+              .contains("ppprop=wikibase_item&redirects=1")
+              .contains("titles=" + encoded + "&");
+          assertThat(
+                  KoWikiFixtures.JSON.readTree(KoWikiFixtures.read(file)).path("query").isObject())
+              .as(file)
+              .isTrue();
         });
   }
 

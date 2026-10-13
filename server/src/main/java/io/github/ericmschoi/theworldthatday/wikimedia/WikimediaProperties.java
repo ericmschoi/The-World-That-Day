@@ -15,6 +15,7 @@ public record WikimediaProperties(
     Duration rateLimitMaxWait,
     @DefaultValue("3") int maxConcurrentRequests,
     @DefaultValue("7d") Duration cacheTtl,
+    @DefaultValue("5s") Duration kowikiDayDeadline,
     URI kowikiApiUrl) {
 
   public WikimediaProperties {
@@ -24,6 +25,10 @@ public record WikimediaProperties(
     }
     if (cacheTtl == null || cacheTtl.isNegative() || cacheTtl.isZero()) {
       throw new IllegalArgumentException("wikimedia.cache-ttl must be positive, got: " + cacheTtl);
+    }
+    if (kowikiDayDeadline == null || kowikiDayDeadline.isNegative() || kowikiDayDeadline.isZero()) {
+      throw new IllegalArgumentException(
+          "wikimedia.kowiki-day-deadline must be positive, got: " + kowikiDayDeadline);
     }
     requireAbsoluteHttpUrl("wikimedia.kowiki-api-url", kowikiApiUrl);
   }
