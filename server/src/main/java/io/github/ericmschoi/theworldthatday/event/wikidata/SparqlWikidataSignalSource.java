@@ -5,6 +5,7 @@ import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaHttpClient;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaResponse;
 import java.math.BigDecimal;
 import java.net.URI;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -17,6 +18,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +39,7 @@ public class SparqlWikidataSignalSource implements WikidataSignalSource {
   static final String SOURCE = "wikidata";
   private static final Logger log = LoggerFactory.getLogger(SparqlWikidataSignalSource.class);
   private static final String ENTITY = "http://www.wikidata.org/entity/";
+  private static final Duration CANCEL_GRACE = Duration.ofSeconds(1);
 
   private final WikimediaHttpClient http;
   private final WikidataProperties properties;
@@ -144,15 +147,29 @@ public class SparqlWikidataSignalSource implements WikidataSignalSource {
     }
   }
 
-  /** The response, or empty when the read timeout passes first (the request is cancelled). */
+  /**
+   * The response, or empty when the read timeout passes first. Then the request is interrupted and
+   * normally ends at once with its own WARN from {@link WikimediaHttpClient}; the deadline is only
+   * logged here when it did not, so one failure is one WARN line.
+   */
   private Optional<WikimediaResponse> within(String label, Callable<WikimediaResponse> call) {
-    FutureTask<WikimediaResponse> future = new FutureTask<>(call);
-    Thread.ofVirtual().name("wikidata").start(future);
+    AtomicReference<WikimediaResponse> finished = new AtomicReference<>();
+    FutureTask<WikimediaResponse> future =
+        new FutureTask<>(
+            () -> {
+              WikimediaResponse response = call.call();
+              finished.set(response);
+              return response;
+            });
+    Thread thread = Thread.ofVirtual().name("wikidata").start(future);
     try {
       return Optional.of(
           future.get(properties.wikidataReadTimeout().toNanos(), TimeUnit.NANOSECONDS));
     } catch (TimeoutException e) {
-      log.warn("Wikimedia call failed: source={} title={} cause=deadline", SOURCE, label);
+      future.cancel(true);
+      if (!ended(thread) || !(finished.get() instanceof WikimediaResponse.Unavailable)) {
+        log.warn("Wikimedia call failed: source={} title={} cause=deadline", SOURCE, label);
+      }
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     } catch (ExecutionException e) {
@@ -165,5 +182,15 @@ public class SparqlWikidataSignalSource implements WikidataSignalSource {
       future.cancel(true);
     }
     return Optional.empty();
+  }
+
+  /** Whether the interrupted request thread ended within a short grace period. */
+  private static boolean ended(Thread thread) {
+    try {
+      return thread.join(CANCEL_GRACE);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      return false;
+    }
   }
 }

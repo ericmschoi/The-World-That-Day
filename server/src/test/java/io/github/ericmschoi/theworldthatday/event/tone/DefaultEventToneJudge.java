@@ -6,8 +6,8 @@ import java.util.List;
 
 /**
  * Every event gets the conservative verdict (rule 6 of the tone table), {@code tragic}/{@code
- * default} with scope {@code unknown}, and no source is asked. Not a bean: the application uses
- * {@link CuratedEventToneJudge}; this one serves tests that only check the response mapping.
+ * default} with scope {@code unknown}, and no source is asked. A test double, not a bean: the app
+ * uses {@link CuratedEventToneJudge}; this one serves tests that only check the response mapping.
  */
 public class DefaultEventToneJudge implements EventToneJudge {
 

@@ -186,7 +186,7 @@ public class SparqlWikidataSignalSourceTest {
   }
 
   @Test
-  void slowServiceEndsWithinTheReadTimeout() {
+  void slowServiceEndsWithinTheReadTimeoutWithOneWarn(CapturedOutput output) {
     wikidata.stubFor(
         get(urlPathEqualTo(PATH))
             .willReturn(okJson(fixture("synthetic/synthetic-signals.json")).withFixedDelay(3000)));
@@ -196,6 +196,10 @@ public class SparqlWikidataSignalSourceTest {
 
     assertThat(signals).isEmpty();
     assertThat(Duration.ofNanos(System.nanoTime() - start)).isLessThan(Duration.ofMillis(2500));
+    assertThat(output.getAll().lines())
+        .filteredOn(line -> line.contains(" WARN ") && line.contains("source=wikidata"))
+        .as("one failure, one WARN line")
+        .hasSize(1);
   }
 
   @Test

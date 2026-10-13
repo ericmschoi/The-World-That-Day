@@ -77,10 +77,10 @@ public class WikimediaHttpClient {
 
   /** As {@link #get(String, String, URI)}, with {@code readTimeout} for each attempt. */
   public WikimediaResponse get(String source, String title, URI uri, Duration readTimeout) {
-    RestClient restClient = restClients.computeIfAbsent(readTimeout, this::restClient);
     if (!properties.enabled()) {
       return new Unavailable(Reason.DISABLED);
     }
+    RestClient restClient = restClients.computeIfAbsent(readTimeout, this::restClient);
     String host = host(uri);
     if (host == null) {
       return fail(source, title, "no host in URI", Reason.INVALID_URI);

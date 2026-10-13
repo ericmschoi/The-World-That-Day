@@ -79,6 +79,8 @@ wikimedia:
   # (CC0). One request per world API call; each attempt and the whole lookup end within
   # wikidata-read-timeout. The address is a setting because the service is moving to a new backend.
   wikidata-sparql-url: https://query.wikidata.org/sparql
+  # The first attempt's read timeout is the whole 5s budget, so after a timeout no retry happens
+  # (max-retries only helps when a 502/503/504 comes back quickly).
   wikidata-read-timeout: 5s
   # Instances of subclasses of these are tragic (rule:class): disaster, accident, terrorist attack,
   # armed conflict.
