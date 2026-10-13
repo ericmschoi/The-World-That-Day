@@ -11,6 +11,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HexFormat;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,32 +32,36 @@ import org.springframework.stereotype.Component;
  * <p>Everything for one date fits in {@code wikimedia.kowiki-day-deadline}: each step runs on a
  * virtual thread and is awaited for the time left only, so neither a stalled Wikipedia host nor a
  * stalled database can hold the caller longer. If the date page failed with a timeout (or the
- * deadline), the year page is not requested and only its cached copy is used.
+ * deadline), the year page is not requested and only its cached copy is used. Lines describing the
+ * same event are then merged by {@link KoWikiEventDeduplicator}.
  */
 @Component
 public class TwoPageKoWikiEventSource implements KoWikiEventSource {
 
   private static final Logger log = LoggerFactory.getLogger(TwoPageKoWikiEventSource.class);
 
-  private record Line(KoWikiPage page, String section, ParsedEvent event) {}
+  private record Line(KoWikiPage page, String section, int order, ParsedEvent event) {}
 
   private final KoWikiClient client;
   private final KoWikiLinkResolver resolver;
   private final WikitextEventParser parser;
   private final WikimediaHttpClient http;
   private final WikimediaProperties properties;
+  private final KoWikiEventDeduplicator deduplicator;
 
   public TwoPageKoWikiEventSource(
       KoWikiClient client,
       KoWikiLinkResolver resolver,
       WikitextEventParser parser,
       WikimediaHttpClient http,
-      WikimediaProperties properties) {
+      WikimediaProperties properties,
+      KoWikiEventDeduplicator deduplicator) {
     this.client = client;
     this.resolver = resolver;
     this.parser = parser;
     this.http = http;
     this.properties = properties;
+    this.deduplicator = deduplicator;
   }
 
   @Override
@@ -90,7 +95,8 @@ public class TwoPageKoWikiEventSource implements KoWikiEventSource {
                 : page.cultureWikitext();
         WikitextEventParser.Result parsed = parser.parse(wikitext, kind, date);
         skipped += parsed.skippedLines();
-        parsed.events().forEach(event -> lines.add(new Line(page, section, event)));
+        int order = kind.ordinal() * 2 + (section.equals(ActionApiKoWikiClient.EVENTS) ? 0 : 1);
+        parsed.events().forEach(event -> lines.add(new Line(page, section, order, event)));
       }
     }
 
@@ -102,36 +108,38 @@ public class TwoPageKoWikiEventSource implements KoWikiEventSource {
             : Optional.ofNullable(within(deadline, "pageprops", () -> resolver.resolve(titles)))
                 .flatMap(resolved -> resolved);
     Map<String, Link> resolved = links.orElse(Map.of());
-    List<KoWikiEvent> events = lines.stream().map(line -> event(date, line, resolved)).toList();
+    KoWikiEventDeduplicator.Result deduplicated =
+        deduplicator.dedup(lines.stream().map(line -> candidate(date, line, resolved)).toList());
     List<KoWikiDocStatus> docs =
         pages.stream()
             .map(p -> new KoWikiDocStatus(p.title(), p.revision(), p.fetchedAt(), p.state()))
             .toList();
-    return new KoWikiDayResult(date, events, docs, skipped, 0, links.isEmpty());
+    return new KoWikiDayResult(
+        date, deduplicated.events(), docs, skipped, deduplicated.mergedCount(), links.isEmpty());
   }
 
-  private static KoWikiEvent event(LocalDate date, Line line, Map<String, Link> links) {
-    List<String> titles = normalized(line.event());
-    List<String> canonical =
-        titles.stream()
-            .map(title -> links.containsKey(title) ? links.get(title).title() : title)
-            .distinct()
-            .toList();
-    String qid =
-        titles.isEmpty() || !links.containsKey(titles.getFirst())
-            ? null
-            : links.get(titles.getFirst()).wikidataQid();
+  /** The event with canonical links (unresolved links keep their normalized title, no QID). */
+  private static KoWikiEventDeduplicator.Candidate candidate(
+      LocalDate date, Line line, Map<String, Link> links) {
+    Map<String, Link> canonical = new LinkedHashMap<>();
+    for (String title : normalized(line.event())) {
+      Link link = links.getOrDefault(title, new Link(title, null));
+      canonical.putIfAbsent(link.title(), link);
+    }
+    List<Link> resolved = List.copyOf(canonical.values());
     KoWikiPage page = line.page();
-    return new KoWikiEvent(
-        id(date, page.title(), line.event().text()),
-        date,
-        page.title(),
-        line.section(),
-        page.revision(),
-        line.event().text(),
-        canonical,
-        qid,
-        page.fetchedAt());
+    KoWikiEvent event =
+        new KoWikiEvent(
+            id(date, page.title(), line.event().text()),
+            date,
+            page.title(),
+            line.section(),
+            page.revision(),
+            line.event().text(),
+            resolved.stream().map(Link::title).toList(),
+            resolved.isEmpty() ? null : resolved.getFirst().wikidataQid(),
+            page.fetchedAt());
+    return new KoWikiEventDeduplicator.Candidate(event, line.order(), resolved);
   }
 
   private static List<String> normalized(ParsedEvent event) {

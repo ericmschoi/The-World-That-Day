@@ -1,0 +1,69 @@
+# Generic Korean Wikipedia links for event deduplication (plan M3a1c, rule D3): countries and
+# cities that are linked from many unrelated event lines. A line whose main link is listed here
+# never merges through that link alone. Initial list: every country and city link in the 12
+# recorded "사건"/"문화" sections of the demo pages (fixtures/wikimedia/kowiki). One title per line.
+# Countries and states
+대한민국
+한국
+조선민주주의인민공화국
+대한제국
+조선
+미국
+일본
+중화인민공화국
+러시아
+소련
+소비에트 연방
+독일
+프랑스
+영국
+스코틀랜드
+아일랜드
+스페인
+스위스
+스웨덴
+핀란드
+오스트리아
+라트비아
+리투아니아
+에스토니아
+이스라엘
+이라크
+이란
+아프가니스탄
+카타르
+베트남
+동티모르
+캐나다
+콜롬비아
+오스트레일리아
+뉴질랜드
+마셜 제도
+미크로네시아 연방
+키리바시
+# Cities
+서울
+서울특별시
+부산광역시
+김해시
+창원시
+청주시
+용인시
+평양
+신의주
+도쿄
+아오모리
+하코다테
+베이징
+베이징시
+난징시
+충칭
+충칭시
+모스크바
+블라디보스토크
+파리시
+뉴욕
+캘거리
+크라이스트처치
+텔아비브
+도하

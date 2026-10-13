@@ -33,7 +33,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 /**
  * Plan M3a1c T1 (3), (5)~(10) and the demo dates, with the real HTTP client, Action API clients and
  * parser against WireMock (recorded fixtures for the demo pages, synthetic ones for 2000-02-29).
- * Deduplication is T2, so every parsed line is still in the result here.
+ * Deduplication (T2) runs too: the demo-date expectations below are after merging.
  */
 class TwoPageKoWikiEventSourceTest {
 
@@ -92,7 +92,7 @@ class TwoPageKoWikiEventSourceTest {
   }
 
   @Test
-  void openingDayKeepsEveryLineWithCanonicalLinksAndTheMainLinkItem() {
+  void openingDayKeepsTheOpeningOnceWithCanonicalLinksAndTheMainLinkItem() {
     stubOpeningDay();
 
     KoWikiDayResult result = find(OPENING);
@@ -111,18 +111,19 @@ class TwoPageKoWikiEventSourceTest {
     assertThat(first.wikidataQid()).isEqualTo("Q8470");
     assertThat(first.revision()).isEqualTo(42604413L);
     assertThat(first.retrievedAt()).isEqualTo(parts.clock.instant());
-    KoWikiEvent culture = result.events().get(1);
-    assertThat(culture.sourceSection()).isEqualTo("문화");
-    assertThat(culture.linkTitles())
-        .as("서울 is a redirect to 서울특별시")
-        .containsExactly("1988년 하계 올림픽", "대한민국", "서울특별시");
+    assertThat(result.events())
+        .as("demo 1988-09-17: the opening exactly once")
+        .filteredOn(
+            event ->
+                event.text().contains("서울 하계 올림픽") || event.linkTitles().contains("1988년 하계 올림픽"))
+        .containsExactly(first);
+    assertThat(result.mergedCount()).isEqualTo(3);
     assertThat(result.events())
         .filteredOn(event -> event.text().contains("KBS 1TV"))
         .singleElement()
         .satisfies(event -> assertThat(event.wikidataQid()).isEqualTo("Q777278"));
     assertThat(result.linkResolutionFailed()).isFalse();
     assertThat(result.degraded()).isFalse();
-    assertThat(result.mergedCount()).isZero();
     assertThat(pagepropsRequests(wikimedia))
         .singleElement()
         .satisfies(
@@ -135,21 +136,49 @@ class TwoPageKoWikiEventSourceTest {
   }
 
   @Test
-  void quarterFinalLinksBothResolveToTheCupPage() {
+  void quarterFinalAppearsOnceWithTheCupPageAndItsItem() {
     stubRecorded(wikimedia, "6월 22일");
     stubRecorded(wikimedia, "2002년");
     stubPageprops(wikimedia, read("pageprops-2002-06-22.json"));
 
     KoWikiDayResult result = find(QUARTER_FINAL);
 
-    assertThat(result.events()).filteredOn(e -> e.text().contains("스페인")).hasSize(2);
     assertThat(result.events())
-        .allSatisfy(
+        .as("demo 2002-06-22: the match exactly once")
+        .filteredOn(e -> e.text().contains("스페인"))
+        .singleElement()
+        .satisfies(
             event -> {
+              assertThat(event.sourceTitle()).isEqualTo("6월 22일");
+              assertThat(event.sourceSection()).isEqualTo("문화");
               assertThat(event.linkTitles()).containsExactly("2002년 FIFA 월드컵");
               assertThat(event.wikidataQid()).isEqualTo("Q47735");
             });
-    assertThat(result.events().getFirst().sourceTitle()).isEqualTo("6월 22일");
+    assertThat(result.mergedCount()).isEqualTo(1);
+  }
+
+  @Test
+  void quarterFinalMergesByTitleAloneWhenTheLinkLookupFails() {
+    stubRecorded(wikimedia, "6월 22일");
+    stubRecorded(wikimedia, "2002년");
+    wikimedia.stubFor(
+        get(urlPathEqualTo(PATH))
+            .withQueryParam("action", equalTo("query"))
+            .willReturn(aResponse().withStatus(503)));
+
+    KoWikiDayResult result = find(QUARTER_FINAL);
+
+    assertThat(result.linkResolutionFailed()).isTrue();
+    assertThat(result.events())
+        .as("2002 FIFA 월드컵 and 2002년 FIFA 월드컵 read as one link")
+        .filteredOn(e -> e.text().contains("스페인"))
+        .singleElement()
+        .satisfies(
+            event -> {
+              assertThat(event.linkTitles()).containsExactly("2002 FIFA 월드컵");
+              assertThat(event.wikidataQid()).isNull();
+            });
+    assertThat(result.mergedCount()).isEqualTo(1);
   }
 
   @Test
@@ -196,11 +225,14 @@ class TwoPageKoWikiEventSourceTest {
     KoWikiDayResult result = find(OPENING);
     List<String> expectedTexts = parsedTexts(OPENING, "09-17", "1988");
 
-    assertThat(result.events()).extracting(KoWikiEvent::text).isEqualTo(expectedTexts);
+    assertThat(expectedTexts)
+        .containsSubsequence(result.events().stream().map(KoWikiEvent::text).toList());
     assertThat(result.events()).extracting(KoWikiEvent::wikidataQid).containsOnlyNulls();
-    assertThat(result.events().get(1).linkTitles())
-        .as("normalized but not resolved")
-        .containsExactly("1988년 하계 올림픽", "대한민국", "서울");
+    assertThat(result.events().getFirst().linkTitles()).containsExactly("1988년 하계 올림픽");
+    assertThat(result.events())
+        .as("titles alone still merge the opening")
+        .filteredOn(event -> event.linkTitles().contains("1988년 하계 올림픽"))
+        .hasSize(1);
     assertThat(result.linkResolutionFailed()).isTrue();
     assertThat(result.degraded()).isTrue();
     assertThat(result.allUnavailable()).isFalse();
@@ -327,9 +359,11 @@ class TwoPageKoWikiEventSourceTest {
               .skippedLines();
     }
     assertThat(result.skippedLines()).isEqualTo(expectedSkipped);
-    assertThat(result.events())
-        .extracting(KoWikiEvent::text)
-        .isEqualTo(parsedTexts(OPENING, "09-17", "1988"));
+    List<String> parsed = parsedTexts(OPENING, "09-17", "1988");
+    assertThat(parsed)
+        .as("kept texts are parser output, character for character, in input order")
+        .containsSubsequence(result.events().stream().map(KoWikiEvent::text).toList());
+    assertThat(result.events().size() + result.mergedCount()).isEqualTo(parsed.size());
   }
 
   @Test

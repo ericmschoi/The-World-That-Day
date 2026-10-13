@@ -68,4 +68,9 @@ wikimedia:
   # Upper bound for one date of Korean Wikipedia events (plan M3a1c): both pages plus the link
   # lookup. A date page that timed out skips the year page request (its cached copy is still used).
   kowiki-day-deadline: 5s
+  dedup:
+    # Rule D3: two lines that share a specific main link are one event when their link sets
+    # overlap at least this much (shared links / links of the smaller set). Above 0.5 so two
+    # lines of two links that share only one (for example the tournament) stay apart.
+    min-link-overlap: 0.6
   kowiki-api-url: https://ko.wikipedia.org/w/api.php

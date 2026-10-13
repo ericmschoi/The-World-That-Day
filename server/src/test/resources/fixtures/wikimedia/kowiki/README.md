@@ -55,6 +55,7 @@
 | `synthetic/synthetic-2000-*.json` | 윤년 연도 문서 `2000년`: 문화 절이 없을 때(level 3 "문화"는 고르지 않음) 요청하지 않는지 |
 | `synthetic/synthetic-missingtitle.json` | 없는 문서 응답(`error.code` = `missingtitle`) |
 | `synthetic/synthetic-ratelimited.json` | HTTP 200에 담긴 속도 제한 응답(`error.code` = `ratelimited`, M3a1b). 필드 구조는 Action API 오류 형식(`code`·`info`·`docref`)을 따랐다 |
+| `synthetic/dedup/synthetic-counterexample-*.wikitext` | 중복 제거 반례(M3a1c T2): 날짜 문서 문화 절의 "시험 대회 A조 경기 가"와 연도 문서 사건 절의 "시험 대회 A조 경기 나"가 대표 링크 `시험 대회` 만 공유한다. 겹침 계수 0.5가 기준값보다 낮아 둘 다 남아야 한다 |
 | `synthetic/parser/synthetic-*.wikitext` | 파서 경계 사례(별칭 링크, 굵은 글씨, 각주·주석, 파일·분류 링크, 하위 줄, 링크 없는 날짜, 엔 대시, 템플릿, 외부 링크, 날짜 범위, 읽을 수 없는 연도, M3a1b의 HTML 태그·엔티티). 날짜는 2000-02-29 |
 
 503·429 같은 HTTP 오류는 본문이 필요 없어 WireMock 상태 코드로만 만든다.

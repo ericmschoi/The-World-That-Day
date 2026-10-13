@@ -53,7 +53,7 @@ class KoWikiEventSourceOrderTest {
                     100L,
                     "== 사건 ==\n* [[2000년]] - 시험 사건 가1 [[시험_문서 가]].\n"
                         + "* [[1999년]] - 다른 해.\n* [[2000년]] - 시험 사건 가2.",
-                    "== 문화 ==\n* [[2000년]] - 시험 사건 나 [[시험 문서 나|별칭]] [[시험 문서 가]].\n" + "* {{틀}} 건너뜀",
+                    "== 문화 ==\n* [[2000년]] - 시험 사건 나 [[시험 문서 나|별칭]] [[시험 문서 마]].\n" + "* {{틀}} 건너뜀",
                     DATE_READ);
             case "2000년" ->
                 new KoWikiPage(
@@ -72,14 +72,21 @@ class KoWikiEventSourceOrderTest {
         return Optional.of(
             Map.of(
                 "시험 문서 가", new Link("시험 문서 가", "Q1"),
-                "시험 문서 나", new Link("시험 문서 가", "Q1"),
+                "시험 문서 나", new Link("시험 문서 마", "Q2"),
+                "시험 문서 마", new Link("시험 문서 마", "Q2"),
                 "시험 문서 다", new Link("시험 문서 다", null)));
       };
 
   @Test
   void eventsKeepInputOrderAcrossBothPagesAndSections() {
     KoWikiDayResult result =
-        new TwoPageKoWikiEventSource(pages, resolver, new WikitextEventParser(), http, properties)
+        new TwoPageKoWikiEventSource(
+                pages,
+                resolver,
+                new WikitextEventParser(),
+                http,
+                properties,
+                new KoWikiEventDeduplicator(new KoWikiDedupProperties(0.6)))
             .find(LEAP_DAY);
 
     assertThat(result.events())
@@ -87,7 +94,7 @@ class KoWikiEventSourceOrderTest {
         .containsExactly(
             "시험 사건 가1 시험 문서 가.",
             "시험 사건 가2.",
-            "시험 사건 나 별칭 시험 문서 가.",
+            "시험 사건 나 별칭 시험 문서 마.",
             "시험 사건 다 시험 문서 다.",
             "시험 사건 라.");
     assertThat(result.events())
@@ -117,15 +124,21 @@ class KoWikiEventSourceOrderTest {
   @Test
   void linksAreNormalizedOnceAndResolvedToCanonicalTitlesWithoutDuplicates() {
     KoWikiDayResult result =
-        new TwoPageKoWikiEventSource(pages, resolver, new WikitextEventParser(), http, properties)
+        new TwoPageKoWikiEventSource(
+                pages,
+                resolver,
+                new WikitextEventParser(),
+                http,
+                properties,
+                new KoWikiEventDeduplicator(new KoWikiDedupProperties(0.6)))
             .find(LEAP_DAY);
 
-    assertThat(lookups).containsExactly(List.of("시험 문서 가", "시험 문서 나", "시험 문서 다"));
+    assertThat(lookups).containsExactly(List.of("시험 문서 가", "시험 문서 나", "시험 문서 마", "시험 문서 다"));
     assertThat(result.events().get(0).linkTitles()).containsExactly("시험 문서 가");
     assertThat(result.events().get(2).linkTitles())
-        .as("시험 문서 나 resolves to the same page as 시험 문서 가")
-        .containsExactly("시험 문서 가");
-    assertThat(result.events().get(2).wikidataQid()).isEqualTo("Q1");
+        .as("시험 문서 나 resolves to the same page as 시험 문서 마")
+        .containsExactly("시험 문서 마");
+    assertThat(result.events().get(2).wikidataQid()).isEqualTo("Q2");
     assertThat(result.events().get(3).wikidataQid()).isNull();
     assertThat(result.events().get(4).linkTitles()).isEmpty();
     assertThat(result.events().get(4).wikidataQid()).isNull();

@@ -36,6 +36,8 @@ final class KoWikiSourceFixture {
   final ActionApiKoWikiClient pages;
   final ActionApiKoWikiLinkResolver resolver;
   final WikitextEventParser parser = new WikitextEventParser();
+  final KoWikiEventDeduplicator deduplicator =
+      new KoWikiEventDeduplicator(new KoWikiDedupProperties(0.6));
 
   KoWikiSourceFixture(WireMockExtension server, Duration readTimeout, Duration dayDeadline) {
     properties =
@@ -59,7 +61,7 @@ final class KoWikiSourceFixture {
   }
 
   TwoPageKoWikiEventSource source(KoWikiClient client) {
-    return new TwoPageKoWikiEventSource(client, resolver, parser, http, properties);
+    return new TwoPageKoWikiEventSource(client, resolver, parser, http, properties, deduplicator);
   }
 
   /** Section list by title, sections by revid and index, from {@code <prefix>-*.json}. */
