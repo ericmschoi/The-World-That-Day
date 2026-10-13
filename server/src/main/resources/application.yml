@@ -75,3 +75,15 @@ wikimedia:
     # apart. Lines that both link countries or cities, none in common, never merge by D3.
     min-link-overlap: 0.6
   kowiki-api-url: https://ko.wikipedia.org/w/api.php
+  # Wikidata Query Service (plan M3a2): tone and scope signals of the events' main-link items
+  # (CC0). One request per world API call; each attempt and the whole lookup end within
+  # wikidata-read-timeout. The address is a setting because the service is moving to a new backend.
+  wikidata-sparql-url: https://query.wikidata.org/sparql
+  wikidata-read-timeout: 5s
+  # Instances of subclasses of these are tragic (rule:class): disaster, accident, terrorist attack,
+  # armed conflict.
+  wikidata-tragic-classes: Q3839081,Q171558,Q2223653,Q350604
+
+app:
+  # Curated data (data/ of the repository). bootRun and tests run in server/.
+  data-dir: ../data

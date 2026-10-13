@@ -10,6 +10,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
+import java.time.Duration;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -51,7 +52,11 @@ public class WikimediaHttpClient {
 
   private final WikimediaProperties properties;
   private final HostRateLimiter rateLimiter;
-  private final RestClient restClient;
+  private final HttpClient http;
+
+  /** One client per read timeout ({@code read-timeout}, or a source's own such as Wikidata's). */
+  private final Map<Duration, RestClient> restClients = new ConcurrentHashMap<>();
+
   private final Semaphore permits;
   private final Map<String, LongAdder> timeouts = new ConcurrentHashMap<>();
 
@@ -59,14 +64,7 @@ public class WikimediaHttpClient {
     this.properties = properties;
     this.permits = new Semaphore(properties.maxConcurrentRequests(), true);
     this.rateLimiter = new HostRateLimiter(clock, properties.rateLimitMaxWait());
-    HttpClient http = HttpClient.newBuilder().connectTimeout(properties.connectTimeout()).build();
-    JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory(http);
-    factory.setReadTimeout(properties.readTimeout());
-    this.restClient =
-        RestClient.builder()
-            .requestFactory(factory)
-            .defaultHeader(HttpHeaders.USER_AGENT, properties.userAgent())
-            .build();
+    this.http = HttpClient.newBuilder().connectTimeout(properties.connectTimeout()).build();
     if (!properties.enabled()) {
       log.warn("WIKIMEDIA_USER_AGENT is empty: Wikimedia sources are disabled");
     }
@@ -74,6 +72,12 @@ public class WikimediaHttpClient {
 
   /** GETs {@code uri}. {@code source} and {@code title} are only used in log lines. */
   public WikimediaResponse get(String source, String title, URI uri) {
+    return get(source, title, uri, properties.readTimeout());
+  }
+
+  /** As {@link #get(String, String, URI)}, with {@code readTimeout} for each attempt. */
+  public WikimediaResponse get(String source, String title, URI uri, Duration readTimeout) {
+    RestClient restClient = restClients.computeIfAbsent(readTimeout, this::restClient);
     if (!properties.enabled()) {
       return new Unavailable(Reason.DISABLED);
     }
@@ -147,6 +151,15 @@ public class WikimediaHttpClient {
   /** The shared request slots; tests use it to occupy every slot. */
   Semaphore permits() {
     return permits;
+  }
+
+  private RestClient restClient(Duration readTimeout) {
+    JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory(http);
+    factory.setReadTimeout(readTimeout);
+    return RestClient.builder()
+        .requestFactory(factory)
+        .defaultHeader(HttpHeaders.USER_AGENT, properties.userAgent())
+        .build();
   }
 
   /** False on timeout, or on interrupt with the interrupt flag set again. */

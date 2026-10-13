@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Import;
 class WikimediaTestDefaultsTest {
 
   @Autowired private WikimediaProperties properties;
+  @Autowired private WikidataProperties wikidata;
   @Autowired private WikimediaHttpClient client;
   @Autowired private Clock clock;
 
@@ -47,6 +48,14 @@ class WikimediaTestDefaultsTest {
     assertThat(properties.maxConcurrentRequests()).isEqualTo(3);
     assertThat(properties.cacheTtl()).isEqualTo(Duration.ofDays(7));
     assertThat(properties.kowikiDayDeadline()).isEqualTo(Duration.ofSeconds(5));
+  }
+
+  @Test
+  void wikidataUrlStartsWithLocalhostAndKeepsTheProductionLimits() {
+    assertThat(wikidata.wikidataSparqlUrl().toString()).startsWith("http://localhost");
+    assertThat(wikidata.wikidataReadTimeout()).isEqualTo(Duration.ofSeconds(5));
+    assertThat(wikidata.wikidataTragicClasses())
+        .containsExactly("Q3839081", "Q171558", "Q2223653", "Q350604");
   }
 
   @Test
