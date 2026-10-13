@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "date": "1988-09-17",
+      "primary_link": "1988년 하계 올림픽",
+      "summary_contains": null,
+      "tone": "normal",
+      "scope": "domestic",
+      "hide": false,
+      "reason": "제24회 서울 하계 올림픽 개막 줄(9월 17일 문서 사건 절, 판 42604413). 같은 날 다른 줄에 장소가 '대한민국 서울'(9월 17일 문서 문화 절, 판 42604413), '대한민국 서울특별시'(1988년 문서 문화 절, 판 42640701)로 적혀 있다. Wikidata Q8470 국가(P17) 대한민국(Q884), 2026-10-12 확인. 사망·재난 서술 없음",
+      "evidence_url": "https://ko.wikipedia.org/w/index.php?title=9%EC%9B%94_17%EC%9D%BC&oldid=42604413",
+      "reviewed_at": "2026-10-12"
+    },
+    {
+      "date": "1988-09-17",
+      "primary_link": "KBS 1TV",
+      "summary_contains": null,
+      "tone": "normal",
+      "scope": "domestic",
+      "hide": false,
+      "reason": "방송 채널 KBS 1TV의 광고 관련 줄(1988년 문서 문화 절 9월 17일 하위 줄, 판 42640701). Wikidata Q777278 국가(P17) 대한민국(Q884), 2026-10-12 확인. 사망·재난 서술 없음",
+      "evidence_url": "https://ko.wikipedia.org/w/index.php?title=1988%EB%85%84&oldid=42640701",
+      "reviewed_at": "2026-10-12"
+    },
+    {
+      "date": "1988-09-17",
+      "primary_link": "KBS 2TV",
+      "summary_contains": null,
+      "tone": "normal",
+      "scope": "domestic",
+      "hide": false,
+      "reason": "방송 채널 KBS 2TV의 광고 관련 줄(1988년 문서 문화 절 9월 17일 하위 줄, 판 42640701). Wikidata Q624509 국가(P17) 대한민국(Q884), 2026-10-12 확인. 사망·재난 서술 없음",
+      "evidence_url": "https://ko.wikipedia.org/w/index.php?title=1988%EB%85%84&oldid=42640701",
+      "reviewed_at": "2026-10-12"
+    },
+    {
+      "date": "2002-06-22",
+      "primary_link": "2002년 FIFA 월드컵",
+      "summary_contains": null,
+      "tone": "normal",
+      "scope": "domestic",
+      "hide": false,
+      "reason": "2002년 FIFA 월드컵 대한민국 대 스페인 경기에서 대한민국이 승부차기로 이겨 4강에 진출한 줄(6월 22일 문서 문화 절, 판 42614972). 2002년 문서 문화 절(판 42498163)에도 같은 날 같은 경기 줄이 있다. Wikidata Q47735 국가(P17) 대한민국(Q884)·일본(Q17), 2026-10-12 확인. 사망·재난 서술 없음",
+      "evidence_url": "https://ko.wikipedia.org/w/index.php?title=6%EC%9B%94_22%EC%9D%BC&oldid=42614972",
+      "reviewed_at": "2026-10-12"
+    }
+  ]
+}
