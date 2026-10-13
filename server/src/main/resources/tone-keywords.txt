@@ -1,0 +1,34 @@
+# Tragic keywords for rule:keyword (plan M3a2, decision #22 (c)). One per line, Korean only.
+# A summary that contains any of them is tragic. False positives ("전쟁 종결") lean the same way
+# as the conservative default and are accepted.
+사망
+숨지
+희생
+참사
+사고
+추락
+침몰
+충돌
+탈선
+붕괴
+폭발
+화재
+지진
+해일
+쓰나미
+태풍
+홍수
+테러
+총격
+학살
+암살
+피살
+살해
+전쟁
+공습
+폭격
+침공
+내전
+분쟁
+쿠데타
+처형

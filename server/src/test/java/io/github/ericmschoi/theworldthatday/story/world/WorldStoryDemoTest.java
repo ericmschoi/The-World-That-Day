@@ -9,8 +9,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiEvent;
 import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiEventSource;
+import io.github.ericmschoi.theworldthatday.event.tone.EventCuration;
+import io.github.ericmschoi.theworldthatday.event.wikidata.SparqlWikidataSignalSourceTest;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaWireMockTest;
 import java.io.IOException;
 import java.io.InputStream;
@@ -68,6 +71,7 @@ class WorldStoryDemoTest extends WikimediaWireMockTest {
   @Autowired private WebApplicationContext context;
   @Autowired private KoWikiEventSource source;
   @Autowired private JdbcTemplate jdbc;
+  @Autowired private EventCuration curation;
   private MockMvc mvc;
 
   @BeforeEach
@@ -87,6 +91,10 @@ class WorldStoryDemoTest extends WikimediaWireMockTest {
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
+  }
+
+  private static String sparqlFixture(String file) {
+    return SparqlWikidataSignalSourceTest.fixture(file);
   }
 
   /** Section list by title, then the 사건 and 문화 sections by revid and index, if present. */
@@ -121,6 +129,23 @@ class WorldStoryDemoTest extends WikimediaWireMockTest {
     stubPage("9월 17일", "09-17");
     stubPage("1988년", "1988");
     stubPageprops(read("pageprops-1988-09-17.json"));
+    stubSparql(sparqlFixture("sparql-1988-09-17.json"));
+  }
+
+  private static void stubSparql(String body) {
+    wikimedia.stubFor(WireMock.get(urlPathEqualTo(SPARQL_PATH)).willReturn(okJson(body)));
+  }
+
+  private static List<ServeEvent> sparqlRequests() {
+    return wikimedia.getAllServeEvents().stream()
+        .filter(event -> event.getRequest().getUrl().startsWith(SPARQL_PATH))
+        .toList();
+  }
+
+  private static long wikipediaRequests() {
+    return wikimedia.getAllServeEvents().stream()
+        .filter(event -> event.getRequest().getUrl().startsWith(KOWIKI_PATH))
+        .count();
   }
 
   private static long pagepropsRequests() {
@@ -202,9 +227,9 @@ class WorldStoryDemoTest extends WikimediaWireMockTest {
           .matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z")
           .isEqualTo(
               source.retrievedAt().truncatedTo(java.time.temporal.ChronoUnit.SECONDS).toString());
-      assertThat(event.path("tone").asString()).as("placeholder until T3").isEqualTo("tragic");
-      assertThat(event.path("tone_basis").asString()).isEqualTo("default");
-      assertThat(event.path("scope").asString()).isEqualTo("unknown");
+      assertThat(event.path("tone").asString()).isEqualTo("normal");
+      assertThat(event.path("tone_basis").asString()).isEqualTo("curated");
+      assertThat(event.path("scope").asString()).isEqualTo("domestic");
     }
   }
 
@@ -219,6 +244,7 @@ class WorldStoryDemoTest extends WikimediaWireMockTest {
     assertThat(root.path("notice").path("code").asString()).isEqualTo("NO_EVENTS_FOUND");
     assertThat(root.path("partial").asBoolean()).isFalse();
     assertThat(pagepropsRequests()).isZero();
+    assertThat(sparqlRequests()).as("no QID, no SPARQL request").isEmpty();
   }
 
   @Test
@@ -253,5 +279,74 @@ class WorldStoryDemoTest extends WikimediaWireMockTest {
     assertThat(root.path("events").isEmpty()).isFalse();
     assertThat(root.path("events"))
         .allSatisfy(event -> assertThat(event.path("wikidata_qid").isNull()).isTrue());
+  }
+
+  @Test
+  void defaultSettingsReadTheRepositoryCuration() {
+    assertThat(curation.entries()).hasSize(4);
+  }
+
+  @Test
+  void openingDayAsksWikidataOnceAndWikipediaNoMoreThanTheSourceDoes() throws Exception {
+    stubOpeningDay();
+
+    JsonNode root = world("1988-09-17");
+    long apiWikipedia = wikipediaRequests();
+    List<ServeEvent> sparql = sparqlRequests();
+    wikimedia.resetRequests();
+    jdbc.execute("TRUNCATE wiki_section_cache");
+    source.find(LocalDate.of(1988, 9, 17));
+
+    assertThat(sparql).hasSize(1);
+    assertThat(sparql.getFirst().getRequest().getHeader("User-Agent")).isEqualTo(TEST_USER_AGENT);
+    assertThat(sparql.getFirst().getRequest().queryParameter("query").firstValue())
+        .contains("VALUES ?item { wd:Q8470 wd:Q777278 wd:Q624509 }");
+    assertThat(apiWikipedia)
+        .as("pages and one pageprops lookup, as KoWikiEventSource.find alone")
+        .isEqualTo(wikipediaRequests())
+        .isEqualTo(7);
+    assertThat(root.path("partial").asBoolean()).isFalse();
+  }
+
+  @Test
+  void quarterFinalDayReturnsTheCuratedMatch() throws Exception {
+    stubPage("6월 22일", "06-22");
+    stubPage("2002년", "2002");
+    stubPageprops(read("pageprops-2002-06-22.json"));
+    stubSparql(sparqlFixture("sparql-2002-06-22.json"));
+
+    JsonNode root = world("2002-06-22");
+
+    JsonNode events = root.path("events");
+    assertThat(events.size()).isEqualTo(1);
+    JsonNode event = events.get(0);
+    assertThat(event.path("id").asString()).isEqualTo("kowiki-2002-06-22-04eaf6a6");
+    assertThat(event.path("source_title").asString()).isEqualTo("6월 22일");
+    assertThat(event.path("source_section").asString()).isEqualTo("문화");
+    assertThat(event.path("source_revision").asLong()).isEqualTo(42614972L);
+    assertThat(event.path("title").asString()).isEqualTo("2002년 FIFA 월드컵");
+    assertThat(event.path("wikidata_qid").asString()).isEqualTo("Q47735");
+    assertThat(event.path("summary").asString()).contains("스페인");
+    assertThat(event.path("tone").asString()).isEqualTo("normal");
+    assertThat(event.path("tone_basis").asString()).isEqualTo("curated");
+    assertThat(event.path("scope").asString()).isEqualTo("domestic");
+    assertThat(root.path("partial").asBoolean()).isFalse();
+    assertThat(sparqlRequests()).hasSize(1);
+  }
+
+  @Test
+  void wikidataDownKeepsCuratedTonesAndMarksThePagePartial() throws Exception {
+    stubPage("9월 17일", "09-17");
+    stubPage("1988년", "1988");
+    stubPageprops(read("pageprops-1988-09-17.json"));
+    wikimedia.stubFor(
+        WireMock.get(urlPathEqualTo(SPARQL_PATH)).willReturn(aResponse().withStatus(503)));
+
+    JsonNode root = world("1988-09-17");
+
+    assertThat(root.path("partial").asBoolean()).isTrue();
+    assertThat(root.path("events").size()).isEqualTo(3);
+    assertThat(root.path("events"))
+        .allSatisfy(event -> assertThat(event.path("tone_basis").asString()).isEqualTo("curated"));
   }
 }

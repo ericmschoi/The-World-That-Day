@@ -22,8 +22,9 @@ import org.springframework.stereotype.Service;
 
 /**
  * The world section of a day (plan M3a2): every event {@link KoWikiEventSource} returns, as written
- * (M3-P16, nothing is filtered), {@code normal} events first, then {@code tragic}, each group in
- * the source order. 503 only when both pages are unavailable.
+ * (M3-P16, nothing is filtered for quality), {@code normal} events first, then {@code tragic}, each
+ * group in the source order. Only curated takedowns ({@code hide}) are left out; they do not make
+ * the answer partial. 503 only when both pages are unavailable.
  */
 @Service
 public class WorldStoryService {
@@ -55,17 +56,30 @@ public class WorldStoryService {
     }
     List<Event> normal = new ArrayList<>();
     List<Event> tragic = new ArrayList<>();
+    List<String> hidden = new ArrayList<>();
     for (int i = 0; i < found.size(); i++) {
       Verdict verdict = verdicts.get(i);
+      if (verdict.hidden()) {
+        hidden.add(hash(found.get(i)));
+        continue;
+      }
       (verdict.tone() == Tone.NORMAL ? normal : tragic).add(Event.of(found.get(i), verdict));
     }
     normal.addAll(tragic);
+    if (!hidden.isEmpty()) {
+      log.debug("World events hidden by curation: count={} ids={}", hidden.size(), hidden);
+    }
     return new WorldStoryResponse(
         date.toString(),
         normal,
         List.of(),
         normal.isEmpty() ? Notice.NO_EVENTS_FOUND : null,
         day.degraded() || judgement.partial());
+  }
+
+  /** The hash part of the event ID: the full ID holds the date, which logs must not show. */
+  private static String hash(KoWikiEvent event) {
+    return event.id().substring(event.id().lastIndexOf('-') + 1);
   }
 
   private static String states(List<KoWikiDocStatus> docs) {

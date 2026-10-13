@@ -12,7 +12,13 @@ public interface EventToneJudge {
   /** One verdict per event, in the same order, and whether a supporting source failed. */
   Judgement judge(List<KoWikiEvent> events);
 
-  record Verdict(Tone tone, Basis basis, Scope scope) {}
+  /** {@code hidden}: a curated takedown; the event is left out of the response. */
+  record Verdict(Tone tone, Basis basis, Scope scope, boolean hidden) {
+
+    public Verdict(Tone tone, Basis basis, Scope scope) {
+      this(tone, basis, scope, false);
+    }
+  }
 
   record Judgement(List<Verdict> verdicts, boolean partial) {
 
