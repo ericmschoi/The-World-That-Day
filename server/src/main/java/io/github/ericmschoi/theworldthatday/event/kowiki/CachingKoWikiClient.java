@@ -31,6 +31,9 @@ public class CachingKoWikiClient implements KoWikiClient {
 
   private static final Logger log = LoggerFactory.getLogger(CachingKoWikiClient.class);
 
+  /** A cache read: the row, if any, and whether the database failed (then there is no row). */
+  private record CacheRead(Optional<WikiSectionCache> row, boolean failed) {}
+
   private final KoWikiClient delegate;
   private final WikiSectionCacheRepository repository;
   private final WikimediaProperties properties;
@@ -49,8 +52,8 @@ public class CachingKoWikiClient implements KoWikiClient {
 
   @Override
   public KoWikiPage fetch(String title) {
-    Optional<WikiSectionCache> cached = find(title);
-    if (cached == null) { // the database failed: a write would only wait and fail the same way
+    CacheRead read = find(title);
+    if (read.failed()) { // the database failed: a write would only wait and fail the same way
       KoWikiPage page = delegate.fetch(title);
       if (page.state() != State.FRESH) {
         return page;
@@ -58,6 +61,7 @@ public class CachingKoWikiClient implements KoWikiClient {
       log.debug("Wiki section cache write skipped: title={}", title);
       return fresh(page, micros(page));
     }
+    Optional<WikiSectionCache> cached = read.row();
     if (cached.isPresent() && isFresh(cached.get())) {
       return page(title, cached.get(), State.CACHED);
     }
@@ -77,8 +81,8 @@ public class CachingKoWikiClient implements KoWikiClient {
 
   @Override
   public KoWikiPage cached(String title) {
-    return Optional.ofNullable(find(title))
-        .flatMap(row -> row)
+    return find(title)
+        .row()
         .map(row -> page(title, row, isFresh(row) ? State.CACHED : State.STALE))
         .orElseGet(() -> KoWikiPage.unavailable(title));
   }
@@ -95,13 +99,13 @@ public class CachingKoWikiClient implements KoWikiClient {
     }
   }
 
-  /** The cache row, if any, or {@code null} when the database failed. */
-  private Optional<WikiSectionCache> find(String title) {
+  /** The cache row, if any, or a failed read when the database failed. */
+  private CacheRead find(String title) {
     try {
-      return repository.findBySiteAndPageTitle(site(), title);
+      return new CacheRead(repository.findBySiteAndPageTitle(site(), title), false);
     } catch (DataAccessException | TransactionException e) {
       log.warn("Wiki section cache read failed: title={} cause={}", title, cause(e));
-      return null;
+      return new CacheRead(Optional.empty(), true);
     }
   }
 
