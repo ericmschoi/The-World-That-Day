@@ -34,6 +34,10 @@ dependencies {
     // Shaded standalone jar: its Jetty and Jackson 2 stay private, so nothing clashes with
     // Boot 4.1's Tomcat and Jackson 3.
     testImplementation("org.wiremock:wiremock-standalone:3.13.2")
+    // JSON Schema 2020-12 validation of data/ files against data/schema/ (plan M3a2 T4, reused by
+    // M3a3). 3.0.6 is the newest release built on Jackson 3.1 (tools.jackson), the line Boot 4.1
+    // manages; 3.0.7+ need Jackson 3.2.
+    testImplementation("com.networknt:json-schema-validator:3.0.6")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

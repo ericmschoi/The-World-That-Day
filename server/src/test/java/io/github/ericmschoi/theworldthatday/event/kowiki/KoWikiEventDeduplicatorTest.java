@@ -226,16 +226,29 @@ class KoWikiEventDeduplicatorTest {
   }
 
   @Test
-  void d4LineMatchingTwoEarlierEventsIsNotMerged() {
+  void d4LineMatchingTwoEarlierEventsIsNotMerged(CapturedOutput output) {
     // T4: each earlier line shares 2 of its 3 specific links with the later one (2/3 >= 0.6)
     Candidate first = line(0, "시험 사건 가.", "시험 문서 가", "시험 문서 나", "시험 문서 다");
     Candidate second = line(0, "시험 사건 나.", "시험 문서 가", "시험 문서 나", "시험 문서 라");
     Candidate both = line(2, "시험 사건 가와 나.", "시험 문서 가", "시험 문서 나");
-
-    Result result = dedup(first, second, both);
+    ch.qos.logback.classic.Logger logger =
+        (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(KoWikiEventDeduplicator.class);
+    Level before = logger.getLevel();
+    logger.setLevel(Level.DEBUG);
+    Result result;
+    try {
+      result = dedup(first, second, both);
+    } finally {
+      logger.setLevel(before);
+    }
 
     assertThat(result.events()).isEqualTo(events(first, second, both));
     assertThat(result.mergedCount()).isZero();
+    String hashBoth = both.event().id().substring(both.event().id().lastIndexOf('-') + 1);
+    assertThat(output.getAll())
+        .as("M3a1c review 4: the D4 branch itself kept the later line apart")
+        .contains("Wiki event not merged: rule=D4 event=" + hashBoth)
+        .doesNotContain("rule=D3");
   }
 
   @Test
