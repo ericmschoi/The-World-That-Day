@@ -85,3 +85,20 @@
 | 2026-10-12 | backend-dev | M3a1b 리뷰 후속 (DB 다운 시 값 반환, ABSENT 행 삭제, TTL 경계, INTERRUPTED) | 완료 (241/0, 브랜치 S1 +397/−26) | 8d76b01 04e2144 |
 | 2026-10-12 | code-reviewer | M3a1b 2차 리뷰 | 승인 (권장 3, 줄 수 397 경고) | 04e2144 기준 |
 | 2026-10-12 | orchestrator | PR #7 (M3b1b) PM 머지, README M3 표 갱신 (18 PR, M3a6 제외) | 완료 | - |
+| 2026-10-12 | orchestrator | M3a1b PR 생성 | PR #8 | f77540d |
+| 2026-10-12 | planner | M3 계획 보정 PM 결정 기록 (D1·D2·D3) | 완료 | 아래 docs(plan) 커밋 |
+| 2026-10-12 | orchestrator | 영상 리서치 + 계획 보정 PR 생성 | PR #9 | 73ac593 |
+| 2026-10-12 | orchestrator | PR #8 (M3a1b)·#9 (리서치+계획) PM 머지, M3a1c 시작 | 진행 | 9714f71 |
+| 2026-10-12 | backend-dev | M3a1c T1 | 완료 (PM 결정 필요: T2 분리, Hikari timeout) | 3b971a5 |
+| 2026-10-12 | orchestrator | M3a1c PM 결정: T2 이번 PR에 포함, Hikari connection-timeout 이번 PR에서 단축 (T1b) | 진행 | 3b971a5 |
+| 2026-10-12 | backend-dev | M3a1c T1b | 완료 | e275b0b |
+| 2026-10-12 | backend-dev | M3a1c T2 | 완료 | 9b4a324 |
+| 2026-10-12 | test-engineer | M3a1c T3 | 완료 (PM 결정 필요: D3 과합침) | afb6f62 |
+| 2026-10-12 | orchestrator | M3a1c PM 결정: D3 과합침 (b) 이번 PR에서 수정, DB 읽기 실패 시 쓰기 건너뛰기 이번 PR에 포함 | 진행 | afb6f62 |
+| 2026-10-12 | planner | M3a1c 계획 보정 (D3 큰 쪽 분모, 쓰기 건너뛰기, T4·T5) | 완료 (PM 결정 필요: 일반 링크 빈틈) | 미커밋 |
+| 2026-10-12 | planner | M3a1c 계획 보정 (b) 반영, PM 승인 | 완료 | 40deef5 |
+| 2026-10-12 | backend-dev | M3a1c T4 | 완료 | c4bace7 |
+| 2026-10-12 | test-engineer | M3a1c T5 | 완료 | e74e95d |
+| 2026-10-12 | orchestrator | PM 결정: 위키 원문이 어색해도 거르지 않고 그대로 전달, 해석·문구 변경은 화면 표시 단계에서 (M3a2·M3b2 입력) | 기록 | e74e95d |
+| 2026-10-12 | code-reviewer | M3a1c 전체 리뷰 | 승인 (필수 0, 권장 5) | e74e95d |
+| 2026-10-12 | orchestrator | M3a1c PR 생성 | PR | (아래 커밋) |
