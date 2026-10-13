@@ -102,3 +102,16 @@
 | 2026-10-12 | orchestrator | PM 결정: 위키 원문이 어색해도 거르지 않고 그대로 전달, 해석·문구 변경은 화면 표시 단계에서 (M3a2·M3b2 입력) | 기록 | e74e95d |
 | 2026-10-12 | code-reviewer | M3a1c 전체 리뷰 | 승인 (필수 0, 권장 5) | e74e95d |
 | 2026-10-12 | orchestrator | M3a1c PR 생성 | PR | (아래 커밋) |
+| 2026-10-12 | orchestrator | PR #10 (M3a1c) PM 머지, M3a2 시작. PM 결정: M3-P16 (b) 구조 필터 제거, 큐레이션 hide는 즉시 숨김 수단으로만 유지 | 진행 | c2f1a5f |
+| 2026-10-12 | planner | M3a2 계획 개정 (구조 필터 제거, M3a1c 계약 반영, T2b 추가) | 완료 (PM 결정 필요: 분할) | 미커밋 |
+| 2026-10-12 | planner | M3a2 계획 개정 PM 승인 (b) 한 PR, 로드맵 상태 정정 (M3 PR 17개) | 완료 | d8f3bad |
+| 2026-10-12 | content-curator | M3a2 T1 | 완료 (worktree, 병합 대기) | 48471a8 |
+| 2026-10-12 | backend-dev | M3a2 T2 | 완료 (PM 결정 필요: 확인점 초과 394) | a2a03fe 020f166 |
+| 2026-10-12 | orchestrator | M3a2 PM 결정: 확인점 초과에도 (b) 한 PR 유지. T1 worktree 병합 | 진행 | b03e6ff |
+| 2026-10-13 | backend-dev | M3a2 T2b | 완료 | e43b848 |
+| 2026-10-13 | backend-dev | M3a2 T3 | 완료 (누적 S1 1071) | 9d9b484 04cf822 |
+| 2026-10-13 | test-engineer | M3a2 T4 | 완료 | 37bdef7 |
+| 2026-10-13 | code-reviewer | M3a2 전체 리뷰 1차 | 수정 요청 (필수 1: hide가 tone 항목에 가려짐) | 37bdef7 |
+| 2026-10-13 | backend-dev | M3a2 리뷰 수정 (필수 1, 권장 1·2·3·5) | 완료 | 1f8c703 982d17e |
+| 2026-10-13 | code-reviewer | M3a2 2차 리뷰 | 승인 (필수 0, 권장 3) | 982d17e |
+| 2026-10-13 | orchestrator | M3a2 PR 생성 | PR | (아래 커밋) |

@@ -39,7 +39,7 @@ flowchart LR
 | M0 Data source research | Verify sources for place search, aerial photos, maps and street view, archive media, and day-of events | ✅ Done (PR #1) |
 | M1 Bootstrap | `server/` (Spring Boot + PostgreSQL) and `web/` (React) skeletons, CI, empty result screen | ✅ Done (PR #2, #3) |
 | M1 follow-ups | CI path filter, `.env.example` cleanup, documented commands | ✅ Done (PR #4) |
-| M3 The world that day | Events by exact date for any birth date, event photos and videos, design foundation and shared media card | 🟡 In progress (6 of 18 PRs merged) |
+| M3 The world that day | Events by exact date for any birth date, event photos and videos, design foundation and shared media card | 🟡 In progress (6 of 17 PRs merged) |
 | M2 Place resolution and input | Classify the place as region / neighborhood / spot, pick from candidates, opening line | ⚪ Planned |
 | M4 The neighborhood | Then-and-now aerial photos, street view, neighborhood photos | ⚪ Planned |
 | M5 The city's landmarks | Curated landmarks per region with archive media | ⚪ Planned |
@@ -52,8 +52,8 @@ flowchart LR
 | Video source research (Commons, official YouTube channels, 대한뉴스, provider embeds) | ✅ Done (PR #9) |
 | M3a1 Korean Wikipedia client and event parser | ✅ Done (PR #5) |
 | M3a1b Wikipedia call hardening and section cache | ✅ Done (PR #8) |
-| M3a1c Merge and dedup events across pages | 🟡 In review |
-| M3a2 "The world that day" API | ⚪ Planned |
+| M3a1c Merge and dedup events across pages | ✅ Done (PR #10) |
+| M3a2 "The world that day" API | 🟡 In review |
 | M3a3 Event photos and shared media format | ⚪ Planned |
 | M3a4 Video search framework and accuracy rules | ⚪ Planned |
 | M3a4b Commons videos and result cache | ⚪ Planned |
