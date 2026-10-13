@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ericmschoi/The-World-That-Day/data/schema/event-curation.schema.json",
+  "title": "Event curation (tone, scope, hide)",
+  "description": "Curated overrides for world events returned by the Korean Wikipedia source (docs/plans/m3a2-world-events-api.md, section 'curation file format'). An entry matches an event when 'date' is equal and either 'primary_link' equals the event's primary link (underscore and space treated as the same) or 'summary_contains' is a substring of the event summary. 'hide' is only for rights-holder requests or clearly wrong lines, never for awkward or minor wording.",
+  "type": "object",
+  "required": ["version", "entries"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "description": "File format version.",
+      "const": 1
+    },
+    "entries": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/entry" }
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "isoDate": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"
+    },
+    "entry": {
+      "type": "object",
+      "required": ["date", "evidence_url", "reason", "reviewed_at"],
+      "additionalProperties": false,
+      "properties": {
+        "date": {
+          "description": "Event date (YYYY-MM-DD), same as the event's date.",
+          "$ref": "#/$defs/isoDate"
+        },
+        "primary_link": {
+          "description": "Canonical title of the event's primary link (first link title after redirect resolution). Null when matching by summary_contains only.",
+          "oneOf": [{ "$ref": "#/$defs/nonEmptyString" }, { "type": "null" }]
+        },
+        "summary_contains": {
+          "description": "Substring of the event summary. Null when matching by primary_link only.",
+          "oneOf": [{ "$ref": "#/$defs/nonEmptyString" }, { "type": "null" }]
+        },
+        "tone": {
+          "description": "Required unless hide is true.",
+          "enum": ["normal", "tragic"]
+        },
+        "scope": {
+          "description": "Optional curated scope. When absent, scope comes from Wikidata P17.",
+          "enum": ["domestic", "world", "unknown"]
+        },
+        "hide": {
+          "description": "true removes the event from the response. Only for rights-holder requests or clearly wrong lines.",
+          "type": "boolean",
+          "default": false
+        },
+        "reason": {
+          "description": "Facts only (what the line is, why the tone/scope/hide value). No judgement of sentence quality.",
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "evidence_url": {
+          "description": "Evidence link, for Wikipedia lines a revision-pinned URL (oldid).",
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https://\\S+$"
+        },
+        "reviewed_at": {
+          "description": "Date the entry was reviewed (YYYY-MM-DD).",
+          "$ref": "#/$defs/isoDate"
+        }
+      },
+      "anyOf": [
+        {
+          "required": ["primary_link"],
+          "properties": { "primary_link": { "$ref": "#/$defs/nonEmptyString" } }
+        },
+        {
+          "required": ["summary_contains"],
+          "properties": { "summary_contains": { "$ref": "#/$defs/nonEmptyString" } }
+        }
+      ],
+      "if": {
+        "required": ["hide"],
+        "properties": { "hide": { "const": true } }
+      },
+      "then": true,
+      "else": { "required": ["tone"] }
+    }
+  }
+}

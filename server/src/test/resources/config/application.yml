@@ -6,3 +6,4 @@
 wikimedia:
   user-agent: ""
   kowiki-api-url: http://localhost:9/w/api.php
+  wikidata-sparql-url: http://localhost:9/sparql

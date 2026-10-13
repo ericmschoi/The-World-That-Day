@@ -66,8 +66,10 @@ class KoWikiEventSourceDatabaseExhaustedTest extends WikimediaWireMockTest {
     assertThat(dataSource.getValidationTimeout())
         .isEqualTo(500)
         .isLessThan(dataSource.getConnectionTimeout());
-    assertThat(Duration.ofMillis(dataSource.getConnectionTimeout()).multipliedBy(4))
-        .as("read + write per page, two pages, still inside the day deadline")
+    assertThat(Duration.ofMillis(dataSource.getConnectionTimeout()).multipliedBy(2))
+        .as(
+            "one read per page (the write is skipped after a failed read), two pages, inside the"
+                + " day deadline")
         .isLessThan(properties.kowikiDayDeadline());
   }
 

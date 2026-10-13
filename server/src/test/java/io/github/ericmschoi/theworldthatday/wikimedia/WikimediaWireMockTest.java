@@ -34,6 +34,7 @@ public abstract class WikimediaWireMockTest {
   public static final String TEST_USER_AGENT =
       "TheWorldThatDay-test/0 (https://github.com/ericmschoi/The-World-That-Day)";
   public static final String KOWIKI_PATH = "/w/api.php";
+  public static final String SPARQL_PATH = "/sparql";
 
   protected static final WireMockServer wikimedia = start();
 
@@ -54,6 +55,7 @@ public abstract class WikimediaWireMockTest {
     // machine adds a retry. Timeout behaviour is tested with short timeouts in the unit tests.
     registry.add("wikimedia.read-timeout", () -> "2s");
     registry.add("wikimedia.kowiki-api-url", () -> wikimedia.baseUrl() + KOWIKI_PATH);
+    registry.add("wikimedia.wikidata-sparql-url", () -> wikimedia.baseUrl() + SPARQL_PATH);
   }
 
   @BeforeEach

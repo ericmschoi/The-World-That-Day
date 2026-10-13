@@ -1,0 +1,11 @@
+{"head":{"vars":["item","tragicClass","deaths","country"]},"results":{"bindings":[
+{"item":{"type":"uri","value":"http://www.wikidata.org/entity/Q1"},"tragicClass":{"type":"uri","value":"http://www.wikidata.org/entity/Q171558"}},
+{"item":{"type":"uri","value":"http://www.wikidata.org/entity/Q2"},"deaths":{"datatype":"http://www.w3.org/2001/XMLSchema#decimal","type":"literal","value":"3"}},
+{"item":{"type":"uri","value":"http://www.wikidata.org/entity/Q3"},"deaths":{"datatype":"http://www.w3.org/2001/XMLSchema#decimal","type":"literal","value":"0"}},
+{"item":{"type":"uri","value":"http://www.wikidata.org/entity/Q4"},"country":{"type":"uri","value":"http://www.wikidata.org/entity/Q884"}},
+{"item":{"type":"uri","value":"http://www.wikidata.org/entity/Q4"},"country":{"type":"uri","value":"http://www.wikidata.org/entity/Q17"}},
+{"item":{"type":"uri","value":"http://www.wikidata.org/entity/Q5"},"country":{"type":"uri","value":"http://www.wikidata.org/entity/Q17"}},
+{"item":{"type":"uri","value":"http://www.wikidata.org/entity/Q6"}},
+{"item":{"type":"uri","value":"http://www.wikidata.org/entity/Q7"},"deaths":{"datatype":"http://www.w3.org/2001/XMLSchema#decimal","type":"literal","value":"not a number"}},
+{"item":{"type":"uri","value":"http://www.wikidata.org/entity/Q99"},"tragicClass":{"type":"uri","value":"http://www.wikidata.org/entity/Q171558"}}
+]}}
