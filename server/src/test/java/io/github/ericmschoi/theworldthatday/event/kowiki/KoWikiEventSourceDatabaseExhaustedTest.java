@@ -110,13 +110,18 @@ class KoWikiEventSourceDatabaseExhaustedTest extends WikimediaWireMockTest {
     }
 
     assertThat(elapsed).isLessThan(properties.kowikiDayDeadline());
+    assertThat(elapsed)
+        .as("T4: one connection wait per page (2 x 1 s), the write is skipped")
+        .isLessThan(Duration.ofMillis(3500));
     assertThat(result.docs()).extracting(KoWikiDocStatus::state).containsOnly(State.FRESH);
     assertThat(result.events()).isNotEmpty();
     assertThat(result.events().getFirst().wikidataQid()).isEqualTo("Q8470");
     assertThat(result.degraded()).isFalse();
     assertThat(output.getAll())
         .contains("Wiki section cache read failed: title=9월 17일")
-        .contains("Wiki section cache write failed: title=1988년");
+        .contains("Wiki section cache read failed: title=1988년")
+        .as("T4: no write after a failed read")
+        .doesNotContain("Wiki section cache write failed");
     assertThat(jdbc.queryForObject("SELECT count(*) FROM wiki_section_cache", Long.class))
         .as("nothing could be stored")
         .isZero();

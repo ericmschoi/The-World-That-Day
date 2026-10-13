@@ -66,7 +66,10 @@ class CachingKoWikiClientDatabaseFailureTest {
     assertThat(client.fetch("9월 17일")).isEqualTo(fresh);
     assertThat(output.getAll())
         .contains("Wiki section cache read failed: title=9월 17일")
-        .contains("Wiki section cache write failed: title=9월 17일");
+        .as("T4: no write after a failed read")
+        .doesNotContain("Wiki section cache write failed");
+    verify(repository, never())
+        .upsert(anyString(), anyString(), anyLong(), any(), any(), any(Instant.class));
   }
 
   @Test

@@ -165,10 +165,71 @@ class KoWikiEventDeduplicatorTest {
     assertThat(dedup(a, b, c, d).mergedCount()).isZero();
   }
 
+  /** T4 (2): a line with one specific link no longer absorbs a line with more (T3 repro). */
+  @Test
+  void d3ShortLineDoesNotAbsorbALineWithMoreSpecificLinks() {
+    Candidate date = line(1, "시험 대회 1경기.", "2002 시험 대회");
+    Candidate year = line(3, "시험 대회 2경기.", "2002년 시험 대회", "시험 팀 다", "시험 팀 라");
+
+    Result result = dedup(date, year);
+
+    assertThat(result.events()).isEqualTo(events(date, year));
+    assertThat(result.mergedCount()).isZero();
+    Result boundary =
+        dedup(line(1, "시험 대회 3경기.", "시험 대회"), line(3, "시험 대회 4경기.", "시험 대회", "시험 장소"));
+    assertThat(boundary.events()).as("1/2 is below 0.6").hasSize(2);
+  }
+
+  /** T4 (5): the same link written twice in one line counts once. */
+  @Test
+  void d3SameLinkTwiceInALineCountsOnce() {
+    Candidate date = line(1, "시험 대회 개막.", "2002 시험 대회", "2002년 시험 대회");
+    Candidate year = line(3, "시험 대회 개막식.", "2002 시험 대회");
+
+    assertThat(dedup(date, year).events()).containsExactly(date.event());
+  }
+
+  /** T4 (6): same tournament, different country pairs linked only by country pages. */
+  @Test
+  void d3DifferentCountryPairsStayApart() {
+    Candidate date = line(1, "시험 대회 가조 경기.", "2002 시험 대회", "대한민국", "스페인");
+    Candidate year = line(3, "시험 대회 나조 경기.", "2002년 시험 대회", "독일", "미국");
+
+    Result result = dedup(date, year);
+
+    assertThat(result.events()).isEqualTo(events(date, year));
+    assertThat(result.mergedCount()).isZero();
+  }
+
+  /** T4 (7): the generic-link conflict only blocks when both lines list places and none match. */
+  @Test
+  void d3ControlsWithoutAGenericConflictStillMerge() {
+    assertThat(
+            dedup(
+                    line(1, "시험 대회 가.", "2002 시험 대회", "대한민국"),
+                    line(3, "시험 대회 나.", "2002년 시험 대회", "대한민국", "미국"))
+                .mergedCount())
+        .as("(a) a shared country")
+        .isEqualTo(1);
+    assertThat(
+            dedup(line(1, "시험 대회 가.", "2002 시험 대회"), line(3, "시험 대회 나.", "2002년 시험 대회", "미국"))
+                .mergedCount())
+        .as("(b) one line has no country or city")
+        .isEqualTo(1);
+    assertThat(
+            dedup(
+                    line(1, "시험 대회 가.", "2002 시험 대회", "1999년"),
+                    line(3, "시험 대회 나.", "2002년 시험 대회", "미국"))
+                .mergedCount())
+        .as("(c) a year page is not a listed generic link")
+        .isEqualTo(1);
+  }
+
   @Test
   void d4LineMatchingTwoEarlierEventsIsNotMerged() {
-    Candidate first = line(0, "시험 사건 가.", "시험 문서 가");
-    Candidate second = line(0, "시험 사건 나.", "시험 문서 나");
+    // T4: each earlier line shares 2 of its 3 specific links with the later one (2/3 >= 0.6)
+    Candidate first = line(0, "시험 사건 가.", "시험 문서 가", "시험 문서 나", "시험 문서 다");
+    Candidate second = line(0, "시험 사건 나.", "시험 문서 가", "시험 문서 나", "시험 문서 라");
     Candidate both = line(2, "시험 사건 가와 나.", "시험 문서 가", "시험 문서 나");
 
     Result result = dedup(first, second, both);
@@ -181,7 +242,7 @@ class KoWikiEventDeduplicatorTest {
   void d5TheFirstLineIsKeptUnchanged() {
     Candidate culture = line(1, "시험 대회가 개막하였다.", "시험 대회");
     Candidate year = line(2, "시험 대회 개막.", "시험 대회=Q7");
-    Candidate yearCulture = line(3, "시험 대회 개막식.", "시험 대회", "시험 장소");
+    Candidate yearCulture = line(3, "시험 대회 개막식.", "대한민국", "시험 대회");
 
     Result result = dedup(culture, year, yearCulture);
 
@@ -236,12 +297,13 @@ class KoWikiEventDeduplicatorTest {
     Level before = logger.getLevel();
     logger.setLevel(Level.DEBUG);
     try {
-      Candidate first = line(0, "시험 사건 가.", "시험 문서 가");
-      Candidate second = line(0, "시험 사건 나.", "시험 문서 나");
+      Candidate first = line(0, "시험 사건 가.", "시험 문서 가", "시험 문서 나", "시험 문서 다");
+      Candidate second = line(0, "시험 사건 나.", "시험 문서 가", "시험 문서 나", "시험 문서 라");
+      Candidate third = line(0, "시험 사건 마.", "시험 문서 마");
       Candidate d2 = line(2, "시험 사건 가");
-      Candidate d3 = line(3, "시험 문서 나와 다.", "시험 문서 나");
+      Candidate d3 = line(3, "시험 문서 마에 관한 줄.", "시험 문서 마");
       Candidate d4 = line(1, "시험 사건 가와 나.", "시험 문서 가", "시험 문서 나");
-      dedup(first, second, d2, d3, d4);
+      dedup(first, second, third, d2, d3, d4);
     } finally {
       logger.setLevel(before);
     }

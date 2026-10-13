@@ -62,7 +62,8 @@ class CachingKoWikiClientDatabaseDownTest extends WikimediaWireMockTest {
     assertThat(fresh.fetchedAt()).isEqualTo(clock.instant());
     assertThat(output.getAll())
         .contains("Wiki section cache read failed: title=1988년")
-        .contains("Wiki section cache write failed: title=1988년");
+        .as("T4: no write after a failed read")
+        .doesNotContain("Wiki section cache write failed");
 
     wikimedia.resetAll();
     wikimedia.stubFor(get(urlPathEqualTo(KOWIKI_PATH)).willReturn(aResponse().withStatus(404)));

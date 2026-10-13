@@ -96,8 +96,8 @@ public class KoWikiEventDeduplicator {
     if (textKey(a).equals(textKey(b))) {
       return "D2";
     }
-    List<Link> left = comparable(a.links());
-    List<Link> right = comparable(b.links());
+    List<Link> left = specific(a.links());
+    List<Link> right = specific(b.links());
     if (left.isEmpty() || right.isEmpty() || !(sharesMain(a, right) || sharesMain(b, left))) {
       return null;
     }
@@ -105,20 +105,31 @@ public class KoWikiEventDeduplicator {
     List<Link> larger = smaller == left ? right : left;
     long shared =
         smaller.stream().filter(l -> larger.stream().anyMatch(o -> sameLink(l, o))).count();
-    return (double) shared / smaller.size() >= minLinkOverlap ? "D3" : null;
+    if ((double) shared / larger.size() < minLinkOverlap) {
+      return null; // (ii) shared specific links over the larger set
+    }
+    List<Link> genericA = a.links().stream().filter(this::isGeneric).toList();
+    List<Link> genericB = b.links().stream().filter(this::isGeneric).toList();
+    boolean conflict =
+        !genericA.isEmpty()
+            && !genericB.isEmpty()
+            && genericA.stream().noneMatch(l -> genericB.stream().anyMatch(o -> sameLink(l, o)));
+    return conflict ? null : "D3"; // (iii) both name places, and no place in common
   }
 
-  /**
-   * The main link of {@code event} is specific (not generic, not a page link) and in {@code set}.
-   */
+  /** (i) The main link of {@code event} is specific and in {@code set}. */
   private boolean sharesMain(Candidate event, List<Link> set) {
     if (event.links().isEmpty()) {
       return false;
     }
     Link main = event.links().getFirst();
     return !isPageLink(main)
-        && !generic.contains(main.title())
+        && !isGeneric(main)
         && set.stream().anyMatch(link -> sameLink(main, link));
+  }
+
+  private boolean isGeneric(Link link) {
+    return generic.contains(link.title());
   }
 
   /** Same QID, same resolved title, or same title once a leading "2002년 " reads "2002 ". */
@@ -132,8 +143,17 @@ public class KoWikiEventDeduplicator {
     return title.replaceFirst("^(\\d{4})년 ", "$1 ");
   }
 
-  private static List<Link> comparable(List<Link> links) {
-    return links.stream().filter(link -> !isPageLink(link)).toList();
+  /** Links that are neither generic nor page links, the same link counted once. */
+  private List<Link> specific(List<Link> links) {
+    List<Link> specific = new ArrayList<>();
+    for (Link link : links) {
+      if (!isPageLink(link)
+          && !isGeneric(link)
+          && specific.stream().noneMatch(kept -> sameLink(kept, link))) {
+        specific.add(link);
+      }
+    }
+    return specific;
   }
 
   private static boolean isPageLink(Link link) {
