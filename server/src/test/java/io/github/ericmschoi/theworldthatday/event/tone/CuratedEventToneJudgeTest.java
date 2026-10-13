@@ -3,7 +3,10 @@ package io.github.ericmschoi.theworldthatday.event.tone;
 import static io.github.ericmschoi.theworldthatday.event.tone.EventCurationTest.VALID_ENTRY;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiDayResult;
+import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiDocStatus;
 import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiEvent;
+import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiPage.State;
 import io.github.ericmschoi.theworldthatday.event.tone.EventToneJudge.Basis;
 import io.github.ericmschoi.theworldthatday.event.tone.EventToneJudge.Judgement;
 import io.github.ericmschoi.theworldthatday.event.tone.EventToneJudge.Scope;
@@ -11,17 +14,23 @@ import io.github.ericmschoi.theworldthatday.event.tone.EventToneJudge.Tone;
 import io.github.ericmschoi.theworldthatday.event.tone.EventToneJudge.Verdict;
 import io.github.ericmschoi.theworldthatday.event.wikidata.WikidataSignalSource;
 import io.github.ericmschoi.theworldthatday.event.wikidata.WikidataSignalSource.Signals;
+import io.github.ericmschoi.theworldthatday.story.world.WorldStoryResponse;
+import io.github.ericmschoi.theworldthatday.story.world.WorldStoryService;
+import io.github.ericmschoi.theworldthatday.wikimedia.WikidataProperties;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 /**
  * Plan M3a2 T3 (2), (3), (4): the tone and scope table with synthetic QIDs (Q1 to Q9) and neutral
@@ -49,7 +58,15 @@ class CuratedEventToneJudgeTest {
         @Override
         public Optional<Map<String, Signals>> signals(Collection<String> qids) {
           asked.add(List.copyOf(qids));
-          return wikidataDown ? Optional.empty() : Optional.of(SIGNALS);
+          if (wikidataDown) {
+            return Optional.empty();
+          }
+          // Like the SPARQL source: every queried (well-formed) ID is in the answer, never others.
+          Map<String, Signals> answer = new LinkedHashMap<>();
+          qids.stream()
+              .filter(qid -> WikidataProperties.QID.matcher(qid).matches())
+              .forEach(qid -> answer.put(qid, SIGNALS.getOrDefault(qid, Signals.NONE)));
+          return Optional.of(answer);
         }
       };
 
@@ -193,6 +210,55 @@ class CuratedEventToneJudgeTest {
       assertThat(only(judge, event("시험 " + word + " 문장.", "Q6", "가")).basis())
           .as(word)
           .isEqualTo(Basis.RULE_KEYWORD);
+    }
+  }
+
+  @Test
+  void malformedQidThatWasNeverQueriedIsConservative() {
+    CuratedEventToneJudge judge = judge("");
+
+    Judgement judgement = judge.judge(List.of(event("시험 사건 가.", "Q0", "가")));
+
+    assertThat(judgement.verdicts().getFirst())
+        .as("rule 6: no usable QID")
+        .isEqualTo(new Verdict(Tone.TRAGIC, Basis.DEFAULT, Scope.UNKNOWN, false));
+    assertThat(judgement.partial()).isFalse();
+  }
+
+  private static final String HIDE_ENTRY =
+      VALID_ENTRY
+          .replace("\"tone\": \"normal\", ", "")
+          .replace("\"hide\": false", "\"hide\": true");
+
+  @ParameterizedTest(name = "takedown listed {0}")
+  @CsvSource({"after the tone entry, false", "before the tone entry, true"})
+  void takedownWinsOverAToneEntryForTheSameEvent(String order, boolean hideFirst) {
+    assertThat(HIDE_ENTRY).contains("\"hide\": true").doesNotContain("\"tone\"");
+    CuratedEventToneJudge judge =
+        judge(hideFirst ? HIDE_ENTRY + "," + VALID_ENTRY : VALID_ENTRY + "," + HIDE_ENTRY);
+    List<KoWikiEvent> events =
+        List.of(event("시험 사건 가.", "Q4", "시험 문서 가"), event("시험 사건 나.", "Q5", "나"));
+
+    for (State yearPage : List.of(State.FRESH, State.STALE)) {
+      asked.clear();
+      KoWikiDayResult day =
+          new KoWikiDayResult(
+              DAY,
+              events,
+              List.of(
+                  new KoWikiDocStatus("2월 29일", null, null, State.ABSENT),
+                  new KoWikiDocStatus("2000년", 200L, Instant.EPOCH, yearPage)),
+              0,
+              0,
+              false);
+
+      WorldStoryResponse response = new WorldStoryService(date -> day, judge).find(DAY);
+
+      assertThat(response.events())
+          .extracting(WorldStoryResponse.Event::summary)
+          .containsExactly("시험 사건 나.");
+      assertThat(asked).as("the hidden event's QID is not sent").containsExactly(List.of("Q5"));
+      assertThat(response.partial()).as("partial as the source said").isEqualTo(day.degraded());
     }
   }
 }

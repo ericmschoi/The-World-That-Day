@@ -20,7 +20,8 @@ import org.springframework.stereotype.Component;
  * the summary, then the Wikidata signals of the main link (class, deaths, none), and {@code
  * tragic}/{@code default} when nothing could be evaluated. Scope: curation, then P17 (Korea Q884 →
  * domestic, other countries only → world), else unknown. One Wikidata request per call, for every
- * QID of the events that are not hidden.
+ * QID of the events that are not hidden. A matching takedown entry hides the event even when
+ * another entry gives it a tone.
  */
 @Component
 public class CuratedEventToneJudge implements EventToneJudge {
@@ -41,9 +42,10 @@ public class CuratedEventToneJudge implements EventToneJudge {
   @Override
   public Judgement judge(List<KoWikiEvent> events) {
     List<Optional<Entry>> entries = events.stream().map(curation::match).toList();
+    List<Boolean> hidden = events.stream().map(curation::hidden).toList();
     List<String> qids = new ArrayList<>();
     for (int i = 0; i < events.size(); i++) {
-      if (!entries.get(i).map(Entry::hide).orElse(false)) {
+      if (!hidden.get(i)) {
         qids.add(events.get(i).wikidataQid());
       }
     }
@@ -51,16 +53,20 @@ public class CuratedEventToneJudge implements EventToneJudge {
         wikidata.signals(qids.stream().filter(Objects::nonNull).distinct().toList());
     List<Verdict> verdicts = new ArrayList<>();
     for (int i = 0; i < events.size(); i++) {
-      verdicts.add(verdict(events.get(i), entries.get(i), signals));
+      verdicts.add(verdict(events.get(i), entries.get(i), hidden.get(i), signals));
     }
     return new Judgement(verdicts, signals.isEmpty());
   }
 
   private Verdict verdict(
-      KoWikiEvent event, Optional<Entry> entry, Optional<Map<String, Signals>> all) {
+      KoWikiEvent event,
+      Optional<Entry> entry,
+      boolean hidden,
+      Optional<Map<String, Signals>> all) {
+    // Only queried items are in the answer; an ID that was never sent (malformed) has no signals.
     Optional<Signals> signals =
         Optional.ofNullable(event.wikidataQid())
-            .flatMap(qid -> all.map(map -> map.getOrDefault(qid, Signals.NONE)));
+            .flatMap(qid -> all.flatMap(map -> Optional.ofNullable(map.get(qid))));
     Scope scope =
         entry
             .flatMap(Entry::scope)
@@ -70,7 +76,6 @@ public class CuratedEventToneJudge implements EventToneJudge {
                         .filter(s -> !s.countries().isEmpty())
                         .map(s -> s.countries().contains(KOREA) ? Scope.DOMESTIC : Scope.WORLD)
                         .orElse(Scope.UNKNOWN));
-    boolean hidden = entry.map(Entry::hide).orElse(false);
     Optional<Tone> curated = entry.flatMap(Entry::tone);
     if (curated.isPresent()) {
       return new Verdict(curated.get(), Basis.CURATED, scope, hidden);

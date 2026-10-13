@@ -104,9 +104,14 @@ public class EventCuration {
     return entries;
   }
 
-  /** The first entry that matches the event. */
+  /** The first matching entry that is not a takedown (it gives the curated tone and scope). */
   public Optional<Entry> match(KoWikiEvent event) {
-    return entries.stream().filter(entry -> entry.matches(event)).findFirst();
+    return entries.stream().filter(entry -> !entry.hide() && entry.matches(event)).findFirst();
+  }
+
+  /** Whether any matching entry takes the event down; a takedown wins over every other entry. */
+  public boolean hidden(KoWikiEvent event) {
+    return entries.stream().anyMatch(entry -> entry.hide() && entry.matches(event));
   }
 
   static List<Entry> parse(JsonNode root) {
