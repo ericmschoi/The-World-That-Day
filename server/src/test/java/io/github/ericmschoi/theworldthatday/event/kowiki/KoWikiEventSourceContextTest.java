@@ -30,7 +30,7 @@ class KoWikiEventSourceContextTest extends WikimediaWireMockTest {
     jdbc.execute("TRUNCATE wiki_section_cache");
   }
 
-  private static void stubRecorded(String title) {
+  static void stubRecorded(String title) {
     String prefix = KoWikiFixtureReadme.DEMO_PAGES.get(title);
     long revid = KoWikiFixtureReadme.revid(prefix + "-sections.json");
     wikimedia.stubFor(

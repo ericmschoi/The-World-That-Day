@@ -50,6 +50,13 @@ class ApplicationConfigTest {
             "jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/${POSTGRES_DB:the_world_that_day}");
   }
 
+  /** Plan M3a1c T1b: a cache read on a dead database fails well inside the day deadline. */
+  @Test
+  void connectionWaitIsShortAndValidationShorterStill() {
+    assertThat(value("spring.datasource.hikari.connection-timeout")).isEqualTo("1000");
+    assertThat(value("spring.datasource.hikari.validation-timeout")).isEqualTo("500");
+  }
+
   @Test
   void rootEnvFileImportIsOptional() {
     assertThat(value("spring.config.import")).isEqualTo("optional:file:../.env[.properties]");

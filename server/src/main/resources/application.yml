@@ -10,6 +10,18 @@ spring:
     url: jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/${POSTGRES_DB:the_world_that_day}
     username: ${POSTGRES_USER:postgres}
     password: ${POSTGRES_PASSWORD}
+    hikari:
+      # Milliseconds (Hikari binds a plain long; "1000ms" fails startup).
+      # How long a caller waits for a pooled connection (Hikari default 30s). A day of Korean
+      # Wikipedia events makes up to 4 cache calls (read + write per page) inside
+      # wikimedia.kowiki-day-deadline (5s): 4 x 1s still leaves time for the Wikipedia requests
+      # when the database is unreachable or the pool is exhausted, so only the cache is lost.
+      # A warm pool hands out connections in microseconds and a new local connection takes tens
+      # of milliseconds, so 1s is far above normal waits.
+      connection-timeout: 1000
+      # Hikari requires validation-timeout < connection-timeout (default 5s would let a hung
+      # database hold a borrow past the connection timeout while the connection is checked).
+      validation-timeout: 500
   jpa:
     # Schema changes go through Flyway only.
     hibernate:
