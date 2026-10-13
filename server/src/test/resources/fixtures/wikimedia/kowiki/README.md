@@ -56,6 +56,8 @@
 | `synthetic/synthetic-missingtitle.json` | 없는 문서 응답(`error.code` = `missingtitle`) |
 | `synthetic/synthetic-ratelimited.json` | HTTP 200에 담긴 속도 제한 응답(`error.code` = `ratelimited`, M3a1b). 필드 구조는 Action API 오류 형식(`code`·`info`·`docref`)을 따랐다 |
 | `synthetic/dedup/synthetic-counterexample-*.wikitext` | 중복 제거 반례(M3a1c T2): 날짜 문서 문화 절의 "시험 대회 A조 경기 가"와 연도 문서 사건 절의 "시험 대회 A조 경기 나"가 대표 링크 `시험 대회` 만 공유한다. 겹침 계수 0.5가 기준값보다 낮아 둘 다 남아야 한다 |
+| `synthetic/dedup/synthetic-one-link-*.wikitext` | 보정한 D3(M3a1c T4·T5): 날짜 문서 문화 절의 링크 1개 줄(`2002 시험 대회`)이 연도 문서 문화 절의 같은 대회·다른 경기 줄(`2002년 시험 대회`, `시험 팀 다`, `시험 팀 라`)을 흡수하지 않아 둘 다 남아야 한다 |
+| `synthetic/dedup/synthetic-country-pair-*.wikitext` | 일반 링크 충돌(M3a1c T4 (6)·T5): 같은 대회 링크에 서로 다른 나라 쌍(`대한민국`·`스페인` / `독일`·`미국`)을 나라 문서 링크로만 단 두 줄. 경기 결과는 적지 않는다. 둘 다 남아야 한다 |
 | `synthetic/parser/synthetic-*.wikitext` | 파서 경계 사례(별칭 링크, 굵은 글씨, 각주·주석, 파일·분류 링크, 하위 줄, 링크 없는 날짜, 엔 대시, 템플릿, 외부 링크, 날짜 범위, 읽을 수 없는 연도, M3a1b의 HTML 태그·엔티티). 날짜는 2000-02-29 |
 
 503·429 같은 HTTP 오류는 본문이 필요 없어 WireMock 상태 코드로만 만든다.
