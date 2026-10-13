@@ -48,8 +48,7 @@ public class CachingKoWikiClient implements KoWikiClient {
   @Override
   public KoWikiPage fetch(String title) {
     Optional<WikiSectionCache> cached = find(title);
-    if (cached.isPresent()
-        && cached.get().fetchedAt().plus(properties.cacheTtl()).isAfter(clock.instant())) {
+    if (cached.isPresent() && isFresh(cached.get())) {
       return page(title, cached.get(), State.CACHED);
     }
     KoWikiPage page = delegate.fetch(title);
@@ -64,6 +63,17 @@ public class CachingKoWikiClient implements KoWikiClient {
       }
       default -> page;
     };
+  }
+
+  @Override
+  public KoWikiPage cached(String title) {
+    return find(title)
+        .map(row -> page(title, row, isFresh(row) ? State.CACHED : State.STALE))
+        .orElseGet(() -> KoWikiPage.unavailable(title));
+  }
+
+  private boolean isFresh(WikiSectionCache row) {
+    return row.fetchedAt().plus(properties.cacheTtl()).isAfter(clock.instant());
   }
 
   private void delete(String title) {

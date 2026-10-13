@@ -77,5 +77,6 @@ class ApplicationConfigTest {
     assertThat(value("wikimedia.max-retries")).isEqualTo("1");
     assertThat(value("wikimedia.rate-limit-max-wait")).isEqualTo("120s");
     assertThat(value("wikimedia.kowiki-api-url")).isEqualTo("https://ko.wikipedia.org/w/api.php");
+    assertThat(value("wikimedia.kowiki-day-deadline")).isEqualTo("5s");
   }
 }

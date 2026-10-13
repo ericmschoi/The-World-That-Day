@@ -45,6 +45,7 @@ class CachingKoWikiClientDatabaseFailureTest {
               Duration.ofSeconds(120),
               3,
               Duration.ofDays(7),
+              Duration.ofSeconds(5),
               URI.create("http://localhost:9/w/api.php")),
           clock);
 

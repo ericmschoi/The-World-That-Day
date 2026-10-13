@@ -26,6 +26,7 @@ class WikimediaPropertiesTest {
         Duration.ofSeconds(120),
         3,
         Duration.ofDays(7),
+        Duration.ofSeconds(5),
         url);
   }
 
@@ -74,6 +75,7 @@ class WikimediaPropertiesTest {
                     Duration.ofSeconds(120),
                     maxConcurrent,
                     Duration.ofDays(7),
+                    Duration.ofSeconds(5),
                     URI.create("https://ko.wikipedia.org/w/api.php")))
         .withMessageContaining("wikimedia.max-concurrent-requests");
   }
@@ -155,8 +157,45 @@ class WikimediaPropertiesTest {
                     Duration.ofSeconds(120),
                     3,
                     Duration.parse(ttl),
+                    Duration.ofSeconds(5),
                     URI.create("https://ko.wikipedia.org/w/api.php")))
         .withMessageContaining("wikimedia.cache-ttl");
+  }
+
+  @ParameterizedTest(name = "kowiki-day-deadline {0} is rejected")
+  @ValueSource(strings = {"PT0S", "-PT1S"})
+  void nonPositiveDayDeadlineIsRejected(String deadline) {
+    assertThatIllegalArgumentException()
+        .isThrownBy(
+            () ->
+                new WikimediaProperties(
+                    "",
+                    Duration.ofSeconds(2),
+                    Duration.ofSeconds(4),
+                    1,
+                    Duration.ofSeconds(120),
+                    3,
+                    Duration.ofDays(7),
+                    Duration.parse(deadline),
+                    URI.create("https://ko.wikipedia.org/w/api.php")))
+        .withMessageContaining("wikimedia.kowiki-day-deadline");
+  }
+
+  @Test
+  void dayDeadlineDefaultsToFiveSecondsAndCanBeSet() {
+    String url = "wikimedia.kowiki-api-url=https://ko.wikipedia.org/w/api.php";
+    runner
+        .withPropertyValues(url)
+        .run(
+            context ->
+                assertThat(context.getBean(WikimediaProperties.class).kowikiDayDeadline())
+                    .isEqualTo(Duration.ofSeconds(5)));
+    runner
+        .withPropertyValues(url, "wikimedia.kowiki-day-deadline=1500ms")
+        .run(
+            context ->
+                assertThat(context.getBean(WikimediaProperties.class).kowikiDayDeadline())
+                    .isEqualTo(Duration.ofMillis(1500)));
   }
 
   @Test

@@ -1,4 +1,4 @@
-# 한국어 위키백과 fixture (M3a1 T2)
+# 한국어 위키백과 fixture (M3a1 T2, M3a1c T1)
 
 ## 녹화 fixture (이 폴더의 `*.json`)
 
@@ -28,6 +28,21 @@
 | `1995-sections.json` | 1995년 | 42616845 | `https://ko.wikipedia.org/w/api.php?action=parse&page=1995%EB%85%84&prop=sections%7Crevid&redirects=1&format=json&formatversion=2` |
 | `1995-events.json` | 1995년 (사건 절) | 42616845 | `https://ko.wikipedia.org/w/api.php?action=parse&oldid=42616845&prop=wikitext&section=1&format=json&formatversion=2` |
 | `1995-culture.json` | 1995년 (문화 절) | 42616845 | `https://ko.wikipedia.org/w/api.php?action=parse&oldid=42616845&prop=wikitext&section=2&format=json&formatversion=2` |
+
+## 링크 해석 녹화 fixture (`pageprops-*.json`, M3a1c T1)
+
+- 출처: 한국어 위키백과 MediaWiki Action API `action=query&prop=pageprops&ppprop=wikibase_item&redirects=1` 응답을 그대로 저장했다(바이트 수정 없음). 요청한 제목은 데모 날짜 사건 줄의 링크를 처음 나온 순서대로 `|` 로 묶은 것이고, `KoWikiEventSource` 가 보내는 요청과 같다.
+- 녹화 일자: 2026-10-12 (22:54~22:55 UTC), backend-dev가 `curl` 로 한 번씩 받았다. User-Agent는 공개값(#25 (a), 저장소 URL)을 썼다.
+- 라이선스: 위키백과 API 응답(문서 제목·문서 번호), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). 응답 안의 Wikidata 항목 ID(`wikibase_item`)는 Wikidata 데이터로 [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/).
+- 판 번호: `query` 응답에는 `revid` 가 없다(문서마다 `pageid` 만 있다). 해석 결과(넘겨주기, QID)는 녹화 시점의 것이다.
+- 응답에 든 넘겨주기: `서울` → `서울특별시`, `2002 FIFA 월드컵` → `2002년 FIFA 월드컵`.
+
+| 파일 | 데모 날짜 | 요청한 제목 | 원 URL |
+|---|---|---|---|
+| `pageprops-1988-09-17.json` | 1988-09-17 | 1988년 하계 올림픽, 대한민국, 서울, 서울특별시, KBS 1TV, KBS 2TV | `https://ko.wikipedia.org/w/api.php?action=query&prop=pageprops&ppprop=wikibase_item&redirects=1&titles=1988%eb%85%84+%ed%95%98%ea%b3%84+%ec%98%ac%eb%a6%bc%ed%94%bd%7c%eb%8c%80%ed%95%9c%eb%af%bc%ea%b5%ad%7c%ec%84%9c%ec%9a%b8%7c%ec%84%9c%ec%9a%b8%ed%8a%b9%eb%b3%84%ec%8b%9c%7cKBS+1TV%7cKBS+2TV&format=json&formatversion=2` |
+| `pageprops-2002-06-22.json` | 2002-06-22 | 2002 FIFA 월드컵, 2002년 FIFA 월드컵 | `https://ko.wikipedia.org/w/api.php?action=query&prop=pageprops&ppprop=wikibase_item&redirects=1&titles=2002+FIFA+%ec%9b%94%eb%93%9c%ec%bb%b5%7c2002%eb%85%84+FIFA+%ec%9b%94%eb%93%9c%ec%bb%b5&format=json&formatversion=2` |
+
+1995-03-15 은 그날 사건이 없어 링크 해석 요청을 보내지 않으므로 fixture가 없다.
 
 ## 합성 fixture (`synthetic/`)
 

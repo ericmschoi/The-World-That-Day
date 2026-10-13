@@ -60,6 +60,7 @@ class ActionApiKoWikiClientTest {
             Duration.ofSeconds(120),
             3,
             Duration.ofDays(7),
+            Duration.ofSeconds(5),
             URI.create(wikimedia.baseUrl() + PATH));
     return new ActionApiKoWikiClient(
         new WikimediaHttpClient(properties, clock), properties, KoWikiFixtures.JSON, clock);

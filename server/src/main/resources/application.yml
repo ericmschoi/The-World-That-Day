@@ -53,4 +53,7 @@ wikimedia:
   # How long a cached Wikipedia section (table wiki_section_cache) is used without asking again.
   # After that it is read again; if that fails, the old copy is used (state STALE).
   cache-ttl: 7d
+  # Upper bound for one date of Korean Wikipedia events (plan M3a1c): both pages plus the link
+  # lookup. A date page that timed out skips the year page request (its cached copy is still used).
+  kowiki-day-deadline: 5s
   kowiki-api-url: https://ko.wikipedia.org/w/api.php

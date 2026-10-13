@@ -10,9 +10,12 @@ import java.net.http.HttpClient;
 import java.net.http.HttpTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.LongAdder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.NestedExceptionUtils;
@@ -50,6 +53,7 @@ public class WikimediaHttpClient {
   private final HostRateLimiter rateLimiter;
   private final RestClient restClient;
   private final Semaphore permits;
+  private final Map<String, LongAdder> timeouts = new ConcurrentHashMap<>();
 
   public WikimediaHttpClient(WikimediaProperties properties, Clock clock) {
     this.properties = properties;
@@ -105,6 +109,9 @@ public class WikimediaHttpClient {
         }
       } catch (RestClientException e) {
         boolean timeout = isTimeout(e);
+        if (timeout) {
+          timeouts.computeIfAbsent(host, key -> new LongAdder()).increment();
+        }
         if (!canRetry || !timeout) {
           String cause = NestedExceptionUtils.getMostSpecificCause(e).getClass().getSimpleName();
           return fail(source, title, cause, timeout ? Reason.TIMEOUT : Reason.IO_ERROR);
@@ -124,6 +131,17 @@ public class WikimediaHttpClient {
     if (host != null) {
       rateLimiter.block(host, null);
     }
+  }
+
+  /**
+   * Attempts to the host of {@code uri} that hit the connect or read timeout so far. A caller
+   * compares a reading before and after its own requests to tell whether the host stalled; other
+   * callers' timeouts to the same host count too, which also means the host is stalling.
+   */
+  public long timeouts(URI uri) {
+    String host = host(uri);
+    LongAdder count = host == null ? null : timeouts.get(host);
+    return count == null ? 0 : count.sum();
   }
 
   /** The shared request slots; tests use it to occupy every slot. */

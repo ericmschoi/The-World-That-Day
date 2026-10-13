@@ -56,6 +56,7 @@ class KoWikiRecordedPagesClientTest {
             Duration.ofSeconds(120),
             3,
             Duration.ofDays(7),
+            Duration.ofSeconds(5),
             URI.create(wikimedia.baseUrl() + PATH));
     MutableClock clock =
         new MutableClock(Instant.parse("2026-01-01T00:00:00Z"), ClockConfig.SERVICE_ZONE);
