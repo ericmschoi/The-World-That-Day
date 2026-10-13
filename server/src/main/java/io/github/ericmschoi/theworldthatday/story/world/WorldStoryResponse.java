@@ -2,6 +2,7 @@ package io.github.ericmschoi.theworldthatday.story.world;
 
 import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiEvent;
 import io.github.ericmschoi.theworldthatday.event.tone.EventToneJudge.Verdict;
+import io.github.ericmschoi.theworldthatday.media.MediaItem;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -12,11 +13,12 @@ import tools.jackson.databind.annotation.JsonNaming;
 
 /**
  * Body of {@code GET /api/story/world} (plan M3a2 response fields). JSON names are snake_case.
- * {@code dayMedia} and every {@code media} stay empty until M3a3 fills them.
+ * {@code dayMedia} and every {@code media} stay empty until M3a3b (photos) and M3a4 (videos) fill
+ * them.
  */
 @JsonNaming(SnakeCaseStrategy.class)
 public record WorldStoryResponse(
-    String date, List<Event> events, List<Object> dayMedia, Notice notice, boolean partial) {
+    String date, List<Event> events, List<MediaItem> dayMedia, Notice notice, boolean partial) {
 
   static final String WIKI_BASE = "https://ko.wikipedia.org/wiki/";
 
@@ -55,7 +57,7 @@ public record WorldStoryResponse(
       String tone,
       String toneBasis,
       List<Link> relatedLinks,
-      List<Object> media,
+      List<MediaItem> media,
       String retrievedAt) {
 
     static Event of(KoWikiEvent event, Verdict verdict) {

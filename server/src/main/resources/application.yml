@@ -86,6 +86,13 @@ wikimedia:
   # armed conflict.
   wikidata-tragic-classes: Q3839081,Q171558,Q2223653,Q350604
 
+# Shared media format (plan M3a3). Only these providers' image_embed / video_embed items are
+# returned; anything else is dropped. Entries are lowercase provider IDs; a blank or malformed
+# entry fails startup. Image embeds are out of M3; M3a5 adds youtube for videos.
+media:
+  allowed-image-embed-providers: []
+  allowed-video-embed-providers: []
+
 app:
   # Curated data (data/ of the repository). bootRun and tests run in server/.
   data-dir: ../data
