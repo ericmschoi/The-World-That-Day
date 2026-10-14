@@ -4,8 +4,10 @@ import { describe, expect, it, vi } from 'vitest'
 import { StoryScreen } from './StoryScreen'
 
 describe('StoryScreen', () => {
-  it('renders the five story sections in brief order with stable ids', () => {
-    render(<StoryScreen onRestart={() => {}} />)
+  it('renders the five story sections in brief order with stable ids', async () => {
+    render(<StoryScreen date="1995-03-15" onRestart={() => {}} />)
+    // The world section loads its own content (MSW default handler).
+    await screen.findByText('이 날짜에 기록된 큰 사건을 찾지 못했습니다.')
     const regions = screen.getAllByRole('region')
     expect(regions).toHaveLength(5)
     expect(
@@ -24,13 +26,18 @@ describe('StoryScreen', () => {
           index
         ],
       )
-      expect(region).toHaveTextContent('아직 준비 중')
+      if (region.id === 'world') {
+        expect(region).not.toHaveTextContent('아직 준비 중')
+      } else {
+        expect(region).toHaveTextContent('아직 준비 중')
+      }
     })
   })
 
   it('calls onRestart when the restart button is pressed', async () => {
     const onRestart = vi.fn()
-    render(<StoryScreen onRestart={onRestart} />)
+    render(<StoryScreen date="1995-03-15" onRestart={onRestart} />)
+    await screen.findByText('이 날짜에 기록된 큰 사건을 찾지 못했습니다.')
     await userEvent.click(screen.getByRole('button', { name: '처음으로' }))
     expect(onRestart).toHaveBeenCalledTimes(1)
   })
