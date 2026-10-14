@@ -7,6 +7,8 @@ type Props = { media: Media; fallbackAlt: string }
 
 // A photo shown inline, straight from the original source (never rehosted),
 // always with its caption. Records that fail the checks render nothing.
+// The description is read once, in the caption; `alt` is the short
+// `fallbackAlt` the screen passes (M3b1b review).
 export function MediaFigure({ media, fallbackAlt }: Props) {
   if (media.display_mode !== 'image' || !isDisplayable(media)) return null
   return (
@@ -14,7 +16,7 @@ export function MediaFigure({ media, fallbackAlt }: Props) {
       <img
         className={styles.image}
         src={media.thumbnail_url ?? undefined}
-        alt={media.description?.trim() || fallbackAlt}
+        alt={fallbackAlt}
         width={media.thumbnail_width ?? undefined}
         height={media.thumbnail_height ?? undefined}
         loading="lazy"

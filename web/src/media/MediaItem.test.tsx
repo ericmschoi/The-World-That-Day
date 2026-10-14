@@ -50,10 +50,10 @@ describe('MediaItem', () => {
   it('still renders the card when only license_url is malformed', () => {
     renderItem(patch(sameDayPhoto, { license_url: 'javascript:alert(1)' }))
     expect(screen.getByRole('img')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: '원문 보기' })).toBeInTheDocument()
     expect(
-      screen.queryByRole('link', { name: '라이선스' }),
-    ).not.toBeInTheDocument()
+      screen.getByRole('link', { name: /^원문 보기.*새 창에서 열림/ }),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /라이선스/ })).toBeNull()
   })
 
   // Video and iframe cards come in M3b3, map SDK media in M4.

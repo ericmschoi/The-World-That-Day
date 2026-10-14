@@ -210,7 +210,9 @@ describe('unknown capture time is never presented as that day', () => {
     )
     expect(firstLine(figure)).toHaveTextContent(/^촬영 시점 미상$/)
     expect(
-      figure.querySelector('figcaption span:not([aria-hidden])'),
+      figure.querySelector(
+        'figcaption span:not([aria-hidden]):not(.visually-hidden)',
+      ),
     ).toBeNull()
     expect(figure.textContent).not.toContain(day)
     for (const hint of THAT_DAY_HINTS) {
@@ -256,7 +258,9 @@ describe('inline display, never a link card or a rehosted file', () => {
       // The only links are the caption's 원문 보기 and 라이선스.
       for (const link of within(figure).getAllByRole('link')) {
         expect(link.closest('figcaption')).not.toBeNull()
-        expect(['원문 보기', '라이선스']).toContain(link.textContent)
+        expect(link).toHaveAccessibleName(
+          /^(원문 보기|라이선스)\s*\(새 창에서 열림\)$/,
+        )
       }
     },
   )
@@ -270,7 +274,7 @@ describe('source, license and capture time are always on the card', () => {
       const figure = screen.getByRole('figure')
       expect(figure).toHaveTextContent(media.attribution)
       expect(
-        within(figure).getByRole('link', { name: '원문 보기' }),
+        within(figure).getByRole('link', { name: /^원문 보기/ }),
       ).toHaveAttribute('href', media.source_url)
       expect(firstLine(figure).textContent).not.toBe('')
     },

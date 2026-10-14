@@ -151,7 +151,9 @@ describe('demo 2002-06-22 (데모 표 2행)', () => {
     expectSourceLines(items, world2002WithMedia.events)
     const figure = within(items[0]).getByRole('figure')
     expect(screen.getAllByRole('img')).toHaveLength(1)
-    expect(within(figure).getByText('KOGL Type 1')).toBeInTheDocument()
+    // The attribution names KOGL Type 1, so there is no separate line.
+    expect(figure).toHaveTextContent('KOGL Type 1')
+    expect(within(figure).queryByText('KOGL Type 1')).not.toBeInTheDocument()
     expect(within(figure).getByText('같은 날')).toBeInTheDocument()
     expect(
       new URL(within(figure).getByRole('img').getAttribute('src')!).host,
@@ -316,7 +318,7 @@ describe('event media and source links (CLAUDE.md 7.1)', () => {
     ).not.toContain(base.media[0].thumbnail_url)
     // Only the remaining card's "원문 보기" plus the two source line links.
     expect(
-      within(item).getAllByRole('link', { name: '원문 보기' }),
+      within(item).getAllByRole('link', { name: /^원문 보기/ }),
     ).toHaveLength(1)
   })
 
