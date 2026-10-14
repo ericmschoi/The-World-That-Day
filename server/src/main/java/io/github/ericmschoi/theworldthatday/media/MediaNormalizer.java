@@ -31,9 +31,13 @@ public class MediaNormalizer {
   private static final Pattern PLACE_REF =
       Pattern.compile("world|unknown|[a-z]+:\\S+", Pattern.UNICODE_CHARACTER_CLASS);
 
-  /** UTC to the second, as the schema's {@code retrieved_at} pattern. */
+  /**
+   * UTC to the second, as the schema's {@code retrieved_at} pattern. Second 60 is always refused:
+   * {@link Instant#parse} accepts it, while the schema's {@code date-time} accepts it only on real
+   * leap-second dates (plan M3a3a, PR #12 review), so the server stays the stricter side.
+   */
   private static final Pattern DATE_TIME =
-      Pattern.compile("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z");
+      Pattern.compile("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:[0-5]\\dZ");
 
   private static final Pattern VIDEO_MIME = Pattern.compile("video/[a-z0-9.+-]+");
   private static final Pattern YEAR = Pattern.compile("\\d{4}");
@@ -209,7 +213,14 @@ public class MediaNormalizer {
     return value == null || has(value);
   }
 
+  /**
+   * Not {@code null} and not made only of spaces: the plan M3a3a space set is every character
+   * {@link Character#isWhitespace} accepts (the old {@code isBlank()} rule) or of Unicode category
+   * Z ({@link Character#isSpaceChar}: U+00A0, U+2007, U+202F, U+3000, ...). The schema's {@code
+   * nonEmptyString} uses the same set.
+   */
   private static boolean has(String value) {
-    return value != null && !value.isBlank();
+    return value != null
+        && !value.codePoints().allMatch(c -> Character.isWhitespace(c) || Character.isSpaceChar(c));
   }
 }
