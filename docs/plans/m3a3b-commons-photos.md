@@ -1,8 +1,8 @@
 # 사건 사진과 그날 사진: Commons 연결 (M3a3b)
 
-> 브랜치: `feat/commons-photos` · 작성: planner · 상태: **PM 승인 (2026-10-13)** — M3a3 분할 결정 A (a)로 생김. 내용은 `docs/plans/m3a3-event-media.md` 2026-10-13 개정판의 2부(T5~T8)를 옮긴 것이고 작업 번호만 T1~T4로 바꿨다(T5→T1, T6→T2, T7→T3, T8→T4).
-> 기준: PM 미디어 결정 2026-10-11, 안전장치 1~6, `CLAUDE.md` 7절 1·2·3·5·6항, `docs/product-brief.md` 6.1절·6.2절·6.3절·8절·12절, `docs/research/day-events.md` 3·4·8절, `docs/plans/m3a3-event-media.md`(형식·R1~R9·파서·라이선스 상태·차단과 제외·`date_relation`), M3-P16 변경(2026-10-12), #21 (a), #22 (c), M3-P17 (a)
-> 선행: **M3a3 `feat/event-media` 머지**(공용 미디어 형식과 규칙). 이 기능은 그 `main` 에서 갈라진다. M3a2 `feat/world-events-api`(PR #11)도 머지 완료.
+> 브랜치: `feat/commons-photos` · 작성: planner · 상태: **PM 승인 (2026-10-13)** — M3a3 분할 결정 A (a)로 생김. 내용은 `docs/plans/m3a3-event-media.md` 2026-10-13 개정판의 2부(T5~T8)를 옮긴 것이고 작업 번호만 T1~T4로 바꿨다(T5→T1, T6→T2, T7→T3, T8→T4). **2026-10-13 선행 바꿈**: M3a3 확인점 결과(S1 505, PM (a))로 파서·라이선스 상태·차단과 제외가 M3a3a `feat/media-rules` 로 옮겨져, 이 기능은 **M3a3a 머지 뒤**에 시작한다.
+> 기준: PM 미디어 결정 2026-10-11, 안전장치 1~6, `CLAUDE.md` 7절 1·2·3·5·6항, `docs/product-brief.md` 6.1절·6.2절·6.3절·8절·12절, `docs/research/day-events.md` 3·4·8절, `docs/plans/m3a3-event-media.md`(형식·R1~R9·`date_relation`), `docs/plans/m3a3a-media-rules.md`(파서·라이선스 상태·차단과 제외), M3-P16 변경(2026-10-12), #21 (a), #22 (c), M3-P17 (a)
+> 선행: **M3a3a `feat/media-rules` 머지**(공용 규칙 — 그 앞의 M3a3 `feat/event-media` 형식 포함). 이 기능은 그 `main` 에서 갈라진다. M3a2 `feat/world-events-api`(PR #11)도 머지 완료.
 > 뒤따르는 기능: M3b2(PM 화면 확인에 실제 사진이 필요해 이 기능 뒤), M3a4b(이 기능의 Commons 파일 매퍼를 재사용).
 
 ## 이 계획서가 생긴 이유 (2026-10-13)
@@ -10,8 +10,9 @@
 | 항목 | 내용 |
 |---|---|
 | 분할 | M3a3을 다시 재니 약 1,290줄(최근 실측 ×2.8)이라 PM이 두 PR로 나눴다(결정 A (a)). 외부 호출이 없는 형식·규칙은 M3a3, Commons 연결은 이 기능 |
+| **선행 바꿈 (확인점 결과)** | M3a3 T2 뒤 누적 S1 505 > 450 → PM (a) M3a3 T3을 M3a3a로 뺐다. 이 기능이 쓰는 파서·라이선스 상태·차단과 제외가 M3a3a에 있으므로 선행이 **M3a3 → M3a3a** 로 바뀌었다. 이 계획서에서 바뀐 곳: 머리말, "범위 밖", "이어받는 계약"(M3a3a 절 추가), "Commons 사진 규칙" 표의 출처 표기, T1 의존·(2)에 차단·제외 행 명시, "크기" 절 메모와 리스크 10(M3a3 T2 실측 비율 ×3.9로 보면 약 780) |
 | 이 기능으로 옮긴 설정 | `media.max-years-apart`, `media.day-media-limit`, `media.lookup-deadline`, `wikimedia.commons-api-url` — 쓰는 곳이 이 기능뿐이다 |
-| 바뀌지 않은 것 | 규칙·데모 기대값·완료 기준은 M3a3 개정판 2부 그대로다 |
+| 바뀌지 않은 것 | 규칙·데모 기대값·크기 추정값·확인점(T1 뒤 400)·완료 기준은 M3a3 개정판 2부 그대로다(T1 (2)는 규칙 표에 이미 있던 차단·제외 행을 테스트 목록에 적어 넣었을 뿐이다) |
 
 ## 목표
 
@@ -22,7 +23,7 @@
 
 ## 범위 밖
 
-- 형식·정규화·파서·라이선스 상태·차단과 제외 → M3a3 (이 기능은 쓰기만 한다)
+- 형식·정규화·`date_relation` → M3a3, 파서·라이선스 상태·차단과 제외 → M3a3a (이 기능은 쓰기만 한다)
 - 영상 → M3a4~M3a5b
 - 사진 메타데이터 캐시 → 후속(필요하면 M3a4b 결과 캐시에 출처를 더한다). 이 기능은 요청마다 부른다(리스크 7)
 - Wikidata 대표 이미지(P18) — 쓰지 않는다
@@ -51,6 +52,7 @@
 | M3-P17 | (a) "그날 찍힌 사진"은 `same_day` 만 → `day_media` 순서 | 결정 |
 | 근접 연도 | 사건 사진은 ±5년 안만 (`media.max-years-apart: 5`) | #15 확정 전 초안 |
 | M3a3 분할 | A (a) — 이 기능이 2부 | **결정 2026-10-13** |
+| M3a3 확인점 | (a) T3을 M3a3a로 — 이 기능의 선행이 M3a3a | **결정 2026-10-13** |
 
 ## 이어받는 계약
 
@@ -65,26 +67,30 @@
 | 시간 상한 | `SparqlWikidataSignalSource.within`: 5초까지 기다리고, 넘으면 `cancel(true)` 후 최대 1초(`CANCEL_GRACE`) 종료를 기다려 WARN 1줄 | 미디어 조회 전체에 같은 방식의 상한(3초). 이 도우미를 `wikimedia` 패키지 공용으로 빼도 된다(기존 Wikidata 테스트를 고치지 않고 통과할 때만) |
 | 설정 묶음 | `WikimediaProperties`, `WikidataProperties`(주소 검증) | `CommonsProperties`(`wikimedia.commons-api-url`, 절대 `http(s)` 아니면 시작 실패), `MediaProperties` 에 이 기능 설정 추가 |
 
-### M3a3 (선행 기능)
+### M3a3 (형식)
 
-`MediaItem`(+ `VideoSource`·`Render`·`DateRelation`), 정규화(R1~R9, `date_relation` 계산), 촬영 시점 파서, 라이선스 상태, 차단 목록·통신사 제외, `MediaProperties`, 스키마 `data/schema/media.schema.json` 과 테스트 도우미 `DataSchemas`. 이름은 M3a3 머지 코드를 따른다(M3a3 T2·T3 보고).
+`MediaRecord`(저장 형식, `LicenseStatus`·`DatePrecision` 열거형 포함), `MediaItem`(+ `VideoSource`·`Render`·`DateRelation`), `MediaNormalizer`(R1~R9, `date_relation` 계산), `MediaProperties`, 스키마 `data/schema/media.schema.json` 과 테스트 도우미 `DataSchemas`. 이름은 M3a3 머지 코드를 따른다(M3a3 T2 보고, 4d8929c).
+
+### M3a3a (공용 규칙 — 선행 기능)
+
+촬영 시점 파서, 라이선스 상태 판정, 차단·제외 필터와 그 입력인 "원문 정보" 형(`source`, `itemId`, `author`, `credit`, `channel` — 이름은 예시), `MediaProperties` 의 `media.blocklist`·`media.excluded-credits`. 이름은 M3a3a 머지 코드를 따른다(M3a3a T3 (8) 공개 부품 목록). 이 기능의 Commons 파일 매퍼는 원문 정보를 `source: commons`, `itemId` = 파일 이름(`File:` 없이), `author` = `Artist` 평문, `credit` = `Credit` 평문으로 채워 **정규화 앞에서** 필터를 부른다.
 
 ## Commons 사진 규칙
 
 | 검사 | 결과 |
 |---|---|
 | Commons에 없음(Commons API 응답의 `missing` — 위키 로컬 파일) / `NonFree` | 제외 |
-| 차단 목록·통신사·언론사 표기 (M3a3 규칙) | 제외 |
+| 차단 목록·통신사·언론사 표기 (M3a3a 규칙) | 제외 |
 | MIME이 `image/jpeg` 가 아님 | 제외 (로고·지도·국기 거르기. PNG 사진도 빠진다 — 리스크 5) |
-| `LicenseShortName` | M3a3 "라이선스 상태"로 `free`/`other`, 없으면 `license: null`·`unknown` |
+| `LicenseShortName` | M3a3a "라이선스 상태"로 `free`/`other`, 없으면 `license: null`·`unknown` |
 | `Restrictions` 있음 | 표시(거르지 않음) |
-| `DateTimeOriginal` | M3a3 파서로 읽음. 못 읽으면 `captured_at`·정밀도 null, `unknown` (그래도 표시, 그날 사진으로 분류하지 않음) |
+| `DateTimeOriginal` | M3a3a 파서로 읽음. 못 읽으면 `captured_at`·정밀도 null, `unknown` (그래도 표시, 그날 사진으로 분류하지 않음) |
 
 사건 날짜(P585, 위키백과 줄 날짜)와 Commons 날짜 범주를 촬영 시점으로 옮기지 않는다.
 
 필드: `type: photo`, `display_mode: image`, `id` = `commons-` + `pageid`, `url` = `imageinfo.url`, `thumbnail_url` = `thumburl`(`iiurlwidth=640`), `thumbnail_width`·`thumbnail_height` = `thumbwidth`·`thumbheight`, `source_name` = `Wikimedia Commons`, `source_url` = `descriptionurl`, `license_url` = `LicenseUrl`, `attribution` = `Artist`(평문, 없으면 `Credit`, 둘 다 없으면 "작가 정보 없음") + ` · ` + (`license` 또는 "라이선스 확인 안 됨") + ` · Wikimedia Commons`, `description` = `ImageDescription` 평문(한국어가 있으면 한국어, 없으면 받은 값, 200자에서 자름), 위치 = GPS(`GPSLatitude`·`GPSLongitude`)가 있으면 좌표, 없으면 `place_ref`(날짜 범주 사진은 `country:KR`, 사건 사진은 사건 `scope`: `domestic` → `country:KR`, `world` → `world`, `unknown` → `unknown`), `retrieved_at` = 응답을 받은 시각.
 
-**Commons 파일 매퍼**는 MIME 거르기를 부르는 쪽이 정한다(이 기능은 `image/jpeg`, M3a4b는 동영상 MIME). 그 밖의 검사(`missing`, `NonFree`, 작가·라이선스·설명·촬영 시점·위치)는 매퍼 안에 둔다.
+**Commons 파일 매퍼**는 MIME 거르기를 부르는 쪽이 정한다(이 기능은 `image/jpeg`, M3a4b는 동영상 MIME). 그 밖의 검사(`missing`, `NonFree`, 차단·제외 필터 호출, 작가·라이선스·설명·촬영 시점·위치)는 매퍼 안에 둔다.
 
 ### 고르는 법
 
@@ -154,7 +160,7 @@
 
 ## 크기 (400줄 규칙)
 
-제품 코드(S1) 기준. 셈법은 M3a3 계획서와 같다(×2.8, 괄호는 ×2.4~×3.7).
+제품 코드(S1) 기준. 셈법은 M3a3 계획서와 같다(×2.8, 괄호는 ×2.4~×3.7). 메모(2026-10-13): M3a3 T2는 이전 방식의 약 3.9배(130 → 505)였다 — 같은 비율이면 이 기능은 약 780이다. 추정값은 그대로 두고 확인점에서 실측으로 본다.
 
 | 작업 | 내용 | 이전 방식 | 다시 추정 |
 |---|---|---|---|
@@ -172,7 +178,7 @@
 
 | ID | 작업 | 담당 | 산출물 | 의존 | 완료 기준 |
 |----|------|------|--------|------|-----------|
-| T1 | Commons 클라이언트·파일 매퍼·PageImages, 녹화 fixture | backend-dev | `CommonsProperties`(`wikimedia.commons-api-url`), Commons 클라이언트(파일 제목 묶음 `imageinfo`, 날짜 범주 `generator=categorymembers`), Commons 파일 매퍼(메타데이터 → `MediaItem` 후보, MIME 거르기는 부르는 쪽이 정함), 위키백과 PageImages 조회(`wikimedia.kowiki-api-url`), 녹화 fixture + `README.md`, 테스트 | M3a3 머지 | (1) `./gradlew check` 성공. (2) "Commons 사진 규칙" 표의 행마다 합성 테스트: `NonFree`·Commons에 없음(`missing`)·비JPEG → 제외, 허용 라이선스 → `free`, 다른 이름 → `other`, 라이선스 없음 → 표시 + `unknown`, `Restrictions` 있음 → 표시, `Artist` 없음 → `Credit`, 둘 다 없음 → "작가 정보 없음", `Artist` HTML → 평문, 설명 200자 자름, GPS 있음 → 좌표·`place_ref` null, 없음 → `place_ref`. (3) 모든 요청이 `WikimediaHttpClient` 로 나가고(새 HTTP 클라이언트 없음) `User-Agent` 헤더가 있으며, 호출별 읽기 타임아웃으로 `media.lookup-deadline` 을 넘긴다. (4) PageImages 요청은 제목 묶음 1회(`pilicense=free`, 최대 50개). (5) WireMock 503 → WARN 줄의 `title` 이 이름표(`commons day category`, `commons files of N`, `kowiki pageimages of N`)이고, 로그 어디에도 `YYYY-MM-DD` 모양·`File:`·`Category:`·문서 제목이 없다. (6) 녹화 fixture: 데모 3날짜 날짜 범주 응답, 데모 사건 4개 제목의 PageImages 응답, 돌려받은 파일의 `imageinfo` 응답. README에 원 URL·녹화 일자·라이선스. 이미지 파일은 받지 않는다. (7) 보고서에 데모 사건 4개의 PageImages 결과 표(제목, 파일 이름 또는 없음, MIME, 라이선스, 붙을지 여부)와 누적 S1 — **확인점 400**. 네트워크를 쓸 수 없으면 "막힘"으로 보고하고 PM이 실행할 `curl` 명령(User-Agent는 `$WIKIMEDIA_USER_AGENT`)을 적는다 |
+| T1 | Commons 클라이언트·파일 매퍼·PageImages, 녹화 fixture | backend-dev | `CommonsProperties`(`wikimedia.commons-api-url`), Commons 클라이언트(파일 제목 묶음 `imageinfo`, 날짜 범주 `generator=categorymembers`), Commons 파일 매퍼(메타데이터 → `MediaItem` 후보, MIME 거르기는 부르는 쪽이 정함, M3a3a 파서·라이선스 판정·차단·제외 필터 호출), 위키백과 PageImages 조회(`wikimedia.kowiki-api-url`), 녹화 fixture + `README.md`, 테스트 | **M3a3a 머지** (M3a3 포함) | (1) `./gradlew check` 성공. (2) "Commons 사진 규칙" 표의 행마다 합성 테스트: `NonFree`·Commons에 없음(`missing`)·비JPEG → 제외, **차단 목록에 넣은 파일 이름(합성) → 제외, `Credit` 이 `AP Photo/…` → 제외(M3a3a 필터를 거침)**, 허용 라이선스 → `free`, 다른 이름 → `other`, 라이선스 없음 → 표시 + `unknown`, `Restrictions` 있음 → 표시, `Artist` 없음 → `Credit`, 둘 다 없음 → "작가 정보 없음", `Artist` HTML → 평문, 설명 200자 자름, GPS 있음 → 좌표·`place_ref` null, 없음 → `place_ref`. (3) 모든 요청이 `WikimediaHttpClient` 로 나가고(새 HTTP 클라이언트 없음) `User-Agent` 헤더가 있으며, 호출별 읽기 타임아웃으로 `media.lookup-deadline` 을 넘긴다. (4) PageImages 요청은 제목 묶음 1회(`pilicense=free`, 최대 50개). (5) WireMock 503 → WARN 줄의 `title` 이 이름표(`commons day category`, `commons files of N`, `kowiki pageimages of N`)이고, 로그 어디에도 `YYYY-MM-DD` 모양·`File:`·`Category:`·문서 제목이 없다. (6) 녹화 fixture: 데모 3날짜 날짜 범주 응답, 데모 사건 4개 제목의 PageImages 응답, 돌려받은 파일의 `imageinfo` 응답. README에 원 URL·녹화 일자·라이선스. 이미지 파일은 받지 않는다. (7) 보고서에 데모 사건 4개의 PageImages 결과 표(제목, 파일 이름 또는 없음, MIME, 라이선스, 붙을지 여부)와 누적 S1 — **확인점 400**. 네트워크를 쓸 수 없으면 "막힘"으로 보고하고 PM이 실행할 `curl` 명령(User-Agent는 `$WIKIMEDIA_USER_AGENT`)을 적는다 |
 | T2 | 세계 API 연결: 사건 사진·날 사진, `tragic`·`hidden`, 시간 상한, `partial` | backend-dev | 미디어 조회(어댑터 인터페이스 뒤 — 예외를 던지지 않음), `WorldStoryService`·`Event.of` 연결, 시간 상한(`within` 방식, 공용 도우미로 빼도 됨), `MediaProperties` 에 `media.max-years-apart`·`media.day-media-limit`·`media.lookup-deadline`, 테스트 | T1 (확인점 통과) | (1) "데모" 표 4행 통과(사건 사진 값은 T1 녹화 결과로 고정). (2) 데모 3날짜 응답의 모든 미디어가 `date_relation` 을 뺀 뒤 스키마 통과. (3) 합성: ±6년 사건 사진 → 안 붙음, ±5년 → 붙음, 촬영 시점 미상 사건 사진 → 붙고 `unknown`, **촬영 시점을 못 읽은 날짜 범주 파일 → `day_media` 에 남고 `captured_at` null·`kind` `unknown`(날짜 범주의 날짜가 들어가지 않음)·`same_day` 파일 뒤**. (4) `tragic`: `Verdict.tone() == TRAGIC` 인 사건(`tone_basis` `default` 포함) → `media` = `[]` 이고 PageImages 요청 제목에 없음. 응답에 남은 사건 중 `tragic` 이 있으면 `day_media` = `[]`, 날짜 범주 요청 0. (5) `hidden`: `hide` 로 내린 사건의 제목은 PageImages 요청에 없고, 그 사건은 `tragic` 날 판단에 들어가지 않는다. (6) 범주 파일 8개 → `day_media` 6개, 중복 없음, 사건 사진과 같은 파일은 `day_media` 에 없음, 같은 파일이 두 사건에 나오면 앞 사건에만. (7) Commons 503 → 200, 사건 그대로, `partial: true`. PageImages 503 → `events[].media` 비고 `day_media` 는 채워짐, `partial: true`. 두 위키백과 문서 `UNAVAILABLE` → 여전히 503 `UPSTREAM_UNAVAILABLE`(problem+json, 미디어 요청 0). (8) 요청 수: PageImages ≤ 1, Commons ≤ 2(API 호출 1회당). 1995-03-15는 PageImages 0·Commons 1. (9) 시간 상한: 응답하지 않는 Commons 스텁 → `media.lookup-deadline` + 1초 + 여유 안에 200, `partial: true`, WARN 1줄. (10) 응답 어디에도 `display_mode: link_only` 가 없다. (11) 로그에 날짜·파일 이름·전체 사건 ID가 없다(ID 해시 8자리만). (12) 설정 잘못된 값(`max-years-apart` 음수, `day-media-limit` 음수, `lookup-deadline` 0 이하) → 시작 실패. (13) 보고서에 누적 S1 |
 | T3 | 완료 기준 검증과 전체 테스트 | test-engineer | 빠진 기준의 테스트 | T2 | (1) T1·T2 기준 표. (2) `./gradlew check` 통과, 3회 반복 안정. (3) S1·S2·S3 보고. (4) 데모 3날짜 미디어 표(자리, 사건, 순서, `display_mode`, `license`, `license_status`, `captured_at`, `date_relation`). (5) **최종 서버 미디어 DTO 필드 목록(이름·형·null 가능)** — M3b2 T1 대조용(M3a3 T4 목록과 달라졌으면 차이를 적는다). (6) 스텁으로 잰 세계 섹션 최악 시간(위키백과·Wikidata·Commons 모두 상한까지 늦을 때) |
 | T4 | 실제 호출 확인 (PR 검수 때) | PM | - | T3 | (1) `docker compose config --quiet` 종료 코드 0, `docker compose up -d db`, `cd server && ./gradlew bootRun` 이 뜬다. (2) P1~P3 결과가 데모 표와 맞는다. (3) `thumbnail_url` 하나를 브라우저로 열어 이미지가 보이고 `source_url` 페이지의 라이선스가 `license` 와 같다. (4) `date_relation.kind` 가 `unknown` 인 항목의 `captured_at` 이 `null` 이다. (5) 사건 사진이 사건과 너무 엉뚱하면 PR 코멘트로 알린다(리스크 4) |
@@ -209,6 +215,7 @@ curl -s 'http://localhost:8080/api/story/world?date=1995-03-15' | jq '{events, d
 7. **요청마다 Commons를 부른다** — 사진 메타데이터 캐시가 없다. 로컬 데모라 분당 200 제한에 닿지 않는다. 필요하면 M3a4b 결과 캐시에 사진 출처를 더한다(후속).
 8. **M3a4와 같은 연결 자리** — M3a4가 이 기능과 병렬로 진행되면 둘 다 `WorldStoryService` 의 미디어 연결을 고친다. worktree를 나누고 오케스트레이터가 합친다. M3a4b는 이 기능의 Commons 파일 매퍼를 쓰므로 이 기능 머지 뒤다.
 9. **로그로 날짜를 짐작할 수 있음** — 이 기능은 이름표만 넘기지만, M3a1 위키백과 호출의 WARN 줄은 지금도 문서 제목(`9월 17일`, `1988년`)을 찍는다. 장소가 요청에 들어오는 M2에서 다시 본다(로드맵 후속 후보).
+10. **크기 추정이 낮을 수 있음** — M3a3 T2가 이전 방식의 약 3.9배였다. 같은 비율이면 약 780이다. T1 뒤 확인점(400)에서 실측으로 판단한다.
 
 ## PM 결정
 
@@ -217,5 +224,6 @@ curl -s 'http://localhost:8080/api/story/world?date=1995-03-15' | jq '{events, d
 | M3a3 분할 A | (a) 두 PR — 이 기능이 2부 | **결정 2026-10-13** |
 | B | (a) 스키마 검증 라이브러리는 테스트 범위 유지(M4a·M5b 때 다시) — 이 기능은 테스트에서만 `DataSchemas` 를 쓴다 | **결정 2026-10-13** |
 | C | (c) `chore/env-guard` 하지 않음 — T4 (1)에서 PM이 `.env` 를 직접 확인한다 | **결정 2026-10-13** |
+| M3a3 확인점 | (a) M3a3 T3을 M3a3a로 — 이 기능의 선행이 M3a3a로 바뀜 | **결정 2026-10-13** |
 
 새로 묻는 것 없음(확인점에서만 다시 묻는다).

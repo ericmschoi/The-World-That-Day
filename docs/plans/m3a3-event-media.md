@@ -1,9 +1,19 @@
 # 공용 미디어 형식과 규칙 (M3a3)
 
-> 브랜치: `feat/event-media` · 작성: planner · 상태: **PM 승인 (2026-10-13)** — 결정 A (a) 두 PR로 나눔, B (a) 스키마 검증은 테스트 범위 유지, C (c) `chore/env-guard` 하지 않음. (처음 승인 2026-10-11 "사건 사진과 공용 미디어 형식", 2026-10-13 M3a2 결과 반영 개정과 분할)
+> 브랜치: `feat/event-media` · 작성: planner · 상태: **PM 승인 (2026-10-13)** — 결정 A (a) 두 PR로 나눔, B (a) 스키마 검증은 테스트 범위 유지, C (c) `chore/env-guard` 하지 않음. **확인점 결과 (2026-10-13): T2 뒤 누적 S1 505 > 450 → PM (a) T3을 별도 PR로 뺌 → M3a3a `feat/media-rules`(`docs/plans/m3a3a-media-rules.md`)**. (처음 승인 2026-10-11 "사건 사진과 공용 미디어 형식", 2026-10-13 M3a2 결과 반영 개정과 분할)
 > 기준: **PM 미디어 결정 2026-10-11**(사진·영상은 링크로 처리하지 않고 화면에서 바로 보이고 재생, 라이선스 미확인 자료도 직접 표시, 비상업 — PM 선택지 (c)), 안전장치 1~6(**PM 확인**, 3은 개정판), `CLAUDE.md` 7절 1항(**촬영 시점을 모르면 "촬영 시점 미상"으로 표시하고 그날 것처럼 보이게 하지 않는다. 출처가 비면 보여 주지 않는다** — PM 결정 2026-10-11)·5항·6항, `docs/product-brief.md` 6.1절·6.2절·6.3절·12절, `docs/roadmap.md` M3, `docs/research/day-events.md` 3·4절, `docs/research/summary.md` 6절 #17·#18, `docs/research/video-sources.md` 4절·10.1절
 > 선행: **M3a2 `feat/world-events-api` — 머지 완료 (PR #11, `main` e6abf8b)**. 형·메서드·설정 이름은 머지된 코드(`server/src/main/java/io/github/ericmschoi/theworldthatday/`)의 이름이다.
-> 뒤따르는 기능: **M3a3b `feat/commons-photos`**(Commons 사진 연결 — `docs/plans/m3a3b-commons-photos.md`, 이 기능 머지 뒤), M3a4 `feat/event-video`(이 기능만 있으면 시작 가능). 제공사 공식 이미지 임베드(M3a6)는 **M3에서 뺐다**(영상 15번 (a)).
+> 뒤따르는 기능: **M3a3a `feat/media-rules`**(촬영 시점 파서·라이선스 상태·차단과 제외 — 이 기능의 이전 T3, 이 기능 머지 뒤) → **M3a3b `feat/commons-photos`**(Commons 사진 연결 — `docs/plans/m3a3b-commons-photos.md`, M3a3a 머지 뒤), M3a4 `feat/event-video`(M3a3a 머지 뒤 시작 가능). 웹 M3b2는 이 기능 머지 뒤 병렬로 시작한다(PM 결정 A). 제공사 공식 이미지 임베드(M3a6)는 **M3에서 뺐다**(영상 15번 (a)).
+
+## 2026-10-13 확인점 결과
+
+| 항목 | 내용 |
+|---|---|
+| 측정 | T2(4d8929c) 뒤 누적 S1 **505** — 확인점 450을 넘음. T2 다시 추정은 약 365(310~480)였다 |
+| PM 결정 | **(a) T3을 별도 PR로 뺀다** (2026-10-13). M3 PR 18 → **19** |
+| 옮긴 것 | T3 전체 — 촬영 시점 파서, 라이선스 상태, 차단 목록·통신사 제외(`media.blocklist`·`media.excluded-credits`), M3a2 리뷰 2차 권장 1(Wikidata 주석의 취소 유예) → `docs/plans/m3a3a-media-rules.md` 의 T1·T2. 완료 기준은 그대로 옮겼다 |
+| 이 계획서에 남은 작업 | T1(완료, d70cb1c), T2(완료, 4d8929c — 대조 테스트 (6) 진행 중), T4, T5. **작업 번호는 바꾸지 않았다**: T3 행은 "옮김" 표시로 남기고, T4·T5는 T3에 기대지 않게 고쳤다 |
+| 규칙 절 | "촬영 시점 파서", "라이선스 상태", "차단과 제외" 절은 M3a3a 계획서가 원천이다. 이 계획서에는 이름과 안내만 남겼다(두 곳에서 따로 고쳐지지 않게) |
 
 ## 2026-10-13 바뀐 점
 
@@ -17,10 +27,10 @@
 | **영상 기능과의 형식 호환** (절 "뒤 기능과의 형식 호환") | M3a4·M3a4b·M3a5·M3a5b 계획(PM 승인 2026-10-12)과 리서치 10.1절이 이 형식을 전제로 한다 |
 | `place_ref` 값 정리 | `country:KR` / `world` / `unknown` (+ 뒤 기능용 `<종류>:<값>`). M3a4b·M3a3b가 사건 `scope` 로 채운다 |
 | 주소 필드 스키마는 `pattern` 으로만 | M3a2 `DataSchemas` 는 `format` 단언을 켠다. 한글이 든 주소가 `format: uri` 에 걸리지 않게 `^https?://\S+$` 만 쓴다 |
-| 통신사 제외는 로마자 낱말 단위 | `AP` 가 `Japan` 에 걸리지 않게 |
-| M3a2 리뷰 후속 | 2차 권장 1(Wikidata 주석의 취소 유예) → **T3**. 2차 권장 2·3(테스트 스텁, `partial` 고정값) → **T4**. 1차 권장 4(`EventCuration` 손 검증 vs 스키마 라이브러리) → **결정 B (a)**: 지금은 테스트 범위 유지, M4a·M5b 계획 때 다시 |
+| 통신사 제외는 로마자 낱말 단위 | `AP` 가 `Japan` 에 걸리지 않게 (M3a3a로 옮김) |
+| M3a2 리뷰 후속 | 2차 권장 1(Wikidata 주석의 취소 유예) → ~~T3~~ **M3a3a T2**(확인점 결과로 옮김). 2차 권장 2·3(테스트 스텁, `partial` 고정값) → **T4**. 1차 권장 4(`EventCuration` 손 검증 vs 스키마 라이브러리) → **결정 B (a)**: 지금은 테스트 범위 유지, M4a·M5b 계획 때 다시 |
 | `.env` 교훈 | **결정 C (c)**: `chore/env-guard` 를 하지 않는다 |
-| M3 PR 수 | 17 → **18** (M3a3b가 더해짐) |
+| M3 PR 수 | 17 → **18** (M3a3b가 더해짐) → 확인점 결과로 **19** (M3a3a가 더해짐) |
 
 ## 2026-10-11 개정 요약 (기록)
 
@@ -48,11 +58,12 @@
 
 1. **공용 미디어 형식**을 확정한다: `data/schema/media.schema.json` 과 서버 DTO `MediaItem`. 6.2절 필드를 모두 담고, `display_mode` 를 표시·재생 방식으로 정의하고, 영상(`video_file`, `video_embed`), 제공사 공식 이미지 임베드(`image_embed`, M3에서는 쓰지 않음), 지도 SDK(`sdk`)까지 형식에 넣는다. M3a3b·M3a4~M3a5b·M4·M5가 그대로 쓴다.
 2. 서버 정규화(R1~R9)와 `date_relation`(같은 날 / 같은 달 / 같은 해 / N년 차이 / 무렵 / 현재 모습 / 미상) 계산을 만든다.
-3. 촬영 시점 파서, 라이선스 상태, 차단 목록·통신사 제외 규칙을 출처와 무관한 공용 부품으로 만든다(M3a3b·M3a4·M3a4b가 재사용).
+3. ~~촬영 시점 파서, 라이선스 상태, 차단 목록·통신사 제외 규칙을 출처와 무관한 공용 부품으로 만든다~~ → **M3a3a로 옮김**(확인점 결과, 2026-10-13).
 4. 세계 API의 미디어 자리를 `List<MediaItem>` 형으로 바꾼다. 응답은 그대로 `media: []`, `day_media: []`(사진은 M3a3b가 채운다).
 
 ## 범위 밖
 
+- **촬영 시점 파서, 라이선스 상태 판정, 차단 목록·통신사 제외, Wikidata 주석 고침(M3a2 리뷰 2차 권장 1)** → M3a3a `docs/plans/m3a3a-media-rules.md` (확인점 결과)
 - **Commons·PageImages 호출, 사건 사진·날 사진 고르기, 미디어 조회 시간 상한, `partial` 의 미디어 실패** → M3a3b
 - 영상 고르기·만들기 → M3a4~M3a5b (형식은 여기서 정한다)
 - 제공사 공식 이미지 임베드 만들기 → **M3에서 제외**(영상 15번 (a)). 형식(R3)만 남긴다
@@ -80,6 +91,7 @@
 | M3a6 | M3에서 제외. `image_embed` 허용 목록은 빈 채로 | 결정 2026-10-11 |
 | 영상 1~4·21·22번 | 늦은 촬영일은 "촬영 시점 미상", 10분 상한, 언론사 자유 라이선스 영상 허용 + 차단 목록, 재생 실패는 숨김 — 이 형식이 받쳐야 한다 | 결정 2026-10-11 |
 | **A·B·C** | (a) 두 PR / (a) 스키마 검증 테스트 범위 유지 / (c) `chore/env-guard` 안 함 | **결정 2026-10-13** |
+| **확인점** | S1 505 > 450 → (a) T3을 별도 PR(M3a3a)로 | **결정 2026-10-13** |
 
 ## M3a2에서 이어받는 계약 (머지된 코드 기준)
 
@@ -90,7 +102,7 @@
 | 데이터 폴더 | `config/AppProperties(@DefaultValue("../data") String dataDir)`, `dataPath()` | 런타임에 `data/` 를 읽지 않는다(결정 B (a)) |
 | 스키마 검증 | 테스트 전용 `server/src/test/java/…/data/DataSchemas`(2020-12, 원격 읽기 끔, `format` 단언 켬, `../data` 기준), `testImplementation("com.networknt:json-schema-validator:3.0.6")` | `media.schema.json` 검증에 그대로 재사용. 범위는 테스트 그대로(결정 B (a)) |
 | 설정 묶음 | `WikimediaProperties`·`WikidataProperties`(접두사 `wikimedia`, 값 검증 포함) | 같은 방식의 `MediaProperties`(접두사 `media`) |
-| Wikidata 주석 | `SparqlWikidataSignalSource`(5초 상한 + 최대 1초 취소 유예 `CANCEL_GRACE`)의 주석이 "읽기 타임아웃 안에 끝남"이라 적음 | T3에서 주석만 고친다 |
+| Wikidata 주석 | `SparqlWikidataSignalSource`(5초 상한 + 최대 1초 취소 유예 `CANCEL_GRACE`)의 주석이 "읽기 타임아웃 안에 끝남"이라 적음 | ~~T3~~ → **M3a3a T2**에서 주석만 고친다 |
 
 ## 공용 미디어 형식
 
@@ -115,7 +127,7 @@
 | `source_name` | string | 제공 기관·채널 |
 | `source_url` | string | 원문 페이지 |
 | `license` | string \| null | 원 출처에 적힌 라이선스 이름 그대로. 모르면 `null`. 제공사 임베드는 `provider-terms` |
-| ★ `license_status` | `free` \| `other` \| `unknown` | 아래 "라이선스 상태". `unknown` → 화면 "라이선스 확인 안 됨" |
+| ★ `license_status` | `free` \| `other` \| `unknown` | "라이선스 상태"(판정 규칙은 M3a3a). `unknown` → 화면 "라이선스 확인 안 됨" |
 | ★ `license_url` | string \| null | |
 | `attribution` | string | 화면 출처 문구. 작가를 모르면 "작가 정보 없음" |
 | ★ `description` | string \| null | 무엇이 찍혔는지(대체 텍스트·iframe `title`) |
@@ -133,7 +145,7 @@ API 전용 필드는 저장 형식(스키마)에 없다. 스키마 검증은 API
 | 규칙 | 내용 |
 |---|---|
 | R1 언제나 | `id`, `type`, `display_mode`, `source_name`, `source_url`, `attribution`, `license_status`, `retrieved_at` 이 있다. 위치는 (`lat`·`lng`) 또는 `place_ref`. **`license` 는 비어도 된다. `captured_at`·`date_precision` 도 비어도 된다**("촬영 시점 미상"으로 표시). 출처 필드(`source_name`, `source_url`, `attribution`)가 비면 버린다(`CLAUDE.md` 7절 1항) |
-| R2 `image` | `url`, `thumbnail_url` 이 있다. `source_name`·`attribution`(그리고 원문 `Artist`·`Credit`)이 통신사·언론사 제외 목록에 걸리면 안 된다(안전장치 3) |
+| R2 `image` | `url`, `thumbnail_url` 이 있다. `source_name`·`attribution`(그리고 원문 `Artist`·`Credit`)이 통신사·언론사 제외 목록에 걸리면 안 된다(안전장치 3 — **이 제외 검사는 M3a3a의 차단·제외 필터가 한다.** 정규화는 필드 존재만 본다) |
 | R3 `image_embed` | `embed_url`, `provider` 가 있고 `provider` 가 허용 이미지 임베드 제공자 목록(설정값 `media.allowed-image-embed-providers`, **빈 목록 — M3a6 제외로 M3 동안 비어 있음**)에 있다. `url`·`thumbnail_url` 은 `null` |
 | R4 `video_file` | `url` 또는 `video_sources`(1개 이상) |
 | R5 `video_embed` | `embed_url`, `provider` 가 있고 `provider` 가 허용 영상 임베드 제공자 목록(설정값 `media.allowed-video-embed-providers`, 처음은 빈 목록 — M3a5가 `youtube` 를 더함)에 있다. `url` 은 `null` |
@@ -142,7 +154,7 @@ API 전용 필드는 저장 형식(스키마)에 없다. 스키마 검증은 API
 | R8 정밀도와 형식 | `day` → `YYYY-MM-DD`, `month` → `YYYY-MM`, `year`·`approx` → `YYYY`, `current`·`null` → `captured_at` 은 `null` |
 | R9 주소 형식 | 값이 있는 `source_url`, `url`, `thumbnail_url`, `embed_url`, `video_sources[].url` 은 `http://` 또는 `https://` 로 시작한다(스키마 `pattern` `^https?://\S+$`, `format: uri` 는 쓰지 않음). 아니면 버린다. `license_url` 만은 형식이 틀리면 레코드를 버리지 않고 `null` 로 바꾼다(라이선스 링크만 빠진다) |
 
-정규화: R2~R7, R9를 못 채운 미디어는 **버린다**(다른 모드로 바꾸지 않는다). R1을 못 채워도 버린다. API에 나가는 미디어는 늘 스키마를 통과한다. 허용 제공자 목록·차단 목록·제외 목록은 설정값이라 서버만 검사한다(스키마는 `provider` 를 문자열로만 본다).
+정규화: R2~R7, R9를 못 채운 미디어는 **버린다**(다른 모드로 바꾸지 않는다). R1을 못 채워도 버린다. API에 나가는 미디어는 늘 스키마를 통과한다. 허용 제공자 목록·차단 목록·제외 목록은 설정값이라 서버만 검사한다(스키마는 `provider` 를 문자열로만 본다). 차단 목록·제외 목록 검사는 M3a3a 필터가 하고, 부르는 쪽(M3a3b·M3a4)이 정규화 앞에서 부른다.
 
 ### 촬영 시점 미상 규칙 (PM 결정 2026-10-11)
 
@@ -154,38 +166,17 @@ API 전용 필드는 저장 형식(스키마)에 없다. 스키마 검증은 API
 | ±5년 규칙 | `unknown` 은 연도 차이를 계산할 수 없다. 사건 미디어로 붙일 수 있지만 "촬영 시점 미상"으로만 보인다(M3a3b) |
 | 출처 없음 | R1에 따라 버린다 |
 
-### 촬영 시점 파서 (출처와 무관한 공용 부품)
+### 촬영 시점 파서 → M3a3a
 
-입력은 문자열 하나(예: Commons `DateTimeOriginal`), 출력은 `captured_at`·`date_precision`. HTML 태그를 먼저 벗긴다(예: `<time datetime="1988-09-17">17 September 1988</time>`).
+**M3a3a로 옮김**(확인점 결과, 2026-10-13). 원문 모양 표와 규칙은 `docs/plans/m3a3a-media-rules.md` "촬영 시점 파서"가 원천이다. 내용은 바뀌지 않았다(입력은 출처와 무관한 문자열 하나, 출력은 `captured_at`·`date_precision`, 못 읽으면 둘 다 `null`).
 
-| 원문 모양 | 결과 |
-|---|---|
-| `1988-09-17`, `1988-09-17 12:34:56`, `1988:09:17 12:34:56` | `1988-09-17`, `day` |
-| `17 September 1988`, `September 17, 1988`, `Taken on 17 September 1988`, `… (Exif)` | `day` |
-| `September 1988`, `1988-09` | `month` |
-| `1988` | `year` |
-| `c. 1988`, `circa 1988`, `ca. 1988`, `around 1988` | `approx` |
-| 서로 다른 날짜가 둘 이상, 범위, `1980s`, 읽을 수 없음, 빈 값, 없는 날짜(`1988-02-30`) | `null` |
+### 라이선스 상태 → M3a3a
 
-영어 서수("17th September 1988")는 M3a4 T2가 보강한다. "사건 날짜보다 늦으면 비움"(R-V3)은 영상 기능(M3a4·M3a4b)이 더한다.
+**M3a3a로 옮김**. 이름 예 표는 `docs/plans/m3a3a-media-rules.md` "라이선스 상태"가 원천이다(`free`/`other`/`unknown`, 내용은 바뀌지 않음).
 
-### 라이선스 상태
+### 차단과 제외 (안전장치 3·5) → M3a3a
 
-`license` 를 앞뒤 공백을 지우고 대소문자 무시로 대조한다. 판 번호·나라 표기가 붙어도 같은 종류면 같다.
-
-| 이름 예 | `license_status` |
-|---|---|
-| `Public domain`, `CC0`, `CC0 1.0`, `CC BY 4.0`, `CC BY-SA 3.0`, `CC BY-SA 2.0 kr`, `KOGL Type 1` | `free` |
-| `CC BY-NC 4.0`, `CC BY-ND 2.0`, `CC BY-NC-SA 3.0`, `KOGL Type 3`, `provider-terms`, 그 밖의 이름 | `other` |
-| 없음·빈 값 | `unknown` |
-
-### 차단과 제외 (안전장치 3·5)
-
-| 규칙 | 내용 |
-|---|---|
-| 차단 목록 | 설정값 `media.blocklist`: 항목마다 `source`(예 `commons`, `youtube`, `getty`)와 `id`(Commons는 파일 이름 — `File:` 없이, 밑줄과 공백은 같게 / 영상 ID / 자산 ID) 또는 `author`(Commons `Artist` 평문, 대소문자 무시 완전 일치) 또는 `channel`(채널 ID). 맞으면 응답에서 뺀다. 서버 재시작으로 적용. 권리자 요청을 받으면 PM이 설정에 추가한다 |
-| 통신사·언론사 직접 표시 금지 | `display_mode` 가 `image`·`video_file` 인 레코드의 `Artist`·`Credit`·`source_name` 에 제외 목록(설정값 `media.excluded-credits`, 처음 값: 연합뉴스, Yonhap, 뉴시스, Newsis, AP, Associated Press, Reuters, AFP, Getty, EPA)이 들어 있으면 뺀다. **로마자 항목은 낱말 단위**(대소문자 무시, 앞뒤가 글자·숫자가 아님 — `AP Photo` 는 걸리고 `Japan` 은 안 걸림), 한글 항목은 부분 문자열(`ⓒ연합뉴스` 걸림). `image_embed`·`video_embed` 에는 적용하지 않는다(R-G7). **M3에서는 `image_embed` 경로가 없어 이 제공사들의 사진이 나오지 않는다.** Commons에 자유 라이선스로 올라온 언론사 영상은 허용(영상 4번 (a)) — 차단 목록으로 대응 |
-| 비자유 위키 로컬 파일 | Commons에 없는 파일·`NonFree` 표시 파일은 뺀다 (M3-P7, M3a3b가 적용) |
+**M3a3a로 옮김**. 차단 목록(`media.blocklist`)·통신사·언론사 직접 표시 금지(`media.excluded-credits`, 로마자 낱말 단위)는 `docs/plans/m3a3a-media-rules.md` "차단과 제외"가 원천이다. 비자유 위키 로컬 파일 제외(M3-P7)는 그대로 M3a3b가 적용한다.
 
 ### `date_relation` (API만)
 
@@ -228,18 +219,19 @@ API 전용 필드는 저장 형식(스키마)에 없다. 스키마 검증은 API
 
 | 기능 | 이 형식에서 쓰는 것 | 이 기능이 지킬 것 |
 |---|---|---|
-| **M3a3b Commons 사진** | `MediaItem`, 정규화, 파서, 라이선스 상태, 차단·제외, `date_relation` | 모두 공개 형·메서드로(패키지 밖에서 쓸 수 있게). 정규화는 요청 날짜를 받아 `date_relation` 까지 채운다 |
-| M3a4 검색 틀 | API 전용 `selection`(`basis`, `score`)을 `date_relation` 처럼 더함. 파서(영어 서수는 M3a4 T2가 보강), 차단 목록, 제외 목록(`image`·`video_file` 에만), R9 | 파서는 출처와 무관한 문자열 입력. 정규화가 API 전용 필드를 몰라도 되게 DTO를 둔다 |
+| **M3a3a 공용 규칙** (확인점 결과로 생김) | `MediaRecord`(`LicenseStatus`·`DatePrecision` 열거형), `MediaNormalizer`(R8 대조), `MediaProperties`(설정 추가) | 공개 형으로 둔다. M3a3a는 정규화를 고치지 않고 별도 부품을 더한다 |
+| **M3a3b Commons 사진** | `MediaItem`, 정규화, `date_relation` + M3a3a의 파서, 라이선스 상태, 차단·제외 | 모두 공개 형·메서드로(패키지 밖에서 쓸 수 있게). 정규화는 요청 날짜를 받아 `date_relation` 까지 채운다 |
+| M3a4 검색 틀 | API 전용 `selection`(`basis`, `score`)을 `date_relation` 처럼 더함. M3a3a 파서(영어 서수는 M3a4 T2가 보강), 차단 목록, 제외 목록(`image`·`video_file` 에만), R9 | 파서는 출처와 무관한 문자열 입력(M3a3a). 정규화가 API 전용 필드를 몰라도 되게 DTO를 둔다 |
 | M3a4b Commons 동영상 | `video_sources`, `place_ref` 는 사건 `scope` 기준, Commons 파일 매퍼(M3a3b) | 촬영일이 사건 날짜보다 늦으면 비우는 규칙(R-V3)은 M3a4b가 더한다 |
 | M3a5 YouTube | `video_embed`, `provider: youtube`(허용 목록에 더함), `license: provider-terms` → `other`, `license_url` | `date_relation` 은 늘 `years` 를 함께 낸다. **M3a5 계획서의 계약 예시는 `{"kind": "same_year"}` 로 `years` 를 빠뜨렸다** — 실제 응답에는 `years: 0` 이 있다(M3a5 계획 다음 개정 때 예시를 맞춘다) |
 | M3a5b 대한뉴스 | `approx`(R8로 `captured_at` 은 연도), `attribution` 에 "대한뉴스(정부 제작 뉴스영화)"와 "… 자" | `attribution` 은 자유 문자열(길이 제한 없음) |
-| M3b2·M3b2b 웹 | `web/src/media/types.ts`(M3b1)와 대조 | T4 보고의 DTO 필드 목록. 웹 타입의 `MediaSelection.basis` 목록이 M3a4 개정보다 오래됐다 — M3b2 T1에서 고친다 |
+| M3b2·M3b2b 웹 | `web/src/media/types.ts`(M3b1)와 대조 | T4 보고의 DTO 필드 목록. 웹 타입의 `MediaSelection.basis` 목록이 M3a4 개정보다 오래됐다 — M3b2 T1에서 고친다. **M3a3a는 DTO 필드를 바꾸지 않으므로 M3b2는 M3a3a를 기다리지 않는다** |
 | M4·M5 | `sdk`·`render`, `aerial`·`satellite`·`streetview`, 큐레이션 미디어 자료(`data/`)를 이 스키마로 | `additionalProperties: false` + 저장 필드만. 런타임 스키마 검증은 그때 다시 정한다(결정 B (a)) |
 
 ## API / 데이터 변경
 
 - `GET /api/story/world`: JSON은 바뀌지 않는다(`media`·`day_media` 는 `[]`). 서버 형만 `List<Object>` → `List<MediaItem>`.
-- 설정 `media.*`(`MediaProperties`): `allowed-image-embed-providers: []`, `allowed-video-embed-providers: []`(T2), `blocklist: []`, `excluded-credits: [위 목록]`(T3). 잘못된 값은 시작 실패. (`max-years-apart`, `day-media-limit`, `lookup-deadline` 은 M3a3b)
+- 설정 `media.*`(`MediaProperties`): `allowed-image-embed-providers: []`, `allowed-video-embed-providers: []`(T2). 잘못된 값은 시작 실패. (`blocklist`, `excluded-credits` 는 M3a3a, `max-years-apart`, `day-media-limit`, `lookup-deadline` 은 M3a3b)
 - 데이터: `data/schema/media.schema.json`, `data/schema/examples/media/{valid,invalid}/*.json`, `data/schema/examples/media/README.md`(T1). 런타임은 읽지 않는다.
 - DB 변경 없음.
 
@@ -255,7 +247,7 @@ API 전용 필드는 저장 형식(스키마)에 없다. 스키마 검증은 API
 
 | 데모 입력 | 확인 |
 |---|---|
-| 1988-09-17 + "서울" | 응답은 M3a2와 같다: 사건 3개(`1988년 하계 올림픽`·`KBS 1TV`·`KBS 2TV`, 모두 `normal`/`curated`), 각 `media` = `[]`, `day_media` = `[]`, `partial: false`. 실제 예시 `valid/` 의 1988-09-17 PD 사진이 정규화·스키마를 통과하고, 요청 날짜 1988-09-17 기준 `date_relation` 이 `{"kind":"same_day","years":0}`, `license_status: free` |
+| 1988-09-17 + "서울" | 응답은 M3a2와 같다: 사건 3개(`1988년 하계 올림픽`·`KBS 1TV`·`KBS 2TV`, 모두 `normal`/`curated`), 각 `media` = `[]`, `day_media` = `[]`, `partial: false`. 실제 예시 `valid/` 의 1988-09-17 PD 사진이 정규화·스키마를 통과하고, 요청 날짜 1988-09-17 기준 `date_relation` 이 `{"kind":"same_day","years":0}`, `license_status: free`(예시 파일에 적힌 값 그대로 — 판정 부품은 M3a3a) |
 | 2002-06-22 + "광주 서구 풍암동" | 응답은 M3a2와 같다: 사건 1개(`2002년 FIFA 월드컵`), `media`·`day_media` = `[]`. 실제 예시 `valid/` 의 2002-06-22 KOGL 제1유형 사진이 통과하고 `license_status: free`, 2002-06-22 기준 `same_day` |
 | 1995-03-15 + "서울대학교병원" | 응답은 M3a2와 같다: `events` = `[]`, `day_media` = `[]`, `notice.code` = `NO_EVENTS_FOUND`, `partial: false` |
 
@@ -263,26 +255,25 @@ API 전용 필드는 저장 형식(스키마)에 없다. 스키마 검증은 API
 
 제품 코드(S1) 기준. "이전 방식"은 2026-10-11 셈법, "다시 추정"은 최근 실측 비율의 가운데 값 ×2.8(M3a1b 약 2.4배, M3a2 약 2.8배, M3a1c 약 3.7배), 괄호는 ×2.4~×3.7.
 
-| 작업 | 내용 | 이전 방식 | 다시 추정 |
-|---|---|---|---|
-| T2 | `MediaItem` DTO(작은 형 3개)·정규화 R1~R9·`date_relation`·`MediaProperties`(허용 제공자, 검증)·응답 형 바꾸기 | 약 130 | 약 365 (310~480) |
-| T3 | 촬영 시점 파서·라이선스 상태·차단 목록·제외 목록(낱말 단위)·주석 고침 | 약 130 | 약 365 (310~480) |
-| **합계** | | **약 260** | **약 730 (620~960)** |
+| 작업 | 내용 | 이전 방식 | 다시 추정 | 실제 |
+|---|---|---|---|---|
+| T2 | `MediaItem` DTO(작은 형 3개)·정규화 R1~R9·`date_relation`·`MediaProperties`(허용 제공자, 검증)·응답 형 바꾸기 | 약 130 | 약 365 (310~480) | **505** (4d8929c, 이전 방식의 약 3.9배) |
+| ~~T3~~ | ~~촬영 시점 파서·라이선스 상태·차단 목록·제외 목록(낱말 단위)·주석 고침~~ → **M3a3a** | ~~약 130~~ | ~~약 365~~ | - |
+| **합계 (이 PR)** | | **약 130** | **약 365** | **505 + T4 뒤 남은 변경(테스트만이라 S1은 거의 그대로)** |
 
-- 400을 넘지만 PM 결정 A (a)로 한 PR이다.
-- **중간 확인점: T2 뒤 누적 S1이 450을 넘으면** 오케스트레이터가 멈추고 T3을 별도 PR로 뺄지 PM에게 다시 묻는다(빼면 M3 PR 19개).
+- **중간 확인점 결과: T2 뒤 누적 S1 505 > 450** → PM이 (a) T3 분리를 골랐다(2026-10-13). 이 PR은 400을 넘지만 PM 결정 A (a)와 확인점 결정으로 한 PR이다.
 - 테스트(S2)는 따로 보고한다.
 
 ## 작업 목록
 
-순서: T1과 T2는 병렬 가능(서로 다른 폴더, T2의 대조 테스트 (6)은 T1 뒤) → **확인점** → T3 → T4 → T5.
+순서: T1과 T2는 병렬(완료, T2의 대조 테스트 (6)은 T1 뒤 — 진행 중) → **확인점(결과: 505, (a) T3 분리)** → T4 → T5. **작업 번호는 그대로**이고 T3 행은 옮긴 표시만 남긴다.
 
 | ID | 작업 | 담당 | 산출물 | 의존 | 완료 기준 |
 |----|------|------|--------|------|-----------|
-| T1 | 공용 미디어 스키마와 예시 | content-curator | `data/schema/media.schema.json`, `data/schema/examples/media/{valid,invalid}/*.json`, `data/schema/examples/media/README.md` | - (M3a2 머지 완료) | (1) JSON Schema 2020-12(`$schema` 가 `https://json-schema.org/draft/2020-12/schema`), 필드 표 전부(`date_relation` 등 API 전용 필드 제외)와 R1~R9, `additionalProperties: false`. 주소 필드는 `pattern` `^https?://\S+$` 만(`format: uri` 쓰지 않음), `retrieved_at` 은 `format: date-time`, `place_ref` 는 필드 표의 패턴. 허용 제공자 목록은 서버 설정이라 스키마는 `provider` 를 문자열로만 검사. (2) `valid/` 최소 8개: Commons 실제 사진 2개(1988-09-17 PD 1, 2002-06-22 KOGL 제1유형 1 — 파일 설명 페이지를 열어 확인), `license: null`·`unknown` 사진 1개(합성), **`captured_at`·`date_precision` 이 null인 사진 1개(합성)**, `image_embed`·`video_file`·`video_embed`·`sdk` 각 1개(합성, `id` 가 `example-` 로 시작). `video_embed` 예시는 M3a5 계약 예시와 같은 모양(`selection`·`date_relation` 은 빼고). (3) `invalid/` 최소 10개, 각각 규칙 하나만 어김(R1~R9, R1은 `source_url` 빈 값 1개 포함, R9는 `thumbnail_url` 이 `javascript:` 로 시작하는 것 1개). (4) README에 파일마다 어기는 규칙 또는 실제 출처 URL·확인 일자. (5) C1이 모든 파일에 `ok`. 미디어 파일은 내려받지 않는다 |
-| T2 | 미디어 형식 DTO·정규화·`date_relation`·허용 제공자 설정, 응답 형 바꾸기 | backend-dev | `media` 패키지(`MediaItem` + `VideoSource`·`Render`·`DateRelation`, 정규화, `date_relation` 계산 — 이름은 예시, 보고서에 실제 이름), `MediaProperties`(`media.allowed-image-embed-providers`·`media.allowed-video-embed-providers` 빈 목록), `WorldStoryResponse`·`Event` 의 미디어 형을 `List<MediaItem>` 으로, `application.yml`, 테스트 | - (대조 테스트 (6)은 T1 뒤) | (1) `cd server && ./gradlew check` 성공. (2) `MediaItem` 을 직렬화한 JSON 키가 필드 표의 저장 필드 전부 + `date_relation` 이고 모두 snake_case(안쪽 `video_sources[].mime`, `render.kind`, `date_relation.years` 포함), 값이 `null` 인 키도 빠지지 않는다. `MediaItem` 과 작은 형 3개 각각에 `@JsonNaming(SnakeCaseStrategy.class)`. (3) `date_relation`: D=1988-09-17 기준 7가지 `kind`, 경계값 D=2000-02-29(`2000-02-01` → `same_month`, `1999-02-28` → `years_apart` −1). (4) 정규화: R2~R7·R9를 못 채우면 버림(모드를 바꾸지 않음), `license` null은 통과, **`captured_at`·`date_precision` null은 통과하고 `kind` = `unknown`**, `source_name`·`source_url`·`attribution` 이 비면 버림, `license_url` 이 `http(s)` 가 아니면 레코드는 남고 `license_url` 만 `null`, R8(정밀도와 `captured_at` 모양이 어긋나면 버림). (5) 허용 제공자: 기본 설정(빈 목록)에서 `image_embed`·`video_embed` 는 모두 버려지고, 시험 설정에 `example` 을 넣으면 남는다. (6) **스키마 대조**: `valid/` 예시 전부가 정규화를 그대로 통과하고, 다시 쓴 JSON(`date_relation` 제외)이 `DataSchemas` 로 스키마를 통과한다. `invalid/` 예시 전부가 정규화에서 버려지거나 읽기에서 거부된다(모르는 필드). (7) 기존 세계 API 테스트를 고치지 않고 통과(`media`·`day_media` 는 여전히 `[]`). (8) 허용 제공자 목록에 빈 문자열 항목 → 컨텍스트 시작 실패. (9) 보고서에 T2 S1과 누적 S1 — **확인점 450** |
-| T3 | 촬영 시점 파서, 라이선스 상태, 차단 목록·통신사 제외, M3a2 리뷰 2차 권장 1 | backend-dev | 파서, 라이선스 상태 판정, 차단·제외 필터, `MediaProperties` 에 `media.blocklist`·`media.excluded-credits`, Wikidata 주석 3곳 고침, 테스트 | T2 (확인점 통과) | (1) `./gradlew check` 성공. (2) "촬영 시점 파서" 표의 행마다 테스트(HTML `<time>` 태그 감싼 값, 없는 날짜 → `null` 포함). 파서는 출처와 무관한 문자열만 받는다. (3) 라이선스 상태 표의 이름 예 전부(`CC BY-SA 2.0 kr` → `free`, `CC BY-NC 4.0`·`CC BY-ND 2.0`·`KOGL Type 3` → `other`, 빈 값 → `unknown`). (4) 차단 목록: Commons 파일 이름(밑줄·공백 차이 무시), 작가(대소문자 무시), `youtube` 영상 ID·채널 ID(합성 레코드)로 빠진다. `id`·`author`·`channel` 이 모두 없는 항목 → 시작 실패. (5) 통신사 제외: `Credit` 이 `AP Photo/…` 인 `image` → 빠짐, `Japan …` → 남음, `ⓒ연합뉴스` → 빠짐, `video_file` 에도 적용, 같은 제공사라도 시험 허용 목록에 넣은 `image_embed` 는 남는다(합성 — M3 기본 설정에서는 `image_embed` 가 생기지 않음). (6) 차단·제외 결과는 DEBUG에 이유별 개수만(파일 이름·작가 없음). (7) **M3a2 리뷰 2차 권장 1**: `SparqlWikidataSignalSource` 클래스 주석, `WikidataProperties` 주석, `application.yml` 의 `wikidata-*` 주석이 "`wikidata-read-timeout` 안에 끝남"이 아니라 "읽기 타임아웃 + 취소 뒤 최대 1초 유예(`CANCEL_GRACE`)"를 적는다 — C4 출력 없음, 동작·테스트는 그대로. (8) 보고서에 누적 S1 |
-| T4 | 완료 기준 검증, M3a2 리뷰 2차 권장 2·3, 전체 테스트 | test-engineer | 빠진 기준의 테스트, `media.schema.json` 스키마 테스트, `WorldStoryCuratedHideTest`·`CuratedEventToneJudgeTest` 수정(테스트 파일만) | T3 | (1) T1~T3 기준을 표로 확인하고 빠진 테스트를 추가. (2) 스키마 테스트: `media.schema.json` 이 2020-12 메타 스키마를 통과(`DataSchemas.metaSchemaErrors` 비어 있음), `valid/` 전부 통과, `invalid/` 전부 실패하고 각 파일의 오류가 README에 적힌 규칙의 필드를 가리킨다. (3) **2차 권장 2**: `WorldStoryCuratedHideTest` 의 Wikidata 스텁이 빈 맵 대신 **물어본 QID마다** `Signals.NONE` 을 돌려준다(`CuratedEventToneJudgeTest` 의 스텁과 같은 방식). 기존 단언은 그대로 통과. (4) **2차 권장 3**: `CuratedEventToneJudgeTest.takedownWinsOverAToneEntryForTheSameEvent` 가 `partial` 을 `day.degraded()` 대신 상태별 고정값으로 단언한다 — 연도 문서 `FRESH` → `false`, `STALE` → `true`. (5) "데모" 표 3행(응답 그대로 + 실제 예시 2개의 `date_relation`·`license_status`). (6) `cd server && ./gradlew check` 통과(개수 보고), 3회 반복 안정. (7) S1·S2·S3 보고. (8) **서버 미디어 DTO 필드 목록(이름·형·null 가능)** — M3b2 T1이 `web/src/media/types.ts` 와 대조한다. (9) C4 출력 없음 |
+| T1 | 공용 미디어 스키마와 예시 | content-curator | `data/schema/media.schema.json`, `data/schema/examples/media/{valid,invalid}/*.json`, `data/schema/examples/media/README.md` | - (M3a2 머지 완료) | (1) JSON Schema 2020-12(`$schema` 가 `https://json-schema.org/draft/2020-12/schema`), 필드 표 전부(`date_relation` 등 API 전용 필드 제외)와 R1~R9, `additionalProperties: false`. 주소 필드는 `pattern` `^https?://\S+$` 만(`format: uri` 쓰지 않음), `retrieved_at` 은 `format: date-time`, `place_ref` 는 필드 표의 패턴. 허용 제공자 목록은 서버 설정이라 스키마는 `provider` 를 문자열로만 검사. (2) `valid/` 최소 8개: Commons 실제 사진 2개(1988-09-17 PD 1, 2002-06-22 KOGL 제1유형 1 — 파일 설명 페이지를 열어 확인), `license: null`·`unknown` 사진 1개(합성), **`captured_at`·`date_precision` 이 null인 사진 1개(합성)**, `image_embed`·`video_file`·`video_embed`·`sdk` 각 1개(합성, `id` 가 `example-` 로 시작). `video_embed` 예시는 M3a5 계약 예시와 같은 모양(`selection`·`date_relation` 은 빼고). (3) `invalid/` 최소 10개, 각각 규칙 하나만 어김(R1~R9, R1은 `source_url` 빈 값 1개 포함, R9는 `thumbnail_url` 이 `javascript:` 로 시작하는 것 1개). (4) README에 파일마다 어기는 규칙 또는 실제 출처 URL·확인 일자. (5) C1이 모든 파일에 `ok`. 미디어 파일은 내려받지 않는다 — **완료 (d70cb1c, valid 10 / invalid 17)** |
+| T2 | 미디어 형식 DTO·정규화·`date_relation`·허용 제공자 설정, 응답 형 바꾸기 | backend-dev | `media` 패키지(`MediaRecord`·`MediaItem` + `VideoSource`·`Render`·`DateRelation`, `MediaNormalizer`), `MediaProperties`(`media.allowed-image-embed-providers`·`media.allowed-video-embed-providers` 빈 목록), `WorldStoryResponse`·`Event` 의 미디어 형을 `List<MediaItem>` 으로, `application.yml`, 테스트 | - (대조 테스트 (6)은 T1 뒤) | (1) `cd server && ./gradlew check` 성공. (2) `MediaItem` 을 직렬화한 JSON 키가 필드 표의 저장 필드 전부 + `date_relation` 이고 모두 snake_case(안쪽 `video_sources[].mime`, `render.kind`, `date_relation.years` 포함), 값이 `null` 인 키도 빠지지 않는다. `MediaItem` 과 작은 형 3개 각각에 `@JsonNaming(SnakeCaseStrategy.class)`. (3) `date_relation`: D=1988-09-17 기준 7가지 `kind`, 경계값 D=2000-02-29(`2000-02-01` → `same_month`, `1999-02-28` → `years_apart` −1). (4) 정규화: R2~R7·R9를 못 채우면 버림(모드를 바꾸지 않음), `license` null은 통과, **`captured_at`·`date_precision` null은 통과하고 `kind` = `unknown`**, `source_name`·`source_url`·`attribution` 이 비면 버림, `license_url` 이 `http(s)` 가 아니면 레코드는 남고 `license_url` 만 `null`, R8(정밀도와 `captured_at` 모양이 어긋나면 버림). (5) 허용 제공자: 기본 설정(빈 목록)에서 `image_embed`·`video_embed` 는 모두 버려지고, 시험 설정에 `example` 을 넣으면 남는다. (6) **스키마 대조**: `valid/` 예시 전부가 정규화를 그대로 통과하고, 다시 쓴 JSON(`date_relation` 제외)이 `DataSchemas` 로 스키마를 통과한다. `invalid/` 예시 전부가 정규화에서 버려지거나 읽기에서 거부된다(모르는 필드). (7) 기존 세계 API 테스트를 고치지 않고 통과(`media`·`day_media` 는 여전히 `[]`). (8) 허용 제공자 목록에 빈 문자열 항목 → 컨텍스트 시작 실패. (9) 보고서에 T2 S1과 누적 S1 — **확인점 450 (결과: 505 → PM (a) T3 분리)**. 상태: (1)~(5)·(7)~(9) 완료(4d8929c, 610 tests), (6) 진행 중 |
+| T3 | ~~촬영 시점 파서, 라이선스 상태, 차단 목록·통신사 제외, M3a2 리뷰 2차 권장 1~~ | - | - | - | **M3a3a로 옮김** (확인점 결과, PM 결정 (a) 2026-10-13). 내용과 완료 기준은 `docs/plans/m3a3a-media-rules.md` T1(파서·라이선스 상태)·T2(차단·제외·Wikidata 주석). 이 PR에서는 하지 않는다 |
+| T4 | 완료 기준 검증, M3a2 리뷰 2차 권장 2·3, 전체 테스트 | test-engineer | 빠진 기준의 테스트, `media.schema.json` 스키마 테스트, `WorldStoryCuratedHideTest`·`CuratedEventToneJudgeTest` 수정(테스트 파일만) | **T1, T2** (T2 (6) 대조 테스트 포함) | (1) **T1·T2** 기준을 표로 확인하고 빠진 테스트를 추가. (2) 스키마 테스트: `media.schema.json` 이 2020-12 메타 스키마를 통과(`DataSchemas.metaSchemaErrors` 비어 있음), `valid/` 전부 통과, `invalid/` 전부 실패하고 각 파일의 오류가 README에 적힌 규칙의 필드를 가리킨다. (3) **2차 권장 2**: `WorldStoryCuratedHideTest` 의 Wikidata 스텁이 빈 맵 대신 **물어본 QID마다** `Signals.NONE` 을 돌려준다(`CuratedEventToneJudgeTest` 의 스텁과 같은 방식). 기존 단언은 그대로 통과. (4) **2차 권장 3**: `CuratedEventToneJudgeTest.takedownWinsOverAToneEntryForTheSameEvent` 가 `partial` 을 `day.degraded()` 대신 상태별 고정값으로 단언한다 — 연도 문서 `FRESH` → `false`, `STALE` → `true`. (5) "데모" 표 3행(응답 그대로 + 실제 예시 2개의 `date_relation`·`license_status`). (6) `cd server && ./gradlew check` 통과(개수 보고), 3회 반복 안정. (7) S1·S2·S3 보고. (8) **서버 미디어 DTO 필드 목록(이름·형·null 가능)** — M3b2 T1이 `web/src/media/types.ts` 와 대조한다. (이전 (9) C4 확인은 M3a3a로 옮겼다 — Wikidata 주석은 이 PR에서 고치지 않는다) |
 | T5 | 형식 검토와 실행 확인 (PR 검수 때) | PM | - | T4 | (1) T4 (8)의 DTO 필드 목록이 이 계획서의 필드 표와 같다(다르면 PR 코멘트). (2) `valid/` 의 실제 예시 2개의 `source_url` 을 브라우저로 열어 라이선스가 `license` 와 같다. (3) `docker compose up -d db`, `cd server && ./gradlew bootRun` 후 P1 결과가 "데모" 표와 같다(`media`·`day_media` 가 `[]`, 사건 필드는 M3a2와 같음) |
 
 완료 기준에 쓰는 명령 (저장소 루트):
@@ -292,8 +283,7 @@ API 전용 필드는 저장 형식(스키마)에 없다. 스키마 검증은 API
 for f in data/schema/media.schema.json data/schema/examples/media/*/*.json; do
   python3 -c 'import json,sys; json.load(open(sys.argv[1])); print("ok", sys.argv[1])' "$f"; done
 
-# C4 — Wikidata 주석이 취소 유예를 빼고 "읽기 타임아웃 안에 끝남"이라 적지 않는지 (T3). 출력 없음
-grep -rnE "retries included, ends within|and the whole lookup of one request|each attempt and the whole lookup end within" server/src/main
+# (C4 — Wikidata 주석 확인은 M3a3a 계획서로 옮겼다)
 
 # S1 — 제품 코드·설정 줄 수
 git diff --numstat main...HEAD -- server ':(exclude,glob)server/src/test/**' \
@@ -309,17 +299,17 @@ for d in 1988-09-17 2002-06-22 1995-03-15; do
     | jq '{date, partial, notice, day_media, events: [.events[] | {title, tone, media}]}'; done
 ```
 
-담당별: content-curator 1 (T1), backend-dev 2 (T2, T3), test-engineer 1 (T4), PM 1 (T5). 모두 5개.
+담당별: content-curator 1 (T1), backend-dev 1 (T2), test-engineer 1 (T4), PM 1 (T5). 모두 4개(T3은 M3a3a로 옮김).
 
 ## 리스크와 확인할 것
 
-1. **크기** — 다시 추정 약 730줄(620~960). T2 뒤 450에서 T3 분리를 다시 묻는다.
+1. **크기** — T2 실제 505로 확인점 450을 넘었고 T3을 M3a3a로 뺐다. 이 PR의 S1은 약 505에서 거의 늘지 않는다(T4는 테스트만).
 2. **스키마와 Java 정규화의 중복** — 결정 B (a)로 두 구현이 함께 산다. T2 (6) 대조 테스트가 어긋남을 잡는다. M4a·M5b 계획 때 런타임 스키마 검증을 다시 정한다.
-3. **통신사 표기 판별은 문자열 비교다** — 로마자는 낱말 단위라 `AP` 가 `Japan` 에 걸리지 않지만, `Credit` 에 다른 표기로 들어간 통신사 사진은 걸러지지 않을 수 있다. M3a3b 데모 표에서 사람이 본다. 발견되면 제외 목록이나 차단 목록에 더한다.
-4. **`DateTimeOriginal` 형식** — 표에 없는 모양은 "촬영 시점 미상"으로 표시된다(안전한 쪽).
-5. **웹 타입과 어긋남** — `web/src/media/types.ts` 와 DTO가 다를 수 있다(지금 보이는 차이: `MediaSelection.basis` 목록). T4 (8)로 M3b2 T1에서 맞춘다.
+3. **통신사 표기 판별·`DateTimeOriginal` 형식** — M3a3a 리스크로 옮겼다.
+4. **이 PR만으로는 공용 규칙이 반쪽이다** — 파서·라이선스 판정·차단·제외가 없어 M3a3b·M3a4가 아직 시작할 수 없다. M3a3a가 바로 뒤에 온다. 응답이 `[]` 라 사용자에게 보이는 영향은 없다.
+5. **웹 타입과 어긋남** — `web/src/media/types.ts` 와 DTO가 다를 수 있다(지금 보이는 차이: `MediaSelection.basis` 목록). T4 (8)로 M3b2 T1에서 맞춘다. M3a3a는 DTO를 바꾸지 않는다.
 6. **M3a5 예시의 `date_relation`** — `years` 가 빠져 있다. 서버는 늘 내므로 웹 fixture를 그 예시로 만들면 어긋난다. M3a5 계획 다음 개정 때 맞춘다.
-7. **M3a3b와 M3a4가 같은 연결 자리를 고친다** — 둘 다 이 기능 뒤에 시작할 수 있지만 `WorldStoryService` 의 미디어 연결을 함께 고친다. 병렬이면 worktree를 나누고 오케스트레이터가 합친다(로드맵 진행 순서).
+7. **M3a3b와 M3a4가 같은 연결 자리를 고친다** — 둘 다 M3a3a 뒤에 시작할 수 있지만 `WorldStoryService` 의 미디어 연결을 함께 고친다. 병렬이면 worktree를 나누고 오케스트레이터가 합친다(로드맵 진행 순서).
 
 ## PM 결정 (2026-10-13, 기록)
 
@@ -328,5 +318,6 @@ for d in 1988-09-17 2002-06-22 1995-03-15; do
 | A | M3a3(다시 추정 약 1,290줄)을 지금 나눌지 | **(a) 두 PR** — 이 기능(1부 형식·규칙)과 M3a3b `feat/commons-photos`(2부 Commons 사진). planner 추천과 같음 | 2부를 `docs/plans/m3a3b-commons-photos.md` 로 옮김. 이 기능에 PM 확인(T5)·데모·크기·확인점(T2 뒤 450) 추가. M3 PR 18개 |
 | B | 런타임 데이터 검증에 `json-schema-validator` 를 쓸지 (M3a2 리뷰 1차 권장 4) | **(a) 지금은 테스트 범위 유지**, 첫 런타임 큐레이션 미디어 자료(M4a·M5b) 계획 때 다시 | 정규화는 Java, T2 (6) 대조 테스트. `EventCuration` 은 그대로 |
 | C | `.env` 값 점검 chore(`chore/env-guard`) 시점 | **(c) 하지 않음** — 점검 코드를 만들지 않는다 | 이 계획서 범위 밖. 로드맵 후속 후보에 "PM: 하지 않음 (2026-10-13)" |
+| 확인점 | T2 뒤 누적 S1 **505** > 450 — T3을 별도 PR로 뺄지 | **(a) 뺀다** — M3a3a `feat/media-rules` | T3을 `docs/plans/m3a3a-media-rules.md` 로 옮김. T4·T5는 T3에 기대지 않음. M3 PR 19개 |
 
-이전 결정(M3-P7, M3-P16 변경, M3-P17 (a), M3a6 제외, 영상 1~4·21·22번)은 위 "전제" 표와 로드맵 M3 절. 남은 질문은 없다(확인점에서만 다시 묻는다).
+이전 결정(M3-P7, M3-P16 변경, M3-P17 (a), M3a6 제외, 영상 1~4·21·22번)은 위 "전제" 표와 로드맵 M3 절. 남은 질문은 없다.
