@@ -264,9 +264,10 @@
   ],
   "$defs": {
     "nonEmptyString": {
+      "$comment": "R1: blank means made only of whitespace-set characters (Java Character.isWhitespace or Unicode category Z, for example U+00A0 and U+2007), the same rule as the server MediaNormalizer. The pattern needs one character outside that set; the validator uses Java regex, where \\s is U+0009-U+000D and U+0020.",
       "type": "string",
       "minLength": 1,
-      "pattern": "\\S"
+      "pattern": "[^\\s\\p{Z}\\x1C-\\x1F]"
     },
     "httpUrl": {
       "$comment": "R9: http:// or https:// only, no whitespace. 'format: uri' is not used so that addresses with non-ASCII characters are judged by this pattern alone.",

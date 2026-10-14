@@ -35,7 +35,9 @@ import tools.jackson.databind.node.ObjectNode;
  * <p>Deliberate differences: the allowed embed providers are a server setting the schema cannot
  * know (the test allows {@code example}, which the embed examples use), and the server repairs a
  * malformed {@code license_url} to {@code null} where the schema refuses it, so the server's output
- * still always passes the schema.
+ * still always passes the schema. The server also refuses every second 60 in {@code retrieved_at}
+ * (the schema validator can accept one on a real leap-second date — the server is stricter, so its
+ * output always passes the schema).
  */
 class MediaSchemaParityTest {
 

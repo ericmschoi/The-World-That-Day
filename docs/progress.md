@@ -132,3 +132,31 @@
 | 2026-10-13 | content-curator | M3a3 T1 후속: 예시 README 문구 2곳 | 완료 | 133eede |
 | 2026-10-13 | code-reviewer | M3a3 브랜치 리뷰 (권장 6: 윤초·nbsp 빈틈 → M3a3a, Spring 매퍼 단언 → M3a3b, 계획 상태, UA, thumb 호스트) | 승인 | 133eede |
 | 2026-10-13 | orchestrator | M3a3 PR 준비: README 진행 표(7 of 19), 계획 상태 정리 | 진행 | 133eede |
+| 2026-10-13 | orchestrator | PR #12 M3a3 머지 확인 (main f99a9e7). M3a3a 시작 feat/media-rules, M3b2 웹 병렬 시작 feat/world-events-ui (.worktrees/design) | 진행 | f99a9e7 |
+| 2026-10-13 | orchestrator | PM 결정: M3a3 리뷰 권장 1·2(윤초, 유니코드 공백 빈칸)를 M3a3a T2에 더함 | 기록 | f99a9e7 |
+| 2026-10-13 | backend-dev | M3a3a T1 촬영 시점 파서 + 라이선스 상태 판정 (840 tests, S1 176) | 완료 | bf5139b 37bd5a6 |
+| 2026-10-13 | planner | M3a3a 계획: 리뷰 권장 1·2를 T2 (9)(10) + T2b(content-curator)로 추가 | 완료 | d9f7b63 |
+| 2026-10-13 | backend-dev | M3a3a T2 차단 목록·통신사 제외 필터, 윤초·유니코드 공백, Wikidata 주석 (915 tests, 누적 S1 432) | 완료 | e9e8b46 b1a6faa 958a30f |
+| 2026-10-13 | planner | M3b2 계획 개정 (실제 계약, MSW 두 층, 웹 타입 3건, T1b/T6, 약 365~510줄) — PM 재승인·결정 2건 필요 | 완료(미커밋) | f99a9e7 |
+| 2026-10-13 | orchestrator | PM 결정: M3b2 계획 승인, 1 (a) 한 PR + T1b 뒤 확인점 170, 2 (a) 사진 없이 T5로 머지·사진 확인은 M3a3b 뒤 T6 | 기록 | f99a9e7 |
+| 2026-10-13 | frontend-dev | M3b2 T1 API 클라이언트 (시간 초과·취소·problem code, 293 tests, S1 90) | 완료 | 3fdd43b |
+| 2026-10-13 | content-curator | M3a3a T2b 스키마 빈 값 패턴 + invalid 예시 r1-nbsp-only-attribution (S3 41) | 완료 | 424242e |
+| 2026-10-13 | orchestrator | 세션 한도(21:40 해제) 뒤 재개: planner M3b2 결정 기록 재개, server/build의 ' 2' 사본 정리(gradlew clean) | 진행 | 424242e |
+| 2026-10-13 | planner | M3b2 계획 PM 결정 기록 + 로드맵 정리 (feat/world-events-ui) | 완료 | 934e6e8 |
+| 2026-10-13 | frontend-dev | M3b2 T1b 타입·fixture·MSW 핸들러 (315 tests, 누적 S1 187 > 확인점 170 → PM 결정 필요) | 완료 | 1593bb0 6c081e8 |
+| 2026-10-13 | orchestrator | PM 결정: M3b2 확인점 초과(187) → (a) 한 PR로 계속, T2 시작. 매시 점검 취소 → 90% 사용량 시 해제 시각 일회성 예약 | 기록 | 6c081e8 |
+| 2026-10-13 | test-engineer | M3a3a T3 완료 기준 검증 (1178/1178 × 3, BMP 전체 공백 대조 차이 0). 참고: LicenseClassifier·MediaProperties의 isBlank() 기준 불일치 2건 | 완료 | d789025 |
+| 2026-10-13 | frontend-dev | M3b2 T2 그날의 세계 섹션 화면 (336 tests, 누적 S1 348) | 완료 | 02d8875 |
+| 2026-10-13 | frontend-dev | M3b2 T3 데모 날짜 버튼 + 결과 화면 연결 (340 tests, 누적 S1 404) | 완료 | 893c8b1 |
+| 2026-10-13 | test-engineer | M3b2 T4 완료 기준 검증 + 데모 3행 끝까지 시험 (356/356 × 3) | 완료 | 39c566c |
+| 2026-10-13 | code-reviewer | M3b2 리뷰 1차: 필수 1(AbortSignal.any가 iOS 16.4/Safari 16.4 빌드 대상에 없음), 권장 3 | 수정 요청 | 39c566c |
+| 2026-10-13 | frontend-dev | M3b2 리뷰 필수 1 수정: AbortSignal.any 대체 경로 (361 tests, 누적 S1 434) | 완료 | ae4433b |
+| 2026-10-13 | code-reviewer | M3b2 리뷰 2차 | 승인 | ae4433b |
+| 2026-10-13 | orchestrator | M3b2 README 표 갱신, push, PR 열림 | 완료 | d95c0dc |
+| 2026-10-13 | backend-dev | M3a3a T3 지적 반영: 공백 판정 MediaText.isBlank 하나로 (1190 tests, 누적 S1 448) | 완료 | 90ddb6f |
+| 2026-10-13 | code-reviewer | M3a3a 리뷰 1차: 필수 2(CC BY 4.0 nc → free, 공백 시험 값이 보이지 않는 원문자), 권장 4 | 수정 요청 | 90ddb6f |
+| 2026-10-13 | backend-dev | M3a3a 리뷰 필수 1: 라이선스 관할 자리에서 NC·ND·SA·BY 제외 (1196 tests, 누적 S1 456) | 완료 | 2c77589 |
+| 2026-10-13 | test-engineer | M3a3a 리뷰 필수 2: 공백 시험 값을   이스케이프로 (1196 tests) | 완료 | a1100fd |
+| 2026-10-13 | orchestrator | PR #13 M3b2 머지 확인 (main e254ad1). M3b2b 계획 개정 시작 (feat/world-photos-a11y). 5시간 한도 74% → 해제 02:50 뒤 깨우기 예약(02:53, 03:10) | 진행 | e254ad1 |
+| 2026-10-13 | code-reviewer | M3a3a 리뷰 2차 | 승인 | a1100fd |
+| 2026-10-13 | orchestrator | M3a3a PR 준비: README 진행 표(9 of 19), push, PR | 진행 | 4e738c1 |
