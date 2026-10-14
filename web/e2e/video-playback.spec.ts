@@ -12,6 +12,7 @@ import {
 } from '@playwright/test'
 import { exampleVideoFile } from '../src/mocks/fixtures/world/media'
 import { world1988WithVideo } from '../src/mocks/fixtures/world/responses'
+import type { WorldResponse } from '../src/world/types'
 import { interceptNetwork, openDemo, type VideoRequests } from './network'
 
 const DEMO_1988 = '1988년 9월 17일로 보기'
@@ -125,11 +126,10 @@ async function open(
   page: Page,
   context: BrowserContext,
   videos: VideoRequests,
+  world: WorldResponse = world1988WithVideo,
 ) {
   await page.addInitScript(recordMedia)
-  const outside = await interceptNetwork(context, world1988WithVideo, {
-    videos,
-  })
+  const outside = await interceptNetwork(context, world, { videos })
   await openDemo(page, DEMO_1988)
   return outside
 }
@@ -301,5 +301,59 @@ test.describe('video files that fail', () => {
     await expect(first).toContainText('출처: 한국어 위키백과')
 
     await expect(world).not.toContainText(/오류|실패|재생할 수 없/)
+  })
+})
+
+// Found in T4, beyond the plan's list: two videos that come into view in the
+// same frame (a jump in scrolling, or both visible on arrival). M3a4b gives
+// each event up to one video, so two events in a row can each carry one.
+// The plan's rules ("보이면 음소거 자동 재생", "하나만 재생") mean exactly one
+// of them plays.
+const SECOND_EVENT_VIDEO = '「KBS 1TV」 관련 자료'
+const twoEventVideos: WorldResponse = {
+  ...world1988WithVideo,
+  events: [
+    world1988WithVideo.events[0],
+    {
+      ...world1988WithVideo.events[1],
+      media: [
+        {
+          ...world1988WithVideo.events[0].media[2],
+          id: 'example-video-file-second-event',
+        },
+      ],
+    },
+    ...world1988WithVideo.events.slice(2),
+  ],
+}
+
+test.describe('two videos entering the view together', () => {
+  test.beforeEach(async ({ context, page }) => {
+    outside = await open(page, context, 'hold', twoEventVideos)
+  })
+
+  test('exactly one of them autoplays', async ({ page }) => {
+    const list = page.getByRole('list', { name: '사건 목록' })
+    const first = list.getByLabel(EVENT_VIDEO, { exact: true })
+    const second = list.getByLabel(SECOND_EVENT_VIDEO, { exact: true })
+    await expect(second).toHaveCount(1)
+
+    // One jump that puts the middle of the pair at the middle of the screen.
+    await page.evaluate(() => {
+      const [a, b] = [...document.querySelectorAll('ul video')]
+      const top = a.getBoundingClientRect().top + window.scrollY
+      const bottom = b.getBoundingClientRect().bottom + window.scrollY
+      window.scrollTo(0, (top + bottom) / 2 - window.innerHeight / 2)
+    })
+    expect(await visibleRatio(first)).toBeGreaterThan(0.5)
+    expect(await visibleRatio(second)).toBeGreaterThan(0.5)
+
+    await expect
+      .poll(async () => {
+        const paused = [await isPaused(first), await isPaused(second)]
+        return paused.filter((value) => !value).length
+      })
+      .toBe(1)
+    expect((await mediaLog(page)).maxPlaying).toBe(1)
   })
 })
