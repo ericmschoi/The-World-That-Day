@@ -30,8 +30,10 @@ import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Asks the Wikidata Query Service once for all items of a request (CC0, User-Agent through {@link
- * WikimediaHttpClient}). The whole lookup, retries included, ends within {@code
- * wikimedia.wikidata-read-timeout}.
+ * WikimediaHttpClient}). The caller waits {@code wikimedia.wikidata-read-timeout} for the whole
+ * lookup, retries included; when that runs out the request is cancelled and the caller waits at
+ * most {@code CANCEL_GRACE} (1s) more for it to stop, so one call takes up to the read timeout plus
+ * 1s.
  */
 @Component
 public class SparqlWikidataSignalSource implements WikidataSignalSource {
