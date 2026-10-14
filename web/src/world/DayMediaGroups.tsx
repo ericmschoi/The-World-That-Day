@@ -1,5 +1,6 @@
+import { useCallback, useState } from 'react'
 import { dateLabel } from '../media/dateLabel'
-import { isDisplayable } from '../media/isDisplayable'
+import { canRender } from '../media/isDisplayable'
 import { MediaItem } from '../media/MediaItem'
 import type { Media } from '../media/types'
 import styles from './WorldSection.module.css'
@@ -21,10 +22,17 @@ function groupOf(media: Media): number {
   return badge === null ? 2 : 1
 }
 
-// `day_media` under its three subheadings, server order inside each. Empty
-// groups have no heading. Alt text names no date (CLAUDE.md 7.1).
+// `day_media` under its three subheadings, server order inside each. Only
+// media `MediaItem` draws counts, and a video that failed to play drops out,
+// so a group never keeps its heading over nothing. Videos sit under the same
+// headings (M3b3 decision 3 (a)). Alt text names no date (CLAUDE.md 7.1).
 export function DayMediaGroups({ media }: Props) {
-  const shown = media.filter(isDisplayable)
+  const [failed, setFailed] = useState<ReadonlySet<string>>(new Set())
+  const hide = useCallback(
+    (id: string) => setFailed((ids) => new Set(ids).add(id)),
+    [],
+  )
+  const shown = media.filter((item) => canRender(item) && !failed.has(item.id))
   return TITLES.map((title, index) => {
     const items = shown.filter((item) => groupOf(item) === index)
     if (items.length === 0) return null
@@ -32,7 +40,14 @@ export function DayMediaGroups({ media }: Props) {
       <div key={title} className={styles.group}>
         <h3 className={styles.subheading}>{title}</h3>
         {items.map((item) => (
-          <MediaItem key={item.id} media={item} fallbackAlt="기록 사진" />
+          <MediaItem
+            key={item.id}
+            media={item}
+            fallbackAlt={
+              item.display_mode === 'video_file' ? '기록 영상' : '기록 사진'
+            }
+            onUnavailable={hide}
+          />
         ))}
       </div>
     )
