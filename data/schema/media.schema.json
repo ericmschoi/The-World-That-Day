@@ -1,0 +1,318 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ericmschoi/The-World-That-Day/data/schema/media.schema.json",
+  "title": "Media item (shared storage format)",
+  "description": "One photo, video or map view shown directly on the result screen (docs/plans/m3a3-event-media.md, section 'shared media format', rules R1-R9). This is the storage format: API-only fields such as 'date_relation' (and later 'selection') are not part of it and must be removed before validation. Every key is always present; unknown values are null. Media files are never copied: every address points to the original source or the provider's official player. Server-only checks that this schema cannot express: the allowed image/video embed provider lists (R3, R5), the per-source blocklist and the excluded wire/news agency credits (R2).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "type",
+    "display_mode",
+    "url",
+    "thumbnail_url",
+    "thumbnail_width",
+    "thumbnail_height",
+    "video_sources",
+    "duration_seconds",
+    "embed_url",
+    "provider",
+    "render",
+    "link_only_reason",
+    "source_name",
+    "source_url",
+    "license",
+    "license_status",
+    "license_url",
+    "attribution",
+    "description",
+    "captured_at",
+    "date_precision",
+    "lat",
+    "lng",
+    "place_ref",
+    "retrieved_at"
+  ],
+  "properties": {
+    "id": {
+      "description": "Stable id, e.g. 'commons-<pageid>', 'youtube-<video id>'. Synthetic examples start with 'example-'.",
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "type": {
+      "description": "What the item is.",
+      "enum": ["photo", "video", "aerial", "satellite", "streetview"]
+    },
+    "display_mode": {
+      "description": "How the item is shown. image: <img> hotlinking the original. image_embed: provider's official image embed iframe (the only way for wire/news agency photos; not produced in M3). video_file: <video> playing the original file. video_embed: provider's official player iframe. sdk: map SDK (M4). link_only: only when the original technically blocks hotlinking and embedding (R7).",
+      "enum": ["image", "image_embed", "video_file", "video_embed", "sdk", "link_only"]
+    },
+    "url": {
+      "description": "Original file address (image, video_file).",
+      "$ref": "#/$defs/nullableHttpUrl"
+    },
+    "thumbnail_url": {
+      "description": "Display image address. Required for image; optional poster for videos.",
+      "$ref": "#/$defs/nullableHttpUrl"
+    },
+    "thumbnail_width": {
+      "description": "Display width in pixels (layout stability, iframe aspect ratio).",
+      "$ref": "#/$defs/nullablePositiveInteger"
+    },
+    "thumbnail_height": {
+      "description": "Display height in pixels.",
+      "$ref": "#/$defs/nullablePositiveInteger"
+    },
+    "video_sources": {
+      "description": "Playback candidates for video_file. At least one when present.",
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/videoSource" }
+        }
+      ]
+    },
+    "duration_seconds": {
+      "description": "Video length in seconds.",
+      "oneOf": [{ "type": "null" }, { "type": "number", "exclusiveMinimum": 0 }]
+    },
+    "embed_url": {
+      "description": "iframe address for image_embed and video_embed, built by the server in the allowed provider's format.",
+      "$ref": "#/$defs/nullableHttpUrl"
+    },
+    "provider": {
+      "description": "Provider for image_embed, video_embed and sdk, e.g. 'youtube', 'kakao'. The schema checks only that it is a string; the allowed lists are server settings.",
+      "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/nonEmptyString" }]
+    },
+    "render": {
+      "description": "Map SDK view for sdk.",
+      "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/render" }]
+    },
+    "link_only_reason": {
+      "description": "Why the item can only be linked. Only for link_only.",
+      "enum": ["hotlink_blocked", "embed_disabled", null]
+    },
+    "source_name": {
+      "description": "Providing institution or channel. Empty means the item is not shown (R1).",
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "source_url": {
+      "description": "Original page. Empty means the item is not shown (R1).",
+      "$ref": "#/$defs/httpUrl"
+    },
+    "license": {
+      "description": "License name exactly as the original states it; null when unknown. Provider embeds use 'provider-terms'.",
+      "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/nonEmptyString" }]
+    },
+    "license_status": {
+      "description": "free, other, or unknown (shown as 'license not verified').",
+      "enum": ["free", "other", "unknown"]
+    },
+    "license_url": {
+      "description": "License link. The server replaces a malformed value with null instead of dropping the record, so stored values are http(s) or null.",
+      "$ref": "#/$defs/nullableHttpUrl"
+    },
+    "attribution": {
+      "description": "Credit line shown on screen. '작가 정보 없음' when the author is unknown. Empty means the item is not shown (R1).",
+      "$ref": "#/$defs/nonEmptyString"
+    },
+    "description": {
+      "description": "What the item shows (alt text, iframe title).",
+      "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/nonEmptyString" }]
+    },
+    "captured_at": {
+      "description": "Capture time: YYYY-MM-DD, YYYY-MM or YYYY, matching date_precision (R8). null = capture time unknown ('촬영 시점 미상'); event dates, date categories and upload dates are never copied here.",
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/dayDate" },
+        { "$ref": "#/$defs/monthDate" },
+        { "$ref": "#/$defs/yearDate" }
+      ]
+    },
+    "date_precision": {
+      "description": "null = capture time unknown.",
+      "enum": ["day", "month", "year", "approx", "current", null]
+    },
+    "lat": {
+      "description": "Latitude. lat and lng are both numbers or both null.",
+      "oneOf": [{ "type": "null" }, { "type": "number", "minimum": -90, "maximum": 90 }]
+    },
+    "lng": {
+      "description": "Longitude.",
+      "oneOf": [{ "type": "null" }, { "type": "number", "minimum": -180, "maximum": 180 }]
+    },
+    "place_ref": {
+      "description": "'country:KR' (domestic), 'world' (abroad), 'unknown', or '<kind>:<value>' defined by later features.",
+      "oneOf": [
+        { "type": "null" },
+        { "type": "string", "pattern": "^(world|unknown|[a-z]+:\\S+)$" }
+      ]
+    },
+    "retrieved_at": {
+      "description": "When the item was fetched, ISO-8601 UTC to the second.",
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    }
+  },
+  "allOf": [
+    {
+      "$comment": "R1: lat and lng come together.",
+      "anyOf": [
+        { "properties": { "lat": { "type": "null" }, "lng": { "type": "null" } } },
+        { "properties": { "lat": { "type": "number" }, "lng": { "type": "number" } } }
+      ]
+    },
+    {
+      "$comment": "R1: a location is either coordinates or place_ref.",
+      "anyOf": [
+        { "properties": { "lat": { "type": "number" }, "lng": { "type": "number" } } },
+        { "properties": { "place_ref": { "type": "string" } } }
+      ]
+    },
+    {
+      "$comment": "R2: image needs url and thumbnail_url.",
+      "if": { "properties": { "display_mode": { "const": "image" } } },
+      "then": {
+        "properties": {
+          "url": { "type": "string" },
+          "thumbnail_url": { "type": "string" }
+        }
+      }
+    },
+    {
+      "$comment": "R3: image_embed needs embed_url and provider; url and thumbnail_url are null.",
+      "if": { "properties": { "display_mode": { "const": "image_embed" } } },
+      "then": {
+        "properties": {
+          "embed_url": { "type": "string" },
+          "provider": { "type": "string" },
+          "url": { "type": "null" },
+          "thumbnail_url": { "type": "null" }
+        }
+      }
+    },
+    {
+      "$comment": "R4: video_file needs url or at least one video_sources entry.",
+      "if": { "properties": { "display_mode": { "const": "video_file" } } },
+      "then": {
+        "anyOf": [
+          { "properties": { "url": { "type": "string" } } },
+          { "properties": { "video_sources": { "type": "array" } } }
+        ]
+      }
+    },
+    {
+      "$comment": "R5: video_embed needs embed_url and provider; url is null.",
+      "if": { "properties": { "display_mode": { "const": "video_embed" } } },
+      "then": {
+        "properties": {
+          "embed_url": { "type": "string" },
+          "provider": { "type": "string" },
+          "url": { "type": "null" }
+        }
+      }
+    },
+    {
+      "$comment": "R6: sdk needs render and provider; url and thumbnail_url are null.",
+      "if": { "properties": { "display_mode": { "const": "sdk" } } },
+      "then": {
+        "properties": {
+          "render": { "type": "object" },
+          "provider": { "type": "string" },
+          "url": { "type": "null" },
+          "thumbnail_url": { "type": "null" }
+        }
+      }
+    },
+    {
+      "$comment": "R7: link_only needs link_only_reason; url, thumbnail_url and embed_url are null. link_only_reason is null for every other mode.",
+      "if": { "properties": { "display_mode": { "const": "link_only" } } },
+      "then": {
+        "properties": {
+          "link_only_reason": { "type": "string" },
+          "url": { "type": "null" },
+          "thumbnail_url": { "type": "null" },
+          "embed_url": { "type": "null" }
+        }
+      },
+      "else": {
+        "properties": { "link_only_reason": { "type": "null" } }
+      }
+    },
+    {
+      "$comment": "R8: day -> YYYY-MM-DD.",
+      "if": { "properties": { "date_precision": { "const": "day" } } },
+      "then": { "properties": { "captured_at": { "$ref": "#/$defs/dayDate" } } }
+    },
+    {
+      "$comment": "R8: month -> YYYY-MM.",
+      "if": { "properties": { "date_precision": { "const": "month" } } },
+      "then": { "properties": { "captured_at": { "$ref": "#/$defs/monthDate" } } }
+    },
+    {
+      "$comment": "R8: year and approx -> YYYY.",
+      "if": { "properties": { "date_precision": { "enum": ["year", "approx"] } } },
+      "then": { "properties": { "captured_at": { "$ref": "#/$defs/yearDate" } } }
+    },
+    {
+      "$comment": "R8: current and null (capture time unknown) -> captured_at is null.",
+      "if": { "properties": { "date_precision": { "enum": ["current", null] } } },
+      "then": { "properties": { "captured_at": { "type": "null" } } }
+    }
+  ],
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "httpUrl": {
+      "$comment": "R9: http:// or https:// only, no whitespace. 'format: uri' is not used so that addresses with non-ASCII characters are judged by this pattern alone.",
+      "type": "string",
+      "pattern": "^https?://\\S+$"
+    },
+    "nullableHttpUrl": {
+      "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/httpUrl" }]
+    },
+    "nullablePositiveInteger": {
+      "oneOf": [{ "type": "null" }, { "type": "integer", "minimum": 1 }]
+    },
+    "dayDate": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"
+    },
+    "monthDate": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])$"
+    },
+    "yearDate": {
+      "type": "string",
+      "pattern": "^[0-9]{4}$"
+    },
+    "videoSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "mime", "height"],
+      "properties": {
+        "url": { "$ref": "#/$defs/httpUrl" },
+        "mime": { "type": "string", "pattern": "^video/[a-z0-9.+-]+$" },
+        "height": { "$ref": "#/$defs/nullablePositiveInteger" }
+      }
+    },
+    "render": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "kind", "lat", "lng", "zoom"],
+      "properties": {
+        "provider": { "$ref": "#/$defs/nonEmptyString" },
+        "kind": { "enum": ["roadview", "skyview"] },
+        "lat": { "type": "number", "minimum": -90, "maximum": 90 },
+        "lng": { "type": "number", "minimum": -180, "maximum": 180 },
+        "zoom": { "oneOf": [{ "type": "null" }, { "type": "number" }] }
+      }
+    }
+  }
+}

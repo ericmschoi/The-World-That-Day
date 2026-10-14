@@ -115,3 +115,20 @@
 | 2026-10-13 | backend-dev | M3a2 리뷰 수정 (필수 1, 권장 1·2·3·5) | 완료 | 1f8c703 982d17e |
 | 2026-10-13 | code-reviewer | M3a2 2차 리뷰 | 승인 (필수 0, 권장 3) | 982d17e |
 | 2026-10-13 | orchestrator | M3a2 PR 생성 | PR | (아래 커밋) |
+| 2026-10-13 | orchestrator | PR #11 (M3a2) PM 실제 호출 확인(T5) 후 머지, M3a3 시작 | 진행 | e6abf8b |
+| 2026-10-13 | planner | M3a3 계획 개정 (T1~T8, 분할안) | 완료 (PM 결정 필요: A 분할, B 스키마 검증, C env chore) | 미커밋 |
+| 2026-10-13 | orchestrator | M3a3 PM 결정: A (a) 두 PR (M3a3 + M3a3b), B (a) 스키마 검증은 테스트에만, C (c) env chore 안 함 | 진행 | e6abf8b |
+| 2026-10-13 | orchestrator | PM 결정: 속도 개선 A (서버·웹 동시 진행, M3a3 1부 머지 후부터) | 기록 | e6abf8b |
+| 2026-10-13 | planner | M3a3 계획 개정·분할 (M3a3 1부 + M3a3b) PM 승인 | 완료 | 1060e13 |
+| 2026-10-13 | backend-dev | M3a3 T2 미디어 공통 형식·R1~R9·date_relation (대조 테스트 (6)은 T1 대기, 확인점 S1 505 > 450 → PM 결정 필요) | 완료 | 4d8929c |
+| 2026-10-13 | content-curator | M3a3 T1 공용 미디어 스키마 + valid 10 / invalid 17 예시 | 완료 | d70cb1c |
+| 2026-10-13 | orchestrator | PM 결정: 확인점 초과(S1 505) → (a) T3을 별도 PR로 분리 (M3 19개 PR) | 기록 | 4d8929c |
+| 2026-10-13 | backend-dev | M3a3 T2 후속: 스키마 대조 테스트 (6) + 정규화를 스키마에 맞춤 6건 (711 tests) | 완료 | 414863c |
+| 2026-10-13 | planner | M3a3 T3 분리 → M3a3a 계획 신설, M3a3·M3a3b·로드맵 수정 (19 PR, D1 PM 결정 필요) | 완료(미커밋, PM 승인 대기) | 414863c |
+| 2026-10-13 | orchestrator | PM 결정: M3a3a 계획 승인(이름 유지), D1 (b) 지금 문구 그대로 (AP통신 등은 걸리지 않음) | 기록 | 414863c |
+| 2026-10-13 | test-engineer | M3a3 T4 완료 기준 검증 + M3a2 2차 권장 2·3 (740/740 × 3) | 완료 | a56f1f5 |
+| 2026-10-13 | content-curator | M3a3 T1 후속: README 문구 2곳 (워크트리 격리로 루트 커밋 불가) | 막힘 | a56f1f5 |
+| 2026-10-13 | planner | M3a3a 계획 PM 결정 반영(승인, D1 (b)) + 로드맵 정리 | 완료 | f37bdc5 |
+| 2026-10-13 | content-curator | M3a3 T1 후속: 예시 README 문구 2곳 | 완료 | 133eede |
+| 2026-10-13 | code-reviewer | M3a3 브랜치 리뷰 (권장 6: 윤초·nbsp 빈틈 → M3a3a, Spring 매퍼 단언 → M3a3b, 계획 상태, UA, thumb 호스트) | 승인 | 133eede |
+| 2026-10-13 | orchestrator | M3a3 PR 준비: README 진행 표(7 of 19), 계획 상태 정리 | 진행 | 133eede |
