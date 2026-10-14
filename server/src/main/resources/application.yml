@@ -94,6 +94,36 @@ wikimedia:
 media:
   allowed-image-embed-providers: []
   allowed-video-embed-providers: []
+  # Items taken down at a rights holder's request (plan M3a3a, safeguard 5); applied on restart.
+  # Each entry has a lowercase source and at least one of id, author or channel; an entry without
+  # them, or without a source, fails startup. Matching: id exactly (Commons file name without
+  # "File:", underscores and spaces alike; video or asset ID), author ignoring case (whole Commons
+  # Artist text), channel exactly. Synthetic examples:
+  #   blocklist:
+  #     - source: commons
+  #       id: Example photo.jpg
+  #     - source: commons
+  #       author: Example Author
+  #     - source: youtube
+  #       id: AAAAAAAAAAA
+  #     - source: youtube
+  #       channel: UCxxxxxxxxxxxxxxxxxxxxxx
+  blocklist: []
+  # Wire and news agencies never shown directly (safeguard 3). An image or video_file item whose
+  # source_name, attribution, author or credit names one is dropped; provider embeds are not.
+  # Latin entries match whole words ignoring case ("AP Photo" yes, "Japan" no; "AP통신" is not
+  # caught, a known limitation), Hangul entries match anywhere. A blank entry fails startup.
+  excluded-credits:
+    - 연합뉴스
+    - Yonhap
+    - 뉴시스
+    - Newsis
+    - AP
+    - Associated Press
+    - Reuters
+    - AFP
+    - Getty
+    - EPA
 
 app:
   # Curated data (data/ of the repository). bootRun and tests run in server/.
