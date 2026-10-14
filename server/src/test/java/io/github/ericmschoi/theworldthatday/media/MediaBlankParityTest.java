@@ -46,20 +46,42 @@ class MediaBlankParityTest {
 
   /** The characters plan M3a3a T3 (9) names, each alone. */
   static final List<String> PLAN_SPACES =
-      List.of(" ", "\u0009", "\n", "\u001F", " ", " ", " ", " ", "　");
+      List.of("\u0020", "\u0009", "\n", "\u001F", "\u00A0", "\u2007", "\u202F", "\u2028", "\u3000");
 
   /** The rest of the space set: Java whitespace controls and category Z separators. */
   static final List<String> OTHER_SPACES =
       List.of(
-          "\u000B", "\u000C", "\r", "\u001C", "\u001D", "\u001E", " ", " ", " ", " ", " ", "  ",
-          "　\t ", "");
+          "\u000B",
+          "\u000C",
+          "\r",
+          "\u001C",
+          "\u001D",
+          "\u001E",
+          "\u1680",
+          "\u2000",
+          "\u200A",
+          "\u2029",
+          "\u205F",
+          "\u00A0\u2007",
+          "\u3000\t\u202F",
+          "");
 
   /**
    * Outside the space set on both sides (plan M3a3a risk 7 (b)): zero-width and other format
    * characters, NEL and other controls stay "not blank". Inner spaces never make text blank.
    */
   static final List<String> NOT_BLANK =
-      List.of(" 작가", "Example Author", "​", "﻿", "\u0085", "\u0000", "­", "⁠", "x", "　가　");
+      List.of(
+          "\u00A0작가",
+          "Example\u00A0Author",
+          "\u200B",
+          "\uFEFF",
+          "\u0085",
+          "\u0000",
+          "\u00AD",
+          "\u2060",
+          "x",
+          "\u3000가\u3000");
 
   /** Fields of the image base that are required (R1) and text in the schema. */
   static final List<String> REQUIRED = List.of("attribution", "id", "source_name");
@@ -142,7 +164,7 @@ class MediaBlankParityTest {
 
   @Test
   void attributionWithALeadingNoBreakSpaceBeforeHangulPassesBoth() {
-    Map<String, Object> fields = with(image(), "attribution", " 작가");
+    Map<String, Object> fields = with(image(), "attribution", "\u00A0작가");
 
     assertThat(server(fields)).isPresent();
     assertThat(schemaAccepts(fields)).isTrue();
@@ -252,7 +274,7 @@ class MediaBlankParityTest {
     }
     assertThat(differing).containsExactly("id", "attribution");
     assertThat(nbsp.path("id").asString()).isEqualTo("example-invalid-r1-nbsp-only-attribution");
-    assertThat(nbsp.path("attribution").asString()).isEqualTo("  ");
+    assertThat(nbsp.path("attribution").asString()).isEqualTo("\u00A0\u2007");
   }
 
   @ParameterizedTest(name = "invalid/{0}: server drops, schema refuses")
