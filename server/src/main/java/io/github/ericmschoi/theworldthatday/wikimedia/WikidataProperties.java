@@ -9,7 +9,9 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 
 /**
  * Wikidata Query Service settings (plan M3a2), next to the shared {@link WikimediaProperties}.
- * {@code wikidataReadTimeout} bounds each attempt and the whole lookup of one request. {@code
+ * {@code wikidataReadTimeout} is how long one request waits for the whole lookup (each attempt
+ * included); after it, the lookup is cancelled with up to 1s of grace ({@code CANCEL_GRACE} in
+ * {@code SparqlWikidataSignalSource}), so one lookup takes at most the read timeout plus 1s. {@code
  * wikidataTragicClasses} are the classes whose subclasses count as tragic (rule {@code
  * rule:class}).
  */

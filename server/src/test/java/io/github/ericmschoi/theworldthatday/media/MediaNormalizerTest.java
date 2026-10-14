@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /** Rules R1 to R9 of plan M3a3 on synthetic records: a broken record is dropped, never changed. */
 class MediaNormalizerTest {
@@ -222,7 +223,46 @@ class MediaNormalizerTest {
             "R1 retrieved_at with a fraction",
             with(image(), "retrieved_at", "2026-10-13T03:00:00.5Z")),
         arguments(
-            "R1 retrieved_at without seconds", with(image(), "retrieved_at", "2026-10-13T03:00Z")));
+            "R1 retrieved_at without seconds", with(image(), "retrieved_at", "2026-10-13T03:00Z")),
+        // PR #12 review: a leap second, on a day without one (plan M3a3a T2 (9))
+        arguments(
+            "R1 retrieved_at with second 60",
+            with(image(), "retrieved_at", "2026-10-13T23:59:60Z")));
+  }
+
+  @Test
+  void lastSecondOfTheDayPasses() {
+    assertThat(normalize(DEFAULT_NORMALIZER, with(image(), "retrieved_at", "2026-10-13T23:59:59Z")))
+        .isPresent();
+  }
+
+  /**
+   * Plan M3a3a T2 (10): values made only of the space set (Unicode category Z included) are blank.
+   * Kept out of {@link #brokenRecords} until the schema matches (T2b); T3 adds the parity cases.
+   */
+  @ParameterizedTest(name = "{0} of only spaces [{1}] is dropped")
+  @MethodSource("unicodeBlankFields")
+  void unicodeSpacesAreBlank(String field, String blank) {
+    assertThat(normalize(EXAMPLE_NORMALIZER, with(image(), field, blank))).isEmpty();
+  }
+
+  static Stream<Arguments> unicodeBlankFields() {
+    List<String> blanks = List.of("\u00A0", "\u2007", "\u202F", "\u3000", "\u00A0\u2007");
+    Stream<Arguments> required =
+        Stream.of("attribution", "id", "source_name")
+            .flatMap(field -> blanks.stream().map(blank -> arguments(field, blank)));
+    Stream<Arguments> optional =
+        Stream.of(arguments("license", "\u00A0"), arguments("description", "\u00A0"));
+    Stream<Arguments> existing =
+        Stream.of(arguments("attribution", "  "), arguments("attribution", ""));
+    return Stream.of(required, optional, existing).flatMap(s -> s);
+  }
+
+  @ParameterizedTest(name = "attribution [{0}] is kept")
+  @ValueSource(strings = {"\u00A0작가", "Example\u00A0Author"})
+  void textWithUnicodeSpacesIsKept(String attribution) {
+    assertThat(normalize(DEFAULT_NORMALIZER, with(image(), "attribution", attribution)))
+        .isPresent();
   }
 
   @ParameterizedTest(name = "{0} is dropped")

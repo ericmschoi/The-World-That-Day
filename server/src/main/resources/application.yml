@@ -76,8 +76,10 @@ wikimedia:
     min-link-overlap: 0.6
   kowiki-api-url: https://ko.wikipedia.org/w/api.php
   # Wikidata Query Service (plan M3a2): tone and scope signals of the events' main-link items
-  # (CC0). One request per world API call; each attempt and the whole lookup end within
-  # wikidata-read-timeout. The address is a setting because the service is moving to a new backend.
+  # (CC0). One request per world API call. The call waits wikidata-read-timeout for the whole
+  # lookup (each attempt included), then cancels it and waits at most 1s more (CANCEL_GRACE), so
+  # one lookup takes up to wikidata-read-timeout + 1s. The address is a setting because the
+  # service is moving to a new backend.
   wikidata-sparql-url: https://query.wikidata.org/sparql
   # The first attempt's read timeout is the whole 5s budget, so after a timeout no retry happens
   # (max-retries only helps when a 502/503/504 comes back quickly).
@@ -92,6 +94,36 @@ wikimedia:
 media:
   allowed-image-embed-providers: []
   allowed-video-embed-providers: []
+  # Items taken down at a rights holder's request (plan M3a3a, safeguard 5); applied on restart.
+  # Each entry has a lowercase source and at least one of id, author or channel; an entry without
+  # them, or without a source, fails startup. Matching: id exactly (Commons file name without
+  # "File:", underscores and spaces alike; video or asset ID), author ignoring case (whole Commons
+  # Artist text), channel exactly. Synthetic examples:
+  #   blocklist:
+  #     - source: commons
+  #       id: Example photo.jpg
+  #     - source: commons
+  #       author: Example Author
+  #     - source: youtube
+  #       id: AAAAAAAAAAA
+  #     - source: youtube
+  #       channel: UCxxxxxxxxxxxxxxxxxxxxxx
+  blocklist: []
+  # Wire and news agencies never shown directly (safeguard 3). An image or video_file item whose
+  # source_name, attribution, author or credit names one is dropped; provider embeds are not.
+  # Latin entries match whole words ignoring case ("AP Photo" yes, "Japan" no; "AP통신" is not
+  # caught, a known limitation), Hangul entries match anywhere. A blank entry fails startup.
+  excluded-credits:
+    - 연합뉴스
+    - Yonhap
+    - 뉴시스
+    - Newsis
+    - AP
+    - Associated Press
+    - Reuters
+    - AFP
+    - Getty
+    - EPA
 
 app:
   # Curated data (data/ of the repository). bootRun and tests run in server/.

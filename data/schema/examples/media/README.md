@@ -19,6 +19,13 @@ Examples for `data/schema/media.schema.json`, the shared media storage format fr
   addresses with non-ASCII characters are judged by the pattern alone. The server replaces a
   malformed `license_url` with `null` instead of dropping the record, so a stored `license_url` is
   always `http(s)` or `null`.
+- Text fields (`id`, `source_name`, `attribution`, `render.provider`, and `provider`, `license`,
+  `description` when not `null`) use `$defs.nonEmptyString`: blank means made
+  only of characters in the whitespace set from `docs/plans/m3a3a-media-rules.md` (Java
+  `Character.isWhitespace` or Unicode category `Z`, for example U+00A0 and U+2007), the same rule
+  as the server `MediaNormalizer`. The pattern `[^\s\p{Z}\x1C-\x1F]` needs one character outside
+  that set (in the validator's Java regex `\s` is U+0009-U+000D and U+0020), so text with inner
+  Unicode spaces stays valid.
 - `retrieved_at` uses `format: date-time` plus a UTC-to-the-second pattern. `place_ref` uses
   `^(world|unknown|[a-z]+:\S+)$`.
 - `link_only_reason` is `null` for every mode except `link_only` (fields table: "only for
@@ -89,6 +96,7 @@ Each file is a copy of a valid example with one change.
 |---|---|---|---|
 | `r1-empty-source-url.json` | R1 (empty source field → not shown) | `source_url: ""` | `/source_url` |
 | `r1-blank-attribution.json` | R1 (empty source field → not shown) | `attribution: "   "` (whitespace only) | `/attribution` |
+| `r1-nbsp-only-attribution.json` | R1 (empty source field → not shown) | `attribution: "\u00a0\u2007"` (no-break spaces only, U+00A0 and U+2007) | `/attribution` |
 | `r1-null-source-name.json` | R1 (empty source field → not shown) | `source_name: null` | `/source_name` |
 | `r1-no-location.json` | R1 (location is `lat`/`lng` or `place_ref`) | `lat`, `lng`, `place_ref` all `null` | `/lat`, `/lng`, `/place_ref` |
 | `r1-lat-without-lng.json` | R1 (`lat` and `lng` together) | `lat` set, `lng: null` (`place_ref` still set) | `/lat`, `/lng` |
@@ -105,8 +113,9 @@ Each file is a copy of a valid example with one change.
 | `r9-ftp-video-source-url.json` | R9 (http/https only) | `video_sources[0].url` starts with `ftp://` | `/video_sources/0/url` |
 | `api-only-date-relation.json` | `additionalProperties: false` (API-only field in the storage format) | adds `date_relation` | root (`date_relation` not allowed) |
 
-Checked on 2026-10-13 with `com.networknt:json-schema-validator` 3.0.6 configured like the test
-helper `DataSchemas` (2020-12, remote fetching off, format assertions on): the schema passes the
+Checked again on 2026-10-13 after the whitespace-set change (plan M3a3a T2b) with
+`com.networknt:json-schema-validator` 3.0.6 configured like the test helper `DataSchemas` (2020-12,
+remote fetching off, format assertions on): the schema passes the
 2020-12 meta-schema, every `valid/` file passes, and every `invalid/` file fails with errors at
 the field listed above, sometimes also at that field's parent path (for example
 `r9-ftp-video-source-url.json` also reports a `oneOf` error at `/video_sources`). Only
