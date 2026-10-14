@@ -26,8 +26,10 @@ Examples for `data/schema/media.schema.json`, the shared media storage format fr
 - The schema only checks that `provider` is a string. The allowed embed provider lists (R3, R5),
   the per-source blocklist and the excluded wire/news agency credits (R2) are server settings.
 - Synthetic examples have ids starting with `example-`, use `example.com`/`example.org`/`example`
-  addresses and provider names, and use only the demo and boundary dates 1988-09-17, 2002-06-22
-  and 2000-02-29 (`CLAUDE.md` 7.6). The embed examples use the provider `example`, which the T2
+  addresses and provider names, and use only demo dates (1988-09-17, 2002-06-22), the boundary
+  date 2000-02-29, or public-event dates allowed by M3-P13 (`CLAUDE.md` 7.6):
+  `example-video-embed.json` keeps `captured_at: "1986"` from the M3a5 contract example (the 1986
+  Asian Games opening, a public event). The embed examples use the provider `example`, which the T2
   tests add to the allowed lists.
 
 ## valid/
@@ -105,5 +107,7 @@ Each file is a copy of a valid example with one change.
 
 Checked on 2026-10-13 with `com.networknt:json-schema-validator` 3.0.6 configured like the test
 helper `DataSchemas` (2020-12, remote fetching off, format assertions on): the schema passes the
-2020-12 meta-schema, every `valid/` file passes, and every `invalid/` file fails with errors only
-at the fields listed above.
+2020-12 meta-schema, every `valid/` file passes, and every `invalid/` file fails with errors at
+the field listed above, sometimes also at that field's parent path (for example
+`r9-ftp-video-source-url.json` also reports a `oneOf` error at `/video_sources`). Only
+`api-only-date-relation.json`, whose listed location is the root, has a root-level error.
