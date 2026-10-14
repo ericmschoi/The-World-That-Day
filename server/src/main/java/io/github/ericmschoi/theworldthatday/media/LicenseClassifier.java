@@ -14,7 +14,8 @@ import java.util.regex.Pattern;
  */
 public final class LicenseClassifier {
 
-  private static final Pattern SEPARATORS = Pattern.compile("[\\s_-]+");
+  /** Any Unicode space (category Z, e.g. U+00A0) separates words too. */
+  private static final Pattern SEPARATORS = Pattern.compile("[\\s\\p{Z}_-]+");
 
   private static final String VERSION = "\\d+(?:\\.\\d+)?";
 
@@ -43,7 +44,8 @@ public final class LicenseClassifier {
     if (MediaText.isBlank(license)) {
       return LicenseStatus.UNKNOWN;
     }
-    String name = SEPARATORS.matcher(license.strip().toLowerCase(Locale.ROOT)).replaceAll(" ");
+    String name =
+        MediaText.strip(SEPARATORS.matcher(license.toLowerCase(Locale.ROOT)).replaceAll(" "));
     return FREE.matcher(name).matches() ? LicenseStatus.FREE : LicenseStatus.OTHER;
   }
 }

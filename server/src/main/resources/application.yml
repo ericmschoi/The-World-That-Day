@@ -98,7 +98,8 @@ media:
   # Each entry has a lowercase source and at least one of id, author or channel; an entry without
   # them, or without a source, fails startup. Matching: id exactly (Commons file name without
   # "File:", underscores and spaces alike; video or asset ID), author ignoring case (whole Commons
-  # Artist text), channel exactly. Synthetic examples:
+  # Artist text), channel exactly. A Commons id's first letter: lowercase also matches the capital.
+  # Synthetic examples:
   #   blocklist:
   #     - source: commons
   #       id: Example photo.jpg
