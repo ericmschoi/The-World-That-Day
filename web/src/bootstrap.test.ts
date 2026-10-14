@@ -34,7 +34,7 @@ describe('T1 scaffold', () => {
     expect(pkg.engines?.node).toBe('>=24')
   })
 
-  it('has exactly the nine scripts from the plan', () => {
+  it('has exactly the nine scripts from the plan, plus e2e (M3b2b T3)', () => {
     expect(pkg.scripts).toEqual({
       dev: 'vite',
       build: 'tsc -b && vite build',
@@ -45,6 +45,7 @@ describe('T1 scaffold', () => {
       typecheck: 'tsc -b',
       test: 'vitest run',
       'test:watch': 'vitest',
+      e2e: 'playwright test',
     })
   })
 
