@@ -55,9 +55,9 @@ export async function apiGet<T>(
   const label = `GET ${url.pathname}`
   const { signal: callerSignal, timeoutMs = DEFAULT_TIMEOUT_MS } = options
   const timeout = AbortSignal.timeout(timeoutMs)
-  const signal = callerSignal
-    ? AbortSignal.any([callerSignal, timeout])
-    : timeout
+  const { signal, cleanup } = callerSignal
+    ? anySignal([callerSignal, timeout])
+    : { signal: timeout, cleanup: () => {} }
 
   try {
     const response = await fetch(url, { headers: { Accept: ACCEPT }, signal })
@@ -81,7 +81,37 @@ export async function apiGet<T>(
       throw new ApiTimeoutError(`${label} timed out after ${timeoutMs} ms`)
     }
     throw error
+  } finally {
+    cleanup()
   }
+}
+
+// A signal that aborts with the reason of the first of `signals` to abort.
+// `AbortSignal.any` is missing before Safari/iOS 17.4, Chrome 116 and
+// Firefox 124 (Vite's default target is older), so fall back to one
+// controller listening to each signal. `cleanup` removes the listeners.
+function anySignal(signals: AbortSignal[]): {
+  signal: AbortSignal
+  cleanup: () => void
+} {
+  if (typeof AbortSignal.any === 'function') {
+    return { signal: AbortSignal.any(signals), cleanup: () => {} }
+  }
+  const controller = new AbortController()
+  const cleanup = () => {
+    for (const s of signals) s.removeEventListener('abort', onAbort)
+  }
+  function onAbort(this: AbortSignal) {
+    cleanup()
+    controller.abort(this.reason)
+  }
+  const aborted = signals.find((s) => s.aborted)
+  if (aborted) {
+    controller.abort(aborted.reason)
+  } else {
+    for (const s of signals) s.addEventListener('abort', onAbort)
+  }
+  return { signal: controller.signal, cleanup }
 }
 
 // Reads `code` from a failed response's body only if the body is JSON and
