@@ -67,3 +67,12 @@ export function isDisplayable(media: Media): boolean {
       return false
   }
 }
+
+// Displayable and in a mode `MediaItem` actually draws (M3b3). Screens count
+// media with this, so a group never keeps a heading over nothing.
+export function canRender(media: Media): boolean {
+  return (
+    isDisplayable(media) &&
+    (media.display_mode === 'image' || media.display_mode === 'video_file')
+  )
+}
