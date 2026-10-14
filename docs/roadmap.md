@@ -8,10 +8,10 @@
 
 ## 현재 위치 (2026-10-13)
 
-- 완료: M0 (PR #1), M1 (PR #2·#3), `chore/m1-followups`(M1 후속), M3 8개 — **M3a1** (PR #5), **M3b1** (PR #6), **M3b1b** (PR #7), **M3a1b** (PR #8), **영상 리서치** (PR #9, 계획 개정 포함), **M3a1c** (PR #10), **M3a2** (PR #11), **M3a3** (PR #12, `main` f99a9e7)
+- 완료: M0 (PR #1), M1 (PR #2·#3), `chore/m1-followups`(M1 후속), M3 9개 — **M3a1** (PR #5), **M3b1** (PR #6), **M3b1b** (PR #7), **M3a1b** (PR #8), **영상 리서치** (PR #9, 계획 개정 포함), **M3a1c** (PR #10), **M3a2** (PR #11), **M3a3** (PR #12, `main` f99a9e7), **M3b2** (PR #13, `main` e254ad1, 실제 S1 434)
 - 진행 (PM 결정 A — 서버·웹 병렬):
   - 서버: **M3a3a** `feat/media-rules`(촬영 시점 파서·라이선스 상태·차단과 제외 — 이전 M3a3 T3, 계획 PM 승인 2026-10-13). 다음은 **M3a3b** `feat/commons-photos`(Commons 사진, M3a3a 머지 뒤), **M3a4**(M3a3a 머지 뒤 시작 가능)
-  - 웹: **M3b2** `feat/world-events-ui`(개정 PM 승인 2026-10-13 — 한 PR, T1b 뒤 확인점 170). T1 완료(3fdd43b), 다음 T1b. M3a3a에서 받을 것은 없다. 실제 사진 확인(T6)은 M3a3b 머지 뒤 `main` 에서
+  - 웹: **M3b2** 완료 (PR #13, 실제 S1 434). 실제 사진 확인(M3b2 T6)은 M3a3b 머지 뒤 `main` 에서. 다음 **M3b2b** `feat/world-photos-a11y`(개정 PM 승인 2026-10-13 — 결정 1~4 (a), 한 PR, 확인점 T2 뒤 누적 S1 300)
   - **M3a5 T0**: PM이 YouTube 키를 발급하고 Y1·Y2·Y4·N3을 실행했다 → YouTube 경로 "확인됨". 남은 것: Y5(콘솔 사용량, 필수), Y3 재실행(선택), 공공데이터포털 활용신청 + N1·N2, CSV(N-B1), N-B9(선택)
 - M3b1b 리뷰 후속 4건과 라이선스 줄 (b)는 PM 결정으로 M3b2b에서 한다(새 창 안내의 공용 `visually-hidden` 클래스와 출처 줄 링크는 M3b2가 먼저 만든다).
 - 진행 순서 (R1 (a)): **M1 → M3 → M2 → M4 → M5 → M6**
@@ -79,7 +79,7 @@
 
 ### M3 그날의 세계 — 리서치 1 + 서버 11 + 웹 7 = PR 19개 (D1 (a), M3a3 분할 A (a), M3a3 확인점 (a))
 
-**완료 8**(리서치, M3a1, M3a1b, M3a1c, M3a2, M3a3, M3b1, M3b1b — PR #5~#12), **진행 2**(M3a3a 서버, M3b2 웹 — PM 결정 A로 병렬), **남은 9**(M3a3b, M3a4, M3a4b, M3a5, M3a5b, M3b2b, M3b3, M3b3b, M3b3c). 8 + 2 + 9 = 19. `chore/m1-followups` 는 M1 후속이라 M3 PR 수에 넣지 않는다. 2026-10-12에 17개로 정정했고, 2026-10-13 M3a3 분할(PM 결정 A (a))로 M3a3b가 더해져 18개, 같은 날 M3a3 확인점(T2 뒤 누적 S1 505 > 450)에서 PM이 T3을 따로 빼기로 해(a) M3a3a가 더해져 **19개**다.
+**완료 9**(리서치, M3a1, M3a1b, M3a1c, M3a2, M3a3, M3b1, M3b1b, M3b2 — PR #5~#13), **진행 2**(M3a3a 서버, M3b2b 웹 — PM 결정 A로 병렬), **남은 8**(M3a3b, M3a4, M3a4b, M3a5, M3a5b, M3b3, M3b3b, M3b3c). 9 + 2 + 8 = 19. `chore/m1-followups` 는 M1 후속이라 M3 PR 수에 넣지 않는다. 2026-10-12에 17개로 정정했고, 2026-10-13 M3a3 분할(PM 결정 A (a))로 M3a3b가 더해져 18개, 같은 날 M3a3 확인점(T2 뒤 누적 S1 505 > 450)에서 PM이 T3을 따로 빼기로 해(a) M3a3a가 더해져 **19개**다.
 
 #### 기능 표
 
@@ -103,8 +103,8 @@
 | ~~M3a6 제공사 공식 이미지 임베드~~ | ~~`feat/provider-image-embed`~~ | - | - | - | **M3에서 제외**(영상 15번 (a), 공개 배포 때 다시) | `docs/plans/m3a6-provider-image-embed.md` |
 | M3b1 디자인 기초와 미디어 문구·타입 | `feat/design-foundation` | frontend-dev, test-engineer, PM | 225 → 실제 309 | 없음 | **완료 (PR #6)** | `docs/plans/m3b1-design-foundation.md` |
 | M3b1b 공용 미디어 카드 | `feat/media-card` | frontend-dev, test-engineer, PM | 165 → 보정 290 / 실제 +158 | M3b1 | **완료 (PR #7)** | `docs/plans/m3b1b-media-card.md` |
-| M3b2 그날의 세계 섹션 뼈대 (개정 2026-10-13) | `feat/world-events-ui` | frontend-dev, test-engineer, PM | 240 → 파일별 다시 셈 약 365 (범위 365~510, 웹 실측 ×1.0~×1.4). 한 PR, 확인점 T1b 뒤 누적 170 | 구현: **M3a3 머지 뒤**(완료, PM 결정 A, 서버와 병렬). M3a3a에서 받을 것 없음(DTO 변화 없음), M3b1b. 실제 사진 확인(T6): **M3a3b 머지 뒤** `main` 에서 — PR 머지는 T5(실제 서버, 사진 없이) 뒤 | **진행** — T1 완료(3fdd43b). 개정 PM 승인 2026-10-13 (결정 1 (a), 2 (a)) | `docs/plans/m3b2-world-events-ui.md` |
-| M3b2b 그날 사진·비극 블록·카드 접근성·Playwright (새로) | `feat/world-photos-a11y` | frontend-dev, test-engineer, PM | 150 → 보정 약 250 | M3b2 | PM 승인 2026-10-12 | `docs/plans/m3b2b-world-photos-a11y.md` |
+| M3b2 그날의 세계 섹션 뼈대 (개정 2026-10-13) | `feat/world-events-ui` | frontend-dev, test-engineer, PM | 240 → 파일별 다시 셈 약 365 (범위 365~510, 웹 실측 ×1.0~×1.4). 한 PR, 확인점 T1b 뒤 누적 170 | 구현: **M3a3 머지 뒤**(완료, PM 결정 A, 서버와 병렬). M3a3a에서 받을 것 없음(DTO 변화 없음), M3b1b. 실제 사진 확인(T6): **M3a3b 머지 뒤** `main` 에서 — PR 머지는 T5(실제 서버, 사진 없이) 뒤 | **완료 (PR #13, 실제 S1 434)** | `docs/plans/m3b2-world-events-ui.md` |
+| M3b2b 그날 사진·비극 블록·카드 접근성·Playwright (새로) | `feat/world-photos-a11y` | frontend-dev, test-engineer, PM | 다시 셈 약 315 → 약 375, 확인점 T2 뒤 300 | M3b2 | **진행** — 개정 PM 승인 2026-10-13 (결정 1~4 (a)) | `docs/plans/m3b2b-world-photos-a11y.md` |
 | M3b3 영상 재생 기초와 Commons 동영상 (개정) | `feat/media-video` | frontend-dev, test-engineer, PM | 195 → 보정 약 320 | M3b2 (PM 확인은 M3a4b 뒤) | PM 승인 2026-10-12 | `docs/plans/m3b3-media-video.md` |
 | M3b3b 개인정보처리방침과 동의 단계 (새로) | `feat/privacy-consent` | frontend-dev, test-engineer, PM | 165 → 보정 약 280 | M3b2 | PM 승인 2026-10-12 | `docs/plans/m3b3b-privacy-consent.md` |
 | M3b3c YouTube 공식 채널 영상 재생 (새로) | `feat/youtube-embed` | frontend-dev, test-engineer, PM | 130 → 보정 약 220 | M3b3, M3b3b (PM 확인은 M3a5 뒤, 1988은 M3a5b 뒤) | PM 승인 2026-10-12 | `docs/plans/m3b3c-youtube-embed.md` |
