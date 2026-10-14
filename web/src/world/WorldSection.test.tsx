@@ -128,7 +128,8 @@ describe('WorldSection with media (default handler, T2 (2), (6))', () => {
     for (const img of screen.getAllByRole('img')) {
       expect(img.getAttribute('src')).not.toContain('example-photo-1988')
     }
-    expect(screen.queryByText(/라이선스 미확인/)).not.toBeInTheDocument()
+    // The unlicensed day_media photo's caption would say this (licenseLabel).
+    expect(screen.queryByText('라이선스 확인 안 됨')).not.toBeInTheDocument()
   })
 })
 
