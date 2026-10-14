@@ -2,8 +2,8 @@ package io.github.ericmschoi.theworldthatday.media;
 
 import io.github.ericmschoi.theworldthatday.media.MediaRecord.DisplayMode;
 import java.time.DateTimeException;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Objects;
@@ -30,8 +30,12 @@ public class MediaNormalizer {
       Pattern.compile("https?://\\S+", Pattern.UNICODE_CHARACTER_CLASS);
   private static final Pattern PLACE_REF =
       Pattern.compile("world|unknown|[a-z]+:\\S+", Pattern.UNICODE_CHARACTER_CLASS);
+
+  /** UTC to the second, as the schema's {@code retrieved_at} pattern. */
   private static final Pattern DATE_TIME =
-      Pattern.compile("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})");
+      Pattern.compile("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z");
+
+  private static final Pattern VIDEO_MIME = Pattern.compile("video/[a-z0-9.+-]+");
   private static final Pattern YEAR = Pattern.compile("\\d{4}");
   private static final Pattern MONTH = Pattern.compile("\\d{4}-\\d{2}");
   private static final Pattern DAY = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
@@ -82,6 +86,9 @@ public class MediaNormalizer {
         && has(r.sourceUrl())
         && has(r.attribution())
         && r.licenseStatus() != null
+        && nullOrHas(r.provider())
+        && nullOrHas(r.license())
+        && nullOrHas(r.description())
         && has(r.retrievedAt())
         && dateTime(r.retrievedAt());
   }
@@ -110,20 +117,22 @@ public class MediaNormalizer {
     boolean sizes =
         positive(r.thumbnailWidth())
             && positive(r.thumbnailHeight())
-            && (r.durationSeconds() == null || r.durationSeconds() >= 0);
+            && (r.durationSeconds() == null || r.durationSeconds() > 0);
     boolean sources =
         r.videoSources() == null
             || (!r.videoSources().isEmpty()
                 && r.videoSources().stream()
                     .allMatch(
                         s ->
-                            has(s.url()) && has(s.mime()) && s.height() != null && s.height() > 0));
+                            has(s.url())
+                                && s.mime() != null
+                                && VIDEO_MIME.matcher(s.mime()).matches()
+                                && positive(s.height())));
     Render render = r.render();
     boolean rendered =
         render == null
             || (has(render.provider())
                 && render.kind() != null
-                && render.zoom() != null
                 && render.lat() != null
                 && render.lng() != null
                 && coordinates(render.lat(), render.lng()));
@@ -177,7 +186,7 @@ public class MediaNormalizer {
 
   private static boolean dateTime(String value) {
     try {
-      return DATE_TIME.matcher(value).matches() && OffsetDateTime.parse(value) != null;
+      return DATE_TIME.matcher(value).matches() && Instant.parse(value) != null;
     } catch (DateTimeException e) {
       return false;
     }
@@ -193,6 +202,11 @@ public class MediaNormalizer {
 
   private static boolean positive(Integer value) {
     return value == null || value > 0;
+  }
+
+  /** Optional text is {@code null} or not blank, never an empty string. */
+  private static boolean nullOrHas(String value) {
+    return value == null || has(value);
   }
 
   private static boolean has(String value) {

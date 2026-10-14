@@ -16,6 +16,7 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import io.github.ericmschoi.theworldthatday.media.DateRelation.Kind;
 import io.github.ericmschoi.theworldthatday.media.MediaRecord.DisplayMode;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -150,11 +151,13 @@ class MediaNormalizerTest {
         arguments(
             "R4 video_file with empty sources", with(videoFile(), "video_sources", List.of())),
         arguments(
-            "R4 video source without mime",
+            "R4 video source with a non-video mime",
             with(
                 videoFile(),
                 "video_sources",
-                List.of(Map.of("url", "https://example.test/a.webm", "height", 480)))),
+                List.of(
+                    Map.of(
+                        "url", "https://example.test/a.webm", "mime", "text/plain", "height", 1)))),
         // R5 video_embed
         arguments("R5 video_embed without embed_url", with(videoEmbed(), "embed_url", null)),
         arguments("R5 video_embed without provider", with(videoEmbed(), "provider", null)),
@@ -205,7 +208,21 @@ class MediaNormalizerTest {
                 List.of(Map.of("url", "data:video/webm", "mime", "video/webm", "height", 480)))),
         // sizes
         arguments("zero thumbnail width", with(image(), "thumbnail_width", 0)),
-        arguments("negative duration", with(videoFile(), "duration_seconds", -1.0)));
+        arguments("negative duration", with(videoFile(), "duration_seconds", -1.0)),
+        arguments("zero duration", with(videoFile(), "duration_seconds", 0.0)),
+        // optional text is null or not blank, as the schema's nonEmptyString
+        arguments("empty description", with(image(), "description", "")),
+        arguments("empty license", with(image(), "license", " ")),
+        arguments("empty provider", with(image(), "provider", "")),
+        // retrieved_at is UTC to the second
+        arguments(
+            "R1 retrieved_at with an offset",
+            with(image(), "retrieved_at", "2026-10-13T12:00:00+09:00")),
+        arguments(
+            "R1 retrieved_at with a fraction",
+            with(image(), "retrieved_at", "2026-10-13T03:00:00.5Z")),
+        arguments(
+            "R1 retrieved_at without seconds", with(image(), "retrieved_at", "2026-10-13T03:00Z")));
   }
 
   @ParameterizedTest(name = "{0} is dropped")
@@ -220,6 +237,20 @@ class MediaNormalizerTest {
     m.put("url", "https://upload.wikimedia.org/wikipedia/commons/a/ab/Example.webm");
 
     assertThat(normalize(DEFAULT_NORMALIZER, m)).isPresent();
+  }
+
+  @Test
+  void nullZoomAndNullVideoHeightPass() {
+    Map<String, Object> render = new HashMap<>();
+    render.putAll(Map.of("provider", "kakao", "kind", "skyview", "lat", 37.5665, "lng", 126.978));
+    render.put("zoom", null);
+    Map<String, Object> source = new HashMap<>();
+    source.putAll(Map.of("url", "https://example.test/a.webm", "mime", "video/webm"));
+    source.put("height", null);
+
+    assertThat(normalize(DEFAULT_NORMALIZER, with(sdk(), "render", render))).isPresent();
+    assertThat(normalize(DEFAULT_NORMALIZER, with(videoFile(), "video_sources", List.of(source))))
+        .isPresent();
   }
 
   @Test

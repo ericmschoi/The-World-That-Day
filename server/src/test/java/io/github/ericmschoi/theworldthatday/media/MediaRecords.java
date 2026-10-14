@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
@@ -14,11 +15,17 @@ import tools.jackson.databind.json.JsonMapper;
 final class MediaRecords {
 
   /**
-   * Reads strictly: an unknown field fails (Jackson 3 ignores unknown fields by default), as the
-   * schema's {@code additionalProperties: false} does.
+   * Reads as strictly as the schema: an unknown field or a missing key fails (the schema's {@code
+   * additionalProperties: false} and {@code required}; Jackson 3 accepts both by default), and no
+   * string or fraction is coerced into a number.
    */
   static final JsonMapper JSON =
-      JsonMapper.builder().enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
+      JsonMapper.builder()
+          .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+          .enable(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES)
+          .disable(DeserializationFeature.ACCEPT_FLOAT_AS_INT)
+          .disable(MapperFeature.ALLOW_COERCION_OF_SCALARS)
+          .build();
 
   /** The stored fields of the field table, in table order. */
   static final List<String> STORED_KEYS =
