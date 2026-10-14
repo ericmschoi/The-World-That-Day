@@ -10,7 +10,9 @@ import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiEvent;
 import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiPage.State;
 import io.github.ericmschoi.theworldthatday.event.tone.CuratedEventToneJudge;
 import io.github.ericmschoi.theworldthatday.event.tone.EventCuration;
+import io.github.ericmschoi.theworldthatday.event.wikidata.WikidataSignalSource.Signals;
 import io.github.ericmschoi.theworldthatday.story.world.WorldStoryResponse.Event;
+import io.github.ericmschoi.theworldthatday.wikimedia.WikidataProperties;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -19,6 +21,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -74,7 +77,12 @@ class WorldStoryCuratedHideTest {
             curation,
             qids -> {
               asked.add(List.copyOf(qids));
-              return Optional.of(Map.of());
+              // Like the SPARQL source: every queried (well-formed) ID is in the answer.
+              Map<String, Signals> answer = new LinkedHashMap<>();
+              qids.stream()
+                  .filter(qid -> WikidataProperties.QID.matcher(qid).matches())
+                  .forEach(qid -> answer.put(qid, Signals.NONE));
+              return Optional.of(answer);
             });
     KoWikiDayResult day =
         new KoWikiDayResult(

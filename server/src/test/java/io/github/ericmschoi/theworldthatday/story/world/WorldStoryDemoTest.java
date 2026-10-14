@@ -241,6 +241,9 @@ class WorldStoryDemoTest extends WikimediaWireMockTest {
     JsonNode root = world("1995-03-15");
 
     assertThat(root.path("events").isEmpty()).isTrue();
+    // Plan M3a3 demo table: the media slot stays an empty array.
+    assertThat(root.path("day_media").isArray()).isTrue();
+    assertThat(root.path("day_media").isEmpty()).isTrue();
     assertThat(root.path("notice").path("code").asString()).isEqualTo("NO_EVENTS_FOUND");
     assertThat(root.path("partial").asBoolean()).isFalse();
     assertThat(pagepropsRequests()).isZero();
@@ -330,6 +333,12 @@ class WorldStoryDemoTest extends WikimediaWireMockTest {
     assertThat(event.path("tone").asString()).isEqualTo("normal");
     assertThat(event.path("tone_basis").asString()).isEqualTo("curated");
     assertThat(event.path("scope").asString()).isEqualTo("domestic");
+    // Plan M3a3 demo table: no photos are attached yet, so both media slots are empty arrays.
+    assertThat(event.path("media").isArray()).isTrue();
+    assertThat(event.path("media").isEmpty()).isTrue();
+    assertThat(root.path("day_media").isArray()).isTrue();
+    assertThat(root.path("day_media").isEmpty()).isTrue();
+    assertThat(root.path("notice").isNull()).isTrue();
     assertThat(root.path("partial").asBoolean()).isFalse();
     assertThat(sparqlRequests()).hasSize(1);
   }

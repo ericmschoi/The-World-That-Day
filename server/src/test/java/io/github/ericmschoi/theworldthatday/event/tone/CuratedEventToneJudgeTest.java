@@ -239,6 +239,8 @@ class CuratedEventToneJudgeTest {
     List<KoWikiEvent> events =
         List.of(event("시험 사건 가.", "Q4", "시험 문서 가"), event("시험 사건 나.", "Q5", "나"));
 
+    // Fixed per state of the year page, not derived from the source result.
+    Map<State, Boolean> partialFor = Map.of(State.FRESH, false, State.STALE, true);
     for (State yearPage : List.of(State.FRESH, State.STALE)) {
       asked.clear();
       KoWikiDayResult day =
@@ -258,7 +260,9 @@ class CuratedEventToneJudgeTest {
           .extracting(WorldStoryResponse.Event::summary)
           .containsExactly("시험 사건 나.");
       assertThat(asked).as("the hidden event's QID is not sent").containsExactly(List.of("Q5"));
-      assertThat(response.partial()).as("partial as the source said").isEqualTo(day.degraded());
+      assertThat(response.partial())
+          .as("year page %s: a takedown never makes the answer partial on its own", yearPage)
+          .isEqualTo(partialFor.get(yearPage));
     }
   }
 }
