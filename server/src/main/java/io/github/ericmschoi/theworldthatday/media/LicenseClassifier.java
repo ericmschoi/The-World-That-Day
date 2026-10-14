@@ -18,6 +18,12 @@ public final class LicenseClassifier {
 
   private static final String VERSION = "\\d+(?:\\.\\d+)?";
 
+  /**
+   * A jurisdiction after the version ({@code kr}, {@code igo}), never a license element word: a
+   * trailing {@code nc}, {@code nd}, {@code sa} or {@code by} is not free.
+   */
+  private static final String JURISDICTION = "(?!(?:by|sa|nc|nd)\\b)[a-z]{2,3}";
+
   private static final Pattern FREE =
       Pattern.compile(
           "public domain"
@@ -26,7 +32,9 @@ public final class LicenseClassifier {
               + ")?"
               + "|cc by(?: sa)?(?: "
               + VERSION
-              + "(?: [a-z]{2,3})?)?"
+              + "(?: "
+              + JURISDICTION
+              + ")?)?"
               + "|kogl type 1");
 
   private LicenseClassifier() {}

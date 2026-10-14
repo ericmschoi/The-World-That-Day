@@ -51,6 +51,13 @@ class LicenseClassifierTest {
         "KOGL Type 10",
         "Public domain in some countries",
         "CC BY 4.0 kr nc",
+        // a license element in the jurisdiction slot (code review, M3a3a)
+        "CC BY 4.0 NC",
+        "CC BY 4.0 - NC",
+        "CC BY-SA 4.0 ND",
+        "CC BY 4.0 nd",
+        "CC BY 4.0 sa",
+        "CC BY 4.0 by",
       })
   void otherLicenses(String name) {
     assertThat(LicenseClassifier.classify(name)).isEqualTo(LicenseStatus.OTHER);
