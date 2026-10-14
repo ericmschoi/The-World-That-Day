@@ -213,14 +213,8 @@ public class MediaNormalizer {
     return value == null || has(value);
   }
 
-  /**
-   * Not {@code null} and not made only of spaces: the plan M3a3a space set is every character
-   * {@link Character#isWhitespace} accepts (the old {@code isBlank()} rule) or of Unicode category
-   * Z ({@link Character#isSpaceChar}: U+00A0, U+2007, U+202F, U+3000, ...). The schema's {@code
-   * nonEmptyString} uses the same set.
-   */
+  /** Not blank by the plan M3a3a space set ({@link MediaText#isBlank}). */
   private static boolean has(String value) {
-    return value != null
-        && !value.codePoints().allMatch(c -> Character.isWhitespace(c) || Character.isSpaceChar(c));
+    return !MediaText.isBlank(value);
   }
 }

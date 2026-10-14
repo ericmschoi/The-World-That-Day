@@ -34,7 +34,7 @@ public record MediaProperties(
       check(i, blocklist.get(i));
     }
     excludedCredits = excludedCredits == null ? List.of() : List.copyOf(excludedCredits);
-    if (excludedCredits.stream().anyMatch(String::isBlank)) {
+    if (excludedCredits.stream().anyMatch(MediaText::isBlank)) {
       throw new IllegalArgumentException("media.excluded-credits entries must not be empty");
     }
   }
@@ -48,8 +48,8 @@ public record MediaProperties(
   /**
    * One blocklist entry: a lowercase source key ({@code commons}, {@code youtube}, ...) and at
    * least one of {@code id} (Commons file name without {@code File:}, video ID or asset ID), {@code
-   * author} (plain Commons {@code Artist}) or {@code channel} (channel ID). Blank values count as
-   * absent.
+   * author} (plain Commons {@code Artist}) or {@code channel} (channel ID). Blank values ({@link
+   * MediaText#isBlank}) count as absent.
    */
   public record BlockEntry(String source, String id, String author, String channel) {
 
@@ -60,7 +60,7 @@ public record MediaProperties(
     }
 
     private static String present(String value) {
-      return value == null || value.isBlank() ? null : value.strip();
+      return MediaText.isBlank(value) ? null : value.strip();
     }
   }
 

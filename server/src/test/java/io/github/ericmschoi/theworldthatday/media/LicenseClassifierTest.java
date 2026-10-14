@@ -62,4 +62,17 @@ class LicenseClassifierTest {
   void missingLicenseIsUnknown(String name) {
     assertThat(LicenseClassifier.classify(name)).isEqualTo(LicenseStatus.UNKNOWN);
   }
+
+  /** The R1 blank rule: a name made only of Unicode spaces (e.g. a stripped {@code &nbsp;}). */
+  @ParameterizedTest(name = "\"{0}\" of Unicode spaces is unknown")
+  @ValueSource(strings = {"\u00A0", "\u2007", "\u202F", "\u3000", " \u00A0\t", "\u2028"})
+  void unicodeSpacesOnlyIsUnknown(String name) {
+    assertThat(LicenseClassifier.classify(name)).isEqualTo(LicenseStatus.UNKNOWN);
+  }
+
+  @ParameterizedTest(name = "\"{0}\" with Unicode spaces around text is not unknown")
+  @ValueSource(strings = {"\u00A0Example License", "provider-terms\u3000"})
+  void textWithUnicodeSpacesIsNotUnknown(String name) {
+    assertThat(LicenseClassifier.classify(name)).isEqualTo(LicenseStatus.OTHER);
+  }
 }

@@ -9,7 +9,8 @@ import java.util.regex.Pattern;
  * without surrounding spaces and case, with hyphens and underscores read as spaces, so {@code CC
  * BY-SA 3.0} and {@code cc by-sa 3.0} match. A version and a jurisdiction after the version ({@code
  * CC BY-SA 2.0 kr}) keep the same kind. Only Public domain, CC0, CC BY, CC BY-SA and KOGL Type 1
- * are free; any other name, including NC and ND licenses, is other; no name is unknown.
+ * are free; any other name, including NC and ND licenses, is other; no name, or one made only of
+ * spaces (the R1 blank rule, {@link MediaText#isBlank}), is unknown.
  */
 public final class LicenseClassifier {
 
@@ -31,7 +32,7 @@ public final class LicenseClassifier {
   private LicenseClassifier() {}
 
   public static LicenseStatus classify(String license) {
-    if (license == null || license.isBlank()) {
+    if (MediaText.isBlank(license)) {
       return LicenseStatus.UNKNOWN;
     }
     String name = SEPARATORS.matcher(license.strip().toLowerCase(Locale.ROOT)).replaceAll(" ");

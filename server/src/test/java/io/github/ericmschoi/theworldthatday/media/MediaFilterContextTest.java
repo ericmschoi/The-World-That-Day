@@ -143,6 +143,35 @@ class MediaFilterContextTest {
     assertThat(empty.excludedCredits()).isEmpty();
   }
 
+  @ParameterizedTest(name = "excluded credit of Unicode spaces [{0}] fails startup")
+  @ValueSource(strings = {"\u00A0", "\u2007", "\u3000"})
+  void unicodeSpaceExcludedCreditFailsStartup(String blank) {
+    withYml
+        .withPropertyValues("media.excluded-credits[0]=AP", "media.excluded-credits[1]=" + blank)
+        .run(context -> assertFailsWith(context, "media.excluded-credits"));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new MediaProperties(List.of(), List.of(), null, List.of("AP", blank)))
+        .withMessageContaining("media.excluded-credits");
+  }
+
+  @Test
+  void unicodeSpaceBlockEntryFieldsBecomeNull() {
+    assertThat(new BlockEntry("commons", "\u00A0", "Example Author", "\u2007\u3000"))
+        .isEqualTo(new BlockEntry("commons", null, "Example Author", null));
+    assertThatIllegalArgumentException()
+        .isThrownBy(
+            () ->
+                new MediaProperties(
+                    List.of(),
+                    List.of(),
+                    List.of(new BlockEntry("commons", "\u00A0", "\u202F", "\u3000")),
+                    null))
+        .withMessageContaining("media.blocklist[0]");
+    withYml
+        .withPropertyValues("media.blocklist[0].source=commons", "media.blocklist[0].id=\u00A0")
+        .run(context -> assertFailsWith(context, "media.blocklist[0]"));
+  }
+
   private static void assertFailsWith(AssertableApplicationContext context, String key) {
     assertThat(context)
         .hasFailed()
