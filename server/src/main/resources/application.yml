@@ -75,6 +75,9 @@ wikimedia:
     # apart. Lines that both link countries or cities, none in common, never merge by D3.
     min-link-overlap: 0.6
   kowiki-api-url: https://ko.wikipedia.org/w/api.php
+  # Wikimedia Commons Action API (plan M3a3b): the day's photos, through the same client (User-Agent,
+  # limits, request slots). Copied files are never stored: the API's addresses are shown as they are.
+  commons-api-url: https://commons.wikimedia.org/w/api.php
   # Wikidata Query Service (plan M3a2): tone and scope signals of the events' main-link items
   # (CC0). One request per world API call. The call waits wikidata-read-timeout for the whole
   # lookup (each attempt included), then cancels it and waits at most 1s more (CANCEL_GRACE), so

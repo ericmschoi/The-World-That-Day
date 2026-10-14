@@ -19,7 +19,7 @@ import org.springframework.test.context.DynamicPropertySource;
 
 /**
  * Base for Spring context tests that talk to Wikimedia (plan M3a1 test policy 1). Every {@code
- * wikimedia.*-url} points at one WireMock server; M3a2/M3a3 add their URLs to {@link
+ * wikimedia.*-url} points at one WireMock server; M3a2/M3a3b add their URLs to {@link
  * #wikimediaUrls}. The server lives for the whole JVM so the cached Spring context keeps a valid
  * port across test classes.
  *
@@ -35,6 +35,9 @@ public abstract class WikimediaWireMockTest {
       "TheWorldThatDay-test/0 (https://github.com/ericmschoi/The-World-That-Day)";
   public static final String KOWIKI_PATH = "/w/api.php";
   public static final String SPARQL_PATH = "/sparql";
+
+  /** Not {@link #KOWIKI_PATH}: Commons uses the same real path, so tests tell them apart. */
+  public static final String COMMONS_PATH = "/commons/w/api.php";
 
   protected static final WireMockServer wikimedia = start();
 
@@ -56,6 +59,7 @@ public abstract class WikimediaWireMockTest {
     registry.add("wikimedia.read-timeout", () -> "2s");
     registry.add("wikimedia.kowiki-api-url", () -> wikimedia.baseUrl() + KOWIKI_PATH);
     registry.add("wikimedia.wikidata-sparql-url", () -> wikimedia.baseUrl() + SPARQL_PATH);
+    registry.add("wikimedia.commons-api-url", () -> wikimedia.baseUrl() + COMMONS_PATH);
   }
 
   @BeforeEach
