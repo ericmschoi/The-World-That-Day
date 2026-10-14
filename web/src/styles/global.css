@@ -50,3 +50,13 @@ a:focus-visible {
     scroll-behavior: auto !important;
   }
 }
+
+/* Text for screen readers only, e.g. "(새 창에서 열림)" inside links. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
