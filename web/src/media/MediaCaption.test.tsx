@@ -6,6 +6,10 @@ import { sameDayPhoto, undatedPhoto } from '../mocks/fixtures/media/photos'
 import { MediaCaption } from './MediaCaption'
 import type { Media } from './types'
 
+// Caption links carry the hidden "(새 창에서 열림)" (M3b2b T2).
+const SOURCE_LINK = /^원문 보기\s*\(새 창에서 열림\)$/
+const LICENSE_LINK = /^라이선스\s*\(새 창에서 열림\)$/
+
 const renderCaption = (media: Media) =>
   render(
     <figure>
@@ -33,9 +37,9 @@ describe('MediaCaption', () => {
 
   it('has no license link when license_url is null', () => {
     renderCaption(undatedPhoto)
-    expect(screen.getByRole('link', { name: '원문 보기' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: SOURCE_LINK })).toBeInTheDocument()
     expect(
-      screen.queryByRole('link', { name: '라이선스' }),
+      screen.queryByRole('link', { name: LICENSE_LINK }),
     ).not.toBeInTheDocument()
   })
 
@@ -46,11 +50,12 @@ describe('MediaCaption', () => {
     '',
   ])('has no license link when license_url is %j', (license_url) => {
     renderCaption({ ...sameDayPhoto, license_url })
-    expect(screen.getByRole('link', { name: '원문 보기' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: SOURCE_LINK })).toBeInTheDocument()
     expect(
-      screen.queryByRole('link', { name: '라이선스' }),
+      screen.queryByRole('link', { name: LICENSE_LINK }),
     ).not.toBeInTheDocument()
-    expect(screen.getByText('CC BY-SA 4.0')).toBeInTheDocument()
+    // Named in the attribution, so no separate license line.
+    expect(screen.getByRole('figure')).toHaveTextContent('CC BY-SA 4.0')
   })
 
   it('shows no badge for an unknown capture time', () => {
@@ -71,14 +76,14 @@ describe('MediaCaption', () => {
       document.head.append(style)
       renderCaption(sameDayPhoto)
       await userEvent.tab()
-      const link = screen.getByRole('link', { name: '원문 보기' })
+      const link = screen.getByRole('link', { name: SOURCE_LINK })
       expect(link).toHaveFocus()
       expect(link.matches('a:focus-visible')).toBe(true)
       expect(getComputedStyle(link).outline).toBe(
         'var(--focus-ring-width) solid var(--color-focus)',
       )
       await userEvent.tab()
-      expect(screen.getByRole('link', { name: '라이선스' })).toHaveFocus()
+      expect(screen.getByRole('link', { name: LICENSE_LINK })).toHaveFocus()
     })
   })
 })

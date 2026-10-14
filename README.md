@@ -39,7 +39,7 @@ flowchart LR
 | M0 Data source research | Verify sources for place search, aerial photos, maps and street view, archive media, and day-of events | ✅ Done (PR #1) |
 | M1 Bootstrap | `server/` (Spring Boot + PostgreSQL) and `web/` (React) skeletons, CI, empty result screen | ✅ Done (PR #2, #3) |
 | M1 follow-ups | CI path filter, `.env.example` cleanup, documented commands | ✅ Done (PR #4) |
-| M3 The world that day | Events by exact date for any birth date, event photos and videos, design foundation and shared media card | 🟡 In progress (9 of 19 PRs merged) |
+| M3 The world that day | Events by exact date for any birth date, event photos and videos, design foundation and shared media card | 🟡 In progress (10 of 19 PRs merged) |
 | M2 Place resolution and input | Classify the place as region / neighborhood / spot, pick from candidates, opening line | ⚪ Planned |
 | M4 The neighborhood | Then-and-now aerial photos, street view, neighborhood photos | ⚪ Planned |
 | M5 The city's landmarks | Curated landmarks per region with archive media | ⚪ Planned |
@@ -55,7 +55,7 @@ flowchart LR
 | M3a1c Merge and dedup events across pages | ✅ Done (PR #10) |
 | M3a2 "The world that day" API | ✅ Done (PR #11) |
 | M3a3 Shared media format and rules | ✅ Done (PR #12) |
-| M3a3a Media checks: capture time, license status, blocklist | 🟡 In review |
+| M3a3a Media checks: capture time, license status, blocklist | ✅ Done (PR #14) |
 | M3a3b Event photos from Wikimedia Commons | ⚪ Planned |
 | M3a4 Video search framework and accuracy rules | ⚪ Planned |
 | M3a4b Commons videos and result cache | ⚪ Planned |
@@ -64,7 +64,7 @@ flowchart LR
 | M3b1 Design tokens and media label rules | ✅ Done (PR #6) |
 | M3b1b Shared media card | ✅ Done (PR #7) |
 | M3b2 "The world that day" section | ✅ Done (PR #13) |
-| M3b2b Day photos, tragic-event block, card accessibility, browser tests | ⚪ Planned |
+| M3b2b Day photos, tragic-event block, card accessibility, browser tests | 🟡 In review |
 | M3b3 Inline video playback (Commons) | ⚪ Planned |
 | M3b3b Privacy policy and consent step | ⚪ Planned |
 | M3b3c Official YouTube embeds | ⚪ Planned |

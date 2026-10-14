@@ -2,9 +2,12 @@ import { useEffect, useState } from 'react'
 import { SECTIONS } from '../story/sections'
 import { StorySection } from '../story/StorySection'
 import { getWorld } from './api'
+import { DayMediaGroups } from './DayMediaGroups'
+import { TragicEvents } from './TragicEvents'
 import type { WorldResponse } from './types'
 import { WorldEventItem } from './WorldEventItem'
 import styles from './WorldSection.module.css'
+import { toWorldResponse } from './worldShape'
 
 type Props = {
   date: string
@@ -18,15 +21,9 @@ type Result = { date: string; data: WorldResponse | null }
 
 const TITLE = SECTIONS.find((section) => section.id === 'world')?.title ?? ''
 
-// A 200 whose body is not the world shape is an error, not a crash.
-const isWorldResponse = (value: unknown): value is WorldResponse =>
-  typeof value === 'object' &&
-  value !== null &&
-  Array.isArray((value as WorldResponse).events)
-
-// "그날의 세계": the day's `normal` events in server order. `tragic` events
-// and `day_media` are drawn by M3b2b, not here. Never shows the error
-// details or the requested date.
+// "그날의 세계": the day's `normal` events in server order, the day's photos
+// in three groups, then the `tragic` events in their own calm block. Never
+// shows the error details or the requested date.
 export function WorldSection({ date, timeoutMs }: Props) {
   const [result, setResult] = useState<Result | null>(null)
 
@@ -36,7 +33,8 @@ export function WorldSection({ date, timeoutMs }: Props) {
     getWorld(date, controller.signal, timeoutMs).then(
       (data) => {
         if (controller.signal.aborted) return
-        setResult({ date, data: isWorldResponse(data) ? data : null })
+        // A 200 whose body is not the world shape is an error, not a crash.
+        setResult({ date, data: toWorldResponse(data) })
       },
       () => {
         if (controller.signal.aborted) return
@@ -52,8 +50,9 @@ export function WorldSection({ date, timeoutMs }: Props) {
   if (result.data === null) {
     return <StorySection id="world" title={TITLE} status="error" />
   }
-  const { events, notice } = result.data
+  const { events, day_media: dayMedia, notice } = result.data
   const normal = events.filter((event) => event.tone === 'normal')
+  const tragic = events.filter((event) => event.tone === 'tragic')
   return (
     <StorySection id="world" title={TITLE} status="ready">
       {notice?.code === 'NO_EVENTS_FOUND' && (
@@ -68,6 +67,8 @@ export function WorldSection({ date, timeoutMs }: Props) {
           ))}
         </ul>
       )}
+      <DayMediaGroups media={dayMedia} />
+      <TragicEvents events={tragic} />
     </StorySection>
   )
 }

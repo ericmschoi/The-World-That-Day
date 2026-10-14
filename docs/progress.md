@@ -160,3 +160,14 @@
 | 2026-10-13 | orchestrator | PR #13 M3b2 머지 확인 (main e254ad1). M3b2b 계획 개정 시작 (feat/world-photos-a11y). 5시간 한도 74% → 해제 02:50 뒤 깨우기 예약(02:53, 03:10) | 진행 | e254ad1 |
 | 2026-10-13 | code-reviewer | M3a3a 리뷰 2차 | 승인 | a1100fd |
 | 2026-10-13 | orchestrator | M3a3a PR 준비: README 진행 표(9 of 19), push, PR | 진행 | 4e738c1 |
+| 2026-10-13 | planner | M3b2b 계획 개정 (T0 신설, T6, 약 315~445줄) — PM 재승인·결정 4건 필요 | 완료(미커밋) | e254ad1 |
+| 2026-10-13 | planner | M3b2b 계획 결정 1~4 (a) 반영 — 로드맵은 미수정 | 완료(미커밋) | e254ad1 |
+| 2026-10-13 | planner | M3b2b 계획·로드맵 (결정 1~4 (a), M3b2 완료 표시) | 완료 | 3eb8d5e |
+| 2026-10-14 | frontend-dev | M3b2b T0 응답 모양 검사 (S1 74) | 완료 | 6027121 |
+| 2026-10-14 | frontend-dev | M3b2b T1 사진 묶음·비극 블록 (S1 145, 누적 219) | 완료 | 735bb45 |
+| 2026-10-14 | frontend-dev | M3b2b T2 캡션 접근성 (S1 34, 누적 249 — 확인점 300 아래, T3 진행) | 완료 | c19777b |
+| 2026-10-14 | frontend-dev | M3b2b T3 Playwright·web-ci (S1 70, 누적 319, E1 12/12) | 완료 | c7ef051, 91df908 |
+| 2026-10-14 | test-engineer | M3b2b T4 기준 검증·전체 시험 (458/458 ×3, e2e 14/14 ×3) | 완료 | cb6f9b3 |
+| 2026-10-14 | code-reviewer | M3b2b 리뷰 — 승인 (필수 0, 권장 5) | 승인 | cb6f9b3 |
+| 2026-10-14 | orchestrator | M3b2b PR #15 열림 (README b2e8bfc) | PR 대기 | b2e8bfc |
+| 2026-10-14 | orchestrator | PR #14 머지 뒤 main 병합, README 충돌 해결 (웹 검사 458/458, e2e 14/14) | 완료 | 9acba53 |

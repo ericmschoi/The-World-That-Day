@@ -13,13 +13,18 @@ import type { Media } from './types'
 
 const FALLBACK = '서울 사진'
 
+// Caption links carry the hidden "(새 창에서 열림)" (M3b2b T2).
+const SOURCE_LINK = /^원문 보기\s*\(새 창에서 열림\)$/
+const LICENSE_LINK = /^라이선스\s*\(새 창에서 열림\)$/
+
 const renderFigure = (media: Media) =>
   render(<MediaFigure media={media} fallbackAlt={FALLBACK} />)
 
 describe('MediaFigure, demo 1988-09-17', () => {
   it('shows the same-day photo inline from the original source', () => {
     renderFigure(sameDayPhoto)
-    const img = screen.getByRole('img', { name: '1988년 서울 올림픽 개막식' })
+    // The description is read in the caption only; alt is fallbackAlt.
+    const img = screen.getByRole('img', { name: FALLBACK })
     expect(img).toHaveAttribute('src', sameDayPhoto.thumbnail_url)
     expect(img).toHaveAttribute('loading', 'lazy')
     expect(img).toHaveAttribute('decoding', 'async')
@@ -37,18 +42,19 @@ describe('MediaFigure, demo 1988-09-17', () => {
     expect(figure).toHaveTextContent(sameDayPhoto.attribution)
     expect(figure).toHaveTextContent('CC BY-SA 4.0')
     expect(
-      within(figure).getByRole('link', { name: '원문 보기' }),
+      within(figure).getByRole('link', { name: SOURCE_LINK }),
     ).toHaveAttribute('href', sameDayPhoto.source_url)
     expect(
-      within(figure).getByRole('link', { name: '라이선스' }),
+      within(figure).getByRole('link', { name: LICENSE_LINK }),
     ).toHaveAttribute('href', sameDayPhoto.license_url)
   })
 
   it('shows an undated photo, labeled only 촬영 시점 미상', () => {
     renderFigure(undatedPhoto)
-    expect(
-      screen.getByRole('img', { name: '서울 올림픽 경기장 전경' }),
-    ).toHaveAttribute('src', undatedPhoto.thumbnail_url)
+    expect(screen.getByRole('img', { name: FALLBACK })).toHaveAttribute(
+      'src',
+      undatedPhoto.thumbnail_url,
+    )
     const figure = screen.getByRole('figure')
     expect(figure).toHaveTextContent('촬영 시점 미상')
     expect(figure.textContent).not.toContain('같은 날')
@@ -68,7 +74,13 @@ describe('MediaFigure, demo 2002-06-22', () => {
   it('names the KOGL Type 1 license in the caption', () => {
     renderFigure(koglPhoto)
     expect(screen.getByRole('img')).toBeInTheDocument()
-    expect(screen.getByText('KOGL Type 1')).toBeInTheDocument()
+    // Named in the attribution: no separate line, the link stays.
+    expect(screen.getByRole('figure')).toHaveTextContent('KOGL Type 1')
+    expect(screen.queryByText('KOGL Type 1')).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: LICENSE_LINK })).toHaveAttribute(
+      'href',
+      koglPhoto.license_url,
+    )
   })
 })
 

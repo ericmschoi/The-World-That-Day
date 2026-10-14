@@ -111,3 +111,39 @@ describe('visually-hidden (M3b2 T2)', () => {
     expect(rule).not.toMatch(/display:\s*none|visibility:\s*hidden/)
   })
 })
+
+describe('tragic block colours (M3b2b T1 (4))', () => {
+  const css = cssFiles['/src/world/WorldSection.module.css']
+  // Every rule whose selector mentions .tragic, with its declarations.
+  const rules = [...css.matchAll(/([^{}]+)\{([^}]*)\}/g)]
+    .filter(([, selector]) => selector.includes('.tragic'))
+    .map(([, selector, body]) => ({ selector: selector.trim(), body }))
+  const colours = rules.flatMap(({ body }) =>
+    [
+      ...body.matchAll(
+        /(?:^|;)\s*(color|background(?:-color)?)\s*:\s*([^;]+)/g,
+      ),
+    ].map(([, property, value]) => `${property}: ${value.trim()}`),
+  )
+
+  it('never uses the accent colour', () => {
+    expect(rules.length).toBeGreaterThan(0)
+    expect(rules.filter(({ body }) => body.includes('--color-accent'))).toEqual(
+      [],
+    )
+  })
+
+  it('takes background, text and link colours from --color-tragic-* only', () => {
+    expect(colours).toEqual(
+      expect.arrayContaining([
+        'background: var(--color-tragic-bg)',
+        'color: var(--color-tragic-text)',
+      ]),
+    )
+    for (const colour of colours) {
+      expect(colour).toMatch(/: var\(--color-tragic-(bg|text)\)$/)
+    }
+    const link = rules.find(({ selector }) => /\.tragic a\b/.test(selector))
+    expect(link?.body).toMatch(/color:\s*var\(--color-tragic-text\)/)
+  })
+})

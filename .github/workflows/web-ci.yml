@@ -4,12 +4,16 @@ on:
   pull_request:
     paths:
       - 'web/**'
+      # Web tests read the media examples (src/world/worldFixtures.test.ts).
+      - 'data/schema/examples/media/valid/**'
       - '.github/workflows/web-ci.yml'
   push:
     branches:
       - main
     paths:
       - 'web/**'
+      # Web tests read the media examples (src/world/worldFixtures.test.ts).
+      - 'data/schema/examples/media/valid/**'
       - '.github/workflows/web-ci.yml'
 
 permissions:
@@ -37,3 +41,6 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+      # E2E in Chromium only (D3 (a)); every request is intercepted, no server.
+      - run: npx playwright install --with-deps chromium
+      - run: npm run e2e

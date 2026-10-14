@@ -4,6 +4,11 @@ import { render, screen, waitFor, within } from '@testing-library/react'
 import { delay, http, HttpResponse, type JsonBodyType } from 'msw'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { Media } from '../media/types'
+import {
+  shapePhoto,
+  worldAllDropped,
+  worldMalformedEvents,
+} from '../mocks/fixtures/world/malformed'
 import { olympicsOpeningPd } from '../mocks/fixtures/world/media'
 import {
   world1988,
@@ -111,25 +116,29 @@ describe('WorldSection with media (default handler, T2 (2), (6))', () => {
     })
   })
 
-  it('shows event ①’s two photos with honest date lines, and no day_media', async () => {
+  it('shows event ①’s two photos with honest date lines, day_media outside the list', async () => {
     render(<WorldSection date="1988-09-17" />)
 
-    const items = within(await eventList()).getAllByRole('listitem')
+    const list = await eventList()
+    const items = within(list).getAllByRole('listitem')
     const [pd, undated] = within(items[0]).getAllByRole('figure')
 
-    expect(screen.getAllByRole('img')).toHaveLength(2)
+    expect(screen.getAllByRole('img')).toHaveLength(4)
+    expect(within(list).getAllByRole('img')).toHaveLength(2)
     expect(within(items[0]).getAllByRole('img')).toHaveLength(2)
     const pdImg = within(pd).getByRole('img')
     expect(new URL(pdImg.getAttribute('src')!).host).toBe('thumb.wikimedia.org')
     expect(within(pd).getByText('같은 날')).toBeInTheDocument()
     expect(within(undated).getByText('촬영 시점 미상')).toBeInTheDocument()
     expect(within(undated).queryByText('같은 날')).not.toBeInTheDocument()
-    // day_media (the unlicensed photo and the "-day" copy) is M3b2b's.
-    for (const img of screen.getAllByRole('img')) {
+    // day_media (the unlicensed photo and the "-day" copy) is not in the list.
+    for (const img of within(list).getAllByRole('img')) {
       expect(img.getAttribute('src')).not.toContain('example-photo-1988')
     }
-    // The unlicensed day_media photo's caption would say this (licenseLabel).
-    expect(screen.queryByText('라이선스 확인 안 됨')).not.toBeInTheDocument()
+    // The unlicensed day_media photo's caption says this (licenseLabel).
+    expect(
+      within(list).queryByText('라이선스 확인 안 됨'),
+    ).not.toBeInTheDocument()
   })
 })
 
@@ -176,7 +185,9 @@ describe('WorldSection leaves tragic events to M3b2b (T2 (5))', () => {
 
     expect(within(list).getAllByRole('listitem')).toHaveLength(1)
     expect(screen.getByText('시험용 사건 문장 A')).toBeInTheDocument()
-    expect(screen.queryByText('시험용 비극 사건 문장')).not.toBeInTheDocument()
+    expect(
+      within(list).queryByText('시험용 비극 사건 문장'),
+    ).not.toBeInTheDocument()
     expect(screen.queryAllByRole('img')).toHaveLength(0)
     expect(document.querySelector('iframe, video')).toBeNull()
   })
@@ -187,7 +198,9 @@ describe('WorldSection leaves tragic events to M3b2b (T2 (5))', () => {
 
     await waitFor(() => expect(region()).not.toHaveAttribute('aria-busy'))
     expect(screen.queryByText(NOTICE)).not.toBeInTheDocument()
-    expect(screen.queryByRole('list')).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('list', { name: '사건 목록' }),
+    ).not.toBeInTheDocument()
     expect(screen.queryByText(ERROR)).not.toBeInTheDocument()
     expect(screen.queryAllByRole('img')).toHaveLength(0)
   })
@@ -361,8 +374,7 @@ describe('WorldSection fallbackAlt (T2 (10))', () => {
     })
     render(<WorldSection date="1988-09-17" />)
 
-    await eventList()
-    const alts = screen
+    const alts = within(await eventList())
       .getAllByRole('img')
       .map((img) => img.getAttribute('alt'))
 
@@ -392,5 +404,81 @@ describe('WorldSection fallbackAlt (T2 (10))', () => {
       'alt',
       '사건 관련 자료',
     )
+  })
+})
+
+describe('WorldSection response shape check (M3b2b T0)', () => {
+  // (5): no console output at all, React key warnings included.
+  const spyConsole = () => [
+    vi.spyOn(console, 'error'),
+    vi.spyOn(console, 'warn'),
+  ]
+  const expectSilent = (spies: ReturnType<typeof spyConsole>) => {
+    for (const spy of spies) expect(spy).not.toHaveBeenCalled()
+  }
+
+  it('drops only the malformed events (T0 (1))', async () => {
+    const spies = spyConsole()
+    answer(worldMalformedEvents)
+    render(<WorldSection date="1988-09-17" />)
+
+    const items = within(await eventList()).getAllByRole('listitem')
+
+    expect(region()).not.toHaveAttribute('aria-busy')
+    expect(screen.queryByText(ERROR)).not.toBeInTheDocument()
+    expect(items.map((item) => item.querySelector('p')?.textContent)).toEqual([
+      '시험용 사건 문장 A',
+      '시험용 사건 문장 B',
+      '시험용 사건 문장 D',
+    ])
+    // B: text and source line, no media.
+    expect(within(items[1]).queryAllByRole('img')).toHaveLength(0)
+    expect(
+      within(items[1]).getByRole('link', {
+        name: named(`「${world1988.events[0].source_title}」 (새 창에서 열림)`),
+      }),
+    ).toBeInTheDocument()
+    // D: the null is skipped, the photo is shown.
+    expect(within(items[2]).getAllByRole('img')).toHaveLength(1)
+    expect(screen.getAllByRole('img')).toHaveLength(1)
+    expect(screen.queryByText('42')).not.toBeInTheDocument()
+    expectSilent(spies)
+  })
+
+  it.each([
+    ['missing', undefined],
+    ['not an array', 'photo'],
+    ['holding null', [null]],
+  ])('shows the events when day_media is %s (T0 (2))', async (_, dayMedia) => {
+    const spies = spyConsole()
+    answer({ ...world1988, day_media: dayMedia })
+    render(<WorldSection date="1988-09-17" />)
+
+    const list = await eventList()
+
+    expect(within(list).getAllByRole('listitem')).toHaveLength(3)
+    expect(screen.queryByText(ERROR)).not.toBeInTheDocument()
+    expect(screen.queryAllByRole('img')).toHaveLength(0)
+    expectSilent(spies)
+  })
+
+  it('keeps the section when day_media still has a photo', async () => {
+    const spies = spyConsole()
+    answer({ ...worldAllDropped, day_media: [null, shapePhoto] })
+    render(<WorldSection date="1988-09-17" />)
+
+    await waitFor(() => expect(region()).not.toHaveAttribute('aria-busy'))
+    expect(screen.queryByText(ERROR)).not.toBeInTheDocument()
+    expectSilent(spies)
+  })
+
+  it('shows the error line when every event is dropped (T0 (3))', async () => {
+    const spies = spyConsole()
+    answer(worldAllDropped)
+    render(<WorldSection date="1988-09-17" />)
+
+    expect(await screen.findByText(ERROR)).toBeInTheDocument()
+    expect(region().textContent).toBe(`그날의 세계${ERROR}`)
+    expectSilent(spies)
   })
 })

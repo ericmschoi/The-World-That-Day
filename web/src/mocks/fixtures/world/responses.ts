@@ -147,3 +147,44 @@ export const world2002WithMedia = {
     },
   ],
 } satisfies WorldResponse
+
+// Synthetic, plainly fake text (plan M3b2b "fixture 추가"). Not used by the
+// default handler; tests swap them in with `server.use(...)`.
+const testEventA = {
+  ...olympicsOpening,
+  id: 'kowiki-1988-09-17-0000000a',
+  title: '시험용 사건',
+  summary: '시험용 사건 문장 A',
+  wikidata_qid: null,
+  related_links: [],
+} satisfies WorldEvent
+
+// Its photo must never be drawn (product brief 6.3, #22 (c)).
+const testTragic = {
+  ...testEventA,
+  id: 'kowiki-1988-09-17-0000000e',
+  title: null,
+  summary: '시험용 비극 사건 문장',
+  tone: 'tragic',
+  tone_basis: 'rule:keyword',
+  media: [
+    {
+      ...olympicsOpeningPd,
+      id: 'example-tragic-photo',
+      date_relation: { kind: 'same_day', years: 0 },
+    },
+  ],
+} satisfies WorldEvent
+
+export const worldWithTragic = {
+  ...world1988,
+  events: [testEventA, testTragic],
+  day_media: [],
+} satisfies WorldResponse
+
+export const worldTragicOnly = {
+  ...world1988,
+  events: [testTragic],
+  day_media: [],
+  notice: null,
+} satisfies WorldResponse

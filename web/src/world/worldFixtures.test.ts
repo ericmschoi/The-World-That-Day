@@ -72,15 +72,20 @@ const sorted = (keys: string[]) => [...keys].sort()
 const asJson = (value: unknown) => JSON.parse(JSON.stringify(value))
 
 const fixtures: [string, WorldResponse][] = Object.entries(responses)
+// M3b2b's synthetic tragic fixtures are not demo values.
+const SYNTHETIC = ['worldWithTragic', 'worldTragicOnly']
+const demoFixtures = fixtures.filter(([name]) => !SYNTHETIC.includes(name))
 
 describe('world fixtures: key sets (T1b (5))', () => {
-  it('has the five fixtures', () => {
+  it('has the five demo fixtures and the two synthetic tragic ones', () => {
     expect(fixtures.map(([name]) => name).sort()).toEqual([
       'world1988',
       'world1988WithMedia',
       'world1995',
       'world2002',
       'world2002WithMedia',
+      'worldTragicOnly',
+      'worldWithTragic',
     ])
   })
 
@@ -155,8 +160,8 @@ describe('world fixtures: demo values (T1b (6))', () => {
     })
   })
 
-  it('every event is normal, curated and domestic', () => {
-    for (const [, fixture] of fixtures) {
+  it('every demo event is normal, curated and domestic', () => {
+    for (const [, fixture] of demoFixtures) {
       for (const event of fixture.events) {
         expect([event.tone, event.tone_basis, event.scope]).toEqual([
           'normal',
