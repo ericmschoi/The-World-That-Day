@@ -95,23 +95,27 @@ describe('demo 1988-09-17 (데모 표 1행)', () => {
     expectSourceLines(items, world1988WithMedia.events)
   })
 
-  it('media fixture: event ① has two inline photos with honest date lines, day_media is not drawn', async () => {
+  it('media fixture: event ① has two inline photos with honest date lines, day_media is outside the list', async () => {
     await openDemo('1988-09-17')
 
-    const items = within(await eventList()).getAllByRole('listitem')
+    const list = await eventList()
+    const items = within(list).getAllByRole('listitem')
     const [pd, undated] = within(items[0]).getAllByRole('figure')
 
-    // Only event ①'s two photos: nothing from day_media, nothing elsewhere.
-    expect(screen.getAllByRole('img')).toHaveLength(2)
-    expect(screen.getAllByRole('figure')).toHaveLength(2)
+    // Event ①'s two photos in the list; day_media's two come after it.
+    expect(within(list).getAllByRole('img')).toHaveLength(2)
+    expect(within(list).getAllByRole('figure')).toHaveLength(2)
+    expect(screen.getAllByRole('img')).toHaveLength(4)
     const pdSrc = within(pd).getByRole('img').getAttribute('src')!
     expect(new URL(pdSrc).host).toBe('thumb.wikimedia.org')
     expect(pdSrc).toBe(olympicsOpeningPd.thumbnail_url)
     expect(within(pd).getByText('같은 날')).toBeInTheDocument()
     expect(within(undated).getByText('촬영 시점 미상')).toBeInTheDocument()
     expect(within(undated).queryByText('같은 날')).not.toBeInTheDocument()
-    // The unlicensed day_media photo would say "라이선스 확인 안 됨".
-    expect(screen.queryByText('라이선스 확인 안 됨')).not.toBeInTheDocument()
+    // The unlicensed day_media photo says "라이선스 확인 안 됨", outside.
+    expect(
+      within(list).queryByText('라이선스 확인 안 됨'),
+    ).not.toBeInTheDocument()
     expect(document.querySelector('iframe, video')).toBeNull()
   })
 
@@ -357,12 +361,15 @@ describe('event media and source links (CLAUDE.md 7.1)', () => {
     })
     await openDemo('1988-09-17')
 
-    const items = within(await eventList()).getAllByRole('listitem')
+    const list = await eventList()
+    const items = within(list).getAllByRole('listitem')
 
     expect(items.map((item) => item.querySelector('p')?.textContent)).toEqual([
       first.summary,
       world1988.events[2].summary,
     ])
-    expect(screen.queryByText('시험용 비극 사건 문장')).not.toBeInTheDocument()
+    expect(
+      within(list).queryByText('시험용 비극 사건 문장'),
+    ).not.toBeInTheDocument()
   })
 })

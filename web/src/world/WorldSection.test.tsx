@@ -116,25 +116,29 @@ describe('WorldSection with media (default handler, T2 (2), (6))', () => {
     })
   })
 
-  it('shows event ①’s two photos with honest date lines, and no day_media', async () => {
+  it('shows event ①’s two photos with honest date lines, day_media outside the list', async () => {
     render(<WorldSection date="1988-09-17" />)
 
-    const items = within(await eventList()).getAllByRole('listitem')
+    const list = await eventList()
+    const items = within(list).getAllByRole('listitem')
     const [pd, undated] = within(items[0]).getAllByRole('figure')
 
-    expect(screen.getAllByRole('img')).toHaveLength(2)
+    expect(screen.getAllByRole('img')).toHaveLength(4)
+    expect(within(list).getAllByRole('img')).toHaveLength(2)
     expect(within(items[0]).getAllByRole('img')).toHaveLength(2)
     const pdImg = within(pd).getByRole('img')
     expect(new URL(pdImg.getAttribute('src')!).host).toBe('thumb.wikimedia.org')
     expect(within(pd).getByText('같은 날')).toBeInTheDocument()
     expect(within(undated).getByText('촬영 시점 미상')).toBeInTheDocument()
     expect(within(undated).queryByText('같은 날')).not.toBeInTheDocument()
-    // day_media (the unlicensed photo and the "-day" copy) is M3b2b's.
-    for (const img of screen.getAllByRole('img')) {
+    // day_media (the unlicensed photo and the "-day" copy) is not in the list.
+    for (const img of within(list).getAllByRole('img')) {
       expect(img.getAttribute('src')).not.toContain('example-photo-1988')
     }
-    // The unlicensed day_media photo's caption would say this (licenseLabel).
-    expect(screen.queryByText('라이선스 확인 안 됨')).not.toBeInTheDocument()
+    // The unlicensed day_media photo's caption says this (licenseLabel).
+    expect(
+      within(list).queryByText('라이선스 확인 안 됨'),
+    ).not.toBeInTheDocument()
   })
 })
 
@@ -181,7 +185,9 @@ describe('WorldSection leaves tragic events to M3b2b (T2 (5))', () => {
 
     expect(within(list).getAllByRole('listitem')).toHaveLength(1)
     expect(screen.getByText('시험용 사건 문장 A')).toBeInTheDocument()
-    expect(screen.queryByText('시험용 비극 사건 문장')).not.toBeInTheDocument()
+    expect(
+      within(list).queryByText('시험용 비극 사건 문장'),
+    ).not.toBeInTheDocument()
     expect(screen.queryAllByRole('img')).toHaveLength(0)
     expect(document.querySelector('iframe, video')).toBeNull()
   })
@@ -192,7 +198,9 @@ describe('WorldSection leaves tragic events to M3b2b (T2 (5))', () => {
 
     await waitFor(() => expect(region()).not.toHaveAttribute('aria-busy'))
     expect(screen.queryByText(NOTICE)).not.toBeInTheDocument()
-    expect(screen.queryByRole('list')).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('list', { name: '사건 목록' }),
+    ).not.toBeInTheDocument()
     expect(screen.queryByText(ERROR)).not.toBeInTheDocument()
     expect(screen.queryAllByRole('img')).toHaveLength(0)
   })
@@ -366,8 +374,7 @@ describe('WorldSection fallbackAlt (T2 (10))', () => {
     })
     render(<WorldSection date="1988-09-17" />)
 
-    await eventList()
-    const alts = screen
+    const alts = within(await eventList())
       .getAllByRole('img')
       .map((img) => img.getAttribute('alt'))
 
