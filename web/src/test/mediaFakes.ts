@@ -5,36 +5,31 @@ import { vi, type Mock } from 'vitest'
 // "Not implemented" stubs for media playback. Install them in the video test
 // files that need them (never in setup.ts) and uninstall after each test.
 
-type Callback = IntersectionObserverCallback
+const observers: FakeIntersectionObserver[] = []
 
+// Only what `useInView` uses; the instance is cast to the DOM type.
 export class FakeIntersectionObserver {
   readonly targets = new Set<Element>()
   readonly thresholds: readonly number[]
   disconnected = false
-  readonly callback: Callback
+  readonly callback: IntersectionObserverCallback
 
-  constructor(callback: Callback, options?: IntersectionObserverInit) {
+  constructor(
+    callback: IntersectionObserverCallback,
+    options: IntersectionObserverInit = {},
+  ) {
     this.callback = callback
-    const threshold = options?.threshold ?? 0
-    this.thresholds = Array.isArray(threshold) ? threshold : [threshold]
+    this.thresholds = [options.threshold ?? 0].flat()
     observers.push(this)
   }
   observe(target: Element) {
     this.targets.add(target)
   }
-  unobserve(target: Element) {
-    this.targets.delete(target)
-  }
   disconnect() {
     this.targets.clear()
     this.disconnected = true
   }
-  takeRecords(): IntersectionObserverEntry[] {
-    return []
-  }
 }
-
-const observers: FakeIntersectionObserver[] = []
 
 export type IntersectionObserverFake = {
   // Every observer created since install, in creation order.
@@ -56,15 +51,10 @@ export function installIntersectionObserverFake(): IntersectionObserverFake {
   return {
     observers,
     setRatio(target, ratio) {
-      const rect = target.getBoundingClientRect()
       const entry = {
         target,
         intersectionRatio: ratio,
         isIntersecting: ratio > 0,
-        time: performance.now(),
-        boundingClientRect: rect,
-        intersectionRect: rect,
-        rootBounds: null,
       } as IntersectionObserverEntry
       act(() => {
         for (const observer of observers) {
