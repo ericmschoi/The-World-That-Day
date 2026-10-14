@@ -5,6 +5,7 @@ import { getWorld } from './api'
 import type { WorldResponse } from './types'
 import { WorldEventItem } from './WorldEventItem'
 import styles from './WorldSection.module.css'
+import { toWorldResponse } from './worldShape'
 
 type Props = {
   date: string
@@ -18,12 +19,6 @@ type Result = { date: string; data: WorldResponse | null }
 
 const TITLE = SECTIONS.find((section) => section.id === 'world')?.title ?? ''
 
-// A 200 whose body is not the world shape is an error, not a crash.
-const isWorldResponse = (value: unknown): value is WorldResponse =>
-  typeof value === 'object' &&
-  value !== null &&
-  Array.isArray((value as WorldResponse).events)
-
 // "그날의 세계": the day's `normal` events in server order. `tragic` events
 // and `day_media` are drawn by M3b2b, not here. Never shows the error
 // details or the requested date.
@@ -36,7 +31,8 @@ export function WorldSection({ date, timeoutMs }: Props) {
     getWorld(date, controller.signal, timeoutMs).then(
       (data) => {
         if (controller.signal.aborted) return
-        setResult({ date, data: isWorldResponse(data) ? data : null })
+        // A 200 whose body is not the world shape is an error, not a crash.
+        setResult({ date, data: toWorldResponse(data) })
       },
       () => {
         if (controller.signal.aborted) return
