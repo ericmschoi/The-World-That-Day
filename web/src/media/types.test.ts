@@ -22,7 +22,7 @@ type Expected = {
   thumbnail_url: string | null
   thumbnail_width: number | null
   thumbnail_height: number | null
-  video_sources: { url: string; mime: string; height: number }[] | null
+  video_sources: { url: string; mime: string; height: number | null }[] | null
   duration_seconds: number | null
   embed_url: string | null
   provider: string | null
@@ -31,7 +31,7 @@ type Expected = {
     kind: 'roadview' | 'skyview'
     lat: number
     lng: number
-    zoom: number
+    zoom: number | null
   } | null
   link_only_reason: 'hotlink_blocked' | 'embed_disabled' | null
   source_name: string
@@ -62,11 +62,12 @@ type Expected = {
   // table); optional so M3a3 responses without it still type-check.
   selection?: {
     basis:
+      | 'commons_p10'
       | 'commons_category'
+      | 'commons_date_category'
       | 'commons_search'
       | 'youtube_official'
       | 'daehan_news'
-      | 'provider_embed'
     score: number
   } | null
 }

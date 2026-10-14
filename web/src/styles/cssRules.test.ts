@@ -99,3 +99,15 @@ describe('StorySection chapter layout (T1 (5))', () => {
     expect(rule('title')).toMatch(/font-size:\s*var\(--font-size-h2\)/)
   })
 })
+
+describe('visually-hidden (M3b2 T2)', () => {
+  const css = cssFiles['/src/styles/global.css']
+  const rule = /\.visually-hidden\s*\{([^}]*)\}/.exec(css)?.[1] ?? ''
+
+  it('hides text from the eye but keeps it for screen readers', () => {
+    expect(rule).toMatch(/position:\s*absolute/)
+    expect(rule).toMatch(/overflow:\s*hidden/)
+    expect(rule).toMatch(/clip-path:\s*inset\(50%\)/)
+    expect(rule).not.toMatch(/display:\s*none|visibility:\s*hidden/)
+  })
+})

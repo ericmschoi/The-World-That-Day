@@ -26,24 +26,28 @@ export type DateRelationKind =
 // `years` = capture year - requested year.
 export type DateRelation = { kind: DateRelationKind; years: number }
 
-export type VideoSource = { url: string; mime: string; height: number }
+// `height` and `render.zoom` may be null (server boxed types, schema
+// `nullablePositiveInteger` and `null | number`).
+export type VideoSource = { url: string; mime: string; height: number | null }
 
 export type SdkRender = {
   provider: string
   kind: 'roadview' | 'skyview'
   lat: number
   lng: number
-  zoom: number
+  zoom: number | null
 }
 
-// API only, added by M3a4 for quality review. Not shown on screen.
+// API only, added by M3a4 for quality review (revised M3a4 contract, no
+// `provider_embed`). Not shown on screen; the server does not send it yet.
 export type MediaSelection = {
   basis:
+    | 'commons_p10'
     | 'commons_category'
+    | 'commons_date_category'
     | 'commons_search'
     | 'youtube_official'
     | 'daehan_news'
-    | 'provider_embed'
   score: number
 }
 
