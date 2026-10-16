@@ -52,6 +52,13 @@ describe('privacy policy page (T1 (1))', () => {
     expect(text).toContain(phrase)
   })
 
+  // T1 (9): the sources match the merged server (application.yml, M3a3b).
+  it('lists the outside sources the server calls now, and the one to come', () => {
+    expect(text).toContain(
+      '지금은 한국어 위키백과, Wikidata, Wikimedia Commons(날짜별 사진 분류)이고, YouTube Data API가 더해질 예정입니다.',
+    )
+  })
+
   it('links the YouTube terms and the Google privacy policy', () => {
     expect(linkTo(YOUTUBE_TERMS_URL).map((a) => a.textContent)).toEqual([
       'YouTube 이용약관',
