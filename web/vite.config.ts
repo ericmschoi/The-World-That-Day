@@ -1,9 +1,19 @@
+import { resolve } from 'node:path'
 import react from '@vitejs/plugin-react'
 import { configDefaults, defineConfig } from 'vitest/config'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  build: {
+    // Two pages: the app, and the privacy policy (HTML and CSS, no script).
+    rolldownOptions: {
+      input: {
+        main: resolve(import.meta.dirname, 'index.html'),
+        privacy: resolve(import.meta.dirname, 'privacy.html'),
+      },
+    },
+  },
   server: {
     // Fixed so the dev origin stays registrable with the map SDK later (M4).
     port: 5173,

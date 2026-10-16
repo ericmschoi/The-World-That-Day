@@ -8,6 +8,7 @@ import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from '../App'
+import { agree } from '../test/consent'
 import { olympicsOpeningPd } from '../mocks/fixtures/world/media'
 import {
   world1988,
@@ -48,6 +49,7 @@ const answer = (body: WorldResponse) =>
 async function openDemo(date: DemoDate) {
   const user = userEvent.setup()
   render(<App />)
+  await agree(user)
   await user.click(screen.getByRole('button', { name: DEMO[date] }))
   return user
 }

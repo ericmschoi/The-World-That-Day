@@ -357,3 +357,112 @@ test.describe('two videos entering the view together', () => {
     expect((await mediaLog(page)).maxPlaying).toBe(1)
   })
 })
+
+// Plan M3b3b T3 (3), on T0 (M3b3 review recommendation 1): a video the user
+// starts while it shows less than half (so it is already "out of view")
+// must still pause once it leaves the screen entirely, sound on or not.
+// Event ①'s video is used; the day video sits below the events, so moving
+// event ① off the bottom edge brings no other video into view.
+
+// Puts the top `share` of the element at the bottom edge of the viewport.
+const showTopShare = (video: Locator, share: number) =>
+  video.evaluate((element, part) => {
+    const box = element.getBoundingClientRect()
+    const top = box.top + window.scrollY
+    window.scrollTo(0, top - window.innerHeight + part * box.height)
+  }, share)
+
+// Scrolls up until the element is just below the bottom edge.
+const pushBelowView = (video: Locator) =>
+  video.evaluate((element) => {
+    const top = element.getBoundingClientRect().top + window.scrollY
+    window.scrollTo(0, Math.max(0, top - window.innerHeight - 40))
+  })
+
+// Waits for a fresh observer's first report, then a little longer so the
+// app's observer and effects have certainly run.
+const settle = async (page: Page, video: Locator) => {
+  await video.evaluate(
+    (element) =>
+      new Promise<void>((resolve) => {
+        const observer = new IntersectionObserver(() => {
+          observer.disconnect()
+          resolve()
+        })
+        observer.observe(element)
+      }),
+  )
+  await page.waitForTimeout(300)
+}
+
+// The user's own play (as the controls would), resolved once the element's
+// `play` event has been handled.
+const userPlay = (video: Locator) =>
+  video.evaluate(
+    (element) =>
+      new Promise<void>((resolve) => {
+        element.addEventListener('play', () => resolve(), { once: true })
+        ;(element as HTMLVideoElement).play().catch(() => {})
+      }),
+  )
+
+const userUnmute = (video: Locator) =>
+  video.evaluate(
+    (element) =>
+      new Promise<void>((resolve) => {
+        element.addEventListener('volumechange', () => resolve(), {
+          once: true,
+        })
+        ;(element as HTMLVideoElement).muted = false
+      }),
+  )
+
+const isMuted = (video: Locator) =>
+  video.evaluate((element) => (element as HTMLVideoElement).muted)
+
+test.describe('a video the user starts under half visible (M3b3b T0)', () => {
+  test.beforeEach(async ({ context, page }) => {
+    outside = await open(page, context, 'hold')
+  })
+
+  for (const unmute of [false, true]) {
+    test(`pauses when it leaves the screen${unmute ? ', sound on' : ''}`, async ({
+      page,
+    }) => {
+      const video = eventVideo(page)
+      await expect(video).toHaveCount(1)
+
+      await showTopShare(video, 0.3)
+      const ratio = await visibleRatio(video)
+      expect(ratio).toBeGreaterThan(0.05)
+      expect(ratio).toBeLessThanOrEqual(0.5)
+      await settle(page, video)
+      expect(await isPaused(video)).toBe(true)
+
+      await userPlay(video)
+      if (unmute) await userUnmute(video)
+      expect(await isPaused(video)).toBe(false)
+      expect(await isMuted(video)).toBe(!unmute)
+      // Still under half: nothing pauses it yet.
+      await page.waitForTimeout(300)
+      expect(await isPaused(video)).toBe(false)
+      const pausesBefore = (await callsOf(page, 'pause', EVENT_VIDEO)).length
+      const dayPlaysBefore = (await callsOf(page, 'play', DAY_VIDEO)).length
+
+      await pushBelowView(video)
+      expect(await visibleRatio(video)).toBe(0)
+      await expect
+        .poll(async () => (await callsOf(page, 'pause', EVENT_VIDEO)).length)
+        .toBe(pausesBefore + 1)
+      expect(await isPaused(video)).toBe(true)
+      const pause = (await callsOf(page, 'pause', EVENT_VIDEO)).at(-1)
+      expect(pause?.muted).toBe(!unmute)
+      // Paused by leaving the screen, not by another video taking over.
+      expect((await callsOf(page, 'play', DAY_VIDEO)).length).toBe(
+        dayPlaysBefore,
+      )
+      expect(await isPaused(dayVideo(page))).toBe(true)
+      expect((await mediaLog(page)).maxPlaying).toBe(1)
+    })
+  }
+})

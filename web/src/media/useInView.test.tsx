@@ -69,3 +69,29 @@ describe('useInView', () => {
     for (const spy of spies) expect(spy).not.toHaveBeenCalled()
   })
 })
+
+// M3b3b T0: the caller hears every report, not only changes.
+function ReportProbe({ onReport }: { onReport: (inView: boolean) => void }) {
+  const [ref] = useInView<HTMLDivElement>(onReport)
+  return <div ref={ref} data-testid="target" />
+}
+
+describe('useInView reports (T0)', () => {
+  it('calls back on every report, including repeated out-of-view ones', () => {
+    fake = installIntersectionObserverFake()
+    const onReport = vi.fn()
+    render(<ReportProbe onReport={onReport} />)
+    const target = screen.getByTestId('target')
+    for (const ratio of [0.3, 0.1, 0, 0.51, 0.8, 0.5]) {
+      fake.setRatio(target, ratio)
+    }
+    expect(onReport.mock.calls).toEqual([
+      [false],
+      [false],
+      [false],
+      [true],
+      [true],
+      [false],
+    ])
+  })
+})
