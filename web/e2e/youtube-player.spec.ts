@@ -506,6 +506,59 @@ for (const mode of ['none', 'paused'] as const) {
   })
 }
 
+// T4 rerun, probing the fix (22fac92): the same away, back, away, with a
+// different number of the player's reports let through before the second
+// "away" (0: none yet; 1: the first BUFFERING, so our pause meets a
+// buffering player; 3: as many as there are, up to the second BUFFERING).
+// The result must not depend on it.
+for (const mode of ['none', 'paused'] as const) {
+  for (const early of [0, 1, 3]) {
+    test.describe(`quick turns, fake mode ${mode}, ${early} report(s) early`, () => {
+      test('the video in view keeps playing and the player autoplays later', async ({
+        context,
+        page,
+      }) => {
+        await open(page, context, { pauseBeforeStart: mode })
+        const video = commonsVideo(page)
+        const youtube = daehan(page)
+        await showAlone(video)
+        await expect.poll(() => isPaused(video)).toBe(false)
+        await expect
+          .poll(async () => (await ytRecord(youtube))?.ready)
+          .toBe(true)
+        await ytHold(page)
+
+        await showAlone(youtube)
+        await expect.poll(() => ytCount(youtube, 'playVideo')).toBe(1)
+        await showAlone(video)
+        await expect.poll(() => ytCount(youtube, 'pauseVideo')).toBe(1)
+        await expect.poll(() => isPaused(video)).toBe(false)
+        await showAlone(youtube)
+        await expect.poll(() => ytCount(youtube, 'playVideo')).toBe(2)
+        await expect.poll(() => isPaused(video)).toBe(true)
+
+        const queued = (await ytQueued(youtube)).length
+        await ytDeliver(youtube, Math.min(early, queued))
+        await showAlone(video)
+        await expect.poll(() => isPaused(video)).toBe(false)
+        await ytResume(page)
+        await page.waitForTimeout(500)
+
+        expect(await ytQueued(youtube)).toEqual([])
+        expect(await isPaused(video)).toBe(false)
+        expect((await ytRecord(youtube))?.actual).not.toBe(PLAYING)
+        expect(await ytMaxPlaying(page)).toBe(1)
+        const plays = await ytCount(youtube, 'playVideo')
+        await showAlone(youtube)
+        await expect.poll(() => ytCount(youtube, 'playVideo')).toBe(plays + 1)
+        await expect.poll(() => ytState(youtube)).toBe(PLAYING)
+        await expect.poll(() => isPaused(video)).toBe(true)
+        expect(await ytMaxPlaying(page)).toBe(1)
+      })
+    })
+  }
+}
+
 test.describe('without the fake (decision 1 (a))', () => {
   test('(h) the API script is asked for once, stopped, and the players stay', async ({
     context,
