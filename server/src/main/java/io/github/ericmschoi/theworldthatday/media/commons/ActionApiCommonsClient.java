@@ -60,7 +60,7 @@ public class ActionApiCommonsClient implements CommonsClient {
             .queryParam("prop", "imageinfo")
             .queryParam("iiprop", "url|mime|size|extmetadata")
             .queryParam("iiurlwidth", 640)
-            .queryParam("iiextmetadatalanguage", "ko")
+            // default language: a Korean DateTimeOriginal ("촬영 날짜: …") would not parse (PM, M3a3b)
             .queryParam("format", "json")
             .queryParam("formatversion", 2)
             .build()

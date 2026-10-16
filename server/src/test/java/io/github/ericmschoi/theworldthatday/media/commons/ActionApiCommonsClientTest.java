@@ -115,7 +115,6 @@ class ActionApiCommonsClientTest {
                 Map.entry("prop", "imageinfo"),
                 Map.entry("iiprop", "url|mime|size|extmetadata"),
                 Map.entry("iiurlwidth", "640"),
-                Map.entry("iiextmetadatalanguage", "ko"),
                 Map.entry("format", "json"),
                 Map.entry("formatversion", "2")));
   }
