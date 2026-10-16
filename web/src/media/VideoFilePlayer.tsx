@@ -31,12 +31,12 @@ function sourcesOf(media: Media) {
 // the user turns it on. If no source can play, the whole card goes, quietly.
 export function VideoFilePlayer({ media, fallbackAlt, onUnavailable }: Props) {
   const coordinator = usePlaybackCoordinator()
-  const [observe, inView] = useInView<HTMLVideoElement>()
   const video = useRef<HTMLVideoElement | null>(null)
-  // ourPause: the next `pause` event is ours. userPaused: the user stopped it
-  // (or it ended), so no autoplay until they play it again.
+  // ourPauses: how many `pause` events still to come are ours (our pause(),
+  // play(), pause() can all happen before the first event). userPaused: the
+  // user stopped it (or it ended), so no autoplay until they play it again.
   const flags = useRef({
-    ourPause: false,
+    ourPauses: 0,
     userPaused: false,
     unmuted: false,
     failed: false,
@@ -56,12 +56,19 @@ export function VideoFilePlayer({ media, fallbackAlt, onUnavailable }: Props) {
       pause() {
         const el = video.current
         if (!el || el.paused) return
-        flags.current.ourPause = true
+        flags.current.ourPauses += 1
         el.pause()
       },
     }),
     [],
   )
+
+  // Every "out of view" report, not only a change: a video the user started
+  // while under half visible is already out of view, and must still stop
+  // when it leaves the screen. `release` only pauses the one playing.
+  const [observe, inView] = useInView<HTMLVideoElement>((visible) => {
+    if (!visible) coordinator.release(player)
+  })
 
   const ref = useCallback(
     (el: HTMLVideoElement | null) => {
@@ -80,9 +87,9 @@ export function VideoFilePlayer({ media, fallbackAlt, onUnavailable }: Props) {
     [coordinator, player, failed],
   )
 
+  // Coming into view autoplays only on the change, not on every report.
   useEffect(() => {
-    if (!inView) coordinator.release(player)
-    else if (!flags.current.userPaused && canAutoplay()) {
+    if (inView && !flags.current.userPaused && canAutoplay()) {
       coordinator.requestPlay(player)
     }
   }, [inView, coordinator, player])
@@ -117,7 +124,7 @@ export function VideoFilePlayer({ media, fallbackAlt, onUnavailable }: Props) {
           coordinator.notifyPlaying(player)
         }}
         onPause={() => {
-          if (flags.current.ourPause) flags.current.ourPause = false
+          if (flags.current.ourPauses > 0) flags.current.ourPauses -= 1
           else flags.current.userPaused = true
         }}
         onVolumeChange={(event) => {
