@@ -20,14 +20,17 @@ const { PLAYING, PAUSED, BUFFERING } = PlayerState
 const running = (state: number) => state === PLAYING || state === BUFFERING
 
 // What `pauseVideo()` does after `playVideo()` but before the start is
-// reported. The reference does not say: 'none' sends nothing (the worse case,
-// the default), 'paused' sends PAUSED.
+// reported. The reference does not say: 'none' sends nothing and the start
+// still comes (the worse case, the default); 'paused' cancels the start (no
+// PLAYING) and sends PAUSED.
 export type PauseBeforeStart = 'none' | 'paused'
 
 export type PlayerCall = { player: FakePlayer; method: string }
 
 type Hub = {
-  emit(player: FakePlayer, send: () => void): void
+  emit(player: FakePlayer, data: number, send: () => void): void
+  // Takes a queued, not yet sent state change of the player off the queue.
+  drop(player: FakePlayer, data: number): void
   record(player: FakePlayer, method: string): void
   pauseBeforeStart: PauseBeforeStart
 }
@@ -58,7 +61,7 @@ export class FakePlayer implements YTPlayer {
   // Schedules a state change; `state` changes when the page hears it.
   sendState(data: number) {
     this.target = data
-    this.hub.emit(this, () => {
+    this.hub.emit(this, data, () => {
       this.state = data
       this.events.onStateChange?.({ target: this, data })
     })
@@ -90,6 +93,7 @@ export class FakePlayer implements YTPlayer {
     this.call('pauseVideo')
     if (running(this.state)) this.sendState(PAUSED)
     else if (running(this.target) && this.hub.pauseBeforeStart === 'paused') {
+      this.hub.drop(this, PLAYING)
       this.sendState(PAUSED)
     }
   }
@@ -119,6 +123,8 @@ export type YouTubeFake = {
   deferEvents(): void
   // ...and send the queued ones in order (and any they cause), inside `act`.
   flushEvents(): void
+  // Drops the queued events, as when the player never sends them.
+  discardEvents(): void
   uninstall(): void
 }
 
@@ -139,22 +145,32 @@ const pristine = {
 export function installYouTubeFake(): YouTubeFake {
   const players: FakePlayer[] = []
   const calls: PlayerCall[] = []
-  const queue: (() => void)[] = []
+  const queue: {
+    player: FakePlayer | null
+    data: number | null
+    send(): void
+  }[] = []
   let deferring = false
 
   const hub: Hub = {
     // Method calls come from our code, maybe already inside `act`: no `act`.
-    emit(_player, send) {
-      if (deferring) queue.push(send)
+    emit(player, data, send) {
+      if (deferring) queue.push({ player, data, send })
       else send()
     },
     record(player, method) {
       calls.push({ player, method })
     },
+    drop(player, data) {
+      const at = queue.findLastIndex(
+        (entry) => entry.player === player && entry.data === data,
+      )
+      if (at >= 0) queue.splice(at, 1)
+    },
     pauseBeforeStart: 'none',
   }
   const sendNow = (send: () => void) => {
-    if (deferring) queue.push(send)
+    if (deferring) queue.push({ player: null, data: null, send })
     else act(send)
   }
 
@@ -202,9 +218,12 @@ export function installYouTubeFake(): YouTubeFake {
     deferEvents() {
       deferring = true
     },
+    discardEvents() {
+      queue.length = 0
+    },
     flushEvents() {
       act(() => {
-        for (let next = queue.shift(); next; next = queue.shift()) next()
+        for (let next = queue.shift(); next; next = queue.shift()) next.send()
       })
     },
     uninstall() {

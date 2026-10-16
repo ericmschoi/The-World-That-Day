@@ -123,7 +123,7 @@ describe('installYouTubeFake', () => {
     ])
   })
 
-  it('can send PAUSED for a pause before the start is reported', () => {
+  it('can cancel the start with PAUSED for a pause before the report', () => {
     fake = installYouTubeFake()
     const { player, log } = create(fake)
     fake.ready(player)
@@ -132,12 +132,19 @@ describe('installYouTubeFake', () => {
     player.playVideo()
     player.pauseVideo()
     fake.flushEvents()
-    expect(log).toEqual([
-      'ready',
-      `state ${BUFFERING}`,
-      `state ${PLAYING}`,
-      `state ${PAUSED}`,
-    ])
+    expect(log).toEqual(['ready', `state ${BUFFERING}`, `state ${PAUSED}`])
+    expect(player.getPlayerState()).toBe(PAUSED)
+  })
+
+  it('drops queued events on request', () => {
+    fake = installYouTubeFake()
+    const { player, log } = create(fake)
+    fake.ready(player)
+    fake.deferEvents()
+    player.playVideo()
+    fake.discardEvents()
+    fake.flushEvents()
+    expect(log).toEqual(['ready'])
   })
 
   it('records destroy so tests can see it is never called', () => {
