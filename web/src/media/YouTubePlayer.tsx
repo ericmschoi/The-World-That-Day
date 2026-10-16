@@ -40,20 +40,17 @@ export function YouTubePlayer({ media, fallbackAlt, onUnavailable }: Props) {
   const api = useRef<YTPlayer | null>(null)
   const [ready, setReady] = useState(false)
   const [failed, setFailed] = useState(false)
-  // Reports arrive late and may be merged or skipped, so each one is read
-  // against what we want now, not matched to a counted call (plan "YouTube
-  // 상태 처리", revised). want: our last call was play. ours: a start we
-  // asked for may still bring a PLAYING. pausing: our pause of a running
-  // player has no PAUSED yet. cancels: our pauses before a start was
-  // reported, each answered by a PAUSED or ended by the next PLAYING;
-  // replay: a play came after the oldest unanswered cancel.
+  // Our calls the player has not answered yet, in order (plan "YouTube 상태
+  // 처리", revised). play: a start, answered by PLAYING (or dropped by a
+  // cancel); pause: a pause of a running player, answered by PAUSED; cancel:
+  // a pause before the start was reported, answered by PAUSED or by nothing
+  // (the start goes on). Merged or missing answers are skipped, never
+  // waited for. want: our last call was play (or the user played it).
   const flags = useRef({
     state: -1,
     want: false,
-    ours: false,
-    pausing: false,
-    cancels: 0,
-    replay: false,
+    calls: [] as ('play' | 'pause' | 'cancel')[],
+    offScreen: false,
     userPaused: false,
     played: false,
     failed: false,
@@ -65,10 +62,10 @@ export function YouTubePlayer({ media, fallbackAlt, onUnavailable }: Props) {
         const f = flags.current
         if (!api.current) return
         f.want = true
-        // Already playing (the user started it) and not being paused.
-        if (f.state === PLAYING && !f.ours && !f.pausing) return
-        if (f.cancels > 0) f.replay = true
-        f.ours = true
+        // Already playing (the user started it), nothing of ours on the way.
+        if (f.state === PLAYING && f.calls.length === 0) return
+        // A play during a start that was not cancelled starts nothing new.
+        if (f.calls.at(-1) !== 'play') f.calls.push('play')
         // Muted on the first play; after that a sound on is the user's.
         if (!f.played) api.current.mute()
         f.played = true
@@ -78,12 +75,9 @@ export function YouTubePlayer({ media, fallbackAlt, onUnavailable }: Props) {
         const f = flags.current
         if (!api.current) return
         f.want = false
-        if (f.state === PLAYING || f.state === BUFFERING) f.pausing = true
-        else if (f.ours) {
-          // Cancels the latest start: no play after it any more.
-          f.cancels += 1
-          f.replay = false
-        } else return // nothing running or starting
+        if (f.state === PLAYING || f.state === BUFFERING) f.calls.push('pause')
+        else if (f.calls.includes('play')) f.calls.push('cancel')
+        else return // nothing running or starting
         api.current.pauseVideo()
       },
     }),
@@ -94,37 +88,38 @@ export function YouTubePlayer({ media, fallbackAlt, onUnavailable }: Props) {
     const f = flags.current
     f.state = state
     if (state === PLAYING) {
-      // Our start began, or the user's: unanswered cancels did not stop it.
-      const late = f.ours && !f.want
-      f.ours = false
-      f.cancels = 0
-      f.replay = false
-      if (late) {
-        // A start we no longer want: stop it, quietly.
-        f.pausing = true
-        api.current?.pauseVideo()
-      } else {
-        // Ours as asked, or the user's own play.
+      const at = f.calls.indexOf('play')
+      if (at < 0) {
+        // Nothing of ours on the way: the user's own play.
+        f.calls = []
         f.want = true
+      } else {
+        // That start's answer. The cancels right after it did not stop it,
+        // and a play after such a cancel started nothing new.
+        let end = at + 1
+        while (f.calls[end] === 'cancel' || f.calls[end] === 'play') end += 1
+        f.calls = f.calls.slice(end)
+      }
+      if (!f.want || f.offScreen) {
+        // A start we no longer want, or anything off screen: stop it,
+        // quietly, so it never takes over from the player in view.
+        player.pause()
+      } else {
         f.userPaused = false
         f.played = true
         coordinator.notifyPlaying(player)
       }
     } else if (state === PAUSED) {
-      f.pausing = false
-      if (f.cancels > 0) {
-        // The answer to a cancel; a start asked for later still comes.
-        f.cancels -= 1
-        f.ours = f.want || f.cancels > 0 || f.replay
-        if (f.cancels === 0) f.replay = false
-      } else if (f.want && !f.ours) {
+      const at = f.calls.findIndex((call) => call !== 'play')
+      if (at >= 0)
+        f.calls = f.calls.slice(at + 1) // ours
+      else if (f.want) {
         // The user, or the browser or YouTube (M3b3 review 5).
         f.userPaused = true
         f.want = false
-      } // else: our pause, or stale while our start is coming
+      }
     } else if (state === ENDED) {
-      const reset = { want: false, ours: false, pausing: false, cancels: 0 }
-      Object.assign(f, reset, { replay: false, userPaused: true })
+      Object.assign(f, { calls: [], want: false, userPaused: true })
     }
   })
 
@@ -137,9 +132,14 @@ export function YouTubePlayer({ media, fallbackAlt, onUnavailable }: Props) {
   })
 
   // Every "out of view" report, like `VideoFilePlayer` (M3b3b T0).
-  const [observe, inView] = useInView<HTMLIFrameElement>((visible) => {
-    if (!visible) coordinator.release(player)
-  })
+  const [observe, inView] = useInView<HTMLIFrameElement>(
+    (visible) => {
+      if (!visible) coordinator.release(player)
+    },
+    (onScreen) => {
+      flags.current.offScreen = !onScreen
+    },
+  )
   const ref = useCallback(
     (el: HTMLIFrameElement | null) => {
       iframe.current = el
@@ -173,8 +173,7 @@ export function YouTubePlayer({ media, fallbackAlt, onUnavailable }: Props) {
             },
             // YouTube's controls stay; the start we asked for is not coming.
             onAutoplayBlocked: () => {
-              const reset = { ours: false, cancels: 0, replay: false }
-              Object.assign(flags.current, reset)
+              flags.current.calls = []
             },
           },
         })
