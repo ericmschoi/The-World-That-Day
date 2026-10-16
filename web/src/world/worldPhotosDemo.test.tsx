@@ -8,6 +8,7 @@ import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { describe, expect, it } from 'vitest'
 import App from '../App'
+import { agree } from '../test/consent'
 import {
   captureTimeUnknown,
   licenseUnknown,
@@ -34,6 +35,7 @@ const world = () => screen.getByRole('region', { name: '그날의 세계' })
 async function openDemo(date: keyof typeof DEMO) {
   const user = userEvent.setup()
   render(<App />)
+  await agree(user)
   await user.click(screen.getByRole('button', { name: DEMO[date] }))
   await waitFor(() => expect(world()).not.toHaveAttribute('aria-busy'))
   expect(screen.queryByText('이 섹션을 불러오지 못했습니다.')).toBeNull()

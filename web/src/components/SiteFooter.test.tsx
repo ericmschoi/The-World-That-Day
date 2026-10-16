@@ -2,6 +2,7 @@ import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import App from '../App'
+import { agree } from '../test/consent'
 
 // Plan M3b3b T1 (6): one footer outside <main> on both screens, holding only
 // the privacy policy link.
@@ -23,6 +24,7 @@ describe('SiteFooter', () => {
     render(<App />)
     expectFooter()
 
+    await agree(user)
     await user.click(
       screen.getByRole('button', { name: '1988년 9월 17일로 보기' }),
     )

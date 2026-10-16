@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import styles from './App.module.css'
 import { SiteFooter } from './components/SiteFooter'
+import { ConsentProvider } from './consent/ConsentProvider'
 import { InputScreen } from './screens/InputScreen'
 import { StoryScreen } from './screens/StoryScreen'
 
@@ -11,7 +12,7 @@ type Screen = { screen: 'input' } | { screen: 'story'; date: string }
 function App() {
   const [state, setState] = useState<Screen>({ screen: 'input' })
   return (
-    <>
+    <ConsentProvider>
       <main className={styles.main}>
         {state.screen === 'input' ? (
           <InputScreen
@@ -25,7 +26,7 @@ function App() {
         )}
       </main>
       <SiteFooter className={styles.footer} />
-    </>
+    </ConsentProvider>
   )
 }
 

@@ -13,6 +13,7 @@ import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { describe, expect, it } from 'vitest'
 import App from '../App'
+import { agree } from '../test/consent'
 import { sdkRoadview, videoEmbed } from '../mocks/fixtures/media/modes'
 import { exampleVideoFile } from '../mocks/fixtures/world/media'
 import {
@@ -234,6 +235,7 @@ describe('sample date buttons (T3 (6))', () => {
     )
     const user = userEvent.setup()
     render(<App />)
+    await agree(user)
     await user.click(screen.getByRole('button', { name: label }))
     await screen.findByText('이 날짜에 기록된 큰 사건을 찾지 못했습니다.')
     expect(asked).toEqual([date])

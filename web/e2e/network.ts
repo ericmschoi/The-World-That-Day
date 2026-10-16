@@ -50,9 +50,13 @@ export async function interceptNetwork(
   return outside
 }
 
-// From the input screen to the story through a demo date button.
+// From the input screen to the story: agree to the privacy policy
+// (M3b3b), then a demo date button.
 export async function openDemo(page: Page, label: string) {
   await page.goto('/')
+  await page
+    .getByRole('checkbox', { name: '개인정보처리방침에 동의합니다 (필수)' })
+    .check()
   await page.getByRole('button', { name: label }).click()
   await page
     .getByRole('region', { name: '그날의 세계' })
