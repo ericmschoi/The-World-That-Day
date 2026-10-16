@@ -132,3 +132,61 @@ describe('the reader’s play and pause among late reports (T4 rerun 2)', () => 
     expect(player.state).not.toBe(PLAYING)
   })
 })
+
+// T4 rerun 3 (2515826): the off-screen rule and per-start pairing.
+describe('off screen and unanswered starts (T4 rerun 3)', () => {
+  it('a user play while only a sliver shows is allowed and takes over', async () => {
+    const { iframe, video, player } = await mount()
+    observers.setRatio(iframe, 0.02)
+    observers.setRatio(video, 0.51)
+    expect(video.paused).toBe(false)
+    fake.state(player, PLAYING)
+    expect(count(player, 'pauseVideo')).toBe(0)
+    expect(player.state).toBe(PLAYING)
+    expect(video.paused).toBe(true)
+  })
+
+  it('a user play of a card never on screen is stopped and takes nothing over', async () => {
+    const { iframe, video, player } = await mount()
+    observers.setRatio(iframe, 0)
+    observers.setRatio(video, 0.51)
+    expect(video.paused).toBe(false)
+    fake.state(player, PLAYING)
+    expect(count(player, 'pauseVideo')).toBe(1)
+    expect(player.state).not.toBe(PLAYING)
+    expect(video.paused).toBe(false)
+  })
+
+  it.each(MODES)(
+    'a start that is never answered costs the user one tap at most (%s)',
+    async (mode) => {
+      const { iframe, video, player } = await mount()
+      fake.setPauseBeforeStart(mode)
+      fake.deferEvents()
+      observers.setRatio(iframe, 0.51)
+      observers.setRatio(iframe, 0.3) // cancelled before any report
+      // Neither the start nor the cancel is ever reported.
+      fake.discardEvents()
+      observers.setRatio(video, 0.51)
+      expect(video.paused).toBe(false)
+
+      const tap = () => {
+        fake.state(player, PLAYING)
+        fake.flushEvents()
+      }
+      tap()
+      const silent = count(player, 'pauseVideo') - 1
+      expect(silent).toBeLessThanOrEqual(1)
+      if (player.state === PLAYING) {
+        expect(video.paused).toBe(true)
+      } else {
+        // That tap was taken for our start and stopped; the next one works.
+        expect(video.paused).toBe(false)
+        tap()
+        expect(player.state).toBe(PLAYING)
+        expect(video.paused).toBe(true)
+        expect(count(player, 'pauseVideo') - 1).toBe(silent)
+      }
+    },
+  )
+})

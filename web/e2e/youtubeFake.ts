@@ -8,7 +8,8 @@ import type { Locator, Page } from '@playwright/test'
 // API script.
 //
 // Same meaning as the unit fake: `playVideo()` reports BUFFERING then
-// PLAYING; `pauseVideo()` while playing or buffering reports PAUSED; before
+// PLAYING; `pauseVideo()` while playing or buffering (as last reported, or
+// as the player really is) stops it and reports PAUSED; before
 // any start it reports nothing. A pause after `playVideo()` but before the
 // start is reported: 'none' (default) sends nothing and the start still
 // comes (the worse case), 'paused' cancels the start (no PLAYING) and sends
@@ -202,7 +203,9 @@ export function installFakeYT(options: FakeOptions = {}) {
       }
       self.pauseVideo = () => {
         call('pauseVideo')
-        if (running(p.reported)) {
+        // A pause stops a player that is running, whether its last report
+        // says so or a stale PAUSED is the last the page heard.
+        if (running(p.reported) || running(p.actual)) {
           // Stops now; the report comes later.
           p.actual = PAUSED
           p.target = PAUSED
