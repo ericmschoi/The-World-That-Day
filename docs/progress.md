@@ -203,3 +203,15 @@
 | 2026-10-15 | orchestrator | M3b3b 최종 브랜치 e2e 재실행 48/48 (PR 본문 갱신) | 완료 | 935f540 |
 | 2026-10-16 | PM | M3b3b PR #18 머지 (시행일 커밋 전에 머지 → 후속 fix PR, 시행일 2026-10-16 PM 결정) | 완료 | 300acf7 |
 | 2026-10-16 | frontend-dev | M3b3b T4 방침 시행일 2026년 10월 16일 (단위 605/0, e2e 48/48, D1 출력 없음) | 완료 | 3677037 |
+| 2026-10-15 | planner | M3a3c PM 결정 1~4 기록·로드맵 8곳 반영 | 완료 | d85a402 |
+| 2026-10-16 | code-reviewer | fix/privacy-effective-date 리뷰 — 승인 (필수 0, 권장 0) | 승인 | 8f126bc |
+| 2026-10-16 | orchestrator | 시행일 후속 PR #19 열림 | PR 대기 | 8f126bc |
+| 2026-10-16 | planner | M3b3c 계획 개정 (약 257, ×1.14 약 293, 확인점 T2 뒤 220) — PM 재승인·결정 2건 필요 | 완료(미커밋) | 728b532 |
+| 2026-10-16 | backend-dev | M3a3c T0 공용 Deadline·미디어 1회 호출·Commons error + T1 PageImages·파일 묶음 (누적 S1 433 > 확인점 320, check 1359/0) | 완료(멈춤) | 249f201, 57cc5c2, 6c220bd, 4058edb |
+| 2026-10-16 | planner | M3b3c PM 결정 1·2 기록 | 완료 | 5b735fd |
+| 2026-10-16 | planner | M3a3c 분할 (T0·T1만, 433) + M3a3d 계획 새로 (약 250), 로드맵 PR 21개 — PM 결정 1건 (M3a3d T1 담당) | 완료 | c56c825 |
+| 2026-10-16 | frontend-dev | M3b3c T1 IFrame API·캡션 문구 + T2 YouTube 카드 (누적 S1 229 > 확인점 220, 단위 674/0, e2e 48/48) — PM 결정 필요 | 완료(멈춤) | 615ba01, 20a7fb8, e198d93, 6b40ed7 |
+| 2026-10-16 | PM | M3a3d T1 담당 backend-dev, M3b3c T3는 이번 PR (확인점 229 수용) | 결정 | - |
+| 2026-10-16 | frontend-dev | M3b3c T3 YouTube 재생 규칙 (누적 S1 344, 단위 693/0, e2e 48/48) | 완료 | 185da59 |
+| 2026-10-16 | test-engineer | M3a3c T3 T0·T1 검증, 테스트 3개 추가 (check 1369/0 ×3, 최악 시간 약 11.7초) | 완료 | 85a3df5 |
+| 2026-10-16 | code-reviewer | M3a3c 리뷰 — 승인 (필수 0, 권장 5) | 승인 | 85a3df5 |
