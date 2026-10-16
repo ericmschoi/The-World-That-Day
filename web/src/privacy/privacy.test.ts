@@ -83,9 +83,10 @@ describe('facts the PM decided, word for word (T1 (2))', () => {
     ])
   })
 
-  it('leaves the effective date for the merge day, with no made-up date', () => {
-    expect(text).toContain('시행일: 머지하는 날 넣음')
-    expect(text).not.toMatch(/\d{4}\s*년|\d{4}-\d{2}-\d{2}/)
+  it('states the effective date as the merge day, with no other date', () => {
+    expect(text).toContain('시행일: 2026년 10월 16일')
+    expect(text).not.toContain('머지하는 날 넣음')
+    expect(text.match(/\d{4}\s*년|\d{4}-\d{2}-\d{2}/g)).toEqual(['2026년'])
   })
 
   it('has no e-mail address or other contact', () => {
