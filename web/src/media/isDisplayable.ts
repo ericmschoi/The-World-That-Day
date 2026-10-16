@@ -1,3 +1,4 @@
+import { YOUTUBE_EMBED_ORIGIN } from '../external/urls'
 import type { Media } from './types'
 
 const filled = (value: unknown) =>
@@ -68,11 +69,32 @@ export function isDisplayable(media: Media): boolean {
   }
 }
 
+// Only the privacy-enhanced player the policy names, under IFrame API
+// control, never autoplaying on its own (M3b3c). Never built or fixed here.
+export function isYouTubeEmbed(media: Media): boolean {
+  if (media.provider !== 'youtube' || typeof media.embed_url !== 'string') {
+    return false
+  }
+  try {
+    const url = new URL(media.embed_url)
+    return (
+      url.origin === YOUTUBE_EMBED_ORIGIN &&
+      url.pathname.startsWith('/embed/') &&
+      url.searchParams.get('enablejsapi') === '1' &&
+      !url.searchParams.has('autoplay')
+    )
+  } catch {
+    return false
+  }
+}
+
 // Displayable and in a mode `MediaItem` actually draws (M3b3). Screens count
-// media with this, so a group never keeps a heading over nothing.
-export function canRender(media: Media): boolean {
-  return (
-    isDisplayable(media) &&
-    (media.display_mode === 'image' || media.display_mode === 'video_file')
-  )
+// media with this, so a group never keeps a heading over nothing. YouTube
+// only after the reader agreed to the privacy policy (M3b3c).
+export function canRender(media: Media, consented = false): boolean {
+  if (!isDisplayable(media)) return false
+  if (media.display_mode === 'video_embed') {
+    return consented && isYouTubeEmbed(media)
+  }
+  return media.display_mode === 'image' || media.display_mode === 'video_file'
 }

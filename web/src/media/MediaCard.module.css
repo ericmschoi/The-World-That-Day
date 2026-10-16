@@ -20,6 +20,18 @@
   object-fit: contain;
 }
 
+/* The YouTube player (M3b3c): at least 200×200px, a YouTube policy value.
+   Inset from the card's rounded corners so none of it is clipped. */
+.embed {
+  display: block;
+  width: calc(100% - 2 * var(--space-2));
+  aspect-ratio: 16 / 9;
+  min-width: 200px;
+  min-height: 200px;
+  margin: var(--space-2) auto 0;
+  border: 0;
+}
+
 .caption {
   padding: var(--space-3) var(--space-4) var(--space-4);
   border-top: var(--border-width) solid var(--color-border);
