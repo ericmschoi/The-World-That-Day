@@ -435,6 +435,28 @@ test.describe('Daehan News as the only player near it', () => {
     expect(await isPaused(dayVideo(page))).toBe(true)
     expect(await ytMaxPlaying(page)).toBe(1)
   })
+
+  // T4 rerun 2: the reader taps play under half visible and scrolls it off
+  // screen before the player's PLAYING arrives (the reverse of (j)).
+  test('a user play reported after it left the screen is still paused', async ({
+    page,
+  }) => {
+    const iframe = daehan(page)
+    await showTopShare(iframe, 0.3)
+    await settle(page, iframe)
+    await expect.poll(async () => (await ytRecord(iframe))?.ready).toBe(true)
+    await ytHold(page)
+    await ytUserPlay(iframe)
+    await pushBelowView(iframe)
+    expect(await visibleRatio(iframe)).toBe(0)
+    await settle(page, iframe)
+    await ytResume(page)
+    await page.waitForTimeout(400)
+    expect(await ytQueued(iframe)).toEqual([])
+    // It must not play off screen.
+    expect(await ytCount(iframe, 'pauseVideo')).toBe(1)
+    expect((await ytRecord(iframe))?.actual).not.toBe(PLAYING)
+  })
 })
 
 test.describe('the reader asks for less motion', () => {
@@ -556,6 +578,63 @@ for (const mode of ['none', 'paused'] as const) {
         expect(await ytMaxPlaying(page)).toBe(1)
       })
     })
+  }
+}
+
+// T4 rerun 2 (9a7d037): three away-and-back turns while the reports are
+// held, `early` of them let through after every play, ending away (the
+// video alone in view) or back (the player alone in view). Whatever the
+// order, one plays at the end, and the player still autoplays later.
+for (const mode of ['none', 'paused'] as const) {
+  for (const early of [0, 1, 2]) {
+    for (const end of ['away', 'back'] as const) {
+      test.describe(`three quick turns, fake mode ${mode}, ${early} early, ending ${end}`, () => {
+        test('one plays at the end and nothing is read as the user’s', async ({
+          context,
+          page,
+        }) => {
+          await open(page, context, { pauseBeforeStart: mode })
+          const video = commonsVideo(page)
+          const youtube = daehan(page)
+          await showAlone(video)
+          await expect.poll(() => isPaused(video)).toBe(false)
+          await expect
+            .poll(async () => (await ytRecord(youtube))?.ready)
+            .toBe(true)
+          await ytHold(page)
+
+          for (let turn = 1; turn <= 3; turn++) {
+            await showAlone(youtube)
+            await expect.poll(() => isPaused(video)).toBe(true)
+            const queued = (await ytQueued(youtube)).length
+            await ytDeliver(youtube, Math.min(early, queued))
+            if (turn === 3 && end === 'back') break
+            await showAlone(video)
+            await expect.poll(() => isPaused(video)).toBe(false)
+          }
+          await ytResume(page)
+          await page.waitForTimeout(600)
+          expect(await ytQueued(youtube)).toEqual([])
+
+          const youtubePlays = (await ytRecord(youtube))?.actual === PLAYING
+          expect(youtubePlays).toBe(end === 'back')
+          expect(await isPaused(video)).toBe(end === 'back')
+          expect(await ytMaxPlaying(page)).toBe(1)
+
+          // Not the user's pause: away and back once more, it autoplays.
+          if (end === 'back') {
+            await showAlone(video)
+            await expect.poll(() => isPaused(video)).toBe(false)
+          }
+          const plays = await ytCount(youtube, 'playVideo')
+          await showAlone(youtube)
+          await expect.poll(() => ytCount(youtube, 'playVideo')).toBe(plays + 1)
+          await expect.poll(() => ytState(youtube)).toBe(PLAYING)
+          await expect.poll(() => isPaused(video)).toBe(true)
+          expect(await ytMaxPlaying(page)).toBe(1)
+        })
+      })
+    }
   }
 }
 
