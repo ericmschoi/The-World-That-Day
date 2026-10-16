@@ -14,6 +14,7 @@ import io.github.ericmschoi.theworldthatday.event.tone.EventToneJudge.Tone;
 import io.github.ericmschoi.theworldthatday.event.tone.EventToneJudge.Verdict;
 import io.github.ericmschoi.theworldthatday.event.wikidata.WikidataSignalSource;
 import io.github.ericmschoi.theworldthatday.event.wikidata.WikidataSignalSource.Signals;
+import io.github.ericmschoi.theworldthatday.media.MediaLookup.DayMedia;
 import io.github.ericmschoi.theworldthatday.story.world.WorldStoryResponse;
 import io.github.ericmschoi.theworldthatday.story.world.WorldStoryService;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikidataProperties;
@@ -254,7 +255,8 @@ class CuratedEventToneJudgeTest {
               0,
               false);
 
-      WorldStoryResponse response = new WorldStoryService(date -> day, judge).find(DAY);
+      WorldStoryResponse response =
+          new WorldStoryService(date -> day, judge, (date, tragicDay) -> DayMedia.NONE).find(DAY);
 
       assertThat(response.events())
           .extracting(WorldStoryResponse.Event::summary)

@@ -14,6 +14,8 @@ import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiEvent;
 import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiEventSource;
 import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiPage.State;
 import io.github.ericmschoi.theworldthatday.event.tone.DefaultEventToneJudge;
+import io.github.ericmschoi.theworldthatday.media.MediaLookup;
+import io.github.ericmschoi.theworldthatday.media.MediaLookup.DayMedia;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -70,6 +72,11 @@ class WorldStoryControllerTest {
     @Bean
     StubSource stubSource() {
       return new StubSource();
+    }
+
+    @Bean
+    MediaLookup noDayMedia() {
+      return (date, tragicDay) -> DayMedia.NONE;
     }
   }
 
