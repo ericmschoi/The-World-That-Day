@@ -6,6 +6,7 @@ import {
 } from '../mocks/fixtures/media/photos'
 import { imageEmbed } from '../mocks/fixtures/media/modes'
 import { licenseInAttribution, licenseLabel } from './licenseLabel'
+import type { Media } from './types'
 
 describe('licenseLabel', () => {
   it('says the license is unverified when license_status is unknown', () => {
@@ -21,7 +22,8 @@ describe('licenseLabel', () => {
   it.each([
     ['free', sameDayPhoto, 'CC BY-SA 4.0'],
     ['free, KOGL Type 1 (2002-06-22)', koglPhoto, 'KOGL Type 1'],
-    ['other', imageEmbed, 'provider-terms'],
+    // M3b3c T1 (4): `provider-terms` is a code, now put into words.
+    ['other', imageEmbed, '제공사 이용약관에 따름'],
   ])('shows the license name as given (%s)', (_name, media, expected) => {
     expect(licenseLabel(media)).toBe(expected)
   })
@@ -33,6 +35,49 @@ describe('licenseLabel', () => {
     expect(licenseLabel({ ...sameDayPhoto, license: '  ' })).toBe(
       '라이선스 확인 안 됨',
     )
+  })
+})
+
+describe('licenseLabel for provider-terms (M3b3c T1 (4))', () => {
+  const withLicense = (
+    license: string | null,
+    license_status: Media['license_status'],
+  ) => ({ ...sameDayPhoto, license, license_status })
+
+  it.each(['provider-terms', '  provider-terms ', '\tprovider-terms\n'])(
+    'says 제공사 이용약관에 따름 for %j with status other',
+    (license) => {
+      expect(licenseLabel(withLicense(license, 'other'))).toBe(
+        '제공사 이용약관에 따름',
+      )
+    },
+  )
+
+  it('still says unverified when the status is unknown', () => {
+    expect(licenseLabel(withLicense('provider-terms', 'unknown'))).toBe(
+      '라이선스 확인 안 됨',
+    )
+  })
+
+  it.each(['Provider-Terms', 'provider terms', 'provider-terms-2'])(
+    'leaves other names as given (%j)',
+    (license) => {
+      expect(licenseLabel(withLicense(license, 'other'))).toBe(license)
+    },
+  )
+
+  it('shows the line unless the attribution already says it', () => {
+    const youtube = {
+      ...withLicense('provider-terms', 'other'),
+      attribution: 'KTV 아카이브 · YouTube',
+    }
+    expect(licenseInAttribution(youtube)).toBe(false)
+    expect(
+      licenseInAttribution({
+        ...youtube,
+        attribution: 'KTV 아카이브 · YouTube · 제공사 이용약관에 따름',
+      }),
+    ).toBe(true)
   })
 })
 
