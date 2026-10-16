@@ -93,13 +93,15 @@ describe('C1/C2 product code rules', () => {
     expect(offenders).toEqual([])
   })
 
-  // Mock data is test-only, as in the M3b1 plan's C6 check.
-  it('C2: has no absolute http(s) URLs outside test files and mocks', () => {
+  // Mock data is test-only, as in the M3b1 plan's C6 check. Outside links
+  // the product needs live in src/external/urls.ts only (M3b3b C1).
+  it('C2: has no absolute http(s) URLs outside test files, mocks and urls.ts', () => {
     const url = /https?:\/\//
     const offenders = Object.keys(sourceFiles).filter(
       (p) =>
         !isTestFile(p) &&
         !p.startsWith('/src/mocks/') &&
+        p !== '/src/external/urls.ts' &&
         url.test(sourceFiles[p]),
     )
     expect(offenders).toEqual([])
