@@ -40,6 +40,9 @@ public abstract class WikimediaWireMockTest {
   /** Not {@link #KOWIKI_PATH}: Commons uses the same real path, so tests tell them apart. */
   public static final String COMMONS_PATH = "/commons/w/api.php";
 
+  /** The default PageImages answer: the requested articles have no lead image. */
+  public static final String NO_PAGE_IMAGES = "{\"batchcomplete\":true,\"query\":{\"pages\":[]}}";
+
   protected static final WireMockServer wikimedia = start();
 
   @Autowired protected MutableClock clock;
@@ -70,6 +73,13 @@ public abstract class WikimediaWireMockTest {
     wikimedia.stubFor(
         WireMock.get(WireMock.urlPathEqualTo(COMMONS_PATH))
             .willReturn(WireMock.okJson("{\"batchcomplete\":true}")));
+    // Articles without a lead image unless a test stubs PageImages (plan M3a3c T1 (5)). Priority 1
+    // wins over the pageprops stubs that match on action=query alone.
+    wikimedia.stubFor(
+        WireMock.get(WireMock.urlPathEqualTo(KOWIKI_PATH))
+            .withQueryParam("prop", WireMock.equalTo("pageimages"))
+            .atPriority(1)
+            .willReturn(WireMock.okJson(NO_PAGE_IMAGES)));
     clock.advance(properties.rateLimitMaxWait().plusSeconds(1));
   }
 
