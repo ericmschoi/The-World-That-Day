@@ -106,7 +106,7 @@
 | M3b2 그날의 세계 섹션 뼈대 (개정 2026-10-13) | `feat/world-events-ui` | frontend-dev, test-engineer, PM | 240 → 파일별 다시 셈 약 365 (범위 365~510, 웹 실측 ×1.0~×1.4). 한 PR, 확인점 T1b 뒤 누적 170 | 구현: **M3a3 머지 뒤**(완료, PM 결정 A, 서버와 병렬). M3a3a에서 받을 것 없음(DTO 변화 없음), M3b1b. 실제 사진 확인(T6): **M3a3b 머지 뒤** `main` 에서 — PR 머지는 T5(실제 서버, 사진 없이) 뒤 | **완료 (PR #13, 실제 S1 434)** | `docs/plans/m3b2-world-events-ui.md` |
 | M3b2b 그날 사진·비극 블록·카드 접근성·Playwright (새로) | `feat/world-photos-a11y` | frontend-dev, test-engineer, PM | 다시 셈 약 315 → 약 375, 확인점 T2 뒤 300 | M3b2 | **진행** — 개정 PM 승인 2026-10-13 (결정 1~4 (a)) | `docs/plans/m3b2b-world-photos-a11y.md` |
 | M3b3 영상 재생 기초와 Commons 동영상 (개정) | `feat/media-video` | frontend-dev, test-engineer, PM | 195 → 보정 약 320 | M3b2 (PM 확인은 M3a4b 뒤) | PM 승인 2026-10-12 | `docs/plans/m3b3-media-video.md` |
-| M3b3b 개인정보처리방침과 동의 단계 (새로) | `feat/privacy-consent` | frontend-dev, test-engineer, PM | 165 → 보정 약 280 | M3b2 | PM 승인 2026-10-12 | `docs/plans/m3b3b-privacy-consent.md` |
+| M3b3b 개인정보처리방침과 동의 단계 (개정 2026-10-15) | `feat/privacy-consent` | frontend-dev, test-engineer, PM | 165 → 파일별 다시 셈 약 317 (T0 포함, 범위 317~380, 웹 실측 ×1.14면 약 361). 한 PR, 확인점 T1 뒤 누적 S1 210 | M3b2, **M3b3 (PR #16, `main` 72fd4ae) 완료** | **개정 PM 승인 2026-10-15** (결정 1 (a) M3b3 리뷰 권장 1·2를 T0에서, 결정 2 운영자·문의·시행일) | `docs/plans/m3b3b-privacy-consent.md` |
 | M3b3c YouTube 공식 채널 영상 재생 (새로) | `feat/youtube-embed` | frontend-dev, test-engineer, PM | 130 → 보정 약 220 | M3b3, M3b3b (PM 확인은 M3a5 뒤, 1988은 M3a5b 뒤) | PM 승인 2026-10-12 | `docs/plans/m3b3c-youtube-embed.md` |
 
 M3a2는 보정 약 625로 400을 넘었지만 PM 결정 (b)로 한 PR로 갔고, 실제 S1은 +1,094(약 2.8배)였다. M3a3은 같은 비율로 약 1,290줄로 다시 추정되어 PM이 두 PR로 나눴다(결정 A (a), 2026-10-13): M3a3(형식·규칙, 약 730)과 M3a3b(Commons 사진, 약 560). M3a3의 T2 뒤 확인점(450)에서 실제 S1이 **505**(T2 한 작업이 이전 방식의 약 3.9배)여서 PM이 T3을 **M3a3a** 로 뺐다(확인점 (a), 2026-10-13). M3a3a는 약 365(같은 3.9배면 약 505)로 400을 넘을 수 있지만 더 나누지 않는다(PR이 200줄 안팎으로 잘게 쪼개지고 뒤 기능이 두 PR을 기다린다) — T1 뒤 300에서 알리기만 한다. M3a3b는 T1 뒤 400(넘으면 PM에게 알린다). M3b2는 다시 셈 약 365(가운데 약 440)로 PM이 한 PR로 정했고(결정 1 (a), 2026-10-13), T1b 뒤 누적 170을 넘으면 T2·T3을 따로 뺄지 다시 묻는다.
@@ -129,7 +129,8 @@ M3a2는 보정 약 625로 400을 넘었지만 PM 결정 (b)로 한 PR로 갔고,
 - **M3a3a는 M3a3 바로 뒤, M3a3b·M3a4 앞이다.** M3a3b(Commons 사진)는 파서·라이선스 상태·차단과 제외를, M3a4(영상 검색 틀)는 파서(영어 서수 보강)·차단 목록·제외 목록을 쓴다.
 - **M3a4는 M3a3a까지만 기댄다.** M3a3b와 병렬로 진행할 수 있지만 둘 다 `WorldStoryService` 의 미디어 연결을 고치므로, 병렬이면 worktree를 나누고 오케스트레이터가 합친다. 기본은 M3a3b → M3a4 순서.
 - **M3a4b는 M3a4와 M3a3b 둘 다 뒤다**(M3a3b의 Commons 파일 매퍼를 재사용).
-- M3b2b·M3b3·M3b3b는 모두 M3b2 뒤다. M3b3과 M3b3b는 둘 다 `InputScreen` 을 고치므로(표본 버튼, 동의) 기본은 M3b3 → M3b3b 순서, 병렬이면 worktree를 나누고 오케스트레이터가 합친다.
+- M3b2b·M3b3·M3b3b는 모두 M3b2 뒤다. M3b3과 M3b3b는 둘 다 `InputScreen` 을 고쳐서(표본 버튼, 동의) M3b3 → M3b3b 순서로 했다 — **끝남**: M3b3이 머지되었고(PR #16), M3b3b는 그 `main`(72fd4ae)에서 갈라졌다.
+- **M3b3c 계획을 시작할 때**: M3b3b T0의 재생 규칙(화면 보임 훅의 "안 보임" 보고마다 조정에서 해제, 우리가 부른 `pause()` 를 세는 카운터 — M3b3 리뷰 권장 1·2)을 YouTube 플레이어 기준에 넣는다. M3b3b의 `useConsent(): boolean` 약속은 M3b3c 계획 그대로다.
 - M3a1b와 M3a1c는 `KoWikiClient` 인터페이스로만 이어져 worktree 병렬이 가능했다(둘 다 완료).
 
 #### 영상 리서치가 바꾼 것 (2026-10-11 ~ 12)
@@ -186,6 +187,7 @@ M3a2는 보정 약 625로 400을 넘었지만 PM 결정 (b)로 한 PR로 갔고,
 | **영상 23·24번** | (b) 입력 화면 안 제출 전 필수 동의 + 방침 링크 / (a) PM이 YouTube 키 발급(완료) | 결정 2026-10-11 |
 | **M3b1b 리뷰 후속** | 라이선스 줄 중복 (b), 새 창 안내, 설명 두 번 읽기 방지, `fallbackAlt` 테스트, Playwright 포커스·토큰 확인 → M3b2b | 결정 2026-10-11 |
 | **D1~D3** | D1 (a) 분할 / D2 (a) 동의는 M3b3b가 임시 입력 화면에, M2b가 옮김 / D3 (a) `web-ci` 에 Chromium Playwright 단계 | **결정 2026-10-12** |
+| **M3b3b 개정 결정 1·2** | 계획 개정 승인 · 결정 1 **(a)** M3b3 리뷰 권장 1(절반 이하로 보일 때 사용자가 튼 영상이 화면 밖에서도 계속 재생)·2(`ourPause` 카운터)를 이 PR의 T0에서, `fix(media)` 커밋 따로 · 결정 2 방침의 운영자 "The World That Day 운영자", 문의 **(a)** 이 저장소의 GitHub Issues, 시행일 **(a)** 머지하는 날(PM이 머지하는 날 frontend-dev의 한 줄 커밋으로 채움). 둘 다 planner 추천과 같음. M3 PR 수는 그대로 | **결정 2026-10-15** |
 
 #### 후속 작업 후보 (M3 중 일정 없음 — M3 끝 또는 표의 시점에 PM이 정함)
 
@@ -334,7 +336,7 @@ M3a2는 보정 약 625로 400을 넘었지만 PM 결정 (b)로 한 PR로 갔고,
 | Y4를 제1611호 `W0isyEBFRvI` 로 1회 더 | M3a5b 전 |
 | N-B9 (e영상역사관 플레이어 퍼가기 메뉴) | M3a5b 전 (선택) |
 | Commons 핫링크 `curl` 2개(리서치 6.1절) | M3a4b PR 때 (선택) |
-| 개인정보처리방침·동의 문구 확정(문의 방법·시행일 포함) | M3b3b PR |
+| 개인정보처리방침·동의 문구 확정(운영자 표기·문의 방법·시행일 포함 — 결정 2026-10-15: "The World That Day 운영자", GitHub Issues, 머지하는 날) | M3b3b PR |
 | 제품 정의서 남은 문구 반영(위 표 "아직" 행) | 편할 때 (M3 끝 전) |
 | 루트 `.env` 빈 선택 항목 정리, `WIKIMEDIA_USER_AGENT` 값 | **완료 (M3a2 T5, 2026-10-13)**. 값은 ASCII로, 자리 표시 값은 바꿔 둔다 — 점검 코드는 만들지 않기로 함(M3a3 결정 C (c)), PR마다 PM 확인 단계에서 직접 본다 |
 | M3 PR 검수 중 실제 호출·화면·**표본 날짜 품질 확인**, `tone` 검수 | 각 PR (M3a3은 T5 형식 검토, M3a3a는 T4 규칙 검토·시작 실패 확인, M3a3b는 T4 실제 호출) |
