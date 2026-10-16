@@ -13,7 +13,9 @@ type Props = { media: Media }
 // line is left out when the attribution already names the license.
 export function MediaCaption({ media }: Props) {
   const { badge, text } = dateLabel(media)
-  const description = media.description?.trim()
+  // Not a string (a number, an object): no description line (M3b3 decision 2 (b)).
+  const description =
+    typeof media.description === 'string' ? media.description.trim() : ''
   return (
     <figcaption className={styles.caption}>
       <p className={styles.when}>

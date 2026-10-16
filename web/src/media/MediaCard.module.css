@@ -1,5 +1,6 @@
 /* Media card (docs/plans/m3b1-design-foundation.md, "미디어 카드 모양"):
-   the photo on top at its own ratio, the caption below. No crop, no filter. */
+   the photo or video on top at its own ratio, the caption below. No crop,
+   no filter, nothing laid over the video. */
 .card {
   margin: 0 0 var(--space-5);
   border: var(--border-width) solid var(--color-border);
@@ -8,7 +9,8 @@
   overflow: hidden;
 }
 
-.image {
+.image,
+.video {
   display: block;
   width: auto;
   max-width: 100%;

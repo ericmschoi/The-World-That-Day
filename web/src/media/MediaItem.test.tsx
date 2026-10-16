@@ -8,6 +8,7 @@ import {
   videoFile,
 } from '../mocks/fixtures/media/modes'
 import { sameDayPhoto, undatedPhoto } from '../mocks/fixtures/media/photos'
+import { canRender, isDisplayable } from './isDisplayable'
 import { MediaItem } from './MediaItem'
 import type { Media } from './types'
 
@@ -56,16 +57,51 @@ describe('MediaItem', () => {
     expect(screen.queryByRole('link', { name: /라이선스/ })).toBeNull()
   })
 
-  // Video and iframe cards come in M3b3, map SDK media in M4.
+  // YouTube comes in M3b3c, map SDK media in M4; image_embed is left out.
   it.each([
     ['video_embed', videoEmbed],
     ['image_embed', imageEmbed],
-    ['video_file', videoFile],
     ['sdk', sdkRoadview],
     ['link_only', linkOnly],
   ])('renders nothing for %s yet', (_mode, media) => {
     const { container } = renderItem(media)
     expect(container).toBeEmptyDOMElement()
     expect(screen.queryByRole('link')).not.toBeInTheDocument()
+  })
+
+  // M3b3 T2 (11): was in the table above, expecting nothing.
+  it('renders a video card for video_file', () => {
+    renderItem(videoFile)
+    const figure = screen.getByRole('figure')
+    expect(figure.querySelector('video')).toHaveAccessibleName('서울 사진')
+    expect(screen.queryByRole('img')).toBeNull()
+  })
+})
+
+describe('canRender (M3b3 T2 (10))', () => {
+  it.each([
+    ['image', sameDayPhoto, true],
+    ['video_file', videoFile, true],
+    ['video_embed', videoEmbed, false],
+    ['image_embed', imageEmbed, false],
+    ['sdk', sdkRoadview, false],
+    ['link_only', linkOnly, false],
+    ['image, not displayable', patch(sameDayPhoto, { source_url: '' }), false],
+    [
+      'video_file, not displayable',
+      patch(videoFile, { attribution: '' }),
+      false,
+    ],
+  ])('%s → %s', (_case, media, expected) => {
+    expect(canRender(media)).toBe(expected)
+  })
+
+  it('agrees with what MediaItem draws', () => {
+    for (const media of [videoEmbed, imageEmbed, sdkRoadview]) {
+      expect(isDisplayable(media)).toBe(true)
+      const { container, unmount } = renderItem(media)
+      expect(container).toBeEmptyDOMElement()
+      unmount()
+    }
   })
 })

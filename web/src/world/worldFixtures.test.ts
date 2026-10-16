@@ -7,6 +7,8 @@ import pdExample from '../../../data/schema/examples/media/valid/commons-1988-09
 import koglExample from '../../../data/schema/examples/media/valid/commons-2002-06-22-gwangju-world-cup-kogl1.json'
 import unknownTimeExample from '../../../data/schema/examples/media/valid/example-photo-capture-time-unknown.json'
 import unknownLicenseExample from '../../../data/schema/examples/media/valid/example-photo-license-unknown.json'
+import videoFileExample from '../../../data/schema/examples/media/valid/example-video-file.json'
+import { exampleVideoFile } from '../mocks/fixtures/world/media'
 import * as responses from '../mocks/fixtures/world/responses'
 import type { WorldResponse } from './types'
 
@@ -72,15 +74,16 @@ const sorted = (keys: string[]) => [...keys].sort()
 const asJson = (value: unknown) => JSON.parse(JSON.stringify(value))
 
 const fixtures: [string, WorldResponse][] = Object.entries(responses)
-// M3b2b's synthetic tragic fixtures are not demo values.
-const SYNTHETIC = ['worldWithTragic', 'worldTragicOnly']
+// M3b2b's synthetic tragic fixtures and M3b3's video one are not demo values.
+const SYNTHETIC = ['worldWithTragic', 'worldTragicOnly', 'world1988WithVideo']
 const demoFixtures = fixtures.filter(([name]) => !SYNTHETIC.includes(name))
 
 describe('world fixtures: key sets (T1b (5))', () => {
-  it('has the five demo fixtures and the two synthetic tragic ones', () => {
+  it('has the five demo fixtures and the three synthetic ones', () => {
     expect(fixtures.map(([name]) => name).sort()).toEqual([
       'world1988',
       'world1988WithMedia',
+      'world1988WithVideo',
       'world1995',
       'world2002',
       'world2002WithMedia',
@@ -223,6 +226,41 @@ describe('world fixtures: media copied from the M3a3 examples (T1b (7))', () => 
       id: 'example-photo-capture-time-unknown-day',
     })
     expect(undated.date_relation).toEqual({ kind: 'unknown', years: 0 })
+  })
+
+  // M3b3 T3 (4).
+  it('exampleVideoFile is a value-for-value copy of example-video-file.json', () => {
+    expect(asJson(exampleVideoFile)).toEqual(videoFileExample)
+  })
+
+  it('world1988WithVideo adds the video to event ① and an undated copy to day_media', () => {
+    const fixture = responses.world1988WithVideo
+    const eventMedia = fixture.events[0].media
+
+    expect(eventMedia.slice(0, 2)).toEqual(
+      responses.world1988WithMedia.events[0].media,
+    )
+    expect(withoutRelation(eventMedia[2])).toEqual(videoFileExample)
+    expect(eventMedia[2].date_relation).toEqual({
+      kind: 'same_month',
+      years: 0,
+    })
+    expect(fixture.events.slice(1)).toEqual(
+      responses.world1988WithMedia.events.slice(1),
+    )
+    expect(fixture.day_media.slice(0, 2)).toEqual(
+      responses.world1988WithMedia.day_media,
+    )
+    expect(withoutRelation(fixture.day_media[2])).toEqual({
+      ...videoFileExample,
+      id: 'example-video-file-undated',
+      captured_at: null,
+      date_precision: null,
+    })
+    expect(fixture.day_media[2].date_relation).toEqual({
+      kind: 'unknown',
+      years: 0,
+    })
   })
 
   it('world2002WithMedia: the event has the KOGL Type 1 photo', () => {
