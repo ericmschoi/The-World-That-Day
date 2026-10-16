@@ -3,6 +3,7 @@ package io.github.ericmschoi.theworldthatday.wikimedia;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import io.github.ericmschoi.theworldthatday.MutableClock;
 import io.github.ericmschoi.theworldthatday.TestcontainersConfiguration;
 import io.github.ericmschoi.theworldthatday.config.ClockConfig;
@@ -65,6 +66,10 @@ public abstract class WikimediaWireMockTest {
   @BeforeEach
   void resetWikimedia() {
     wikimedia.resetAll();
+    // A day without a Commons category unless a test stubs one (plan M3a3b T2 (10)).
+    wikimedia.stubFor(
+        WireMock.get(WireMock.urlPathEqualTo(COMMONS_PATH))
+            .willReturn(WireMock.okJson("{\"batchcomplete\":true}")));
     clock.advance(properties.rateLimitMaxWait().plusSeconds(1));
   }
 

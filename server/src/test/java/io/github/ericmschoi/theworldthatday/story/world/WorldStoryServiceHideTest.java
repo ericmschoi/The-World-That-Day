@@ -13,6 +13,7 @@ import io.github.ericmschoi.theworldthatday.event.tone.EventToneJudge.Judgement;
 import io.github.ericmschoi.theworldthatday.event.tone.EventToneJudge.Scope;
 import io.github.ericmschoi.theworldthatday.event.tone.EventToneJudge.Tone;
 import io.github.ericmschoi.theworldthatday.event.tone.EventToneJudge.Verdict;
+import io.github.ericmschoi.theworldthatday.media.MediaLookup.DayMedia;
 import io.github.ericmschoi.theworldthatday.story.world.WorldStoryResponse.Event;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -62,7 +63,8 @@ class WorldStoryServiceHideTest {
             0,
             false);
     EventToneJudge judge = found -> new Judgement(verdicts, false);
-    return new WorldStoryService(date -> day, judge).find(LEAP_DAY);
+    return new WorldStoryService(date -> day, judge, (date, tragicDay) -> DayMedia.NONE)
+        .find(LEAP_DAY);
   }
 
   @Test

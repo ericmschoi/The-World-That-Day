@@ -14,6 +14,7 @@ import io.github.ericmschoi.theworldthatday.event.tone.EventToneJudge.Judgement;
 import io.github.ericmschoi.theworldthatday.event.tone.EventToneJudge.Scope;
 import io.github.ericmschoi.theworldthatday.event.tone.EventToneJudge.Tone;
 import io.github.ericmschoi.theworldthatday.event.tone.EventToneJudge.Verdict;
+import io.github.ericmschoi.theworldthatday.media.MediaLookup.DayMedia;
 import io.github.ericmschoi.theworldthatday.story.world.WorldStoryResponse.Event;
 import io.github.ericmschoi.theworldthatday.story.world.WorldStoryResponse.Link;
 import java.time.Instant;
@@ -55,7 +56,8 @@ class WorldStoryServiceTest {
   }
 
   private static WorldStoryResponse respond(List<KoWikiEvent> events, EventToneJudge judge) {
-    return new WorldStoryService(date -> day(events), judge).find(LEAP_DAY);
+    return new WorldStoryService(date -> day(events), judge, (date, tragicDay) -> DayMedia.NONE)
+        .find(LEAP_DAY);
   }
 
   @Test

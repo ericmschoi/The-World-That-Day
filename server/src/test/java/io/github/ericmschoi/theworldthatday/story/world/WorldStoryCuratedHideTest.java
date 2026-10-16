@@ -11,6 +11,7 @@ import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiPage.State;
 import io.github.ericmschoi.theworldthatday.event.tone.CuratedEventToneJudge;
 import io.github.ericmschoi.theworldthatday.event.tone.EventCuration;
 import io.github.ericmschoi.theworldthatday.event.wikidata.WikidataSignalSource.Signals;
+import io.github.ericmschoi.theworldthatday.media.MediaLookup.DayMedia;
 import io.github.ericmschoi.theworldthatday.story.world.WorldStoryResponse.Event;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikidataProperties;
 import java.io.IOException;
@@ -94,7 +95,8 @@ class WorldStoryCuratedHideTest {
             0,
             0,
             false);
-    return new WorldStoryService(date -> day, judge).find(LEAP_DAY);
+    return new WorldStoryService(date -> day, judge, (date, tragicDay) -> DayMedia.NONE)
+        .find(LEAP_DAY);
   }
 
   @Test

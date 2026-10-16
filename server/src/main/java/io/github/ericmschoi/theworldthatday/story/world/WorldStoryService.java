@@ -9,6 +9,8 @@ import io.github.ericmschoi.theworldthatday.event.tone.EventToneJudge;
 import io.github.ericmschoi.theworldthatday.event.tone.EventToneJudge.Judgement;
 import io.github.ericmschoi.theworldthatday.event.tone.EventToneJudge.Tone;
 import io.github.ericmschoi.theworldthatday.event.tone.EventToneJudge.Verdict;
+import io.github.ericmschoi.theworldthatday.media.MediaLookup;
+import io.github.ericmschoi.theworldthatday.media.MediaLookup.DayMedia;
 import io.github.ericmschoi.theworldthatday.story.world.WorldStoryResponse.Event;
 import io.github.ericmschoi.theworldthatday.story.world.WorldStoryResponse.Notice;
 import java.time.LocalDate;
@@ -24,7 +26,9 @@ import org.springframework.stereotype.Service;
  * The world section of a day (plan M3a2): every event {@link KoWikiEventSource} returns, as written
  * (M3-P16, nothing is filtered for quality), {@code normal} events first, then {@code tragic}, each
  * group in the source order. Only curated takedowns ({@code hide}) are left out; they do not make
- * the answer partial. 503 only when both pages are unavailable.
+ * the answer partial. 503 only when both pages are unavailable. Day photos (plan M3a3b) are looked
+ * up after the tones, never on a day with a shown {@code tragic} event; a failed lookup only makes
+ * the answer partial.
  */
 @Service
 public class WorldStoryService {
@@ -33,10 +37,12 @@ public class WorldStoryService {
 
   private final KoWikiEventSource source;
   private final EventToneJudge judge;
+  private final MediaLookup media;
 
-  public WorldStoryService(KoWikiEventSource source, EventToneJudge judge) {
+  public WorldStoryService(KoWikiEventSource source, EventToneJudge judge, MediaLookup media) {
     this.source = source;
     this.judge = judge;
+    this.media = media;
   }
 
   public WorldStoryResponse find(LocalDate date) {
@@ -65,6 +71,7 @@ public class WorldStoryService {
       }
       (verdict.tone() == Tone.NORMAL ? normal : tragic).add(Event.of(found.get(i), verdict));
     }
+    DayMedia dayMedia = media.dayMedia(date, !tragic.isEmpty());
     normal.addAll(tragic);
     if (!hidden.isEmpty()) {
       log.debug("World events hidden by curation: count={} ids={}", hidden.size(), hidden);
@@ -72,9 +79,9 @@ public class WorldStoryService {
     return new WorldStoryResponse(
         date.toString(),
         normal,
-        List.of(),
+        dayMedia.items(),
         normal.isEmpty() ? Notice.NO_EVENTS_FOUND : null,
-        day.degraded() || judgement.partial());
+        day.degraded() || judgement.partial() || dayMedia.failed());
   }
 
   /** The hash part of the event ID: the full ID holds the date, which logs must not show. */
