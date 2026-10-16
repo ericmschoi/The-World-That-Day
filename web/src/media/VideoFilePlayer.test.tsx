@@ -176,6 +176,32 @@ describe('VideoFilePlayer playback (T2 (3)·(4)·(6)·(7))', () => {
     expect(videos().filter((video) => !video.paused)).toEqual([second])
   })
 
+  // Browsers fire `play` later than `play()`: A's event arrives after B took
+  // over, while A is paused again. It must not pause B (e2e "together").
+  it('keeps one playing when two come into view before any event fires', () => {
+    media.deferEvents()
+    renderVideos([videoFile, twoSources])
+    const [first, second] = videos()
+    observers.setRatio(first, 0.51)
+    observers.setRatio(second, 0.51)
+    media.flushEvents()
+    expect(first.paused).toBe(true)
+    expect(second.paused).toBe(false)
+    expect(media.pause.mock.contexts).toEqual([first])
+  })
+
+  it('lets a user who presses play take over with deferred events', () => {
+    media.deferEvents()
+    renderVideos([videoFile, twoSources])
+    const [first, second] = videos()
+    observers.setRatio(first, 0.51)
+    media.flushEvents()
+    act(() => void second.play())
+    media.flushEvents()
+    expect(first.paused).toBe(true)
+    expect(second.paused).toBe(false)
+  })
+
   it('pauses the first video when the user starts the second', () => {
     renderVideos([videoFile, twoSources])
     const [first, second] = videos()

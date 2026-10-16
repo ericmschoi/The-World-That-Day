@@ -109,7 +109,10 @@ export function VideoFilePlayer({ media, fallbackAlt, onUnavailable }: Props) {
         width={media.thumbnail_width ?? undefined}
         height={media.thumbnail_height ?? undefined}
         aria-label={fallbackAlt}
-        onPlay={() => {
+        onPlay={(event) => {
+          // Browsers fire `play` later. If another video took over in the
+          // meantime this one is paused again: a stale event, not the user.
+          if (event.currentTarget.paused) return
           flags.current.userPaused = false
           coordinator.notifyPlaying(player)
         }}

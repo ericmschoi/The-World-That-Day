@@ -83,6 +83,10 @@ export type MediaElementFake = {
   readonly mutedAtPlay: boolean[]
   // From now on `play()` rejects with `error` (null: resolves again).
   rejectPlayWith(error: Error | null): void
+  // Queue `play`/`pause` events instead of firing them, as browsers do...
+  deferEvents(): void
+  // ...and fire the queued ones in order, inside `act`.
+  flushEvents(): void
   uninstall(): void
 }
 
@@ -90,7 +94,7 @@ const MEDIA_KEYS = ['play', 'pause', 'load', 'paused'] as const
 
 // `play()` resolves (or rejects, see `rejectPlayWith`), marks the element as
 // playing and fires `play`; `pause()` on a playing element marks it paused and
-// fires `pause`, like a browser. Events fire synchronously.
+// fires `pause`, like a browser. Events fire synchronously unless deferred.
 export function installMediaElementFake(): MediaElementFake {
   const proto = HTMLMediaElement.prototype
   const saved = MEDIA_KEYS.map(
@@ -99,18 +103,24 @@ export function installMediaElementFake(): MediaElementFake {
   const playing = new WeakSet<HTMLMediaElement>()
   const mutedAtPlay: boolean[] = []
   let rejection: Error | null = null
+  let deferring = false
+  const queue: [HTMLMediaElement, string][] = []
+  const fire = (el: HTMLMediaElement, type: string) => {
+    if (deferring) queue.push([el, type])
+    else el.dispatchEvent(new Event(type))
+  }
 
   const play = vi.fn(function (this: HTMLMediaElement) {
     mutedAtPlay.push(this.muted)
     if (rejection !== null) return Promise.reject(rejection)
     if (!playing.has(this)) {
       playing.add(this)
-      this.dispatchEvent(new Event('play'))
+      fire(this, 'play')
     }
     return Promise.resolve()
   })
   const pause = vi.fn(function (this: HTMLMediaElement) {
-    if (playing.delete(this)) this.dispatchEvent(new Event('pause'))
+    if (playing.delete(this)) fire(this, 'pause')
   })
   Object.defineProperties(proto, {
     play: { configurable: true, writable: true, value: play },
@@ -130,6 +140,16 @@ export function installMediaElementFake(): MediaElementFake {
     mutedAtPlay,
     rejectPlayWith(error) {
       rejection = error
+    },
+    deferEvents() {
+      deferring = true
+    },
+    flushEvents() {
+      act(() => {
+        for (let next = queue.shift(); next; next = queue.shift()) {
+          next[0].dispatchEvent(new Event(next[1]))
+        }
+      })
     },
     uninstall() {
       for (const [key, descriptor] of saved) {
