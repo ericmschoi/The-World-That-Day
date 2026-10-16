@@ -18,8 +18,10 @@ import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Commons through the Action API ({@code action=query}, {@code prop=imageinfo}), only via {@link
- * WikimediaHttpClient}. An API error {@code ratelimited} (sent with HTTP 200) blocks the host as a
- * 429 does. Log lines carry a fixed label, never a date, category or file name.
+ * WikimediaHttpClient}, each request sent once with the caller's read timeout (no retry, plan M3a3c
+ * decision 1 (a)). Any {@code error} in the answer is a failure; the error {@code ratelimited}
+ * (sent with HTTP 200) blocks the host as a 429 does. Log lines carry a fixed label, never a date,
+ * category or file name.
  */
 @Component
 public class ActionApiCommonsClient implements CommonsClient {
@@ -66,7 +68,8 @@ public class ActionApiCommonsClient implements CommonsClient {
             .build()
             .encode()
             .toUri();
-    if (!(http.get(SOURCE, label, uri, readTimeout) instanceof WikimediaResponse.Ok(String body))) {
+    if (!(http.getOnce(SOURCE, label, uri, readTimeout)
+        instanceof WikimediaResponse.Ok(String body))) {
       return Pages.failure();
     }
     JsonNode tree;
@@ -75,12 +78,13 @@ public class ActionApiCommonsClient implements CommonsClient {
     } catch (JacksonException e) {
       return failed(label, "invalid JSON");
     }
-    String error = tree.path("error").path("code").asString(null);
-    if (error != null) {
+    if (tree.has("error")) { // with or without a code (PR #17 review recommendation 2)
+      JsonNode code = tree.path("error").path("code");
+      String error = code.isValueNode() ? code.asString("").strip() : "";
       if (RATELIMITED.equals(error)) {
         http.blockHost(uri);
       }
-      return failed(label, "api error " + error);
+      return failed(label, error.isEmpty() ? "api error" : "api error " + error);
     }
     JsonNode pages = tree.path("query").path("pages");
     if (!tree.isObject() || !(pages.isArray() || pages.isMissingNode())) {

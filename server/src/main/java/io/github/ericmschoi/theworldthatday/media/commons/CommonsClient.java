@@ -5,7 +5,10 @@ import java.time.LocalDate;
 import java.util.List;
 import tools.jackson.databind.JsonNode;
 
-/** Wikimedia Commons file lookups for photos (plan M3a3b). Never throws. */
+/**
+ * Wikimedia Commons file lookups for photos (plan M3a3b). Each request is sent once with the given
+ * read timeout (no retry, plan M3a3c decision 1 (a)). Never throws.
+ */
 public interface CommonsClient {
 
   /**
