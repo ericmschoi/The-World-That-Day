@@ -49,7 +49,8 @@ public record MediaProperties(
    * One blocklist entry: a lowercase source key ({@code commons}, {@code youtube}, ...) and at
    * least one of {@code id} (Commons file name without {@code File:}, video ID or asset ID), {@code
    * author} (plain Commons {@code Artist}) or {@code channel} (channel ID). Blank values ({@link
-   * MediaText#isBlank}) count as absent.
+   * MediaText#isBlank}) count as absent; others lose surrounding spaces of the same set ({@link
+   * MediaText#strip}).
    */
   public record BlockEntry(String source, String id, String author, String channel) {
 
@@ -60,7 +61,7 @@ public record MediaProperties(
     }
 
     private static String present(String value) {
-      return MediaText.isBlank(value) ? null : value.strip();
+      return MediaText.isBlank(value) ? null : MediaText.strip(value);
     }
   }
 

@@ -61,7 +61,7 @@ public class MediaFilter {
     if (o.source() == null) {
       return Optional.empty();
     }
-    String source = o.source().strip().toLowerCase(Locale.ROOT);
+    String source = strip(o.source()).toLowerCase(Locale.ROOT);
     List<BlockEntry> entries = blocklist.stream().filter(e -> e.source().equals(source)).toList();
     if (entries.stream().anyMatch(e -> sameId(source, e.id(), o.itemId()))) {
       return Optional.of(Reason.BLOCKED_ID);
@@ -78,20 +78,28 @@ public class MediaFilter {
   }
 
   /**
-   * IDs are equal as given; Commons file names also ignore a {@code File:} prefix and underscores.
+   * IDs are equal as given; Commons file names also ignore a {@code File:} prefix and underscores,
+   * and a blocked name's lowercase first letter (one code point) matches MediaWiki's capital.
    */
   private static boolean sameId(String source, String blocked, String itemId) {
     if (blocked == null || itemId == null) {
       return false;
     }
-    return COMMONS.equals(source)
-        ? commonsName(blocked).equals(commonsName(itemId))
-        : blocked.equals(itemId.strip());
+    if (!COMMONS.equals(source)) {
+      return blocked.equals(strip(itemId));
+    }
+    String item = commonsName(itemId);
+    return commonsName(blocked).equals(item) || commonsName(blocked).equals(lowercaseFirst(item));
   }
 
   private static String commonsName(String name) {
-    String plain = name.replace('_', ' ').strip().replaceAll(" +", " ");
-    return plain.regionMatches(true, 0, "File:", 0, 5) ? plain.substring(5).strip() : plain;
+    String plain = strip(name.replace('_', ' ')).replaceAll(" +", " ");
+    return plain.regionMatches(true, 0, "File:", 0, 5) ? strip(plain.substring(5)) : plain;
+  }
+
+  private static String lowercaseFirst(String name) {
+    int cut = name.isEmpty() ? 0 : name.offsetByCodePoints(0, 1);
+    return name.substring(0, cut).toLowerCase(Locale.ROOT) + name.substring(cut);
   }
 
   /** Safeguard 3 applies only to media we show ourselves, never to a provider's own embed. */
@@ -115,7 +123,7 @@ public class MediaFilter {
    * limitation, plan M3a3a D1 (b)).
    */
   private static Predicate<String> matcher(String entry) {
-    String name = entry.strip();
+    String name = strip(entry);
     if (HANGUL.matcher(name).find()) {
       return text -> text.contains(name);
     }
@@ -127,6 +135,6 @@ public class MediaFilter {
   }
 
   private static String strip(String value) {
-    return value == null ? null : value.strip();
+    return MediaText.strip(value);
   }
 }

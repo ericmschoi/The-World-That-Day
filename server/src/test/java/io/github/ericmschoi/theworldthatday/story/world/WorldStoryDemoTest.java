@@ -150,6 +150,7 @@ class WorldStoryDemoTest extends WikimediaWireMockTest {
 
   private static long pagepropsRequests() {
     return wikimedia.getAllServeEvents().stream()
+        .filter(event -> event.getRequest().getUrl().startsWith(KOWIKI_PATH))
         .filter(event -> event.getRequest().queryParameter("action").containsValue("query"))
         .count();
   }

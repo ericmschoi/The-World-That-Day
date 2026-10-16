@@ -13,8 +13,8 @@ import tools.jackson.databind.annotation.JsonNaming;
 
 /**
  * Body of {@code GET /api/story/world} (plan M3a2 response fields). JSON names are snake_case.
- * {@code dayMedia} and every {@code media} stay empty until M3a3b (photos) and M3a4 (videos) fill
- * them.
+ * {@code dayMedia} holds the day's photos (M3a3b); every event {@code media} stays empty until
+ * M3a3c (photos) and M3a4 (videos) fill it.
  */
 @JsonNaming(SnakeCaseStrategy.class)
 public record WorldStoryResponse(
