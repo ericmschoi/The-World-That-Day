@@ -40,18 +40,22 @@ export function YouTubePlayer({ media, fallbackAlt, onUnavailable }: Props) {
   const api = useRef<YTPlayer | null>(null)
   const [ready, setReady] = useState(false)
   const [failed, setFailed] = useState(false)
-  // States arrive late, so ours are told apart by the last reported state
-  // (plan "YouTube 상태 처리"). want: our last call was play. pending: our
-  // playVideo() may still bring a PLAYING. cancels: our pauses before that
-  // start was reported, each maybe answered by a PAUSED (quick scrolling).
+  // Reports arrive late and may be merged or skipped, so each one is read
+  // against what we want now, not matched to a counted call (plan "YouTube
+  // 상태 처리", revised). want: our last call was play. ours: a start we
+  // asked for may still bring a PLAYING. pausing: our pause of a running
+  // player has no PAUSED yet. cancels: our pauses before a start was
+  // reported, each answered by a PAUSED or ended by the next PLAYING;
+  // replay: a play came after the oldest unanswered cancel.
   const flags = useRef({
     state: -1,
-    ourPauses: 0,
+    want: false,
+    ours: false,
+    pausing: false,
     cancels: 0,
+    replay: false,
     userPaused: false,
     played: false,
-    want: false,
-    pending: false,
     failed: false,
   })
 
@@ -61,7 +65,10 @@ export function YouTubePlayer({ media, fallbackAlt, onUnavailable }: Props) {
         const f = flags.current
         if (!api.current) return
         f.want = true
-        f.pending = true
+        // Already playing (the user started it) and not being paused.
+        if (f.state === PLAYING && !f.ours && !f.pausing) return
+        if (f.cancels > 0) f.replay = true
+        f.ours = true
         // Muted on the first play; after that a sound on is the user's.
         if (!f.played) api.current.mute()
         f.played = true
@@ -71,9 +78,12 @@ export function YouTubePlayer({ media, fallbackAlt, onUnavailable }: Props) {
         const f = flags.current
         if (!api.current) return
         f.want = false
-        if (f.state === PLAYING || f.state === BUFFERING) f.ourPauses += 1
-        else if (f.pending) f.cancels += 1
-        else return
+        if (f.state === PLAYING || f.state === BUFFERING) f.pausing = true
+        else if (f.ours) {
+          // Cancels the latest start: no play after it any more.
+          f.cancels += 1
+          f.replay = false
+        } else return // nothing running or starting
         api.current.pauseVideo()
       },
     }),
@@ -84,31 +94,37 @@ export function YouTubePlayer({ media, fallbackAlt, onUnavailable }: Props) {
     const f = flags.current
     f.state = state
     if (state === PLAYING) {
-      // Our start began. Cancels still unanswered did not stop it.
-      const ours = f.pending
-      f.pending = false
+      // Our start began, or the user's: unanswered cancels did not stop it.
+      const late = f.ours && !f.want
+      f.ours = false
       f.cancels = 0
-      if (ours && !f.want) {
-        // A start we cancelled began late: stop it, quietly.
-        f.ourPauses += 1
+      f.replay = false
+      if (late) {
+        // A start we no longer want: stop it, quietly.
+        f.pausing = true
         api.current?.pauseVideo()
-      } else if (ours || f.ourPauses === 0) {
+      } else {
+        // Ours as asked, or the user's own play.
+        f.want = true
         f.userPaused = false
         f.played = true
         coordinator.notifyPlaying(player)
-      } // else: stale, from before our pause
-    } else if (state === PAUSED) {
-      if (f.ourPauses > 0) f.ourPauses -= 1
-      else if (f.cancels > 0) {
-        // The answer to a cancel. A play after it is a start still to come.
-        f.cancels -= 1
-        f.pending = f.want || f.cancels > 0
       }
-      // The user, or the browser or YouTube (M3b3 review 5).
-      else f.userPaused = true
+    } else if (state === PAUSED) {
+      f.pausing = false
+      if (f.cancels > 0) {
+        // The answer to a cancel; a start asked for later still comes.
+        f.cancels -= 1
+        f.ours = f.want || f.cancels > 0 || f.replay
+        if (f.cancels === 0) f.replay = false
+      } else if (f.want && !f.ours) {
+        // The user, or the browser or YouTube (M3b3 review 5).
+        f.userPaused = true
+        f.want = false
+      } // else: our pause, or stale while our start is coming
     } else if (state === ENDED) {
-      f.pending = false
-      f.userPaused = true
+      const reset = { want: false, ours: false, pausing: false, cancels: 0 }
+      Object.assign(f, reset, { replay: false, userPaused: true })
     }
   })
 
@@ -157,8 +173,8 @@ export function YouTubePlayer({ media, fallbackAlt, onUnavailable }: Props) {
             },
             // YouTube's controls stay; the start we asked for is not coming.
             onAutoplayBlocked: () => {
-              flags.current.pending = false
-              flags.current.cancels = 0
+              const reset = { ours: false, cancels: 0, replay: false }
+              Object.assign(flags.current, reset)
             },
           },
         })
