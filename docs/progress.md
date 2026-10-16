@@ -171,3 +171,17 @@
 | 2026-10-14 | code-reviewer | M3b2b 리뷰 — 승인 (필수 0, 권장 5) | 승인 | cb6f9b3 |
 | 2026-10-14 | orchestrator | M3b2b PR #15 열림 (README b2e8bfc) | PR 대기 | b2e8bfc |
 | 2026-10-14 | orchestrator | PR #14 머지 뒤 main 병합, README 충돌 해결 (웹 검사 458/458, e2e 14/14) | 완료 | 9acba53 |
+| 2026-10-14 | planner | M3b3 계획 개정 (약 300, ×1.19 약 355, 확인점 T2 뒤 360) — PM 재승인·결정 3건 필요 | 완료(미커밋) | 9642d08 |
+| 2026-10-14 | planner | M3b3 계획 결정 1 (a)·2 (b)·3 (a) 기록 | 완료 | bbdd055 |
+| 2026-10-14 | planner | M3a3b 계획 개정 (약 715 → 분할 제안, 이월 권장 1~6) — PM 재승인·결정 2건 필요 | 완료(미커밋) | 9642d08 |
+| 2026-10-14 | frontend-dev | M3b3 T1 재생 기초 (S1 275 — mediaFakes 141, 예상 150~180 초과) | 완료 | 08a9424, 4a8d717 |
+| 2026-10-14 | frontend-dev | M3b3 T2 영상 카드·캡션 방어 (S1 179, 누적 454 — 확인점 360 초과, test/ 제외 313) — PM 결정 필요 | 완료 | 98a0981, b0a66e3 |
+| 2026-10-14 | planner | M3a3b 개정·M3a3c 분할·로드맵 (M3 PR 20개) | 완료 | af88e5d |
+| 2026-10-14 | frontend-dev | M3b3 T3 세계 화면 연결·표본 버튼 (S1 27, 누적 340 — test/ 제외 규칙) | 완료 | a21f0ef, 5f6ccf7 |
+| 2026-10-14 | backend-dev | M3a3b T0 이월 권장 1~3 (S1 52) — PM 결정 1건 (Commons 첫 글자 규칙) | 완료 | 9560b5f |
+| 2026-10-14 | test-engineer | M3b3 T4 기준 통과, 기준 밖 버그 발견 (두 영상 동시 진입 시 둘 다 멈춤, e2e 26/28) — PM 결정 필요 | 실패 발견 | bbe4b8d, d490bbd |
+| 2026-10-14 | orchestrator | M3b3 영상 버그 PM (a) — frontend-dev가 이 PR에서 수정 | 진행 | d490bbd |
+| 2026-10-14 | backend-dev | M3a3b T1 Commons 클라이언트·매퍼 (S1 333, 누적 385 — 확인점 350 알림) — 막힘: iiextmetadatalanguage=ko 결정 필요 | 막힘 | e8b4a04 |
+| 2026-10-15 | frontend-dev | M3b3 두 영상 동시 진입 버그 수정 (e2e 28/28, 누적 S1 343) | 완료 | 0514fe7 |
+| 2026-10-15 | backend-dev | M3a3b T1 마무리 — ko 제거, 녹화 fixture·매퍼 시험 (누적 S1 385, 확인점 350 알림) | 완료 | cdfdd37, 72779d8 |
+| 2026-10-15 | code-reviewer | M3b3 리뷰 — 승인 (필수 0, 권장 5) | 승인 | 0514fe7 |

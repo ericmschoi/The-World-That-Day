@@ -1,6 +1,7 @@
 import type { WorldEvent, WorldResponse } from '../../../world/types'
 import {
   captureTimeUnknown,
+  exampleVideoFile,
   licenseUnknown,
   olympicsOpeningPd,
   worldCupKogl1,
@@ -187,4 +188,35 @@ export const worldTragicOnly = {
   events: [testTragic],
   day_media: [],
   notice: null,
+} satisfies WorldResponse
+
+// Synthetic (plan M3b3 "fixture 추가"): `world1988WithMedia` plus the example
+// video after event ①'s photos, and an undated copy of it at the end of
+// `day_media`. Two videos on one screen, for the coordinator and e2e. Not
+// used by the default handler.
+export const world1988WithVideo = {
+  ...world1988WithMedia,
+  events: [
+    {
+      ...world1988WithMedia.events[0],
+      media: [
+        ...world1988WithMedia.events[0].media,
+        {
+          ...exampleVideoFile,
+          date_relation: { kind: 'same_month', years: 0 },
+        },
+      ],
+    },
+    ...world1988WithMedia.events.slice(1),
+  ],
+  day_media: [
+    ...world1988WithMedia.day_media,
+    {
+      ...exampleVideoFile,
+      id: 'example-video-file-undated',
+      captured_at: null,
+      date_precision: null,
+      date_relation: { kind: 'unknown', years: 0 },
+    },
+  ],
 } satisfies WorldResponse

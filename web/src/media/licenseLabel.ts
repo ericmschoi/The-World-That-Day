@@ -2,9 +2,10 @@ import type { Media } from './types'
 
 export const LICENSE_UNKNOWN = '라이선스 확인 안 됨'
 
-// The license name as the source wrote it, or an honest "unknown".
+// The license name as the source wrote it, or an honest "unknown". A license
+// that is not a string counts as missing (M3b3 decision 2 (b)).
 export function licenseLabel(media: Media): string {
-  const name = media.license?.trim()
+  const name = typeof media.license === 'string' ? media.license.trim() : ''
   return media.license_status === 'unknown' || !name ? LICENSE_UNKNOWN : name
 }
 

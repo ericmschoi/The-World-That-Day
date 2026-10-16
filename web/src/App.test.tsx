@@ -10,6 +10,9 @@ const DEMO_BUTTONS = [
   '1988년 9월 17일로 보기',
   '2002년 6월 22일로 보기',
   '1995년 3월 15일로 보기',
+  // M3b3 T3 (6): the two temporary sample dates follow the demo dates.
+  '표본: 1969년 7월 20일로 보기',
+  '표본: 1986년 9월 20일로 보기',
 ]
 
 describe('App', () => {
