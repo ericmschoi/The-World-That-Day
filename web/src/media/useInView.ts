@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useEffectEvent, useState } from 'react'
 
 // "In view" means more than half of the element is visible.
 const VISIBLE_RATIO = 0.5
@@ -11,13 +11,15 @@ type Seen = { target: Element; inView: boolean }
 
 // Returns a callback ref for the element and whether it is in view. Without
 // `IntersectionObserver` the element is never in view (so no autoplay).
-export function useInView<T extends Element>(): [
-  (node: T | null) => void,
-  boolean,
-] {
+// `onReport` hears every report, even one that changes nothing (two
+// "out of view" in a row), which the returned boolean cannot show.
+export function useInView<T extends Element>(
+  onReport?: (inView: boolean) => void,
+): [(node: T | null) => void, boolean] {
   const [node, setNode] = useState<T | null>(null)
   const [seen, setSeen] = useState<Seen | null>(null)
   const ref = useCallback((next: T | null) => setNode(next), [])
+  const report = useEffectEvent((inView: boolean) => onReport?.(inView))
 
   useEffect(() => {
     if (node === null || typeof IntersectionObserver === 'undefined') return
@@ -25,10 +27,9 @@ export function useInView<T extends Element>(): [
       (entries) => {
         const entry = entries.findLast((e) => e.target === node)
         if (entry) {
-          setSeen({
-            target: node,
-            inView: entry.intersectionRatio > VISIBLE_RATIO,
-          })
+          const inView = entry.intersectionRatio > VISIBLE_RATIO
+          setSeen({ target: node, inView })
+          report(inView)
         }
       },
       { threshold: IN_VIEW_THRESHOLDS },

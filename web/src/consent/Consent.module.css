@@ -1,0 +1,39 @@
+.notice {
+  margin: 0 0 var(--space-5);
+  padding: var(--space-4);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  font-size: var(--font-size-caption);
+}
+
+.notice p {
+  margin: 0 0 var(--space-2);
+}
+
+.notice p:last-child {
+  margin-bottom: 0;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-body);
+}
+
+.box {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0;
+}
+
+.box:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.hint {
+  color: var(--color-text);
+  font-weight: 700;
+}

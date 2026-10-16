@@ -1,3 +1,7 @@
+import { useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
+import { useConsentState } from '../consent/consent'
+import { ConsentNotice } from '../consent/ConsentNotice'
 import styles from './Screen.module.css'
 
 type Props = { onShowStory: (date: string) => void }
@@ -15,21 +19,40 @@ const DEMO_DATES = [
   { date: '1986-09-20', label: '표본: 1986년 9월 20일로 보기' },
 ]
 
-// Placeholder until the real input form arrives in M2b.
+// Placeholder until the real input form arrives in M2b. Before agreeing, the
+// buttons stay focusable (aria-disabled, not disabled) and a press explains
+// why and moves focus to the checkbox instead of opening the story.
 export function InputScreen({ onShowStory }: Props) {
+  const { agreed } = useConsentState()
+  const [hint, setHint] = useState(false)
+  const checkbox = useRef<HTMLInputElement>(null)
+
+  const show = (date: string) => {
+    if (agreed) return onShowStory(date)
+    // Render the hint first, so it is read as the checkbox's description.
+    flushSync(() => setHint(true))
+    checkbox.current?.focus()
+  }
+
   return (
     <>
       <h1 className={styles.title}>The World That Day</h1>
       <p className={styles.lead}>
         생년월일과 태어난 장소를 입력하는 화면이 곧 이곳에 생깁니다.
       </p>
+      <ConsentNotice
+        ref={checkbox}
+        hint={hint}
+        onToggle={() => setHint(false)}
+      />
       <div className={styles.buttons}>
         {DEMO_DATES.map(({ date, label }) => (
           <button
             key={date}
             type="button"
             className={styles.button}
-            onClick={() => onShowStory(date)}
+            aria-disabled={agreed ? undefined : true}
+            onClick={() => show(date)}
           >
             {label}
           </button>

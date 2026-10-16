@@ -31,3 +31,11 @@
   align-items: flex-start;
   gap: var(--space-3);
 }
+
+/* Not agreed yet: plain, still focusable, no opacity (contrast stays AA). */
+.button[aria-disabled='true'] {
+  border: var(--border-width) solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-muted);
+  cursor: default;
+}

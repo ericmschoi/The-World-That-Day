@@ -335,3 +335,92 @@ describe('VideoFilePlayer caption (T2 (9))', () => {
     expect(screen.getByRole('link', { name: /^원문 보기/ })).toBeInTheDocument()
   })
 })
+
+// M3b3b T0 (M3b3 review recommendations 1 and 2).
+describe('VideoFilePlayer releases on every out-of-view report (T0)', () => {
+  // The user starts a video that is visible but not past half, so it was
+  // already out of view; then it leaves the screen entirely.
+  const userPlaysAtThirdThenLeaves = (unmute: boolean) => {
+    renderVideos([videoFile])
+    const [video] = videos()
+    observers.setRatio(video, 0.3)
+    act(() => void video.play()) // the user's own controls
+    if (unmute) {
+      act(() => {
+        video.muted = false
+        fireEvent(video, new Event('volumechange'))
+      })
+    }
+    media.pause.mockClear()
+    observers.setRatio(video, 0)
+    return video
+  }
+
+  it('pauses a video the user started once it leaves the screen (1)', () => {
+    const video = userPlaysAtThirdThenLeaves(false)
+    expect(media.pause).toHaveBeenCalledTimes(1)
+    expect(media.pause.mock.contexts).toEqual([video])
+    expect(video.paused).toBe(true)
+  })
+
+  it('pauses it the same way after the user turned the sound on (2)', () => {
+    const video = userPlaysAtThirdThenLeaves(true)
+    expect(media.pause).toHaveBeenCalledTimes(1)
+    expect(video.paused).toBe(true)
+  })
+
+  it('does not count that pause as the user stopping it (3)', () => {
+    const video = userPlaysAtThirdThenLeaves(true)
+    expect(video.paused).toBe(true)
+    media.play.mockClear()
+    observers.setRatio(video, 0.51)
+    expect(media.play).toHaveBeenCalledTimes(1)
+    expect(media.play.mock.contexts).toEqual([video])
+    expect(video.muted).toBe(false)
+  })
+
+  it('never pauses another playing video on repeated reports (4)', () => {
+    renderVideos([videoFile, twoSources])
+    const [first, second] = videos()
+    observers.setRatio(second, 0.51)
+    media.pause.mockClear()
+    observers.setRatio(first, 0.3)
+    observers.setRatio(first, 0.1)
+    observers.setRatio(first, 0)
+    expect(media.pause).not.toHaveBeenCalled()
+    expect(second.paused).toBe(false)
+  })
+
+  it('plays once on two in-view reports in a row (5)', () => {
+    renderVideos([videoFile])
+    const [video] = videos()
+    observers.setRatio(video, 0.51)
+    observers.setRatio(video, 0.8)
+    expect(media.play).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('VideoFilePlayer counts its own pauses (T0 (6))', () => {
+  it('reads two of our pause events as ours, then a real one as the user', () => {
+    media.deferEvents()
+    renderVideos([videoFile])
+    const [video] = videos()
+    observers.setRatio(video, 0.51)
+    media.flushEvents()
+    // Our pause() → play() → pause() before any of their events fire.
+    observers.setRatio(video, 0.5)
+    observers.setRatio(video, 0.51)
+    observers.setRatio(video, 0.5)
+    media.flushEvents()
+    expect(media.play).toHaveBeenCalledTimes(2)
+    observers.setRatio(video, 0.51)
+    expect(media.play).toHaveBeenCalledTimes(3)
+    media.flushEvents()
+
+    act(() => video.pause()) // the user's pause, not ours
+    media.flushEvents()
+    observers.setRatio(video, 0.4)
+    observers.setRatio(video, 0.51)
+    expect(media.play).toHaveBeenCalledTimes(3)
+  })
+})
