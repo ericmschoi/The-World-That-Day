@@ -7,7 +7,8 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 /**
  * Media lookup settings (plan M3a3b), next to {@link MediaProperties} under the same prefix: at
  * most {@code dayMediaLimit} day photos (0 turns the lookup off), and the whole lookup ends within
- * {@code lookupDeadline}, which is also each request's read timeout.
+ * {@code lookupDeadline}. It is also the fixed read timeout of each media request, which is sent
+ * once without a retry (plan M3a3c decision 1 (a)).
  */
 @ConfigurationProperties("media")
 public record MediaLookupProperties(

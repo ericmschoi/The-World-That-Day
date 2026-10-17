@@ -34,9 +34,9 @@ import org.springframework.web.client.RestClientException;
  * GET once on timeouts and 502/503/504, and honours Retry-After per host on a 429 and on a 503 (an
  * overload signal per the Wikimedia rate-limit guidance; such a 503 is not retried). At most {@code
  * wikimedia.max-concurrent-requests} requests are in flight across all Wikimedia hosts; each
- * attempt waits up to the read timeout for a slot. Never throws for remote failures; logs one WARN
- * line with the source, the page title and the status or exception type (never the URL or the
- * body).
+ * attempt waits up to the read timeout for a slot. {@link #getOnce} never retries. Never throws for
+ * remote failures; logs one WARN line with the source, the page title and the status or exception
+ * type (never the URL or the body).
  */
 @Component
 public class WikimediaHttpClient {
@@ -77,6 +77,19 @@ public class WikimediaHttpClient {
 
   /** As {@link #get(String, String, URI)}, with {@code readTimeout} for each attempt. */
   public WikimediaResponse get(String source, String title, URI uri, Duration readTimeout) {
+    return send(source, title, uri, readTimeout, properties.maxRetries());
+  }
+
+  /**
+   * As {@link #get(String, String, URI, Duration)}, but sent once: never retried (plan M3a3c
+   * decision 1 (a), the media path). A 429 or a 503 with Retry-After still blocks the host.
+   */
+  public WikimediaResponse getOnce(String source, String title, URI uri, Duration readTimeout) {
+    return send(source, title, uri, readTimeout, 0);
+  }
+
+  private WikimediaResponse send(
+      String source, String title, URI uri, Duration readTimeout, int maxRetries) {
     if (!properties.enabled()) {
       return new Unavailable(Reason.DISABLED);
     }
@@ -86,7 +99,7 @@ public class WikimediaHttpClient {
       return fail(source, title, "no host in URI", Reason.INVALID_URI);
     }
     for (int attempt = 0; ; attempt++) {
-      boolean canRetry = attempt < properties.maxRetries();
+      boolean canRetry = attempt < maxRetries;
       if (rateLimiter.isBlocked(host)) {
         return fail(source, title, "skipped, rate limited", Reason.RATE_LIMITED);
       }
