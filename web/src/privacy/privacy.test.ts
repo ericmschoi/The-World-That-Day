@@ -6,6 +6,8 @@ import * as urls from '../external/urls'
 import {
   CONTACT_ISSUES_URL,
   GOOGLE_PRIVACY_URL,
+  YOUTUBE_EMBED_ORIGIN,
+  YOUTUBE_IFRAME_API_URL,
   YOUTUBE_TERMS_URL,
 } from '../external/urls'
 
@@ -95,9 +97,33 @@ describe('facts the PM decided, word for word (T1 (2))', () => {
 })
 
 describe('what the page loads (T1 (3)·(4))', () => {
-  it('C7: its absolute URLs are exactly those in urls.ts', () => {
+  // M3b3c T1 (2): urls.ts also holds the two YouTube player URLs now, which
+  // are not on the page. Every value must be one or the other, so a new value
+  // added without a group fails here.
+  const POLICY_LINKS = [
+    YOUTUBE_TERMS_URL,
+    GOOGLE_PRIVACY_URL,
+    CONTACT_ISSUES_URL,
+  ]
+  const PLAYER_URLS = [YOUTUBE_IFRAME_API_URL, YOUTUBE_EMBED_ORIGIN]
+
+  it('C7: its absolute URLs are exactly the policy links in urls.ts', () => {
     const inPage = new Set(privacyHtml.match(/https?:\/\/[^"<> ]+/g))
-    expect(inPage).toEqual(new Set(Object.values(urls)))
+    expect(inPage).toEqual(new Set(POLICY_LINKS))
+  })
+
+  it('C7: every urls.ts value is a policy link or a player URL', () => {
+    const known = new Set([...POLICY_LINKS, ...PLAYER_URLS])
+    expect(Object.values(urls).filter((url) => !known.has(url))).toEqual([])
+    expect(PLAYER_URLS).toEqual([
+      'https://www.youtube.com/iframe_api',
+      'https://www.youtube-nocookie.com',
+    ])
+    // The check itself: an unsorted value would be caught.
+    const added = [...Object.values(urls), 'https://example.org/new']
+    expect(added.filter((url) => !known.has(url))).toEqual([
+      'https://example.org/new',
+    ])
   })
 
   it('has no script, and one stylesheet: the tokenised privacy.css', () => {

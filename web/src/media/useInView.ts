@@ -13,13 +13,18 @@ type Seen = { target: Element; inView: boolean }
 // `IntersectionObserver` the element is never in view (so no autoplay).
 // `onReport` hears every report, even one that changes nothing (two
 // "out of view" in a row), which the returned boolean cannot show.
+// `onScreen` hears, before it, whether any of the element is visible.
 export function useInView<T extends Element>(
   onReport?: (inView: boolean) => void,
+  onScreen?: (visible: boolean) => void,
 ): [(node: T | null) => void, boolean] {
   const [node, setNode] = useState<T | null>(null)
   const [seen, setSeen] = useState<Seen | null>(null)
   const ref = useCallback((next: T | null) => setNode(next), [])
-  const report = useEffectEvent((inView: boolean) => onReport?.(inView))
+  const report = useEffectEvent((inView: boolean, ratio: number) => {
+    onScreen?.(ratio > 0)
+    onReport?.(inView)
+  })
 
   useEffect(() => {
     if (node === null || typeof IntersectionObserver === 'undefined') return
@@ -29,7 +34,7 @@ export function useInView<T extends Element>(
         if (entry) {
           const inView = entry.intersectionRatio > VISIBLE_RATIO
           setSeen({ target: node, inView })
-          report(inView)
+          report(inView, entry.intersectionRatio)
         }
       },
       { threshold: IN_VIEW_THRESHOLDS },

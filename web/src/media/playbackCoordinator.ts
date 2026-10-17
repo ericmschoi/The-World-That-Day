@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from 'react'
 
-// Anything that can play: a `<video>` now, the YouTube player in M3b3c.
+// Anything that can play: a `<video>` or a YouTube player (M3b3c).
 export type Player = { play(): void; pause(): void }
 
 export type PlaybackCoordinator = {

@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react'
+import { useConsent } from '../consent/consent'
 import { dateLabel } from '../media/dateLabel'
 import { canRender } from '../media/isDisplayable'
 import { MediaItem } from '../media/MediaItem'
@@ -32,7 +33,10 @@ export function DayMediaGroups({ media }: Props) {
     (id: string) => setFailed((ids) => new Set(ids).add(id)),
     [],
   )
-  const shown = media.filter((item) => canRender(item) && !failed.has(item.id))
+  const consented = useConsent()
+  const shown = media.filter(
+    (item) => canRender(item, consented) && !failed.has(item.id),
+  )
   return TITLES.map((title, index) => {
     const items = shown.filter((item) => groupOf(item) === index)
     if (items.length === 0) return null
@@ -44,7 +48,7 @@ export function DayMediaGroups({ media }: Props) {
             key={item.id}
             media={item}
             fallbackAlt={
-              item.display_mode === 'video_file' ? '기록 영상' : '기록 사진'
+              item.display_mode === 'image' ? '기록 사진' : '기록 영상'
             }
             onUnavailable={hide}
           />

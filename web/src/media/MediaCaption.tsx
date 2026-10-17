@@ -1,7 +1,11 @@
 import { NewTabLink } from '../components/NewTabLink'
 import { dateLabel } from './dateLabel'
 import { isHttpUrl } from './isDisplayable'
-import { licenseInAttribution, licenseLabel } from './licenseLabel'
+import {
+  isProviderTerms,
+  licenseInAttribution,
+  licenseLabel,
+} from './licenseLabel'
 import type { Media } from './types'
 import styles from './MediaCard.module.css'
 
@@ -33,7 +37,9 @@ export function MediaCaption({ media }: Props) {
         {isHttpUrl(media.license_url) && (
           <>
             <span aria-hidden="true"> · </span>
-            <NewTabLink href={media.license_url}>라이선스</NewTabLink>
+            <NewTabLink href={media.license_url}>
+              {isProviderTerms(media) ? '이용약관' : '라이선스'}
+            </NewTabLink>
           </>
         )}
       </p>

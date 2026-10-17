@@ -58,6 +58,57 @@ describe('MediaCaption', () => {
     expect(screen.getByRole('figure')).toHaveTextContent('CC BY-SA 4.0')
   })
 
+  describe('provider-terms (M3b3c T1 (5))', () => {
+    const TERMS_LINK = /^이용약관\s*\(새 창에서 열림\)$/
+    const youtube: Media = {
+      ...sameDayPhoto,
+      license: 'provider-terms',
+      license_status: 'other',
+      license_url: 'https://www.youtube.com/t/terms',
+      attribution: 'KTV 아카이브 · YouTube',
+    }
+
+    it('says 제공사 이용약관에 따름 and links 이용약관 in a new tab', () => {
+      renderCaption(youtube)
+      const figure = screen.getByRole('figure')
+      expect(figure).toHaveTextContent('제공사 이용약관에 따름')
+      expect(figure).not.toHaveTextContent('provider-terms')
+      const link = screen.getByRole('link', { name: TERMS_LINK })
+      expect(link).toHaveAttribute('href', 'https://www.youtube.com/t/terms')
+      expect(link).toHaveAttribute('target', '_blank')
+      expect(link.getAttribute('rel')?.split(' ')).toEqual(
+        expect.arrayContaining(['noopener', 'noreferrer']),
+      )
+      expect(link.querySelector('.visually-hidden')).toHaveTextContent(
+        '(새 창에서 열림)',
+      )
+      expect(
+        screen.queryByRole('link', { name: LICENSE_LINK }),
+      ).not.toBeInTheDocument()
+    })
+
+    it.each([null, 'javascript:alert(1)', '/t/terms'])(
+      'has no terms link when license_url is %j',
+      (license_url) => {
+        renderCaption({ ...youtube, license_url })
+        expect(screen.getAllByRole('link')).toHaveLength(1)
+        expect(screen.getByRole('link', { name: SOURCE_LINK })).toBeVisible()
+      },
+    )
+
+    it('keeps 라이선스 for any other license', () => {
+      renderCaption({
+        ...youtube,
+        license: 'CC BY 4.0',
+        license_status: 'free',
+      })
+      expect(screen.getByRole('link', { name: LICENSE_LINK })).toBeVisible()
+      expect(
+        screen.queryByRole('link', { name: TERMS_LINK }),
+      ).not.toBeInTheDocument()
+    })
+  })
+
   it('shows no badge for an unknown capture time', () => {
     const { container } = renderCaption(undatedPhoto)
     const first = container.querySelector('figcaption > p')
