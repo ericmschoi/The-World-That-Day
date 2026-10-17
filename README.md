@@ -68,7 +68,7 @@ flowchart LR
 | M3b2b Day photos, tragic-event block, card accessibility, browser tests | ✅ Done (PR #15) |
 | M3b3 Inline video playback (Commons) | ✅ Done (PR #16) |
 | M3b3b Privacy policy and consent step | ✅ Done (PR #18) |
-| M3b3c Official YouTube embeds | ⚪ Planned |
+| M3b3c Official YouTube embeds | 🟡 In review |
 
 Provider image embeds (Getty and others) were dropped from M3: automatic search needs a paid contract. They will be reconsidered at the public deployment decision.
 
