@@ -17,6 +17,20 @@
 
 Seen in the recording: every `url` is on `upload.wikimedia.org` and every `thumburl` on `thumb.wikimedia.org` with the `960px` width step (`thumbwidth` 640); both end with a `utm_*` query that the mapper copies unchanged. No file has `NonFree` or GPS values.
 
+## Recorded file batch (`files-*.json`, M3a3c T1)
+
+- Source: Wikimedia Commons, MediaWiki Action API `action=query&titles=File:…` with `prop=imageinfo`, the request `ActionApiCommonsClient.files` sends for the lead image names Korean Wikipedia PageImages gave (`../kowiki/pageimages-*.json`). Saved exactly as received (no byte changed).
+- Recorded: 2026-10-16, by backend-dev with `curl`, once (time below, UTC).
+- User-Agent: `The-World-That-Day (https://github.com/ericmschoi/The-World-That-Day)` (repository address only, no email).
+- Language: no `iiextmetadatalanguage` (the API's default, English), as above.
+- Only metadata JSON was recorded. No image file was downloaded.
+- License of the response text: the file description page's text on Commons, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). The file keeps its own license (`LicenseShortName` below).
+- 2002-06-22 has no file: PageImages gave no lead image for its event, so no file request is sent and there is no `files-2002-06-22.json`.
+
+| File | Recorded (UTC) | Requested | Response (`mime`, `LicenseShortName`, `DateTimeOriginal`) | Original URL |
+|---|---|---|---|---|
+| `files-1988-09-17.json` | 2026-10-16 06:03 | `File:KBS_2_logo.svg` (lead image of `KBS 2TV`) | normalized to `File:KBS 2 logo.svg`, pageid 58546568, on Commons (`imagerepository` `local` there); `image/svg+xml`, `Public domain`, `2022-07-10`. Also carries an `iistart` `continue` block for the file history, which the client ignores | `https://commons.wikimedia.org/w/api.php?action=query&titles=File%3aKBS_2_logo.svg&prop=imageinfo&iiprop=url%7cmime%7csize%7cextmetadata&iiurlwidth=640&format=json&formatversion=2` |
+
 ## Synthetic responses
 
 The rule tests (`CommonsFileMapperTest`, `ActionApiCommonsClientTest`) build synthetic pages in code with made-up file names and authors.

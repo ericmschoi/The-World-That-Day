@@ -44,6 +44,20 @@
 
 1995-03-15 은 그날 사건이 없어 링크 해석 요청을 보내지 않으므로 fixture가 없다.
 
+## 대표 이미지 녹화 fixture (`pageimages-*.json`, M3a3c T1)
+
+- 출처: 한국어 위키백과 MediaWiki Action API `action=query&prop=pageimages&piprop=name&pilicense=free&pilimit=50&redirects=1` 응답을 그대로 저장했다(바이트 수정 없음). 요청한 제목은 데모 날짜에 응답으로 나가는 `normal` 사건의 대표 링크(`title`)를 응답 순서로 `|` 로 묶은 것이고, `ActionApiKoWikiPageImages` 가 보내는 요청과 같다.
+- 녹화 일자: 2026-10-16 (06:03 UTC), backend-dev가 `curl` 로 한 번씩 받았다. User-Agent는 `The-World-That-Day (https://github.com/ericmschoi/The-World-That-Day)`(저장소 주소만, 이메일 없음).
+- 라이선스: 위키백과 API 응답(문서 제목·문서 번호·파일 이름), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). 파일 자체의 라이선스는 Commons 응답(`../commons/files-*.json`)에 있다. 언어 지정 파라미터는 없다.
+- 결과: 한국어 위키백과도 `pilicense=free` 에 대표 이미지를 준다(리스크 10). 다만 데모 사건 중 대표 이미지가 있는 것은 `KBS 2TV`(`KBS_2_logo.svg`, 밑줄 그대로) 하나뿐이다. `1988년 하계 올림픽`·`KBS 1TV`·`2002년 FIFA 월드컵` 은 `pageimage` 가 없다. 이미지 파일은 받지 않았다.
+
+| 파일 | 데모 날짜 | 요청한 제목 | 원 URL |
+|---|---|---|---|
+| `pageimages-1988-09-17.json` | 1988-09-17 | 1988년 하계 올림픽, KBS 1TV, KBS 2TV | `https://ko.wikipedia.org/w/api.php?action=query&prop=pageimages&piprop=name&pilicense=free&pilimit=50&redirects=1&titles=1988%eb%85%84+%ed%95%98%ea%b3%84+%ec%98%ac%eb%a6%bc%ed%94%bd%7cKBS+1TV%7cKBS+2TV&format=json&formatversion=2` |
+| `pageimages-2002-06-22.json` | 2002-06-22 | 2002년 FIFA 월드컵 | `https://ko.wikipedia.org/w/api.php?action=query&prop=pageimages&piprop=name&pilicense=free&pilimit=50&redirects=1&titles=2002%eb%85%84+FIFA+%ec%9b%94%eb%93%9c%ec%bb%b5&format=json&formatversion=2` |
+
+1995-03-15 은 그날 사건이 없어 대표 이미지 요청을 보내지 않으므로 fixture가 없다.
+
 ## 합성 fixture (`synthetic/`)
 
 파일 이름이 모두 `synthetic-` 로 시작한다. 위키백과에서 받은 것이 아니라 손으로 쓴 것이고, 내용은 "시험 사건 가" 같은 중립 문장뿐이다. 실제 사건·인물을 담지 않는다.

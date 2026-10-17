@@ -28,6 +28,10 @@ class KoWikiFixtureIntegrityTest {
   private static final Pattern PAGEPROPS_ROW =
       Pattern.compile(
           "^\\| `(pageprops-[^`]+\\.json)` \\| (\\d{4}-\\d{2}-\\d{2}) \\| ([^|]+?) \\| `([^`]+)` \\|$");
+  private static final String PAGEIMAGES = "pageimages-";
+  private static final Pattern PAGEIMAGES_ROW =
+      Pattern.compile(
+          "^\\| `(pageimages-[^`]+\\.json)` \\| (\\d{4}-\\d{2}-\\d{2}) \\| ([^|]+?) \\| `([^`]+)` \\|$");
   private static final Pattern PEOPLE_HEADING = Pattern.compile("==\\s*(탄생|사망|기념일)\\s*==");
   private static final Pattern LEVEL2_HEADING =
       Pattern.compile("(?m)^==(?!=)\\s*(.*?)\\s*==(?!=)\\s*$");
@@ -38,9 +42,14 @@ class KoWikiFixtureIntegrityTest {
     }
   }
 
-  /** Recorded page fixtures; the link lookup fixtures ({@code pageprops-*.json}) have no revid. */
+  /**
+   * Recorded page fixtures; the link lookup fixtures ({@code pageprops-*.json}) and the lead image
+   * fixtures ({@code pageimages-*.json}, M3a3c T1) have no revid.
+   */
   private static List<String> recordedJson() throws IOException {
-    return jsonFiles().stream().filter(name -> !name.startsWith(PAGEPROPS)).toList();
+    return jsonFiles().stream()
+        .filter(name -> !name.startsWith(PAGEPROPS) && !name.startsWith(PAGEIMAGES))
+        .toList();
   }
 
   private static List<String> jsonFiles() throws IOException {
@@ -163,6 +172,46 @@ class KoWikiFixtureIntegrityTest {
               .startsWith("https://ko.wikipedia.org/w/api.php?action=query&prop=pageprops")
               .contains("ppprop=wikibase_item&redirects=1")
               .contains("titles=" + encoded + "&");
+          assertThat(
+                  KoWikiFixtures.JSON.readTree(KoWikiFixtures.read(file)).path("query").isObject())
+              .as(file)
+              .isTrue();
+        });
+  }
+
+  /** Plan M3a3c T1 (6): the recorded lead image lookups are listed with URL, date and licence. */
+  @Test
+  void readmeListsEveryPageimagesFixtureWithItsRequestedTitles() throws IOException {
+    String readme = KoWikiFixtureReadme.text();
+    Map<String, String[]> rows = new java.util.LinkedHashMap<>();
+    for (String line : readme.split("\n")) {
+      Matcher row = PAGEIMAGES_ROW.matcher(line.strip());
+      if (row.matches()) {
+        rows.put(row.group(1), new String[] {row.group(3), row.group(4)});
+      }
+    }
+
+    assertThat(rows.keySet())
+        .containsExactlyInAnyOrderElementsOf(
+            jsonFiles().stream().filter(name -> name.startsWith(PAGEIMAGES)).toList())
+        .containsExactlyInAnyOrder("pageimages-1988-09-17.json", "pageimages-2002-06-22.json");
+    assertThat(readme)
+        .contains("2026-10-16")
+        .contains("The-World-That-Day (https://github.com/ericmschoi/The-World-That-Day)")
+        .doesNotContain("@");
+    rows.forEach(
+        (file, row) -> {
+          String titles = String.join("|", row[0].split(", "));
+          String encoded = // curl wrote its percent escapes in lower case
+              Pattern.compile("%[0-9A-F]{2}")
+                  .matcher(URLEncoder.encode(titles, StandardCharsets.UTF_8))
+                  .replaceAll(escape -> escape.group().toLowerCase());
+          assertThat(row[1])
+              .as(file)
+              .startsWith("https://ko.wikipedia.org/w/api.php?action=query&prop=pageimages")
+              .contains("piprop=name&pilicense=free&pilimit=50&redirects=1")
+              .contains("titles=" + encoded + "&")
+              .doesNotContain("iiextmetadatalanguage");
           assertThat(
                   KoWikiFixtures.JSON.readTree(KoWikiFixtures.read(file)).path("query").isObject())
               .as(file)

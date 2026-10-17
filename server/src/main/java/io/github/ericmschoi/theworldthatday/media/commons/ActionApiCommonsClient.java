@@ -7,7 +7,10 @@ import java.net.URI;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -18,14 +21,17 @@ import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Commons through the Action API ({@code action=query}, {@code prop=imageinfo}), only via {@link
- * WikimediaHttpClient}. An API error {@code ratelimited} (sent with HTTP 200) blocks the host as a
- * 429 does. Log lines carry a fixed label, never a date, category or file name.
+ * WikimediaHttpClient}, each request sent once with the caller's read timeout (no retry, plan M3a3c
+ * decision 1 (a)). Any {@code error} in the answer is a failure; the error {@code ratelimited}
+ * (sent with HTTP 200) blocks the host as a 429 does. Log lines carry a fixed label, never a date,
+ * category or file name.
  */
 @Component
 public class ActionApiCommonsClient implements CommonsClient {
 
   static final String SOURCE = "commons";
   static final String DAY_CATEGORY = "commons day category";
+  static final String FILES = "commons files of ";
   static final String RATELIMITED = "ratelimited";
 
   private static final Logger log = LoggerFactory.getLogger(ActionApiCommonsClient.class);
@@ -53,8 +59,61 @@ public class ActionApiCommonsClient implements CommonsClient {
     return pages(DAY_CATEGORY, query, readTimeout);
   }
 
+  @Override
+  public Files files(List<String> fileNames, Duration readTimeout) {
+    List<String> names =
+        fileNames.stream()
+            .filter(name -> name != null && !name.isBlank())
+            .distinct()
+            .limit(MAX_FILES)
+            .toList();
+    if (names.isEmpty()) {
+      return new Files(Map.of(), false);
+    }
+    UriComponentsBuilder query =
+        UriComponentsBuilder.fromUri(properties.commonsApiUrl())
+            .queryParam("action", "query")
+            .queryParam("titles", "{titles}");
+    String titles = names.stream().map(name -> "File:" + name).collect(Collectors.joining("|"));
+    JsonNode tree = answer(FILES + names.size(), query, readTimeout, titles);
+    if (tree == null) {
+      return Files.failure();
+    }
+    Map<String, String> normalized = new HashMap<>();
+    for (JsonNode pair : tree.path("query").path("normalized")) {
+      normalized.put(pair.path("from").asString(""), pair.path("to").asString(""));
+    }
+    Map<String, JsonNode> byTitle = new HashMap<>();
+    tree.path("query")
+        .path("pages")
+        .forEach(page -> byTitle.put(page.path("title").asString(""), page));
+    Map<String, JsonNode> byName = new HashMap<>();
+    for (String name : names) {
+      JsonNode page = byTitle.get(normalized.getOrDefault("File:" + name, "File:" + name));
+      if (page != null) {
+        byName.put(name, page);
+      }
+    }
+    return new Files(byName, false);
+  }
+
   /** Asks for the file info of {@code query} and reads {@code query.pages} of the answer. */
   Pages pages(String label, UriComponentsBuilder query, Duration readTimeout) {
+    JsonNode tree = answer(label, query, readTimeout);
+    if (tree == null) {
+      return Pages.failure();
+    }
+    List<JsonNode> found = new ArrayList<>();
+    tree.path("query").path("pages").forEach(found::add);
+    return new Pages(found, false);
+  }
+
+  /**
+   * The answer to {@code query} with the file info parameters, the URI template {@code variables}
+   * encoded strictly, or null after a logged failure.
+   */
+  private JsonNode answer(
+      String label, UriComponentsBuilder query, Duration readTimeout, Object... variables) {
     URI uri =
         query
             .queryParam("prop", "imageinfo")
@@ -63,11 +122,12 @@ public class ActionApiCommonsClient implements CommonsClient {
             // default language: a Korean DateTimeOriginal ("촬영 날짜: …") would not parse (PM, M3a3b)
             .queryParam("format", "json")
             .queryParam("formatversion", 2)
-            .build()
             .encode()
+            .buildAndExpand(variables)
             .toUri();
-    if (!(http.get(SOURCE, label, uri, readTimeout) instanceof WikimediaResponse.Ok(String body))) {
-      return Pages.failure();
+    if (!(http.getOnce(SOURCE, label, uri, readTimeout)
+        instanceof WikimediaResponse.Ok(String body))) {
+      return null;
     }
     JsonNode tree;
     try {
@@ -75,24 +135,23 @@ public class ActionApiCommonsClient implements CommonsClient {
     } catch (JacksonException e) {
       return failed(label, "invalid JSON");
     }
-    String error = tree.path("error").path("code").asString(null);
-    if (error != null) {
+    if (tree.has("error")) { // with or without a code (PR #17 review recommendation 2)
+      JsonNode code = tree.path("error").path("code");
+      String error = code.isValueNode() ? code.asString("").strip() : "";
       if (RATELIMITED.equals(error)) {
         http.blockHost(uri);
       }
-      return failed(label, "api error " + error);
+      return failed(label, error.isEmpty() ? "api error" : "api error " + error);
     }
     JsonNode pages = tree.path("query").path("pages");
     if (!tree.isObject() || !(pages.isArray() || pages.isMissingNode())) {
       return failed(label, "unexpected body");
     }
-    List<JsonNode> found = new ArrayList<>();
-    pages.forEach(found::add);
-    return new Pages(found, false);
+    return tree;
   }
 
-  private static Pages failed(String label, String cause) {
+  private static JsonNode failed(String label, String cause) {
     log.warn("Wikimedia call failed: source={} title={} cause={}", SOURCE, label, cause);
-    return Pages.failure();
+    return null;
   }
 }

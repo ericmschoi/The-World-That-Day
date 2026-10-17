@@ -99,8 +99,9 @@ media:
   allowed-video-embed-providers: []
   # Day photos of the world section (plan M3a3b): at most day-media-limit photos of the day's
   # Commons category (0 turns the lookup off; none on a day with a tragic event). The whole media
-  # lookup ends within lookup-deadline (also each request's read timeout), then is cancelled with
-  # up to 1s of grace; a failure only marks the answer partial.
+  # lookup ends within lookup-deadline, then is cancelled with up to 1s of grace; a failure only
+  # marks the answer partial. lookup-deadline is also the fixed read timeout of each media request,
+  # which is sent once without a retry (plan M3a3c decision 1 (a)).
   day-media-limit: 6
   lookup-deadline: 3s
   # Items taken down at a rights holder's request (plan M3a3a, safeguard 5); applied on restart.
