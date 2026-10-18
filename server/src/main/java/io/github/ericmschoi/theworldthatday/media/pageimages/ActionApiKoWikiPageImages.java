@@ -1,5 +1,6 @@
 package io.github.ericmschoi.theworldthatday.media.pageimages;
 
+import io.github.ericmschoi.theworldthatday.wikimedia.ActionApiErrors;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaHttpClient;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaProperties;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaResponse;
@@ -22,14 +23,14 @@ import tools.jackson.databind.json.JsonMapper;
  * Action API {@code action=query&prop=pageimages&piprop=name&pilicense=free} on {@code
  * wikimedia.kowiki-api-url}, only via {@link WikimediaHttpClient} and sent once. Titles go in one
  * URI template variable, so {@code &} and {@code +} stay part of a title. Any {@code error} fails
- * the lookup; {@code ratelimited} also blocks the host. Log lines carry a fixed label with the
- * title count, never a title or file name.
+ * the lookup ({@link ActionApiErrors}); {@code ratelimited} also blocks the host, and an answer
+ * without {@code query.pages} fails too. Log lines carry a fixed label with the title count, never
+ * a title or file name.
  */
 @Component
 public class ActionApiKoWikiPageImages implements KoWikiPageImages {
 
   static final String SOURCE = "kowiki";
-  static final String RATELIMITED = "ratelimited";
 
   private static final Logger log = LoggerFactory.getLogger(ActionApiKoWikiPageImages.class);
 
@@ -80,16 +81,15 @@ public class ActionApiKoWikiPageImages implements KoWikiPageImages {
     } catch (JacksonException e) {
       return failed(label, "invalid JSON");
     }
-    if (tree.has("error")) {
-      JsonNode code = tree.path("error").path("code");
-      String error = code.isValueNode() ? code.asString("").strip() : "";
-      if (RATELIMITED.equals(error)) {
+    Optional<String> error = ActionApiErrors.cause(tree);
+    if (error.isPresent()) {
+      if (ActionApiErrors.isRateLimited(tree)) {
         http.blockHost(uri);
       }
-      return failed(label, error.isEmpty() ? "api error" : "api error " + error);
+      return failed(label, error.get());
     }
     JsonNode query = tree.path("query");
-    if (!query.isObject()) {
+    if (!query.path("pages").isArray()) {
       return failed(label, "no query");
     }
     Map<String, String> normalized = pairs(query.path("normalized"));

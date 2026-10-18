@@ -16,6 +16,7 @@ import io.github.ericmschoi.theworldthatday.media.MediaNormalizer;
 import io.github.ericmschoi.theworldthatday.media.MediaProperties;
 import io.github.ericmschoi.theworldthatday.media.commons.CommonsClient.Files;
 import io.github.ericmschoi.theworldthatday.media.commons.CommonsFileMapper.Drop;
+import io.github.ericmschoi.theworldthatday.wikimedia.ActionApiErrorsTest;
 import io.github.ericmschoi.theworldthatday.wikimedia.CommonsProperties;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaHttpClient;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaProperties;
@@ -39,6 +40,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 import tools.jackson.databind.json.JsonMapper;
@@ -46,8 +49,9 @@ import tools.jackson.databind.json.JsonMapper;
 /**
  * Plan M3a3c T1 (2), (3), (4) and (6) on the Commons file batch: the query without a language,
  * strict file name encoding, the 50-file cap, normalization, missing files, failures, one request
- * without a retry, label-only log lines, and the recorded lead image of the opening day. Synthetic
- * file names are made up.
+ * without a retry, label-only log lines, and the recorded lead image of the opening day. Plan M3a3d
+ * T0 (3) and (4): an answer without {@code query.pages} is a failure, and only a safe error code
+ * reaches the log. Synthetic file names are made up.
  */
 @ExtendWith(OutputCaptureExtension.class)
 class ActionApiCommonsClientFilesTest {
@@ -236,6 +240,42 @@ class ActionApiCommonsClientFilesTest {
     assertThat(failures(output))
         .containsExactly(
             "Wikimedia call failed: source=commons title=commons files of 1 cause=" + cause);
+  }
+
+  @ParameterizedTest(name = "{0} is a failure")
+  @ValueSource(strings = {"{\"batchcomplete\":true}", "{\"batchcomplete\":true,\"query\":{}}"})
+  void answerWithoutQueryPagesIsAFailure(String body, CapturedOutput output) {
+    answer(body);
+
+    assertThat(client.files(List.of("Synthetic.jpg"), LOOKUP)).isEqualTo(new Files(Map.of(), true));
+
+    assertThat(failures(output))
+        .containsExactly(
+            "Wikimedia call failed: source=commons title=commons files of 1 cause=no query");
+  }
+
+  @Test
+  void emptyPagesAreNotAFailure(CapturedOutput output) {
+    answer("{\"batchcomplete\":true,\"query\":{\"pages\":[]}}");
+
+    assertThat(client.files(List.of("Synthetic.jpg"), LOOKUP))
+        .isEqualTo(new Files(Map.of(), false));
+    assertThat(failures(output)).isEmpty();
+  }
+
+  @ParameterizedTest(name = "code [{0}] is not logged")
+  @MethodSource("io.github.ericmschoi.theworldthatday.wikimedia.ActionApiErrorsTest#unsafeCodes")
+  void unsafeErrorCodeIsLoggedAsAnApiErrorOnly(String code, CapturedOutput output) {
+    answer(ActionApiErrorsTest.errorWithCode(code).toString());
+
+    assertThat(client.files(List.of("Synthetic.jpg"), LOOKUP).failed()).isTrue();
+
+    assertThat(failures(output))
+        .containsExactly(
+            "Wikimedia call failed: source=commons title=commons files of 1 cause=api error");
+    if (!code.isEmpty()) {
+      assertThat(output.getAll()).doesNotContain(code);
+    }
   }
 
   @Test

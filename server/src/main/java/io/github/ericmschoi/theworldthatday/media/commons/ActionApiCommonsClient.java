@@ -1,5 +1,6 @@
 package io.github.ericmschoi.theworldthatday.media.commons;
 
+import io.github.ericmschoi.theworldthatday.wikimedia.ActionApiErrors;
 import io.github.ericmschoi.theworldthatday.wikimedia.CommonsProperties;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaHttpClient;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaResponse;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +24,9 @@ import tools.jackson.databind.json.JsonMapper;
 /**
  * Commons through the Action API ({@code action=query}, {@code prop=imageinfo}), only via {@link
  * WikimediaHttpClient}, each request sent once with the caller's read timeout (no retry, plan M3a3c
- * decision 1 (a)). Any {@code error} in the answer is a failure; the error {@code ratelimited}
- * (sent with HTTP 200) blocks the host as a 429 does. Log lines carry a fixed label, never a date,
+ * decision 1 (a)). Any {@code error} in the answer is a failure ({@link ActionApiErrors}); the
+ * error {@code ratelimited} (sent with HTTP 200) blocks the host as a 429 does. A file batch answer
+ * without {@code query.pages} is a failure too. Log lines carry a fixed label, never a date,
  * category or file name.
  */
 @Component
@@ -32,7 +35,6 @@ public class ActionApiCommonsClient implements CommonsClient {
   static final String SOURCE = "commons";
   static final String DAY_CATEGORY = "commons day category";
   static final String FILES = "commons files of ";
-  static final String RATELIMITED = "ratelimited";
 
   private static final Logger log = LoggerFactory.getLogger(ActionApiCommonsClient.class);
 
@@ -77,6 +79,10 @@ public class ActionApiCommonsClient implements CommonsClient {
     String titles = names.stream().map(name -> "File:" + name).collect(Collectors.joining("|"));
     JsonNode tree = answer(FILES + names.size(), query, readTimeout, titles);
     if (tree == null) {
+      return Files.failure();
+    }
+    if (!tree.path("query").path("pages").isArray()) { // titles were asked, so pages must come back
+      failed(FILES + names.size(), "no query");
       return Files.failure();
     }
     Map<String, String> normalized = new HashMap<>();
@@ -135,13 +141,12 @@ public class ActionApiCommonsClient implements CommonsClient {
     } catch (JacksonException e) {
       return failed(label, "invalid JSON");
     }
-    if (tree.has("error")) { // with or without a code (PR #17 review recommendation 2)
-      JsonNode code = tree.path("error").path("code");
-      String error = code.isValueNode() ? code.asString("").strip() : "";
-      if (RATELIMITED.equals(error)) {
+    Optional<String> error = ActionApiErrors.cause(tree);
+    if (error.isPresent()) {
+      if (ActionApiErrors.isRateLimited(tree)) {
         http.blockHost(uri);
       }
-      return failed(label, error.isEmpty() ? "api error" : "api error " + error);
+      return failed(label, error.get());
     }
     JsonNode pages = tree.path("query").path("pages");
     if (!tree.isObject() || !(pages.isArray() || pages.isMissingNode())) {
