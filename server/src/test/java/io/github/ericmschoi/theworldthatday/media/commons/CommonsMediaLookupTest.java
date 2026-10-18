@@ -18,6 +18,8 @@ import io.github.ericmschoi.theworldthatday.media.MediaLookup.DayMedia;
 import io.github.ericmschoi.theworldthatday.media.MediaLookupProperties;
 import io.github.ericmschoi.theworldthatday.media.MediaNormalizer;
 import io.github.ericmschoi.theworldthatday.media.MediaProperties;
+import io.github.ericmschoi.theworldthatday.media.commons.CommonsClient.Files;
+import io.github.ericmschoi.theworldthatday.media.commons.CommonsClient.Pages;
 import io.github.ericmschoi.theworldthatday.wikimedia.CommonsProperties;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaHttpClient;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaProperties;
@@ -28,6 +30,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,8 +43,9 @@ import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Plan M3a3b T2 (3), (4), (5), (6) and (7) on the lookup itself: order, limit, tragic days,
- * failures and the deadline, against synthetic category answers. File names and authors are made
- * up.
+ * failures and the deadline, against synthetic category answers. Plan M3a3d T0 (2): a task's own
+ * {@link InterruptedException} is a failure with one WARN line, an interrupted caller is not. File
+ * names and authors are made up.
  */
 @ExtendWith(OutputCaptureExtension.class)
 class CommonsMediaLookupTest {
@@ -77,6 +82,46 @@ class CommonsMediaLookupTest {
     CommonsFileMapper mapper =
         new CommonsFileMapper(new MediaFilter(media), new MediaNormalizer(media), clock);
     return new CommonsMediaLookup(client, mapper, new MediaLookupProperties(limit, DEADLINE));
+  }
+
+  /** A lookup on {@code dayCategory} alone (the file batch is not used by the day photos). */
+  private CommonsMediaLookup lookupWith(DayCategory dayCategory) {
+    CommonsClient client =
+        new CommonsClient() {
+          @Override
+          public Pages dayCategory(LocalDate date, Duration readTimeout) {
+            return dayCategory.pages();
+          }
+
+          @Override
+          public Files files(List<String> fileNames, Duration readTimeout) {
+            throw new UnsupportedOperationException();
+          }
+        };
+    MediaProperties media = new MediaProperties(List.of(), List.of());
+    return new CommonsMediaLookup(
+        client,
+        new CommonsFileMapper(new MediaFilter(media), new MediaNormalizer(media), clock),
+        new MediaLookupProperties(6, DEADLINE));
+  }
+
+  private interface DayCategory {
+    Pages pages();
+  }
+
+  /** Throws a checked exception from a method that does not declare it. */
+  @SuppressWarnings("unchecked")
+  private static <E extends Throwable> RuntimeException sneaky(Throwable e) throws E {
+    throw (E) e;
+  }
+
+  private static List<String> failures(CapturedOutput output) {
+    return output
+        .getAll()
+        .lines()
+        .filter(l -> l.contains("Wikimedia call failed"))
+        .map(l -> l.substring(l.indexOf("Wikimedia call failed")))
+        .toList();
   }
 
   private static String page(long id, String title, String taken, String mime) {
@@ -214,5 +259,54 @@ class CommonsMediaLookupTest {
     assertThat(output.getAll().lines().filter(l -> l.contains("Wikimedia call failed")))
         .hasSize(1)
         .allSatisfy(line -> assertThat(line).contains("source=commons title=commons day category"));
+  }
+
+  @Test
+  void dayCategoryThrowingItsOwnInterruptedExceptionIsAFailureWithOneWarning(
+      CapturedOutput output) {
+    DayMedia media =
+        lookupWith(
+                () -> {
+                  throw sneaky(new InterruptedException("synthetic"));
+                })
+            .dayMedia(OLYMPICS, false);
+    boolean flagSet = Thread.interrupted(); // also clears it for the next test
+
+    assertThat(media).isEqualTo(DayMedia.FAILED);
+    assertThat(flagSet).isFalse();
+    assertThat(failures(output))
+        .containsExactly(
+            "Wikimedia call failed: source=commons title=commons day category"
+                + " cause=InterruptedException");
+  }
+
+  @Test
+  void interruptedCallerGetsAFailureWithoutAWarning(CapturedOutput output) throws Exception {
+    AtomicReference<DayMedia> seen = new AtomicReference<>();
+    AtomicBoolean flagSet = new AtomicBoolean();
+    CommonsMediaLookup slow =
+        lookupWith(
+            () -> {
+              try {
+                Thread.sleep(60_000);
+              } catch (InterruptedException e) {
+                // cancelled by the interrupted caller
+              }
+              return Pages.failure();
+            });
+    Thread caller =
+        Thread.ofVirtual()
+            .start(
+                () -> {
+                  seen.set(slow.dayMedia(OLYMPICS, false));
+                  flagSet.set(Thread.currentThread().isInterrupted());
+                });
+    Thread.sleep(100);
+    caller.interrupt();
+    caller.join(Duration.ofSeconds(2));
+
+    assertThat(seen.get()).isEqualTo(DayMedia.FAILED);
+    assertThat(flagSet.get()).isTrue();
+    assertThat(failures(output)).isEmpty();
   }
 }

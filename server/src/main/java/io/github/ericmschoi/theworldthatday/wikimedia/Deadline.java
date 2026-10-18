@@ -12,10 +12,11 @@ import java.util.concurrent.TimeUnit;
  * and waiting for one lasts only until the shared end. When the end passes, every unfinished task
  * of this deadline is interrupted and the caller waits until at most {@link #CANCEL_GRACE} past the
  * end for it to stop, so all tasks together take at most the budget plus the grace. The {@link
- * Outcome} tells a value, a timeout (and whether the task stopped within the grace) and an
- * exception apart, so a caller can keep one WARN line per failure.
+ * Outcome} tells a value, a timeout (and whether the task stopped within the grace), an exception
+ * of the task and an interrupt of the waiting thread apart, so a caller can keep one WARN line per
+ * failure. {@link #close()} interrupts the tasks nobody waited for (plan M3a3d T0).
  */
-public final class Deadline {
+public final class Deadline implements AutoCloseable {
 
   public static final Duration CANCEL_GRACE = Duration.ofSeconds(1);
 
@@ -40,6 +41,15 @@ public final class Deadline {
     return task;
   }
 
+  /**
+   * Interrupts every task of this deadline that has not ended, without waiting for it; ended tasks
+   * keep their results. Calling it again does no harm.
+   */
+  @Override
+  public void close() {
+    cancelAll();
+  }
+
   private void cancelAll() {
     tasks.forEach(Task::cancel);
   }
@@ -49,7 +59,7 @@ public final class Deadline {
   }
 
   /** What waiting for a task gave. */
-  public sealed interface Outcome<T> permits Done, TimedOut, Failed {}
+  public sealed interface Outcome<T> permits Done, TimedOut, Failed, Interrupted {}
 
   /** The task returned {@code value} before the end. */
   public record Done<T>(T value) implements Outcome<T> {}
@@ -60,11 +70,13 @@ public final class Deadline {
    */
   public record TimedOut<T>(boolean stopped, T late) implements Outcome<T> {}
 
-  /**
-   * The task threw {@code cause} before the end. An {@link InterruptedException} means the waiting
-   * thread was interrupted: its flag is set again and the deadline's tasks are cancelled.
-   */
+  /** The task threw {@code cause} before the end, its own {@link InterruptedException} included. */
   public record Failed<T>(Throwable cause) implements Outcome<T> {}
+
+  /**
+   * The waiting thread was interrupted: its flag is set again and the deadline's tasks cancelled.
+   */
+  public record Interrupted<T>() implements Outcome<T> {}
 
   /** One task of this deadline. */
   public final class Task<T> {
@@ -109,7 +121,7 @@ public final class Deadline {
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
         cancelAll();
-        return new Failed<>(e);
+        return new Interrupted<>();
       }
     }
   }

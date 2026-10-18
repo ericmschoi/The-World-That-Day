@@ -16,6 +16,7 @@ import io.github.ericmschoi.theworldthatday.event.wikidata.WikidataSignalSource.
 import io.github.ericmschoi.theworldthatday.wikimedia.WikidataProperties;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaHttpClient;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaProperties;
+import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -29,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
@@ -38,7 +41,11 @@ import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 import tools.jackson.databind.json.JsonMapper;
 
-/** Plan M3a2 T3 (2), (5), (7): the SPARQL adapter against WireMock, no network. */
+/**
+ * Plan M3a2 T3 (2), (5), (7): the SPARQL adapter against WireMock, no network. Plan M3a3d T0 (2): a
+ * task's own {@link InterruptedException} is a failure with one WARN line, an interrupted caller is
+ * not.
+ */
 @ExtendWith(OutputCaptureExtension.class)
 public class SparqlWikidataSignalSourceTest {
 
@@ -200,6 +207,61 @@ public class SparqlWikidataSignalSourceTest {
         .filteredOn(line -> line.contains(" WARN ") && line.contains("source=wikidata"))
         .as("one failure, one WARN line")
         .hasSize(1);
+  }
+
+  private static List<String> warnings(CapturedOutput output) {
+    return output
+        .getAll()
+        .lines()
+        .filter(line -> line.contains(" WARN ") && line.contains("source=wikidata"))
+        .map(line -> line.substring(line.indexOf("Wikimedia call failed")))
+        .toList();
+  }
+
+  @Test
+  void callThrowingItsOwnInterruptedExceptionIsNoAnswerWithOneWarn(CapturedOutput output) {
+    Optional<WikimediaResponse> response =
+        source()
+            .within(
+                "sparql of 1 items",
+                () -> {
+                  throw new InterruptedException("synthetic");
+                });
+    boolean flagSet = Thread.interrupted(); // also clears it for the next test
+
+    assertThat(response).isEmpty();
+    assertThat(flagSet).isFalse();
+    assertThat(warnings(output))
+        .containsExactly(
+            "Wikimedia call failed: source=wikidata title=sparql of 1 items"
+                + " cause=InterruptedException");
+  }
+
+  @Test
+  void interruptedCallerIsNoAnswerWithoutAWarn(CapturedOutput output) throws Exception {
+    AtomicReference<Optional<WikimediaResponse>> seen = new AtomicReference<>();
+    AtomicBoolean flagSet = new AtomicBoolean();
+    SparqlWikidataSignalSource source = source();
+    Thread caller =
+        Thread.ofVirtual()
+            .start(
+                () -> {
+                  seen.set(
+                      source.within(
+                          "sparql of 1 items",
+                          () -> {
+                            Thread.sleep(60_000);
+                            return null;
+                          }));
+                  flagSet.set(Thread.currentThread().isInterrupted());
+                });
+    Thread.sleep(100);
+    caller.interrupt();
+    caller.join(Duration.ofSeconds(2));
+
+    assertThat(seen.get()).isEmpty();
+    assertThat(flagSet.get()).isTrue();
+    assertThat(warnings(output)).isEmpty();
   }
 
   @Test

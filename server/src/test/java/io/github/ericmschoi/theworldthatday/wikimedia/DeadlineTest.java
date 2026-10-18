@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.ericmschoi.theworldthatday.wikimedia.Deadline.Done;
 import io.github.ericmschoi.theworldthatday.wikimedia.Deadline.Failed;
+import io.github.ericmschoi.theworldthatday.wikimedia.Deadline.Interrupted;
 import io.github.ericmschoi.theworldthatday.wikimedia.Deadline.Outcome;
 import io.github.ericmschoi.theworldthatday.wikimedia.Deadline.Task;
 import io.github.ericmschoi.theworldthatday.wikimedia.Deadline.TimedOut;
@@ -15,7 +16,9 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Plan M3a3c T0 (1): one end time shared by several tasks, cancellation with a grace of at most 1s
- * past the end, and outcomes that tell a value, a timeout and an exception apart.
+ * past the end, and outcomes that tell a value, a timeout and an exception apart. Plan M3a3d T0 (1)
+ * and (2): {@code close()} interrupts the tasks nobody waited for, and an interrupted waiter is
+ * told apart from a task that throws {@link InterruptedException} itself.
  */
 class DeadlineTest {
 
@@ -158,7 +161,7 @@ class DeadlineTest {
   }
 
   @Test
-  void interruptedWaiterGetsAnInterruptedFailureAndCancelsTheTasks() throws Exception {
+  void interruptedWaiterGetsInterruptedAndCancelsTheTasks() throws Exception {
     AtomicReference<Outcome<String>> seen = new AtomicReference<>();
     AtomicReference<Boolean> flagSet = new AtomicReference<>();
     CountDownLatch taskStopped = new CountDownLatch(1);
@@ -184,10 +187,113 @@ class DeadlineTest {
     waiter.interrupt();
     waiter.join(Duration.ofSeconds(2));
 
-    assertThat(seen.get()).isInstanceOf(Failed.class);
-    assertThat(((Failed<String>) seen.get()).cause()).isInstanceOf(InterruptedException.class);
+    assertThat(seen.get()).isEqualTo(new Interrupted<String>());
     assertThat(flagSet.get()).isTrue();
     assertThat(taskStopped.await(1, TimeUnit.SECONDS)).as("the task was cancelled").isTrue();
+  }
+
+  @Test
+  void taskThrowingItsOwnInterruptedExceptionIsAFailureAndTheWaiterFlagStaysClear() {
+    Task<String> broken =
+        Deadline.after(Duration.ofSeconds(1))
+            .start(
+                "broken",
+                () -> {
+                  throw new InterruptedException("synthetic");
+                });
+
+    Outcome<String> outcome = broken.await();
+    boolean flagSet = Thread.interrupted(); // also clears it for the next test
+
+    assertThat(outcome).isInstanceOf(Failed.class);
+    assertThat(((Failed<String>) outcome).cause()).isInstanceOf(InterruptedException.class);
+    assertThat(flagSet).isFalse();
+  }
+
+  @Test
+  void closeInterruptsATaskNobodyWaitedForAtOnce() throws Exception {
+    CountDownLatch taskStopped = new CountDownLatch(1);
+    Deadline deadline = Deadline.after(Duration.ofSeconds(30));
+    deadline.start(
+        "unawaited",
+        () -> {
+          try {
+            return sleepThen(60_000, "never");
+          } finally {
+            taskStopped.countDown();
+          }
+        });
+    Thread.sleep(50);
+
+    long start = System.nanoTime();
+    deadline.close();
+    Duration took = since(start);
+
+    assertThat(took).as("close() does not wait").isLessThan(Duration.ofMillis(50));
+    assertThat(taskStopped.await(200, TimeUnit.MILLISECONDS)).as("interrupted").isTrue();
+  }
+
+  @Test
+  void closeAfterEveryTaskEndedChangesNothingAndCanBeCalledTwice() {
+    Deadline deadline = Deadline.after(Duration.ofSeconds(1));
+    Task<String> quick = deadline.start("quick", () -> "first");
+    assertThat(quick.await()).isEqualTo(new Done<>("first"));
+
+    long start = System.nanoTime();
+    deadline.close();
+    deadline.close();
+    Duration took = since(start);
+
+    assertThat(quick.await()).isEqualTo(new Done<>("first"));
+    assertThat(took).isLessThan(Duration.ofMillis(50));
+  }
+
+  @Test
+  void closeKeepsTheValueOfAnEndedTaskThatWasNotAwaitedYet() throws Exception {
+    Deadline deadline = Deadline.after(Duration.ofSeconds(1));
+    CountDownLatch ended = new CountDownLatch(1);
+    Task<String> quick =
+        deadline.start(
+            "quick",
+            () -> {
+              ended.countDown();
+              return "first";
+            });
+    assertThat(ended.await(1, TimeUnit.SECONDS)).isTrue();
+    Thread.sleep(50); // the value is stored
+
+    deadline.close();
+
+    assertThat(quick.await()).isEqualTo(new Done<>("first"));
+  }
+
+  @Test
+  void tryWithResourcesInterruptsTheSecondTaskWhenTheFirstWaitThrows() throws Exception {
+    CountDownLatch taskStopped = new CountDownLatch(1);
+    try (Deadline deadline = Deadline.after(Duration.ofSeconds(30))) {
+      deadline.start(
+          "second",
+          () -> {
+            try {
+              return sleepThen(60_000, "never");
+            } finally {
+              taskStopped.countDown();
+            }
+          });
+      Task<String> first =
+          deadline.start(
+              "first",
+              () -> {
+                throw new IllegalStateException("synthetic");
+              });
+      if (first.await() instanceof Failed<String>) {
+        throw new IllegalStateException("caller gives up between the two waits");
+      }
+    } catch (IllegalStateException expected) {
+      // the second task was never awaited
+    }
+
+    assertThat(taskStopped.await(200, TimeUnit.MILLISECONDS)).as("interrupted").isTrue();
   }
 
   @Test

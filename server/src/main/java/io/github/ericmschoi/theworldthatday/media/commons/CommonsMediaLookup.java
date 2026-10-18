@@ -10,6 +10,7 @@ import io.github.ericmschoi.theworldthatday.media.commons.CommonsFileMapper.Resu
 import io.github.ericmschoi.theworldthatday.wikimedia.Deadline;
 import io.github.ericmschoi.theworldthatday.wikimedia.Deadline.Done;
 import io.github.ericmschoi.theworldthatday.wikimedia.Deadline.Failed;
+import io.github.ericmschoi.theworldthatday.wikimedia.Deadline.Interrupted;
 import io.github.ericmschoi.theworldthatday.wikimedia.Deadline.TimedOut;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -65,7 +66,7 @@ public class CommonsMediaLookup implements MediaLookup {
         }
         yield DayMedia.FAILED;
       }
-      case Failed<DayMedia>(InterruptedException e) -> DayMedia.FAILED;
+      case Interrupted<DayMedia>() -> DayMedia.FAILED;
       case Failed<DayMedia>(Throwable e) -> {
         warn(e.getClass().getSimpleName());
         yield DayMedia.FAILED;
