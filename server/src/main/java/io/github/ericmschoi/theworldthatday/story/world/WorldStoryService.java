@@ -5,12 +5,16 @@ import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiDayResult;
 import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiDocStatus;
 import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiEvent;
 import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiEventSource;
+import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiPage.State;
 import io.github.ericmschoi.theworldthatday.event.tone.EventToneJudge;
 import io.github.ericmschoi.theworldthatday.event.tone.EventToneJudge.Judgement;
+import io.github.ericmschoi.theworldthatday.event.tone.EventToneJudge.Scope;
 import io.github.ericmschoi.theworldthatday.event.tone.EventToneJudge.Tone;
 import io.github.ericmschoi.theworldthatday.event.tone.EventToneJudge.Verdict;
+import io.github.ericmschoi.theworldthatday.media.MediaItem;
 import io.github.ericmschoi.theworldthatday.media.MediaLookup;
-import io.github.ericmschoi.theworldthatday.media.MediaLookup.DayMedia;
+import io.github.ericmschoi.theworldthatday.media.MediaLookup.EventTarget;
+import io.github.ericmschoi.theworldthatday.media.MediaLookup.WorldMedia;
 import io.github.ericmschoi.theworldthatday.story.world.WorldStoryResponse.Event;
 import io.github.ericmschoi.theworldthatday.story.world.WorldStoryResponse.Notice;
 import java.time.LocalDate;
@@ -26,9 +30,10 @@ import org.springframework.stereotype.Service;
  * The world section of a day (plan M3a2): every event {@link KoWikiEventSource} returns, as written
  * (M3-P16, nothing is filtered for quality), {@code normal} events first, then {@code tragic}, each
  * group in the source order. Only curated takedowns ({@code hide}) are left out; they do not make
- * the answer partial. 503 only when both pages are unavailable. Day photos (plan M3a3b) are looked
- * up after the tones, never on a day with a shown {@code tragic} event; a failed lookup only makes
- * the answer partial.
+ * the answer partial. 503 only when both pages are unavailable. Media is looked up after the tones:
+ * day photos (plan M3a3b) never on a day with a shown {@code tragic} event or an unavailable page
+ * (plan M3a3d decision 2 (b)), event photos (plan M3a3d) for shown {@code normal} events with a
+ * title only; a failed lookup only makes the answer partial.
  */
 @Service
 public class WorldStoryService {
@@ -60,28 +65,52 @@ public class WorldStoryService {
     if (verdicts.size() != found.size()) {
       throw new IllegalStateException("one verdict per event is required");
     }
-    List<Event> normal = new ArrayList<>();
-    List<Event> tragic = new ArrayList<>();
+    List<Integer> normal = new ArrayList<>();
+    List<Integer> tragic = new ArrayList<>();
     List<String> hidden = new ArrayList<>();
+    List<EventTarget> targets = new ArrayList<>();
     for (int i = 0; i < found.size(); i++) {
       Verdict verdict = verdicts.get(i);
+      KoWikiEvent event = found.get(i);
       if (verdict.hidden()) {
-        hidden.add(hash(found.get(i)));
-        continue;
+        hidden.add(hash(event));
+      } else if (verdict.tone() != Tone.NORMAL) {
+        tragic.add(i);
+      } else {
+        normal.add(i);
+        if (!event.linkTitles().isEmpty()) {
+          targets.add(
+              new EventTarget(event.id(), event.linkTitles().getFirst(), place(verdict.scope())));
+        }
       }
-      (verdict.tone() == Tone.NORMAL ? normal : tragic).add(Event.of(found.get(i), verdict));
     }
-    DayMedia dayMedia = media.dayMedia(date, !tragic.isEmpty());
+    boolean noDayMedia =
+        !tragic.isEmpty() || day.docs().stream().anyMatch(doc -> doc.state() == State.UNAVAILABLE);
+    WorldMedia worldMedia = media.lookup(date, targets, noDayMedia);
     normal.addAll(tragic);
+    List<Event> events = new ArrayList<>();
+    for (int i : normal) {
+      List<MediaItem> photos = worldMedia.eventMedia().getOrDefault(found.get(i).id(), List.of());
+      events.add(Event.of(found.get(i), verdicts.get(i), photos));
+    }
     if (!hidden.isEmpty()) {
       log.debug("World events hidden by curation: count={} ids={}", hidden.size(), hidden);
     }
     return new WorldStoryResponse(
         date.toString(),
-        normal,
-        dayMedia.items(),
-        normal.isEmpty() ? Notice.NO_EVENTS_FOUND : null,
-        day.degraded() || judgement.partial() || dayMedia.failed());
+        events,
+        worldMedia.dayMedia(),
+        events.isEmpty() ? Notice.NO_EVENTS_FOUND : null,
+        day.degraded() || judgement.partial() || worldMedia.failed());
+  }
+
+  /** The photo place of an event: its scope as a {@code place_ref}. */
+  private static String place(Scope scope) {
+    return switch (scope) {
+      case DOMESTIC -> "country:KR";
+      case WORLD -> "world";
+      case UNKNOWN -> "unknown";
+    };
   }
 
   /** The hash part of the event ID: the full ID holds the date, which logs must not show. */

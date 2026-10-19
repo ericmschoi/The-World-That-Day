@@ -33,12 +33,13 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * Plan M3a3c T3 (4) and (6): the event photo parts (PageImages, the Commons file batch) are not
- * wired yet, so {@code GET /api/story/world} answers the three demo dates as in M3a3b (every event
- * {@code media} empty, the same {@code day_media} ids in the same order, not partial), sends no
- * PageImages request and exactly one Commons request (the day category, 1995-03-15 included). The
- * world section's worst time with every source slow stays within the M3a3b T3 measurement (about
- * 11.7s) plus 0.5s. Recorded fixtures and WireMock only; no network.
+ * Plan M3a3c T3 (4) and (6), with the event photo parts wired since M3a3d T1 (12) (c): with the
+ * default PageImages answer (no lead image), {@code GET /api/story/world} answers the three demo
+ * dates as in M3a3b (every event {@code media} empty, the same {@code day_media} ids in the same
+ * order, not partial), sends one PageImages request on a day with events (none on 1995-03-15) and
+ * exactly one Commons request (the day category; no file batch without a lead image). The world
+ * section's worst time with every source slow stays within the M3a3b T3 measurement (about 11.7s)
+ * plus 0.5s. Recorded fixtures and WireMock only; no network.
  */
 @ExtendWith(OutputCaptureExtension.class)
 class WorldStoryEventPhotoPartsRegressionTest extends WikimediaWireMockTest {
@@ -189,7 +190,7 @@ class WorldStoryEventPhotoPartsRegressionTest extends WikimediaWireMockTest {
             "commons-4929997",
             "commons-26546944");
     assertThat(root.path("partial").asBoolean()).isFalse();
-    assertThat(pageImagesRequests()).isZero();
+    assertThat(pageImagesRequests()).isEqualTo(1);
     assertOneDayCategoryRequest();
     assertThat(wikimedia.findAllUnmatchedRequests()).isEmpty();
   }
@@ -208,7 +209,7 @@ class WorldStoryEventPhotoPartsRegressionTest extends WikimediaWireMockTest {
     assertEveryEventMediaEmpty(root);
     assertThat(ids(root.path("day_media"))).containsExactly("commons-129150318");
     assertThat(root.path("partial").asBoolean()).isFalse();
-    assertThat(pageImagesRequests()).isZero();
+    assertThat(pageImagesRequests()).isEqualTo(1);
     assertOneDayCategoryRequest();
     assertThat(wikimedia.findAllUnmatchedRequests()).isEmpty();
   }
@@ -271,7 +272,7 @@ class WorldStoryEventPhotoPartsRegressionTest extends WikimediaWireMockTest {
     assertThat(root.path("day_media").isEmpty()).isTrue();
     assertThat(root.path("partial").asBoolean()).isTrue();
     assertThat(served(COMMONS_PATH)).as("no retry on the media path").hasSize(1);
-    assertThat(pageImagesRequests()).isZero();
+    assertThat(pageImagesRequests()).isEqualTo(1);
     assertThat(took).isLessThanOrEqualTo(WORST_BOUND);
   }
 }

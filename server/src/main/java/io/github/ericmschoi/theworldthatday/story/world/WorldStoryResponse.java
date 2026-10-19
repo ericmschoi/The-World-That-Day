@@ -13,8 +13,8 @@ import tools.jackson.databind.annotation.JsonNaming;
 
 /**
  * Body of {@code GET /api/story/world} (plan M3a2 response fields). JSON names are snake_case.
- * {@code dayMedia} holds the day's photos (M3a3b); every event {@code media} stays empty until
- * M3a3c (photos) and M3a4 (videos) fill it.
+ * {@code dayMedia} holds the day's photos (M3a3b); an event's {@code media} holds its photo (0 or
+ * 1, M3a3d), and M3a4 adds videos.
  */
 @JsonNaming(SnakeCaseStrategy.class)
 public record WorldStoryResponse(
@@ -60,7 +60,7 @@ public record WorldStoryResponse(
       List<MediaItem> media,
       String retrievedAt) {
 
-    static Event of(KoWikiEvent event, Verdict verdict) {
+    static Event of(KoWikiEvent event, Verdict verdict, List<MediaItem> media) {
       return new Event(
           event.id(),
           event.date().toString(),
@@ -80,7 +80,7 @@ public record WorldStoryResponse(
           verdict.tone().value(),
           verdict.basis().value(),
           event.linkTitles().stream().map(title -> new Link(title, pageUrl(title))).toList(),
-          List.of(),
+          media,
           seconds(event.retrievedAt()));
     }
   }
