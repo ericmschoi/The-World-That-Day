@@ -90,8 +90,12 @@ public class WorldStoryService {
     normal.addAll(tragic);
     List<Event> events = new ArrayList<>();
     for (int i : normal) {
-      List<MediaItem> photos = worldMedia.eventMedia().getOrDefault(found.get(i).id(), List.of());
-      events.add(Event.of(found.get(i), verdicts.get(i), photos));
+      // Second guard (§6.3): a tragic event never shows media, whatever the lookup returned.
+      List<MediaItem> eventMedia =
+          verdicts.get(i).tone() != Tone.NORMAL
+              ? List.of()
+              : worldMedia.eventMedia().getOrDefault(found.get(i).id(), List.of());
+      events.add(Event.of(found.get(i), verdicts.get(i), eventMedia));
     }
     if (!hidden.isEmpty()) {
       log.debug("World events hidden by curation: count={} ids={}", hidden.size(), hidden);
