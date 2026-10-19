@@ -11,7 +11,10 @@ import org.springframework.boot.test.context.ConfigDataApplicationContextInitial
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.context.annotation.Configuration;
 
-/** Plan M3a3b T2 (8): {@code media.day-media-limit} and {@code media.lookup-deadline}. */
+/**
+ * Plan M3a3b T2 (8): {@code media.day-media-limit} and {@code media.lookup-deadline}. Plan M3a3d T1
+ * (10): {@code media.max-years-apart}.
+ */
 class MediaLookupPropertiesTest {
 
   @Configuration(proxyBeanMethods = false)
@@ -64,5 +67,38 @@ class MediaLookupPropertiesTest {
                     .rootCause()
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining(key));
+  }
+
+  @Test
+  void maxYearsApartIsFiveByDefaultAndInApplicationYmlAndZeroIsAllowed() {
+    runner.run(
+        context ->
+            assertThat(context.getBean(MediaLookupProperties.class).maxYearsApart()).isEqualTo(5));
+    runner
+        .withInitializer(new ConfigDataApplicationContextInitializer())
+        .run(
+            context ->
+                assertThat(context.getBean(MediaLookupProperties.class).maxYearsApart())
+                    .isEqualTo(5));
+    runner
+        .withPropertyValues("media.max-years-apart=0")
+        .run(
+            context ->
+                assertThat(context.getBean(MediaLookupProperties.class).maxYearsApart()).isZero());
+    assertThat(new MediaLookupProperties(6, Duration.ofSeconds(3)).maxYearsApart()).isEqualTo(5);
+  }
+
+  @Test
+  void negativeMaxYearsApartFailsStartupWithItsName() {
+    runner
+        .withPropertyValues("media.max-years-apart=-1")
+        .run(
+            context ->
+                assertThat(context)
+                    .hasFailed()
+                    .getFailure()
+                    .rootCause()
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("media.max-years-apart"));
   }
 }

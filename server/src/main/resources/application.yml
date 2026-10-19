@@ -104,6 +104,10 @@ media:
   # which is sent once without a retry (plan M3a3c decision 1 (a)).
   day-media-limit: 6
   lookup-deadline: 3s
+  # Event photos (plan M3a3d): the free lead image of a shown normal event's article, kept only when
+  # its capture year is at most this many years from the requested year (unknown capture times are
+  # kept and labelled). Looked up at once with the day photos, within the same lookup-deadline.
+  max-years-apart: 5
   # Items taken down at a rights holder's request (plan M3a3a, safeguard 5); applied on restart.
   # Each entry has a lowercase source and at least one of id, author or channel; an entry without
   # them, or without a source, fails startup. Matching: id exactly (Commons file name without

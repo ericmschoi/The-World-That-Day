@@ -20,6 +20,7 @@ import io.github.ericmschoi.theworldthatday.media.MediaNormalizer;
 import io.github.ericmschoi.theworldthatday.media.MediaProperties;
 import io.github.ericmschoi.theworldthatday.media.commons.CommonsClient.Files;
 import io.github.ericmschoi.theworldthatday.media.commons.CommonsClient.Pages;
+import io.github.ericmschoi.theworldthatday.media.pageimages.KoWikiPageImages;
 import io.github.ericmschoi.theworldthatday.wikimedia.CommonsProperties;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaHttpClient;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaProperties;
@@ -30,6 +31,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
@@ -57,6 +60,7 @@ class CommonsMediaLookupTest {
   private static final String PATH = WikimediaWireMockTest.COMMONS_PATH;
   private static final LocalDate OLYMPICS = LocalDate.of(1988, 9, 17);
   private static final Duration DEADLINE = Duration.ofMillis(600);
+  private static final KoWikiPageImages NO_PAGE_IMAGES = (titles, timeout) -> Optional.of(Map.of());
 
   private final MutableClock clock =
       new MutableClock(Instant.parse("2026-01-01T00:00:00Z"), ClockConfig.SERVICE_ZONE);
@@ -81,7 +85,8 @@ class CommonsMediaLookupTest {
     MediaProperties media = new MediaProperties(List.of(), List.of());
     CommonsFileMapper mapper =
         new CommonsFileMapper(new MediaFilter(media), new MediaNormalizer(media), clock);
-    return new CommonsMediaLookup(client, mapper, new MediaLookupProperties(limit, DEADLINE));
+    return new CommonsMediaLookup(
+        client, mapper, NO_PAGE_IMAGES, new MediaLookupProperties(limit, DEADLINE));
   }
 
   /** A lookup on {@code dayCategory} alone (the file batch is not used by the day photos). */
@@ -102,6 +107,7 @@ class CommonsMediaLookupTest {
     return new CommonsMediaLookup(
         client,
         new CommonsFileMapper(new MediaFilter(media), new MediaNormalizer(media), clock),
+        NO_PAGE_IMAGES,
         new MediaLookupProperties(6, DEADLINE));
   }
 
