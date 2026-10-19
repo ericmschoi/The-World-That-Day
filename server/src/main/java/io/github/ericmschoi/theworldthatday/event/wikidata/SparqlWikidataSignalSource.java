@@ -152,6 +152,7 @@ public class SparqlWikidataSignalSource implements WikidataSignalSource {
    * normally ends at once with its own WARN from {@link WikimediaHttpClient}; the deadline is only
    * logged here when it did not, so one failure is one WARN line.
    */
+  // Package-private for tests: no HTTP stub makes Failed (own InterruptedException) or Interrupted.
   Optional<WikimediaResponse> within(String label, Callable<WikimediaResponse> call) {
     return switch (Deadline.after(properties.wikidataReadTimeout()).start(SOURCE, call).await()) {
       case Done<WikimediaResponse>(WikimediaResponse response) -> Optional.of(response);
