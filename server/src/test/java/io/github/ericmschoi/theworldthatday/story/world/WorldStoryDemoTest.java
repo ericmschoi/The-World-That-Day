@@ -142,9 +142,11 @@ class WorldStoryDemoTest extends WikimediaWireMockTest {
         .toList();
   }
 
+  /** Wikipedia requests of the event source; the event photo lookup (PageImages) is not one. */
   private static long wikipediaRequests() {
     return wikimedia.getAllServeEvents().stream()
         .filter(event -> event.getRequest().getUrl().startsWith(KOWIKI_PATH))
+        .filter(event -> !event.getRequest().queryParameter("prop").containsValue("pageimages"))
         .count();
   }
 
@@ -152,6 +154,7 @@ class WorldStoryDemoTest extends WikimediaWireMockTest {
     return wikimedia.getAllServeEvents().stream()
         .filter(event -> event.getRequest().getUrl().startsWith(KOWIKI_PATH))
         .filter(event -> event.getRequest().queryParameter("action").containsValue("query"))
+        .filter(event -> !event.getRequest().queryParameter("prop").containsValue("pageimages"))
         .count();
   }
 

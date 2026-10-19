@@ -167,7 +167,7 @@ class ActionApiCommonsClientTest {
     Duration took = Duration.ofNanos(System.nanoTime() - start);
 
     assertThat(pages.failed()).isTrue();
-    // two 200 ms attempts; the client's own 2 s read timeout would have waited for the answer
+    // one 200 ms attempt, no retry; the client's own 2 s read timeout would have waited
     assertThat(took).isLessThan(Duration.ofMillis(1_400));
   }
 

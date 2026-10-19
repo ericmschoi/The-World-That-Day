@@ -11,6 +11,7 @@ import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import io.github.ericmschoi.theworldthatday.MutableClock;
 import io.github.ericmschoi.theworldthatday.config.ClockConfig;
+import io.github.ericmschoi.theworldthatday.wikimedia.ActionApiErrorsTest;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaHttpClient;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaProperties;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaWireMockTest;
@@ -34,6 +35,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 import tools.jackson.databind.json.JsonMapper;
@@ -41,7 +44,9 @@ import tools.jackson.databind.json.JsonMapper;
 /**
  * Plan M3a3c T1 (1), (3), (4) and (6) on the PageImages adapter: the query, strict title encoding,
  * the 50-title cap, normalization and redirects, failures, one request without a retry, log lines
- * with the label only, and the recorded Korean Wikipedia answers. Synthetic titles are made up.
+ * with the label only, and the recorded Korean Wikipedia answers. Plan M3a3d T0 (3) and (4): an
+ * answer without {@code query.pages} is a failure, and only a safe error code reaches the log.
+ * Synthetic titles are made up.
  */
 @ExtendWith(OutputCaptureExtension.class)
 class ActionApiKoWikiPageImagesTest {
@@ -227,6 +232,38 @@ class ActionApiKoWikiPageImagesTest {
     assertThat(failures(output))
         .containsExactly(
             "Wikimedia call failed: source=kowiki title=kowiki pageimages of 1 cause=" + cause);
+  }
+
+  @ParameterizedTest(name = "{0} is a failure")
+  @ValueSource(
+      strings = {
+        "{\"query\":{}}",
+        "{\"batchcomplete\":true,\"query\":{\"pages\":{}}}",
+        "{\"batchcomplete\":true,\"query\":{\"pages\":null}}"
+      })
+  void answerWithoutAPagesArrayIsAFailure(String body, CapturedOutput output) {
+    answer(body);
+
+    assertThat(pageImages.imageNames(List.of("Synthetic article"), LOOKUP)).isEmpty();
+
+    assertThat(failures(output))
+        .containsExactly(
+            "Wikimedia call failed: source=kowiki title=kowiki pageimages of 1 cause=no query");
+  }
+
+  @ParameterizedTest(name = "code [{0}] is not logged")
+  @MethodSource("io.github.ericmschoi.theworldthatday.wikimedia.ActionApiErrorsTest#unsafeCodes")
+  void unsafeErrorCodeIsLoggedAsAnApiErrorOnly(String code, CapturedOutput output) {
+    answer(ActionApiErrorsTest.errorWithCode(code).toString());
+
+    assertThat(pageImages.imageNames(List.of("Synthetic article"), LOOKUP)).isEmpty();
+
+    assertThat(failures(output))
+        .containsExactly(
+            "Wikimedia call failed: source=kowiki title=kowiki pageimages of 1 cause=api error");
+    if (!code.isEmpty()) {
+      assertThat(output.getAll()).doesNotContain(code);
+    }
   }
 
   @Test

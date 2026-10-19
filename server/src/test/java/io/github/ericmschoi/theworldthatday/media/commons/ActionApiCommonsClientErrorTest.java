@@ -10,6 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import io.github.ericmschoi.theworldthatday.MutableClock;
 import io.github.ericmschoi.theworldthatday.config.ClockConfig;
+import io.github.ericmschoi.theworldthatday.wikimedia.ActionApiErrorsTest;
 import io.github.ericmschoi.theworldthatday.wikimedia.CommonsProperties;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaHttpClient;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaProperties;
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
@@ -31,7 +33,9 @@ import tools.jackson.databind.json.JsonMapper;
 /**
  * Plan M3a3c T0 (3) and (4) on the Commons client: any {@code error} is a failure with or without a
  * code (PR #17 review recommendation 2), the log line names only the code, never the API's {@code
- * info} text, and the day category request is sent once (decision 1 (a)). Responses are synthetic.
+ * info} text, and the day category request is sent once (decision 1 (a)). Plan M3a3d T0 (3) and
+ * (4): only a safe code reaches the log, and a day category without {@code query} stays empty
+ * rather than failed. Responses are synthetic.
  */
 @ExtendWith(OutputCaptureExtension.class)
 class ActionApiCommonsClientErrorTest {
@@ -107,6 +111,32 @@ class ActionApiCommonsClientErrorTest {
         .containsExactly(
             "Wikimedia call failed: source=commons title=commons day category"
                 + " cause=api error badvalue");
+  }
+
+  @ParameterizedTest(name = "code [{0}] is not logged")
+  @MethodSource("io.github.ericmschoi.theworldthatday.wikimedia.ActionApiErrorsTest#unsafeCodes")
+  void unsafeErrorCodeIsLoggedAsAnApiErrorOnly(String code, CapturedOutput output) {
+    answer(ActionApiErrorsTest.errorWithCode(code).toString());
+
+    assertThat(client.dayCategory(LEAP_DAY, LOOKUP).failed()).isTrue();
+
+    assertThat(failures(output))
+        .containsExactly(
+            "Wikimedia call failed: source=commons title=commons day category cause=api error");
+    if (!code.isEmpty()) {
+      assertThat(output.getAll()).doesNotContain(code);
+    }
+  }
+
+  @Test
+  void dayCategoryWithoutAQueryIsStillAnEmptyCategory(CapturedOutput output) {
+    answer("{\"batchcomplete\":true}");
+
+    CommonsClient.Pages pages = client.dayCategory(LocalDate.of(1995, 3, 15), LOOKUP);
+
+    assertThat(pages.failed()).isFalse();
+    assertThat(pages.pages()).isEmpty();
+    assertThat(failures(output)).isEmpty();
   }
 
   @Test
