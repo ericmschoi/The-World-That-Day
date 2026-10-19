@@ -10,6 +10,9 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import io.github.ericmschoi.theworldthatday.event.wikidata.SparqlWikidataSignalSourceTest;
+import io.github.ericmschoi.theworldthatday.media.MediaLookupProperties;
+import io.github.ericmschoi.theworldthatday.wikimedia.Deadline;
+import io.github.ericmschoi.theworldthatday.wikimedia.WikidataProperties;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaWireMockTest;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,26 +41,40 @@ import tools.jackson.databind.json.JsonMapper;
  * default PageImages answer (no lead image), {@code GET /api/story/world} answers the three demo
  * dates as in M3a3b (every event {@code media} empty, the same {@code day_media} ids in the same
  * order, not partial), sends one PageImages request on a day with events (none on 1995-03-15) and
- * exactly one Commons request (the day category; no file batch without a lead image). The world
- * section's worst time with every source slow stays within the M3a3b T3 measurement (about 11.7s)
- * plus 0.5s. Recorded fixtures and WireMock only; no network.
+ * exactly one Commons request (the day category; no file batch without a lead image). Plan M3a3d T2
+ * (6), PR #20 review recommendation 1: the world section's worst time with every source slow
+ * (PageImages included) stays within a bound computed from the settings, and the media segment
+ * alone, with both media paths silent, takes one window ({@code lookup-deadline} + {@link
+ * Deadline#CANCEL_GRACE} + 0.5s), never two. The measured times are printed for the report.
+ * Recorded fixtures and WireMock only; no network: no request is left unmatched.
  */
 @ExtendWith(OutputCaptureExtension.class)
 class WorldStoryEventPhotoPartsRegressionTest extends WikimediaWireMockTest {
 
   private static final JsonMapper JSON = JsonMapper.builder().build();
 
-  /** M3a3b T3 (7) measured worst time with stubs, plus the 0.5s the plan allows. */
-  private static final Duration WORST_BOUND = Duration.ofMillis(11_700 + 500);
+  /** Longer than any budget of the world section: the stub never answers in time. */
+  private static final int SILENT_MS = 12_000;
+
+  /** The slack the plan allows on top of one media window. */
+  private static final Duration MEDIA_SLACK = Duration.ofMillis(500);
 
   @Autowired private WebApplicationContext context;
   @Autowired private JdbcTemplate jdbc;
+  @Autowired private WikidataProperties wikidata;
+  @Autowired private MediaLookupProperties mediaLookup;
   private MockMvc mvc;
 
   @BeforeEach
   void setUp() {
     jdbc.execute("TRUNCATE wiki_section_cache");
     mvc = MockMvcBuilders.webAppContextSetup(context).build();
+  }
+
+  /** Plan M3a3d T2 (7): every request went to a stub, so nothing could reach the network. */
+  @AfterEach
+  void noUnmatchedRequest() {
+    assertThat(wikimedia.findAllUnmatchedRequests()).isEmpty();
   }
 
   private static String read(String path) {
@@ -114,6 +132,24 @@ class WorldStoryEventPhotoPartsRegressionTest extends WikimediaWireMockTest {
     wikimedia.stubFor(
         WireMock.get(urlPathEqualTo(COMMONS_PATH))
             .willReturn(okJson(read("wikimedia/commons/" + file)).withFixedDelay(delayMs)));
+  }
+
+  /** PageImages that answers only after {@code delayMs}; priority 1 like the default stub. */
+  private static void stubPageImages(int delayMs) {
+    wikimedia.stubFor(
+        WireMock.get(urlPathEqualTo(KOWIKI_PATH))
+            .withQueryParam("prop", equalTo("pageimages"))
+            .atPriority(1)
+            .willReturn(okJson(NO_PAGE_IMAGES).withFixedDelay(delayMs)));
+  }
+
+  private static List<String> failures(CapturedOutput output) {
+    return output
+        .getAll()
+        .lines()
+        .filter(l -> l.contains("Wikimedia call failed"))
+        .map(l -> l.substring(l.indexOf("Wikimedia call failed")))
+        .toList();
   }
 
   private JsonNode ok(String date) throws Exception {
@@ -246,26 +282,33 @@ class WorldStoryEventPhotoPartsRegressionTest extends WikimediaWireMockTest {
         .doesNotContain("KBS_2_logo", "KBS 2 logo");
   }
 
-  // ---- T3 (6): worst time with every source slow, no retry on the media path ----
+  // ---- T3 (6) with M3a3d T2 (6): worst time and the one media window ----
 
   /**
-   * Same stubs as the M3a3b worst time test in {@code WorldStoryDayMediaAcceptanceTest}: date page
-   * at once, year page requests just under the read timeout, Wikidata and Commons never in time.
-   * Now the day category is sent exactly once, and the whole answer stays within the M3a3b
-   * measurement plus 0.5s. The time is printed for the T3 report.
+   * Same stubs as the M3a3b worst time test in {@code WorldStoryDayMediaAcceptanceTest} (date page
+   * at once, year page requests just under the read timeout, Wikidata and the Commons day category
+   * never in time), and PageImages never in time either. The day category is still sent exactly
+   * once and the whole answer stays within kowiki-day-deadline + wikidata-read-timeout + grace +
+   * lookup-deadline + grace + 1s, the same formula as the M3a3b test; Wikidata and the media lookup
+   * each waited their whole budget. The time is printed next to the M3a3b and M3a3c measurement.
    */
   @Test
-  void worstTimeStaysWithinTheM3a3bMeasurementAndCommonsIsAskedOnce() throws Exception {
+  void worstTimeWithEverySourceSlowStaysWithinTheSettingsBoundAndCommonsIsAskedOnce()
+      throws Exception {
     stubPage("9월 17일", "09-17", 0);
     stubPage("1988년", "1988", 1_200);
     stubPageprops("pageprops-1988-09-17.json");
-    stubSparql("sparql-1988-09-17.json", 12_000);
-    stubCommons("day-category-1988-09-17.json", 12_000);
+    stubSparql("sparql-1988-09-17.json", SILENT_MS);
+    stubCommons("day-category-1988-09-17.json", SILENT_MS);
+    stubPageImages(SILENT_MS);
 
     long start = System.nanoTime();
     JsonNode root = ok("1988-09-17");
     Duration took = Duration.ofNanos(System.nanoTime() - start);
-    System.out.println("M3a3c T3 (6) world section worst time (stubs): " + took.toMillis() + " ms");
+    System.out.println(
+        "M3a3d T2 (6) world section worst time, PageImages slow too (stubs): "
+            + took.toMillis()
+            + " ms");
 
     assertThat(root.path("events").size()).isEqualTo(3);
     assertEveryEventMediaEmpty(root);
@@ -273,6 +316,61 @@ class WorldStoryEventPhotoPartsRegressionTest extends WikimediaWireMockTest {
     assertThat(root.path("partial").asBoolean()).isTrue();
     assertThat(served(COMMONS_PATH)).as("no retry on the media path").hasSize(1);
     assertThat(pageImagesRequests()).isEqualTo(1);
-    assertThat(took).isLessThanOrEqualTo(WORST_BOUND);
+    Duration bound =
+        properties
+            .kowikiDayDeadline()
+            .plus(wikidata.wikidataReadTimeout())
+            .plus(Deadline.CANCEL_GRACE)
+            .plus(mediaLookup.lookupDeadline())
+            .plus(Deadline.CANCEL_GRACE)
+            .plusSeconds(1);
+    assertThat(took).isLessThanOrEqualTo(bound);
+    assertThat(took)
+        .as("Wikidata and the media lookup each waited their whole budget")
+        .isGreaterThanOrEqualTo(wikidata.wikidataReadTimeout().plus(mediaLookup.lookupDeadline()));
+  }
+
+  /**
+   * Wikipedia and Wikidata answer at once; the Commons day category and PageImages never do. Both
+   * media paths share one deadline, so the whole answer, and with it the media segment, takes at
+   * most lookup-deadline + grace + 0.5s, not two windows, with exactly one WARN line per path.
+   */
+  @Test
+  void mediaSegmentAloneTakesOneWindowWhenBothPathsAreSilent(CapturedOutput output)
+      throws Exception {
+    stubPage("9월 17일", "09-17", 0);
+    stubPage("1988년", "1988", 0);
+    stubPageprops("pageprops-1988-09-17.json");
+    stubSparql("sparql-1988-09-17.json", 0);
+    stubCommons("day-category-1988-09-17.json", SILENT_MS);
+    stubPageImages(SILENT_MS);
+
+    long start = System.nanoTime();
+    JsonNode root = ok("1988-09-17");
+    Duration took = Duration.ofNanos(System.nanoTime() - start);
+    System.out.println(
+        "M3a3d T2 (6) media segment, both paths silent (stubs): " + took.toMillis() + " ms");
+
+    assertThat(root.path("events").size()).isEqualTo(3);
+    assertEveryEventMediaEmpty(root);
+    assertThat(root.path("day_media").isEmpty()).isTrue();
+    assertThat(root.path("partial").asBoolean()).isTrue();
+    assertThat(served(COMMONS_PATH)).as("no retry on the media path").hasSize(1);
+    assertThat(pageImagesRequests()).isEqualTo(1);
+    assertThat(took)
+        .as("one media window, not two")
+        .isLessThanOrEqualTo(
+            mediaLookup.lookupDeadline().plus(Deadline.CANCEL_GRACE).plus(MEDIA_SLACK));
+    assertThat(took)
+        .as("the media lookup waited its window")
+        .isGreaterThanOrEqualTo(mediaLookup.lookupDeadline());
+    List<String> lines = failures(output);
+    assertThat(lines).filteredOn(l -> l.contains("title=commons day category")).hasSize(1);
+    assertThat(lines)
+        .filteredOn(
+            l ->
+                l.contains("title=kowiki pageimages of 3") || l.contains("title=event photos of 3"))
+        .hasSize(1);
+    assertThat(lines).as("one WARN line per media path, nothing else").hasSize(2);
   }
 }

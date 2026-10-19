@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Pattern;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,6 +60,12 @@ class WorldStoryEventPhotoTest extends WikimediaWireMockTest {
   void setUp() {
     jdbc.execute("TRUNCATE wiki_section_cache");
     mvc = MockMvcBuilders.webAppContextSetup(context).build();
+  }
+
+  /** Plan M3a3d T2 (7): every request went to a stub, so nothing could reach the network. */
+  @AfterEach
+  void noUnmatchedRequest() {
+    assertThat(wikimedia.findAllUnmatchedRequests()).isEmpty();
   }
 
   private static String read(String path) {
