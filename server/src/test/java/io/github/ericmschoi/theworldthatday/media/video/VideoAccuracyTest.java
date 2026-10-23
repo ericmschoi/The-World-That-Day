@@ -156,7 +156,10 @@ class VideoAccuracyTest {
         Basis.DAEHAN_NEWS);
   }
 
-  /** Not free, not official, no event link: the score is only dates, words and penalties. */
+  /**
+   * Not free, not official, no event link, dates in the text excluded (T5): the score is only the
+   * given dates, words and penalties.
+   */
   private static Candidate plain(
       String title, String description, CaptureTime original, List<LocalDate> explicit) {
     return new Candidate(
@@ -167,7 +170,7 @@ class VideoAccuracyTest {
         explicit,
         EventLink.NONE,
         false,
-        false,
+        true,
         Basis.YOUTUBE_OFFICIAL);
   }
 

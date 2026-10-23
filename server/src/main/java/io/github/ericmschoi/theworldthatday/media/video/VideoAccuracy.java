@@ -6,17 +6,20 @@ import io.github.ericmschoi.theworldthatday.media.MediaRecord;
 import io.github.ericmschoi.theworldthatday.media.MediaRecord.DatePrecision;
 import io.github.ericmschoi.theworldthatday.media.MediaRecord.LicenseStatus;
 import io.github.ericmschoi.theworldthatday.media.Selection.Basis;
+import io.github.ericmschoi.theworldthatday.media.TextDates;
 import io.github.ericmschoi.theworldthatday.media.video.Candidate.EventLink;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.springframework.stereotype.Component;
 
 /**
@@ -44,7 +47,9 @@ public class VideoAccuracy {
     }
   }
 
-  private static final Pattern PUNCTUATION = Pattern.compile("\\p{P}+");
+  /** Punctuation splits words, except the apostrophe: "Queen's" stays one word (PM decision 3). */
+  private static final Pattern PUNCTUATION = Pattern.compile("[\\p{P}&&[^'\\u2019]]+");
+
   private static final Pattern SPACES = Pattern.compile("[\\s\\p{Z}]+");
   private static final Pattern YEAR_WORD = Pattern.compile("[12]\\d{3}년?");
   private static final Pattern TITLE_YEAR = Pattern.compile("(?<!\\d)(19\\d{2}|20\\d{2})(?!\\d)");
@@ -68,7 +73,7 @@ public class VideoAccuracy {
   public Judgement judge(EventContext event, Candidate candidate) {
     LocalDate day = event.date();
     MediaRecord record = candidate.item().record();
-    String text = join(candidate.title(), candidate.description());
+    String text = apostrophes(join(candidate.title(), candidate.description()));
     String eventText = join(event.title(), event.summary());
     int date = dateScore(day, candidate);
     String compactText = compact(text);
@@ -124,11 +129,24 @@ public class VideoAccuracy {
     };
   }
 
-  /** The best of the source's capture date (unless later than the event) and its stated dates. */
+  /**
+   * The best of the dates written in the title and description (unless the source excludes them),
+   * the source's capture date (unless later than the event) and its stated dates.
+   */
   private static int dateScore(LocalDate day, Candidate candidate) {
     int best = late(candidate.originalCapture(), day) ? 0 : score(candidate.originalCapture(), day);
     for (LocalDate stated : candidate.explicitDates()) {
       best = Math.max(best, score(new CaptureTime(stated.toString(), DatePrecision.DAY), day));
+    }
+    if (!candidate.dateTextExcluded()) {
+      List<CaptureTime> written =
+          Stream.of(candidate.title(), candidate.description())
+              .filter(Objects::nonNull)
+              .flatMap(t -> TextDates.find(t).stream())
+              .toList();
+      for (CaptureTime time : written) {
+        best = Math.max(best, score(time, day));
+      }
     }
     return best;
   }
@@ -142,9 +160,12 @@ public class VideoAccuracy {
     };
   }
 
-  /** Lowercase words of a title, split at spaces and punctuation, without years and stopwords. */
+  /**
+   * Lowercase words of a title, split at spaces and punctuation other than the apostrophe, without
+   * years and stopwords.
+   */
   private List<String> keywords(String title) {
-    String plain = PUNCTUATION.matcher(title == null ? "" : title).replaceAll(" ");
+    String plain = PUNCTUATION.matcher(apostrophes(title == null ? "" : title)).replaceAll(" ");
     return Arrays.stream(SPACES.split(plain.toLowerCase(Locale.ROOT)))
         .filter(w -> !w.isEmpty() && !YEAR_WORD.matcher(w).matches() && !stopwords.contains(w))
         .toList();
@@ -215,6 +236,11 @@ public class VideoAccuracy {
 
   private static String compact(String text) {
     return SPACES.matcher(text).replaceAll("").toLowerCase(Locale.ROOT);
+  }
+
+  /** The typographic apostrophe U+2019 read as {@code '}: both write the same apostrophe. */
+  private static String apostrophes(String text) {
+    return text.replace('\u2019', '\'');
   }
 
   private static String join(String first, String second) {
