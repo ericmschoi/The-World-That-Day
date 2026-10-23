@@ -1,5 +1,6 @@
 package io.github.ericmschoi.theworldthatday.media.video;
 
+import io.github.ericmschoi.theworldthatday.media.MediaLookup.EventTarget;
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -20,5 +21,22 @@ public record EventContext(
   public EventContext {
     Objects.requireNonNull(eventId, "eventId");
     Objects.requireNonNull(date, "date");
+  }
+
+  /** The event of a media target, without an English label yet. */
+  public static EventContext of(EventTarget target, LocalDate date) {
+    return new EventContext(
+        target.eventId(),
+        date,
+        target.title(),
+        null,
+        target.summary(),
+        target.wikidataQid(),
+        target.placeRef());
+  }
+
+  /** This event with the English label a source read for it. */
+  public EventContext withEnglishLabel(String label) {
+    return new EventContext(eventId, date, title, label, summary, wikidataQid, placeRef);
   }
 }

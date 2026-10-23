@@ -9,6 +9,9 @@ import io.github.ericmschoi.theworldthatday.media.commons.CommonsClient.Pages;
 import io.github.ericmschoi.theworldthatday.media.commons.CommonsFileMapper.Drop;
 import io.github.ericmschoi.theworldthatday.media.commons.CommonsFileMapper.Result;
 import io.github.ericmschoi.theworldthatday.media.pageimages.KoWikiPageImages;
+import io.github.ericmschoi.theworldthatday.media.video.VideoSearch;
+import io.github.ericmschoi.theworldthatday.media.video.VideoSearch.Running;
+import io.github.ericmschoi.theworldthatday.media.video.VideoSearch.Videos;
 import io.github.ericmschoi.theworldthatday.wikimedia.Deadline;
 import io.github.ericmschoi.theworldthatday.wikimedia.Deadline.Done;
 import io.github.ericmschoi.theworldthatday.wikimedia.Deadline.Failed;
@@ -29,8 +32,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.JsonNode;
 
@@ -43,7 +48,9 @@ import tools.jackson.databind.JsonNode;
  * each file on the first event only, and left out of the day photos before they are cut. Both paths
  * run at once on one {@link Deadline} of {@code media.lookup-deadline}, which is also the read
  * timeout of each request (sent once, no retry); a path still running then is cancelled with up to
- * 1s of grace and left empty. A deadline is logged only when no other failure line was.
+ * 1s of grace and left empty. A deadline is logged only when no other failure line was. Event
+ * videos (plan M3a4): each video source of {@link VideoSearch} runs as one more task on the same
+ * deadline; a chosen video follows the event's photo.
  */
 @Component
 public class CommonsMediaLookup implements MediaLookup {
@@ -57,16 +64,29 @@ public class CommonsMediaLookup implements MediaLookup {
   private final CommonsFileMapper mapper;
   private final KoWikiPageImages pageImages;
   private final MediaLookupProperties properties;
+  private final VideoSearch videos;
 
+  /** Photos only, without a video search. */
   public CommonsMediaLookup(
       CommonsClient client,
       CommonsFileMapper mapper,
       KoWikiPageImages pageImages,
       MediaLookupProperties properties) {
+    this(client, mapper, pageImages, properties, null);
+  }
+
+  @Autowired
+  public CommonsMediaLookup(
+      CommonsClient client,
+      CommonsFileMapper mapper,
+      KoWikiPageImages pageImages,
+      MediaLookupProperties properties,
+      VideoSearch videos) {
     this.client = client;
     this.mapper = mapper;
     this.pageImages = pageImages;
     this.properties = properties;
+    this.videos = videos;
   }
 
   @Override
@@ -84,6 +104,7 @@ public class CommonsMediaLookup implements MediaLookup {
       Task<DayMedia> day = askDay ? deadline.start("commons", () -> dayCandidates(date)) : null;
       Task<EventPhotos> events =
           asked.isEmpty() ? null : deadline.start(MEDIA, () -> eventPhotos(date, asked));
+      Running search = videos == null ? null : videos.start(deadline, date, targets, tragicDay);
       EventPhotos photos =
           events == null
               ? EventPhotos.NONE
@@ -92,6 +113,16 @@ public class CommonsMediaLookup implements MediaLookup {
           day == null
               ? DayMedia.NONE
               : outcome(day.await(), DayMedia.FAILED, DayMedia::failed, null);
+      Videos found = search == null ? new Videos(Map.of(), false) : search.await();
+      Map<String, List<MediaItem>> eventMedia = new HashMap<>(photos.byEvent());
+      found
+          .byEvent()
+          .forEach(
+              (id, video) ->
+                  eventMedia.merge(
+                      id,
+                      List.of(video),
+                      (a, b) -> Stream.concat(a.stream(), b.stream()).toList()));
       List<MediaItem> dayItems = new ArrayList<>();
       for (MediaItem item : candidates.items()) {
         if (!photos.ids().contains(item.record().id())) {
@@ -99,9 +130,9 @@ public class CommonsMediaLookup implements MediaLookup {
         }
       }
       return new WorldMedia(
-          photos.byEvent(),
+          eventMedia,
           dayItems.subList(0, Math.min(dayItems.size(), properties.dayMediaLimit())),
-          candidates.failed() || photos.failed());
+          candidates.failed() || photos.failed() || found.failed());
     }
   }
 
