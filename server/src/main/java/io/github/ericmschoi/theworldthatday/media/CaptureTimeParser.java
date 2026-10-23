@@ -34,14 +34,17 @@ public final class CaptureTimeParser {
   private static final String MONTH_NAME =
       "(january|february|march|april|may|june|july|august|september|october|november|december)";
 
+  /** An English ordinal after a day number, as in {@code 17th September 1988} (plan M3a4 T5). */
+  private static final String ORDINAL = "(?:st|nd|rd|th)?";
+
   /** {@code 1988-09-17}, {@code 1988:09:17}, each with an optional time of day. */
   private static final Pattern NUMERIC_DAY =
       Pattern.compile(YEAR + "([-:])(\\d{2})\\2(\\d{2})(?:[ T](\\d{2}):(\\d{2})(?::(\\d{2}))?)?");
 
   private static final Pattern DAY_MONTH_YEAR =
-      Pattern.compile("(\\d{1,2}) " + MONTH_NAME + " " + YEAR, CI);
+      Pattern.compile("(\\d{1,2})" + ORDINAL + " " + MONTH_NAME + " " + YEAR, CI);
   private static final Pattern MONTH_DAY_YEAR =
-      Pattern.compile(MONTH_NAME + " (\\d{1,2}),? " + YEAR, CI);
+      Pattern.compile(MONTH_NAME + " (\\d{1,2})" + ORDINAL + ",? " + YEAR, CI);
   private static final Pattern MONTH_YEAR = Pattern.compile(MONTH_NAME + " " + YEAR, CI);
   private static final Pattern NUMERIC_MONTH = Pattern.compile(YEAR + "-(\\d{2})");
   private static final Pattern YEAR_ONLY = Pattern.compile(YEAR);
