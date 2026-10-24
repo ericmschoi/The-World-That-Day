@@ -35,8 +35,8 @@ public interface MediaLookup {
   /**
    * A shown {@code normal} event whose article may have a photo, placed at {@code placeRef}; its
    * text ({@code summary}) and main link's {@code wikidataQid} feed the video search (plan M3a4).
-   * Two targets are equal when their event, title and place are: the event ID is a hash of the
-   * event text, so the two search inputs follow from it.
+   * Two targets are equal when their event, title and place are. Equality ignores {@code summary}
+   * and {@code wikidataQid} on purpose, so tests compare those two field by field.
    */
   record EventTarget(
       String eventId, String title, String placeRef, String summary, String wikidataQid) {
