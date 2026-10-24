@@ -11,8 +11,10 @@ import io.github.ericmschoi.theworldthatday.media.video.Candidate.EventLink;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -56,55 +58,89 @@ public class VideoAccuracy {
   private static final Pattern HANGUL = Pattern.compile("\\p{IsHangul}");
 
   private final VideoSearchProperties properties;
-  private final List<Predicate<String>> commemoration;
-  private final List<Predicate<String>> otherStage;
+  private final List<Listed> commemoration;
+  private final List<Listed> otherStage;
   private final Set<String> stopwords;
 
   public VideoAccuracy(VideoSearchProperties properties) {
     this.properties = properties;
-    this.commemoration = properties.commemorationWords().stream().map(VideoAccuracy::word).toList();
-    this.otherStage = properties.otherStageWords().stream().map(VideoAccuracy::word).toList();
+    this.commemoration = properties.commemorationWords().stream().map(Listed::of).toList();
+    this.otherStage = properties.otherStageWords().stream().map(Listed::of).toList();
     this.stopwords =
         properties.stopwords().stream()
             .map(w -> w.toLowerCase(Locale.ROOT))
             .collect(Collectors.toUnmodifiableSet());
   }
 
+  /** The judging of one candidate for one event. */
+  @FunctionalInterface
+  public interface EventJudge {
+    Judgement judge(Candidate candidate);
+  }
+
   public Judgement judge(EventContext event, Candidate candidate) {
-    LocalDate day = event.date();
-    MediaRecord record = candidate.item().record();
-    String text = apostrophes(join(candidate.title(), candidate.description()));
-    String eventText = join(event.title(), event.summary());
-    int date = dateScore(day, candidate);
-    String compactText = compact(text);
-    boolean words =
-        half(keywords(event.title()), key -> numberSafe(compactText, key))
-            || half(keywords(event.englishLabel()), key -> wholeWord(key).matcher(text).find());
+    return forEvent(event).judge(candidate);
+  }
 
-    int score = date;
-    score += candidate.eventLink() != EventLink.NONE ? 50 : 0;
-    score += words ? 30 : 0;
-    score += candidate.official() ? 20 : 0;
-    score += record.licenseStatus() == LicenseStatus.FREE ? 10 : 0;
-    score -= otherYear(candidate.title(), day.getYear()) ? 40 : 0;
-    score -= commemoration.stream().anyMatch(w -> w.test(text)) ? 30 : 0;
-    score -= otherStage.stream().anyMatch(w -> w.test(text) && !w.test(eventText)) ? 40 : 0;
+  /**
+   * The judging of {@code event}'s candidates: its keywords, their word patterns and the
+   * other-stage words its own text does not hold are prepared once here, not for each candidate.
+   */
+  public EventJudge forEvent(EventContext event) {
+    return new Prepared(event);
+  }
 
-    Double duration = record.durationSeconds();
-    Reject reject = null;
-    if (date == 0 && !words) {
-      reject = Reject.NO_MATCH;
-    } else if ((candidate.basis() == Basis.COMMONS_DATE_CATEGORY && !words)
-        || (candidate.basis() == Basis.COMMONS_SEARCH && !(date == 40 && words))) {
-      reject = Reject.BASIS_RULE;
-    } else if (duration == null || duration > properties.maxDurationSeconds()) {
-      reject = Reject.DURATION;
-    } else if (score < properties.minScore()) {
-      reject = Reject.LOW_SCORE;
-    } else if (late(new CaptureTime(record.capturedAt(), record.datePrecision()), day)) {
-      reject = Reject.LATE_CAPTURE;
+  private final class Prepared implements EventJudge {
+
+    private final LocalDate day;
+    private final List<String> titleKeys;
+    private final List<String> labelKeys;
+    private final Map<String, Pattern> labelWords = new HashMap<>();
+    private final List<Listed> otherStageOnly;
+
+    Prepared(EventContext event) {
+      day = event.date();
+      titleKeys = keywords(event.title());
+      labelKeys = keywords(event.englishLabel());
+      labelKeys.forEach(key -> labelWords.computeIfAbsent(key, VideoAccuracy::wholeWord));
+      Text eventText = Text.of(join(event.title(), event.summary()));
+      otherStageOnly = otherStage.stream().filter(w -> !w.in(eventText)).toList();
     }
-    return new Judgement(score, reject);
+
+    @Override
+    public Judgement judge(Candidate candidate) {
+      MediaRecord record = candidate.item().record();
+      Text text = Text.of(apostrophes(join(candidate.title(), candidate.description())));
+      int date = dateScore(day, candidate);
+      boolean words =
+          half(titleKeys, key -> numberSafe(text.compact(), key))
+              || half(labelKeys, key -> labelWords.get(key).matcher(text.plain()).find());
+
+      int score = date;
+      score += candidate.eventLink() != EventLink.NONE ? 50 : 0;
+      score += words ? 30 : 0;
+      score += candidate.official() ? 20 : 0;
+      score += record.licenseStatus() == LicenseStatus.FREE ? 10 : 0;
+      score -= otherYear(candidate.title(), day.getYear()) ? 40 : 0;
+      score -= commemoration.stream().anyMatch(w -> w.in(text)) ? 30 : 0;
+      score -= otherStageOnly.stream().anyMatch(w -> w.in(text)) ? 40 : 0;
+
+      Double duration = record.durationSeconds();
+      Reject reject = null;
+      if (date == 0 && !words) {
+        reject = Reject.NO_MATCH;
+      } else if ((candidate.basis() == Basis.COMMONS_DATE_CATEGORY && !words)
+          || (candidate.basis() == Basis.COMMONS_SEARCH && !(date == 40 && words))) {
+        reject = Reject.BASIS_RULE;
+      } else if (duration == null || duration > properties.maxDurationSeconds()) {
+        reject = Reject.DURATION;
+      } else if (score < properties.minScore()) {
+        reject = Reject.LOW_SCORE;
+      } else if (late(new CaptureTime(record.capturedAt(), record.datePrecision()), day)) {
+        reject = Reject.LATE_CAPTURE;
+      }
+      return new Judgement(score, reject);
+    }
   }
 
   /**
@@ -218,14 +254,26 @@ public class VideoAccuracy {
     return false;
   }
 
-  /** A listed word: with Hangul, anywhere ignoring every space; otherwise as a whole word. */
-  private static Predicate<String> word(String word) {
-    if (HANGUL.matcher(word).find()) {
-      String needle = compact(word);
-      return text -> compact(text).contains(needle);
+  /** A text as written and without spaces in lowercase, made once for each text. */
+  private record Text(String plain, String compact) {
+    static Text of(String plain) {
+      return new Text(plain, VideoAccuracy.compact(plain));
     }
-    Pattern pattern = wholeWord(word);
-    return text -> pattern.matcher(text).find();
+  }
+
+  /** A listed word: with Hangul, anywhere ignoring every space; otherwise as a whole word. */
+  private record Listed(String needle, Pattern pattern) {
+    static Listed of(String word) {
+      return HANGUL.matcher(word).find()
+          ? new Listed(compact(word), null)
+          : new Listed(null, wholeWord(word));
+    }
+
+    boolean in(Text text) {
+      return pattern == null
+          ? text.compact().contains(needle)
+          : pattern.matcher(text.plain()).find();
+    }
   }
 
   private static Pattern wholeWord(String word) {

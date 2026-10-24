@@ -7,6 +7,7 @@ import io.github.ericmschoi.theworldthatday.media.Selection;
 import io.github.ericmschoi.theworldthatday.media.Selection.Basis;
 import io.github.ericmschoi.theworldthatday.media.video.EventVideoSource.SourceResult;
 import io.github.ericmschoi.theworldthatday.media.video.EventVideoSource.Status;
+import io.github.ericmschoi.theworldthatday.media.video.VideoAccuracy.EventJudge;
 import io.github.ericmschoi.theworldthatday.media.video.VideoAccuracy.Judgement;
 import io.github.ericmschoi.theworldthatday.media.video.VideoAccuracy.Reject;
 import io.github.ericmschoi.theworldthatday.wikimedia.Deadline;
@@ -134,9 +135,10 @@ public class VideoSearch {
         }
         for (EventContext event : events) {
           String label = result.englishLabels().get(event.eventId());
-          EventContext asked = label == null ? event : event.withEnglishLabel(label);
+          EventJudge judge =
+              accuracy.forEvent(label == null ? event : event.withEnglishLabel(label));
           for (Candidate candidate : result.byEvent().getOrDefault(event.eventId(), List.of())) {
-            Judgement judgement = accuracy.judge(asked, candidate);
+            Judgement judgement = judge.judge(candidate);
             if (judgement.accepted()) {
               byEvent
                   .computeIfAbsent(event.eventId(), id -> new ArrayList<>())
