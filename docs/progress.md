@@ -239,3 +239,18 @@
 | 2026-10-18 | backend-dev | M3a3d T1 사건 사진 세계 API 연결 (check 1458/0, 누적 S1 312/−72 — 확인점 2 통과) | 완료 | c67e674, 900465d |
 | 2026-10-18 | test-engineer | M3a3d T2 기준 검증·인수 테스트 8개, 최악 시간 설정값 상한·미디어 창 하나 (check 1467/0 ×3) | 완료 | 797f7b2 |
 | 2026-10-18 | code-reviewer | M3a3d 리뷰 — 승인 (필수 0, 권장 3, check 1467/0) | 승인 | 797f7b2 |
+| 2026-10-18 | orchestrator | M3a3d PR #22 열림 (README·진행 기록 c18e9a6) | PR 대기 | c18e9a6 |
+| 2026-10-18 | PM | M3a3d PR #22 머지 | 완료 | d566bda |
+| 2026-10-18 | planner | M3a4 계획 개정 (약 675 → 두 PR 분할 제안, T0 리뷰 권장 2개) + 로드맵 M3a3d 완료 — PM 승인·결정 2건 필요 | 완료(미커밋) | d566bda |
+| 2026-10-18 | PM | M3a4 계획 승인, 결정 1 (b) 한 PR, 결정 2 (b) T2 backend-dev | 결정 | - |
+| 2026-10-18 | planner | M3a4 PM 승인·결정 1 (b)·2 (b) 기록, 계획·로드맵 커밋 | 완료 | 6feb319 |
+| 2026-10-18 | backend-dev | M3a4 T0 tragic 사건 미디어 이중 방어, within 주석 (check 1468/0, 누적 S1 7) | 완료 | b16ce15, 50c53c1 |
+| 2026-10-18 | backend-dev | M3a4 T1 영상 후보 형식·selection·media.video 설정 (check 1494/0, 누적 S1 211) | 완료 | 28c1a16 |
+| 2026-10-18 | backend-dev | M3a4 T2 ★ 정확도 판정 VideoAccuracy (check 1586/0, 누적 S1 434 — 확인점 1 400 넘음, 알림) | 완료 | 0b74b15 |
+| 2026-10-23 | test-engineer | M3a4 T3 중간 확인 T0–T2 (Sonnet 인계, clean check 1602/0 ×2, 민감 48/0 3회째, S1 434) — PM 결정 필요: 어포스트로피 분리 | 완료 | 65d0331 |
+| 2026-10-23 | backend-dev | M3a4 T5 글 속 날짜 TextDates·서수·재료 (1) 연결·어포스트로피 (check 1683/0, 누적 S1 573) — PM 결정 필요: 지정 시험 쌍이 절반 규칙으로 일치 | 완료 | 7a5d526, 42a780e |
+| 2026-10-23 | backend-dev | M3a4 T6 검색 틀 연결 VideoSearch·같은 마감·selection (check 1719/0, 누적 S1 953 — 확인점 2 750 넘음, 알림) | 완료 | 1c977d0, ac9aae6 |
+| 2026-10-23 | test-engineer | M3a4 T7 완료 기준 검증 (clean check 1737/0 ×2, 민감 79/0 3회째 — iCloud 사본 환경 실패 1회 뒤 clean 후 통과, 최악 11.73s, S1 953) | 완료 | 8c51557 |
+| 2026-10-23 | code-reviewer | M3a4 브랜치 리뷰 (승인, 필수 0·권장 3, check 1737/0) — PM 결정 필요: EventTarget 동등성 | 승인 | 8c51557 |
+| 2026-10-24 | backend-dev | M3a4 리뷰 권장 1 EventTarget Javadoc 바로잡기 (주석만, PM 결정 5 (a)) | 완료 | c2997ac |
+| 2026-10-24 | orchestrator | M3a4 README·진행 기록, PR 열기 | 완료 | - |
