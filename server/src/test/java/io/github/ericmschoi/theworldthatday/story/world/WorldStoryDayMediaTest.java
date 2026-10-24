@@ -27,6 +27,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -97,6 +98,12 @@ class WorldStoryDayMediaTest extends WikimediaWireMockTest {
   @Autowired private JdbcTemplate jdbc;
   @Autowired private JsonMapper springJson;
   private MockMvc mvc;
+
+  /** Plan M3a4b T4 (6): every request went to a stub, so nothing could reach the network. */
+  @AfterEach
+  void noUnmatchedRequest() {
+    assertThat(wikimedia.findAllUnmatchedRequests()).isEmpty();
+  }
 
   @BeforeEach
   void setUp() {

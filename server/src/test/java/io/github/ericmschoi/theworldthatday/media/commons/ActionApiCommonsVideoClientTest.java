@@ -28,6 +28,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -70,6 +71,12 @@ class ActionApiCommonsVideoClientTest {
               clock),
           new CommonsProperties(URI.create(commons.baseUrl() + PATH)),
           JsonMapper.builder().build());
+
+  /** Plan M3a4b T4 (6): every request went to a stub, so nothing could reach the network. */
+  @AfterEach
+  void noUnmatchedRequest() {
+    assertThat(commons.findAllUnmatchedRequests()).isEmpty();
+  }
 
   static String fixture(String name) {
     try (InputStream in =

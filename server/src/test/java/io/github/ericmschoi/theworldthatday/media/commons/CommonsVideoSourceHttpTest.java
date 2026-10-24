@@ -132,6 +132,12 @@ class CommonsVideoSourceHttpTest {
     ((Logger) LoggerFactory.getLogger("io.github.ericmschoi.theworldthatday")).setLevel(before);
   }
 
+  /** Plan M3a4b T4 (6): every request went to a stub, so nothing could reach the network. */
+  @AfterEach
+  void noUnmatchedRequest() {
+    assertThat(wikimedia.findAllUnmatchedRequests()).isEmpty();
+  }
+
   private static void answer(int delayMillis) {
     wikimedia.stubFor(
         get(urlPathEqualTo(SPARQL)).willReturn(okJson(LINKS).withFixedDelay(delayMillis)));

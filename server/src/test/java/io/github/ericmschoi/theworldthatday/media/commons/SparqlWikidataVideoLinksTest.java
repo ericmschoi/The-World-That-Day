@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -68,6 +69,12 @@ class SparqlWikidataVideoLinksTest {
               Duration.ofSeconds(5),
               List.of("Q3839081", "Q171558", "Q2223653", "Q350604")),
           JsonMapper.builder().build());
+
+  /** Plan M3a4b T4 (6): every request went to a stub, so nothing could reach the network. */
+  @AfterEach
+  void noUnmatchedRequest() {
+    assertThat(wikidata.findAllUnmatchedRequests()).isEmpty();
+  }
 
   private static void stub(String body) {
     wikidata.stubFor(get(urlPathEqualTo(PATH)).willReturn(okJson(body)));
