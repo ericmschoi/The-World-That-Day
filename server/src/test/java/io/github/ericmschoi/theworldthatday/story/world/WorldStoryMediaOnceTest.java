@@ -100,6 +100,7 @@ class WorldStoryMediaOnceTest extends WikimediaWireMockTest {
   private static long requests(String path) {
     return wikimedia.getAllServeEvents().stream()
         .filter(event -> event.getRequest().getUrl().startsWith(path))
+        .filter(event -> !isVideoSearch(event))
         .count();
   }
 
@@ -114,6 +115,7 @@ class WorldStoryMediaOnceTest extends WikimediaWireMockTest {
   void commonsLaterThanTheDeadlineIsOneRequestAndAPartialAnswer(CapturedOutput output)
       throws Exception {
     stubOpeningDayEvents();
+    stubNoVideos(); // the late day category below is the photo path's
     wikimedia.stubFor(
         WireMock.get(urlPathEqualTo(COMMONS_PATH))
             .willReturn(

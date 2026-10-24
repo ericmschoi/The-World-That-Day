@@ -167,6 +167,7 @@ class WorldStoryDayMediaTest extends WikimediaWireMockTest {
   private static long requests(String path) {
     return wikimedia.getAllServeEvents().stream()
         .filter(event -> event.getRequest().getUrl().startsWith(path))
+        .filter(event -> !isVideoSearch(event))
         .count();
   }
 
@@ -337,6 +338,7 @@ class WorldStoryDayMediaTest extends WikimediaWireMockTest {
   @Test
   void slowCommonsEndsAtTheDeadlineWithOneWarning(CapturedOutput output) throws Exception {
     stubOpeningDayEvents();
+    stubNoVideos(); // the slow day category below is the photo path's
     wikimedia.stubFor(
         WireMock.get(urlPathEqualTo(COMMONS_PATH))
             .willReturn(okJson("{\"batchcomplete\":true}").withFixedDelay(8_000)));

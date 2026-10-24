@@ -4,6 +4,9 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.http.QueryParameter;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import io.github.ericmschoi.theworldthatday.MutableClock;
 import io.github.ericmschoi.theworldthatday.TestcontainersConfiguration;
 import io.github.ericmschoi.theworldthatday.config.ClockConfig;
@@ -81,6 +84,35 @@ public abstract class WikimediaWireMockTest {
             .atPriority(1)
             .willReturn(WireMock.okJson(NO_PAGE_IMAGES)));
     clock.advance(properties.rateLimitMaxWait().plusSeconds(1));
+  }
+
+  /**
+   * A request of the Commons video search (plan M3a4b T3): Commons with {@code prop=videoinfo}, or
+   * the Wikidata link query. Tests that count photo, Wikipedia or signal requests leave these out.
+   */
+  public static boolean isVideoSearch(ServeEvent event) {
+    LoggedRequest request = event.getRequest();
+    if (request.getUrl().startsWith(COMMONS_PATH)) {
+      return request.queryParameter("prop").containsValue("videoinfo");
+    }
+    QueryParameter query = request.queryParameter("query");
+    return request.getUrl().startsWith(SPARQL_PATH)
+        && query.isPresent()
+        && query.firstValue().contains("?video");
+  }
+
+  /** Answers the video search at once with nothing found, ahead of the tests' path-only stubs. */
+  public static void stubNoVideos() {
+    wikimedia.stubFor(
+        WireMock.get(WireMock.urlPathEqualTo(COMMONS_PATH))
+            .withQueryParam("prop", WireMock.equalTo("videoinfo"))
+            .atPriority(1)
+            .willReturn(WireMock.okJson("{\"batchcomplete\":true}")));
+    wikimedia.stubFor(
+        WireMock.get(WireMock.urlPathEqualTo(SPARQL_PATH))
+            .withQueryParam("query", WireMock.containing("?video"))
+            .atPriority(1)
+            .willReturn(WireMock.okJson("{\"results\":{\"bindings\":[]}}")));
   }
 
   protected static int requestCount() {

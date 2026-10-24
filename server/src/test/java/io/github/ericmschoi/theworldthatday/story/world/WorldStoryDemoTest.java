@@ -139,6 +139,7 @@ class WorldStoryDemoTest extends WikimediaWireMockTest {
   private static List<ServeEvent> sparqlRequests() {
     return wikimedia.getAllServeEvents().stream()
         .filter(event -> event.getRequest().getUrl().startsWith(SPARQL_PATH))
+        .filter(event -> !isVideoSearch(event))
         .toList();
   }
 

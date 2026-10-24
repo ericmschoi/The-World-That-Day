@@ -148,6 +148,7 @@ class WorldStoryEventPhotoPartsRegressionTest extends WikimediaWireMockTest {
         .getAll()
         .lines()
         .filter(l -> l.contains("Wikimedia call failed"))
+        .filter(l -> !l.matches(".*title=(commons|wikidata) video .*")) // the video path's own
         .map(l -> l.substring(l.indexOf("Wikimedia call failed")))
         .toList();
   }
@@ -167,6 +168,7 @@ class WorldStoryEventPhotoPartsRegressionTest extends WikimediaWireMockTest {
   private static List<ServeEvent> served(String path) {
     return wikimedia.getAllServeEvents().stream()
         .filter(event -> event.getRequest().getUrl().startsWith(path + "?"))
+        .filter(event -> !isVideoSearch(event))
         .toList();
   }
 

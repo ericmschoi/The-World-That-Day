@@ -115,6 +115,11 @@ media:
   # Hangul ignoring every space ("카운트 다운" also hits "카운트다운"), any other word as a whole word
   # ignoring case ("relaunch" is not "launch"). Each list costs points once. A blank word fails
   # startup. Video sources share lookup-deadline with the photos; there is no separate timeout.
+  # The Commons video source (plan M3a4b) uses commons-api-url and wikidata-sparql-url above: one
+  # Wikidata query for the events' P10 files and categories with the day's "Videos taken on"
+  # category (none on a tragic day), then the P10 files with one category search per event. Each
+  # request is sent once with lookup-deadline as its read timeout; any failure leaves only the
+  # Commons videos empty and marks the answer partial. Tragic events are never asked.
   video:
     min-score: 60
     max-events: 3

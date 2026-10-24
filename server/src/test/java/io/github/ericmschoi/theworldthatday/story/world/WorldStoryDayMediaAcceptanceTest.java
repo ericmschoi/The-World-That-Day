@@ -151,6 +151,7 @@ class WorldStoryDayMediaAcceptanceTest extends WikimediaWireMockTest {
   private static long requests(String path) {
     return wikimedia.getAllServeEvents().stream()
         .filter(event -> event.getRequest().getUrl().startsWith(path))
+        .filter(event -> !isVideoSearch(event))
         .count();
   }
 
