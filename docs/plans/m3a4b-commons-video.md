@@ -310,6 +310,10 @@ docker compose exec db psql -U postgres -d the_world_that_day \
 
 **확인점 1 결과 (2026-10-24)**: T2 뒤 누적 S1 added 763 / deleted 222 (순증 541, 그중 약 147줄은 `ActionApiCommonsClient` → `CommonsActionApi` 로 옮긴 코드) > 600 → PM **(a)** 이 PR에서 T3까지 진행. 고르지 않은 것: (b) T0·T2 부품만 먼저 PR, (c) 옮김을 되돌려 줄 수 줄이기. 확인점 2(T3 뒤 850)는 알림만.
 
+**확인점 2 결과 (2026-10-24)**: T3 뒤 누적 S1 added 954 / deleted 222 > 850 → 알림만, 계속.
+
+**T4 결정 (2026-10-24)**: 1 **(a)** 기준표 1988-09-17 `kbs-1tv`·`kbs-2tv` 두 행은 근거 번호 없이 `not_researched` + `evidence_gap` 그대로 둔다(리서치가 보지 않은 칸을 정직하게 적은 것 — T1 (3)의 "행마다 근거 번호"에 대한 예외). 2 **(a)** 녹화 `commons/video/date-category-1969-07-20.json` 의 Commons 파일 설명에 든 제3자 공개 연락처(미국 NARA)는 바이트 그대로 둔다(녹화를 고치지 않음, `CLAUDE.md` 7절 5항). 둘 다 test-engineer 추천과 같다.
+
 | # | 물을 것 | 선택지 | 추천 |
 |---|---|---|---|
 | 1 | 크기 약 1,100 (860~1,360) — 나눌지 | (a) 두 PR: M3a4b 어댑터(T0~T5, 약 690) → M3a4c `feat/media-search-cache` 결과 캐시(T6~T9, 약 415). 확인점: M3a4b T2 뒤 600(멈춤)·T3 뒤 850(알림), M3a4c T6 뒤 300(알림). M3 PR 22개 / (b) 두 PR, 캐시 먼저 / (c) 한 PR, 확인점 T3 뒤 850(멈춤)·T7 뒤 1,350(알림) | **(a)** — 실제 어댑터를 먼저 검증하고 M3b3 T6을 앞당긴다. 캐시는 공용 부품이라 따로 리뷰하기 좋다 |
