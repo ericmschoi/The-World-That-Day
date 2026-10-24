@@ -1,0 +1,23 @@
+{
+  "head" : {
+    "vars" : [ "item", "video", "p373", "cs", "label" ]
+  },
+  "results" : {
+    "bindings" : [ {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q495611"
+      },
+      "label" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "1986 Asian Games"
+      },
+      "cs" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Category:1986 Asian Games"
+      }
+    } ]
+  }
+}

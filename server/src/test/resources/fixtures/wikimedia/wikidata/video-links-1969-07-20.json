@@ -1,0 +1,31 @@
+{
+  "head" : {
+    "vars" : [ "item", "video", "p373", "cs", "label" ]
+  },
+  "results" : {
+    "bindings" : [ {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q43653"
+      },
+      "label" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Apollo 11"
+      },
+      "cs" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Category:Apollo 11"
+      },
+      "video" : {
+        "type" : "uri",
+        "value" : "http://commons.wikimedia.org/wiki/Special:FilePath/AP11%20FINAL%20APPROACH.ogv"
+      },
+      "p373" : {
+        "type" : "literal",
+        "value" : "Apollo 11"
+      }
+    } ]
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "head" : {
+    "vars" : [ "item", "video", "p373", "cs", "label" ]
+  },
+  "results" : {
+    "bindings" : [ {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q624509"
+      },
+      "label" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "KBS 2TV"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q777278"
+      },
+      "label" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "KBS 1TV"
+      }
+    }, {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q8470"
+      },
+      "label" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "1988 Summer Olympics"
+      },
+      "cs" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Category:1988 Summer Olympics"
+      },
+      "p373" : {
+        "type" : "literal",
+        "value" : "1988 Summer Olympics"
+      }
+    } ]
+  }
+}

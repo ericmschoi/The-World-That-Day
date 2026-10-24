@@ -1,0 +1,27 @@
+{
+  "head" : {
+    "vars" : [ "item", "video", "p373", "cs", "label" ]
+  },
+  "results" : {
+    "bindings" : [ {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q47735"
+      },
+      "label" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "2002 FIFA World Cup"
+      },
+      "cs" : {
+        "xml:lang" : "en",
+        "type" : "literal",
+        "value" : "Category:2002 FIFA World Cup"
+      },
+      "p373" : {
+        "type" : "literal",
+        "value" : "2002 FIFA World Cup"
+      }
+    } ]
+  }
+}
