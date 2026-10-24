@@ -254,4 +254,4 @@
 | 2026-10-23 | code-reviewer | M3a4 브랜치 리뷰 (승인, 필수 0·권장 3, check 1737/0) — PM 결정 필요: EventTarget 동등성 | 승인 | 8c51557 |
 | 2026-10-24 | backend-dev | M3a4 리뷰 권장 1 EventTarget Javadoc 바로잡기 (주석만, PM 결정 5 (a)) | 완료 | c2997ac |
 | 2026-10-24 | orchestrator | M3a4 README·진행 기록, PR 열기 | 완료 | - |
-| 2026-10-24 | orchestrator | 저장소 이전: iCloud 사본(" 2" 파일이 Flyway·서식 검사를 깨뜨림, `.git/index 2`) 때문에 작업 사본을 iCloud 동기화 Desktop에서 `~/Projects/The-World-That-Day`(새 clone)로 옮김. 모든 브랜치 origin과 같음 확인, 새 위치 server check 1737/0·web 714 통과, README 안내 추가 | 완료 | - |
+| 2026-10-24 | orchestrator | 저장소 이전 (PM(Eric) 결정): iCloud 사본(" 2" 파일이 Flyway·서식 검사를 깨뜨림, `.git/index 2`) 때문에 작업 사본을 iCloud 동기화 Desktop에서 `~/Projects/The-World-That-Day`(새 clone)로 옮김. 모든 브랜치 origin과 같음 확인, 새 위치 server check 1737/0·web 714 통과, README 안내 추가 | 완료 | - |

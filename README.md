@@ -99,7 +99,7 @@ cd web && npm ci && npm run dev   # http://localhost:5173
 
 Tests: `cd server && ./gradlew check` and `cd web && npm test`.
 
-Clone the repository outside any cloud-synced folder (for example `~/Projects`, not iCloud Desktop or Documents). Sync tools create duplicate files such as `V1__baseline 2.sql` or `Foo 2.java`, even inside `.git`. Those copies broke Flyway migrations and the formatting check during M3a4, so on 2026-10-24 the working copy moved from the iCloud-synced Desktop to `~/Projects/The-World-That-Day` (a fresh clone). If a build ever shows such copies, run `./gradlew clean` and move the clone.
+Clone the repository outside any cloud-synced folder (for example `~/Projects`, not iCloud Desktop or Documents). Sync tools create duplicate files such as `V1__baseline 2.sql` or `Foo 2.java`, even inside `.git`. Those copies broke Flyway migrations and the formatting check during M3a4, so on 2026-10-24, by PM (Eric) decision, the working copy moved from the iCloud-synced Desktop to `~/Projects/The-World-That-Day` (a fresh clone). If a build ever shows such copies, run `./gradlew clean` and move the clone.
 
 ## How it is built
 
