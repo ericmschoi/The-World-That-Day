@@ -1,6 +1,6 @@
 # Commons 동영상 자동 검색과 결과 캐시 (M3a4b)
 
-> 브랜치: `feat/commons-video` (`main` 298cb8e — PR #23 M3a4 머지 뒤 — 에서 갈라짐) · 작성: planner · 상태: **계획 개정 2026-10-24, PM 승인 대기** (처음 승인 2026-10-12, M3a4 분할로 생김 — 로드맵 D1 (a)). 2026-10-24 개정은 머지된 M3a4 코드 이름 대조, PR #23 리뷰 권장 2·3(M3a4 결정 5 (a)로 넘어옴), 다시 셈과 분할안이다 — 아래 "이번 개정에서 바뀐 것".
+> 브랜치: `feat/commons-video` (`main` 298cb8e — PR #23 M3a4 머지 뒤 — 에서 갈라짐) · 작성: planner · 상태: **계획 개정 PM 승인 (2026-10-24): 결정 1 (a) 두 PR — M3a4b 어댑터(T0~T5) → M3a4c `feat/media-search-cache` 결과 캐시(T6~T9), M3 PR 22개 · 2 (a) Wikidata 질의는 어댑터가 따로 1회 · 3 (b) ★ T6은 backend-dev · 4 (a) 보조 경로는 후속 후보** — 이 브랜치는 A(T0~T5)만 한다. B(T6~T9)는 M3a4b 머지 뒤 M3a4c를 시작할 때 이 계획서에서 따로 떼어 낸다 (처음 승인 2026-10-12, M3a4 분할로 생김 — 로드맵 D1 (a)). 2026-10-24 개정은 머지된 M3a4 코드 이름 대조, PR #23 리뷰 권장 2·3(M3a4 결정 5 (a)로 넘어옴), 다시 셈과 분할안이다 — 아래 "이번 개정에서 바뀐 것".
 > 기준: `docs/research/video-sources.md` 1절 기능 표, 3절 Commons 카드·3.1절·종합 경로 표·하루 처리량, 4절 Commons 열, 5절 V1 표, 6.1절, 7절 최종 추천·V1 추천·R-V1~R-V7, 8절 위험 2·4·5·6, 10.1절 1·2·3·4·21번, `docs/plans/m3a4-event-video.md`(검색 틀·정확도 규칙·결정 1~5), `docs/plans/m3a3b-commons-photos.md`(Commons 파일 매퍼·녹화 방식), `docs/plans/m3a3c-event-photos.md`(재시도 없음·읽기 타임아웃), `docs/plans/m3a1b-wiki-section-cache.md`(캐시 방식), `CLAUDE.md` 7절 1·2·3·5·6항, 제품 정의서 6.1·6.3·12절
 > 선행: **M3a4 머지됨 (PR #23, `main` 298cb8e)**, M3a3b(Commons 파일 매퍼, 완료). **키가 필요 없다.** 리서치 6.1절 핫링크 `curl` 2개(P0)는 선택이고 이 기능을 막지 않는다.
 > 뒤따르는 기능: M3a5(YouTube)가 이 기능의 결과 캐시를 쓴다(`media.search-cache.ttl.youtube`).
@@ -249,7 +249,7 @@ S1 = 제품 코드·설정(`server`, 테스트 제외 — 이전 계획과 같�
 
 | ID | 작업 | 담당 | 의존 | 완료 기준 |
 |----|------|------|------|-----------|
-| T6 | ★ 캐시 저장소: Flyway V3·엔티티·저장소·TTL 설정 (`feat(db)` 커밋) | backend-dev 또는 PM (PM 결정 3) | A 머지 (결정 1 (c)면 T4) | (1) `V3__event_media_search_cache.sql` 이 적용되고 `ddl-auto=validate` 로 컨텍스트가 뜬다(Testcontainers). (2) 열은 "결과 캐시" 절의 것뿐 — `information_schema.columns` 로 열 이름 목록을 단언(요청자 정보·IP·장소 없음). 열 타입(`TEXT`·`JSONB`)과 이름은 보고서에 이유와 함께. (3) 유일 키 (출처, 날짜, 사건 ID, `day_paths_off`). upsert는 같은 키를 덮어쓰고, 두 쓰기가 겹쳐도 예외 없이 하나만 남는다(V2 `upsert` 와 같은 방식). (4) `media.search-cache.ttl` 지도: `commons: 7d`(`application.yml`, 주석). 음수는 시작 실패(오류에 설정 이름), `0` 과 없는 출처는 "캐시 안 함". 기존 `media.*` 설정 시험 그대로. (5) 아직 흐름에 연결하지 않는다 → 응답·요청 수 그대로. (6) `./gradlew check` 성공. 보고서에 누적 S1 — 결정 1 (a)의 M3a4c 확인점(300 알림) |
+| T6 | ★ 캐시 저장소: Flyway V3·엔티티·저장소·TTL 설정 (`feat(db)` 커밋) | backend-dev (PM 결정 3 (b)) | A 머지 (결정 1 (c)면 T4) | (1) `V3__event_media_search_cache.sql` 이 적용되고 `ddl-auto=validate` 로 컨텍스트가 뜬다(Testcontainers). (2) 열은 "결과 캐시" 절의 것뿐 — `information_schema.columns` 로 열 이름 목록을 단언(요청자 정보·IP·장소 없음). 열 타입(`TEXT`·`JSONB`)과 이름은 보고서에 이유와 함께. (3) 유일 키 (출처, 날짜, 사건 ID, `day_paths_off`). upsert는 같은 키를 덮어쓰고, 두 쓰기가 겹쳐도 예외 없이 하나만 남는다(V2 `upsert` 와 같은 방식). (4) `media.search-cache.ttl` 지도: `commons: 7d`(`application.yml`, 주석). 음수는 시작 실패(오류에 설정 이름), `0` 과 없는 출처는 "캐시 안 함". 기존 `media.*` 설정 시험 그대로. (5) 아직 흐름에 연결하지 않는다 → 응답·요청 수 그대로. (6) `./gradlew check` 성공. 보고서에 누적 S1 — 결정 1 (a)의 M3a4c 확인점(300 알림) |
 | T7 | 캐시 흐름 (`feat(media)` 커밋) | backend-dev | T6 | (1) 출처 공통: `VideoSearch` 가 출처마다 (출처, 날짜, 사건 ID, `dayPathsOff`)로 캐시를 본다. 신선한 사건은 출처에 묻지 않고, 일부만 있으면 없는 사건만 `find` 에 넘긴다, 모두 있으면 그 출처 요청 0. (2) 쓰기: `Status.OK` 결과만 사건마다 한 줄(0건 포함). `FAILED`·`QUOTA_SKIPPED`·예외·시간 초과·`Interrupted` 는 쓰지 않는다(가짜 출처로 각각). 쓰기는 마감 작업 밖(`Running.await()` 뒤, 요청 스레드). (3) 저장 내용: 판정 전 후보(레코드·판정 재료·`basis`), 필터 입력(`MediaOrigin`), 영어 라벨 — 메타데이터만. 읽을 때 다시 판정하고 `MediaFilter`·`MediaNormalizer` 를 다시 거친다: 캐시에 있는 파일을 `media.blocklist` 에 넣고 컨텍스트를 다시 띄우면 나오지 않는다(시험). `retrieved_at` 은 처음 조회 시각. 설정 `min-score` 를 바꾸면 캐시 줄 그대로 결과가 따라 바뀐다. (4) 읽을 수 없는 줄 → 없는 것으로 보고 다시 찾아 덮어쓴다. (5) DB 실패(던지는 가짜 저장소): 읽기 실패 → 출처에 묻는다, 쓰기 실패 → 결과는 그대로 쓴다. 각각 WARN 한 줄 `Media search cache <read\|write> failed: source=<key> cause=<클래스>` — 날짜·사건 ID 없음. `partial` 은 캐시 때문에 바뀌지 않는다. (6) "데모·표본 날짜" 표의 캐시 행: 같은 날짜 두 번째 요청 → Wikidata·Commons 영상 요청 0, 응답 같음(`retrieved_at` 포함) / 시계를 옮겨 정확히 `fetched_at + ttl` 이면 다시 부름, 1초 전이면 안 부름 / 0건도 캐시 / Commons 503·시간 초과 → 캐시 없음, 다음 요청에서 다시 부름 / `dayPathsOff` 가 다른 요청은 다른 줄. (7) 창 하나·최악 시간 시험(`WorldStoryEventPhotoPartsRegressionTest`)과 A의 시험이 단언을 바꾸지 않고 통과. 시험 사이에 캐시가 새지 않는다(캐시 비우기 준비 코드 — 바꾼 줄 보고). (8) `./gradlew check` 성공. 보고서에 누적 S1 |
 | T8 | B 완료 기준 검증과 전체 테스트 | test-engineer | T7 | (1) T6·T7 기준 표(기준마다 테스트 이름), 빠진 기준은 테스트를 더한다. (2) `./gradlew check` **2회** 반복 안정, 마감·창 하나 시험이 든 클래스는 **3회**. (3) S1·S2·S3 보고. (4) 캐시 행 결과 표(첫 요청·두 번째 요청의 출처별 요청 수, TTL 경계, 실패 뒤 다시 부름). (5) 바깥 요청 0 |
 | T9 | PM 캐시 확인 (M3a4c PR 검수 때) | PM | T8 | (1) 서버 실행 중 1969-07-20을 두 번 부른다(P1). 두 응답의 영상 항목이 같다. (2) P2로 캐시 줄이 출처 `commons` 로 있고, 열에 요청자 정보가 없다. (3) 다른 날짜로 찾아보지 않는다 |
@@ -281,7 +281,7 @@ docker compose exec db psql -U postgres -d the_world_that_day \
   -c "SELECT source, event_date, day_paths_off, fetched_at FROM event_media_search_cache ORDER BY fetched_at"
 ```
 
-담당별: backend-dev 5 (T0, T2, T3, T6, T7 — T6은 PM 결정 3에 따라 PM), content-curator 1 (T1), test-engineer 2 (T4, T8), PM 2 (T5, T9). 모두 10개.
+담당별: backend-dev 5 (T0, T2, T3, T6, T7 — T6은 PM 결정 3 (b)), content-curator 1 (T1), test-engineer 2 (T4, T8), PM 2 (T5, T9). 모두 10개.
 
 ## 뒤따르는 기능
 
@@ -305,6 +305,8 @@ docker compose exec db psql -U postgres -d the_world_that_day \
 10. **크기** — 한 PR이면 약 1,100. 결정 1과 확인점으로 다룬다. M3a4는 파일별 셈의 ×2.1이었다.
 
 ## PM 결정 필요
+
+**PM 결정 (2026-10-24)**: 1 **(a)**, 2 **(a)**, 3 **(b)**, 4 **(a)** — 모두 planner 추천과 같다. 확인점: M3a4b T2 뒤 누적 S1 600 넘으면 T3 전에 멈춤, T3 뒤 850 넘으면 알림, M3a4c T6 뒤 300 넘으면 알림.
 
 | # | 물을 것 | 선택지 | 추천 |
 |---|---|---|---|
