@@ -32,7 +32,8 @@ import org.junit.jupiter.params.provider.CsvSource;
  * Plan M3a3d T1 (4), (5), (11) and (14) on the service: which events are asked for a photo (shown
  * {@code normal} events with a title, in answer order, placed by scope), when the day photos are
  * off (a shown {@code tragic} event, or one unavailable Wikipedia page), where the photos land, and
- * the partial flag. Synthetic events on the leap day.
+ * the partial flag; plan M3a4 T0 (1): tragic events never show media. Synthetic events on the leap
+ * day.
  */
 class WorldStoryServiceEventPhotoTest {
 
@@ -219,6 +220,38 @@ class WorldStoryServiceEventPhotoTest {
     WorldStoryResponse response = respond(List.of(event(1)), List.of(DOMESTIC));
 
     assertThat(response.events()).hasSize(1);
+    assertThat(response.partial()).isTrue();
+  }
+
+  // ---- M3a4 T0 (1): the second tragic guard ----
+
+  @Test
+  void tragicEventsShowNoMediaEvenWhenTheLookupReturnsSome() {
+    Verdict curatedTragic = new Verdict(Tone.TRAGIC, Basis.CURATED, Scope.WORLD);
+    media.answer =
+        new MediaLookup.WorldMedia(
+            Map.of(
+                "kowiki-2000-02-29-00000001", List.of(photo(11)),
+                "kowiki-2000-02-29-00000002", List.of(photo(12)),
+                "kowiki-2000-02-29-00000003", List.of(photo(13))),
+            List.of(photo(14)),
+            true);
+
+    WorldStoryResponse response =
+        respond(
+            List.of(event(1), event(2), event(3)),
+            List.of(curatedTragic, TRAGIC_DEFAULT, DOMESTIC));
+
+    assertThat(response.events())
+        .extracting(Event::id)
+        .containsExactly(
+            "kowiki-2000-02-29-00000003",
+            "kowiki-2000-02-29-00000001",
+            "kowiki-2000-02-29-00000002");
+    assertThat(response.events().get(0).media()).containsExactly(photo(13));
+    assertThat(response.events().get(1).media()).isEmpty();
+    assertThat(response.events().get(2).media()).isEmpty();
+    assertThat(response.dayMedia()).containsExactly(photo(14));
     assertThat(response.partial()).isTrue();
   }
 

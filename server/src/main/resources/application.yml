@@ -108,6 +108,61 @@ media:
   # its capture year is at most this many years from the requested year (unknown capture times are
   # kept and labelled). Looked up at once with the day photos, within the same lookup-deadline.
   max-years-apart: 5
+  # Event videos (plan M3a4): at most one per event, for the first max-events shown normal events
+  # with a main link (0 turns video search off). A candidate is kept only when it passes every
+  # required rule and scores at least min-score; one longer than max-duration-seconds, or of unknown
+  # length, is dropped. The three word lists are matched in titles and descriptions: a word with
+  # Hangul ignoring every space ("카운트 다운" also hits "카운트다운"), any other word as a whole word
+  # ignoring case ("relaunch" is not "launch"). Each list costs points once. A blank word fails
+  # startup. Video sources share lookup-deadline with the photos; there is no separate timeout.
+  video:
+    min-score: 60
+    max-events: 3
+    max-duration-seconds: 600
+    # Retrospective edits (−30). "restored" is left out on purpose: restored footage is the event.
+    commemoration-words:
+      - 재현
+      - 기념
+      - 기념식
+      - 주년
+      - 다시 보는
+      - 추모
+      - anniversary
+      - reenactment
+      - montage
+      - highlights
+      - comparison
+      - memorial
+      - commemoration
+      - tribute
+    # Another stage of the same event (−40), not counted when the word is in the event's own title
+    # or text (a day whose event is the launch).
+    other-stage-words:
+      - 발사
+      - launch
+      - 리허설
+      - rehearsal
+      - 예행연습
+      - 카운트다운
+      - countdown
+      - 훈련
+      - training
+      - 준비
+      - preparation
+    # Words left out of the event words of a main link title or English label (first list).
+    # "on" is quoted: bare, YAML reads it as the boolean true.
+    stopwords:
+      - the
+      - a
+      - an
+      - of
+      - in
+      - "on"
+      - at
+      - and
+      - for
+      - to
+      - 및
   # Items taken down at a rights holder's request (plan M3a3a, safeguard 5); applied on restart.
   # Each entry has a lowercase source and at least one of id, author or channel; an entry without
   # them, or without a source, fails startup. Matching: id exactly (Commons file name without

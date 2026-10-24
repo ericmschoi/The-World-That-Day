@@ -39,7 +39,7 @@ flowchart LR
 | M0 Data source research | Verify sources for place search, aerial photos, maps and street view, archive media, and day-of events | ✅ Done (PR #1) |
 | M1 Bootstrap | `server/` (Spring Boot + PostgreSQL) and `web/` (React) skeletons, CI, empty result screen | ✅ Done (PR #2, #3) |
 | M1 follow-ups | CI path filter, `.env.example` cleanup, documented commands | ✅ Done (PR #4) |
-| M3 The world that day | Events by exact date for any birth date, event photos and videos, design foundation and shared media card | 🟡 In progress (16 of 21 PRs merged) |
+| M3 The world that day | Events by exact date for any birth date, event photos and videos, design foundation and shared media card | 🟡 In progress (17 of 21 PRs merged) |
 | M2 Place resolution and input | Classify the place as region / neighborhood / spot, pick from candidates, opening line | ⚪ Planned |
 | M4 The neighborhood | Then-and-now aerial photos, street view, neighborhood photos | ⚪ Planned |
 | M5 The city's landmarks | Curated landmarks per region with archive media | ⚪ Planned |
@@ -58,8 +58,8 @@ flowchart LR
 | M3a3a Media checks: capture time, license status, blocklist | ✅ Done (PR #14) |
 | M3a3b Day photos from Wikimedia Commons | ✅ Done (PR #17) |
 | M3a3c Event photo parts: shared deadline, PageImages, Commons file batch | ✅ Done (PR #20) |
-| M3a3d Event photos in the world API | 🟡 In review |
-| M3a4 Video search framework and accuracy rules | ⚪ Planned |
+| M3a3d Event photos in the world API | ✅ Done (PR #22) |
+| M3a4 Video search framework and accuracy rules | 🟡 In review |
 | M3a4b Commons videos and result cache | ⚪ Planned |
 | M3a5 Official YouTube channel videos (KTV archive) | ⚪ Planned, API key ready |
 | M3a5b 대한뉴스 newsreel matching | ⚪ Planned, needs a one-time index |
@@ -98,6 +98,10 @@ cd web && npm ci && npm run dev   # http://localhost:5173
 ```
 
 Tests: `cd server && ./gradlew check` and `cd web && npm test`.
+
+**▶ PM (Eric) decision, 2026-10-24**
+
+Clone the repository outside any cloud-synced folder (for example `~/Projects`, not iCloud Desktop or Documents). Sync tools create duplicate files such as `V1__baseline 2.sql` or `Foo 2.java`, even inside `.git`. Those copies broke Flyway migrations and the formatting check during M3a4, so on 2026-10-24 the working copy moved from the iCloud-synced Desktop to `~/Projects/The-World-That-Day` (a fresh clone). If a build ever shows such copies, run `./gradlew clean` and move the clone.
 
 ## How it is built
 

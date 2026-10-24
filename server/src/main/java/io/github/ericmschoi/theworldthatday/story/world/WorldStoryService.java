@@ -32,8 +32,8 @@ import org.springframework.stereotype.Service;
  * group in the source order. Only curated takedowns ({@code hide}) are left out; they do not make
  * the answer partial. 503 only when both pages are unavailable. Media is looked up after the tones:
  * day photos (plan M3a3b) never on a day with a shown {@code tragic} event or an unavailable page
- * (plan M3a3d decision 2 (b)), event photos (plan M3a3d) for shown {@code normal} events with a
- * title only; a failed lookup only makes the answer partial.
+ * (plan M3a3d decision 2 (b)), event photos (plan M3a3d) and videos (plan M3a4) for shown {@code
+ * normal} events with a title only; a failed lookup only makes the answer partial.
  */
 @Service
 public class WorldStoryService {
@@ -80,7 +80,12 @@ public class WorldStoryService {
         normal.add(i);
         if (!event.linkTitles().isEmpty()) {
           targets.add(
-              new EventTarget(event.id(), event.linkTitles().getFirst(), place(verdict.scope())));
+              new EventTarget(
+                  event.id(),
+                  event.linkTitles().getFirst(),
+                  place(verdict.scope()),
+                  event.text(),
+                  event.wikidataQid()));
         }
       }
     }
@@ -90,8 +95,12 @@ public class WorldStoryService {
     normal.addAll(tragic);
     List<Event> events = new ArrayList<>();
     for (int i : normal) {
-      List<MediaItem> photos = worldMedia.eventMedia().getOrDefault(found.get(i).id(), List.of());
-      events.add(Event.of(found.get(i), verdicts.get(i), photos));
+      // Second guard (§6.3): a tragic event never shows media, whatever the lookup returned.
+      List<MediaItem> eventMedia =
+          verdicts.get(i).tone() != Tone.NORMAL
+              ? List.of()
+              : worldMedia.eventMedia().getOrDefault(found.get(i).id(), List.of());
+      events.add(Event.of(found.get(i), verdicts.get(i), eventMedia));
     }
     if (!hidden.isEmpty()) {
       log.debug("World events hidden by curation: count={} ids={}", hidden.size(), hidden);
