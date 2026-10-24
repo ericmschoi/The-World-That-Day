@@ -4,7 +4,6 @@ import io.github.ericmschoi.theworldthatday.media.MediaRecord.DisplayMode;
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -40,9 +39,6 @@ public class MediaNormalizer {
       Pattern.compile("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:[0-5]\\dZ");
 
   private static final Pattern VIDEO_MIME = Pattern.compile("video/[a-z0-9.+-]+");
-  private static final Pattern YEAR = Pattern.compile("\\d{4}");
-  private static final Pattern MONTH = Pattern.compile("\\d{4}-\\d{2}");
-  private static final Pattern DAY = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
 
   private final MediaProperties properties;
 
@@ -172,20 +168,7 @@ public class MediaNormalizer {
 
   /** R8: the shape of {@code captured_at} follows {@code date_precision}. */
   private static boolean datePrecisionMatches(MediaRecord r) {
-    String at = r.capturedAt();
-    if (r.datePrecision() == null) {
-      return at == null;
-    }
-    try {
-      return switch (r.datePrecision()) {
-        case DAY -> at != null && DAY.matcher(at).matches() && LocalDate.parse(at) != null;
-        case MONTH -> at != null && MONTH.matcher(at).matches() && YearMonth.parse(at) != null;
-        case YEAR, APPROX -> at != null && YEAR.matcher(at).matches();
-        case CURRENT -> at == null;
-      };
-    } catch (DateTimeException e) {
-      return false;
-    }
+    return CaptureTime.followsRuleR8(r.capturedAt(), r.datePrecision());
   }
 
   private static boolean dateTime(String value) {

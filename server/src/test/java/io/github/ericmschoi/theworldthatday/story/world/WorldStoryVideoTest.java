@@ -3,6 +3,7 @@ package io.github.ericmschoi.theworldthatday.story.world;
 import static io.github.ericmschoi.theworldthatday.media.video.FakeVideoSource.day;
 import static io.github.ericmschoi.theworldthatday.media.video.FakeVideoSource.ok;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import io.github.ericmschoi.theworldthatday.config.ClockConfig;
 import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiDayResult;
@@ -28,7 +29,9 @@ import io.github.ericmschoi.theworldthatday.media.video.Candidate;
 import io.github.ericmschoi.theworldthatday.media.video.Candidate.EventLink;
 import io.github.ericmschoi.theworldthatday.media.video.EventContext;
 import io.github.ericmschoi.theworldthatday.media.video.FakeVideoSource;
+import io.github.ericmschoi.theworldthatday.media.video.ThrowingVideoAccuracy;
 import io.github.ericmschoi.theworldthatday.wikimedia.Deadline;
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -45,6 +48,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -72,6 +78,7 @@ class WorldStoryVideoTest {
   private boolean silentDay;
   private boolean silentPageImages;
   private boolean failedPageImages;
+  private boolean throwingJudge;
 
   private static String page(long id, String fileName) {
     return """
@@ -142,6 +149,11 @@ class WorldStoryVideoTest {
 
   private WorldStoryResponse respond(
       List<KoWikiEvent> events, List<Verdict> verdicts, State datePage, State yearPage) {
+    return service(events, verdicts, datePage, yearPage).find(LEAP_DAY);
+  }
+
+  private WorldStoryService service(
+      List<KoWikiEvent> events, List<Verdict> verdicts, State datePage, State yearPage) {
     KoWikiDayResult day =
         new KoWikiDayResult(
             LEAP_DAY,
@@ -160,9 +172,10 @@ class WorldStoryVideoTest {
             new CommonsFileMapper(new MediaFilter(media), new MediaNormalizer(media), clock),
             pageImages,
             new MediaLookupProperties(6, DEADLINE, 5),
-            FakeVideoSource.search(3, sources.toArray(FakeVideoSource[]::new)));
-    return new WorldStoryService(date -> day, found -> new Judgement(verdicts, false), lookup)
-        .find(LEAP_DAY);
+            throwingJudge
+                ? ThrowingVideoAccuracy.search(3, sources.toArray(FakeVideoSource[]::new))
+                : FakeVideoSource.search(3, sources.toArray(FakeVideoSource[]::new)));
+    return new WorldStoryService(date -> day, found -> new Judgement(verdicts, false), lookup);
   }
 
   private WorldStoryResponse respond(List<KoWikiEvent> events, List<Verdict> verdicts) {
@@ -307,6 +320,52 @@ class WorldStoryVideoTest {
     assertThat(response.partial()).isTrue();
     assertThat(output.getAll())
         .contains("Video search failed: source=alpha events=1 cause=IllegalStateException");
+  }
+
+  // ---- M3a4b T0 (1): a judge that throws empties its source only, the answer is still 200 ----
+
+  @Test
+  void aThrowingJudgeEmptiesOnlyItsSourceAndTheAnswerIsStill200(CapturedOutput output)
+      throws Exception {
+    throwingJudge = true;
+    source("beta", E1);
+    sources.add(
+        new FakeVideoSource(
+            "alpha",
+            events ->
+                ok(
+                    Map.of(
+                        E1,
+                        List.of(
+                            FakeVideoSource.commons(
+                                900002,
+                                ThrowingVideoAccuracy.BOOM,
+                                day("2000-02-29"),
+                                EventLink.P10,
+                                Selection.Basis.COMMONS_P10))))));
+    WorldStoryService service =
+        service(List.of(event(E1, "알파 행사", null)), List.of(DOMESTIC), State.FRESH, State.FRESH);
+    MockMvc mvc =
+        MockMvcBuilders.standaloneSetup(
+                new WorldStoryController(service, Clock.fixed(READ, ClockConfig.SERVICE_ZONE)))
+            .build();
+
+    MockHttpServletResponse response =
+        mvc.perform(get("/api/story/world").param("date", "2000-02-29")).andReturn().getResponse();
+    JsonNode root = JSON.readTree(response.getContentAsString(StandardCharsets.UTF_8));
+
+    assertThat(response.getStatus()).isEqualTo(200);
+    assertThat(root.path("partial").asBoolean()).isTrue();
+    assertThat(root.path("events").get(0).path("media").findValuesAsString("id"))
+        .containsExactly("commons-101", "commons-900001");
+    assertThat(root.path("day_media").findValuesAsString("id")).containsExactly("commons-201");
+    assertThat(output.getAll().lines().filter(l -> l.contains("Video search failed")))
+        .singleElement()
+        .satisfies(
+            l ->
+                assertThat(l)
+                    .endsWith(
+                        "Video search failed: source=alpha events=1 cause=IllegalStateException"));
   }
 
   // ---- (9), (3): one window for every media path ----
