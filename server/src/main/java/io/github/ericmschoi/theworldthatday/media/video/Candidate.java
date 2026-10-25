@@ -2,6 +2,7 @@ package io.github.ericmschoi.theworldthatday.media.video;
 
 import io.github.ericmschoi.theworldthatday.media.CaptureTime;
 import io.github.ericmschoi.theworldthatday.media.MediaItem;
+import io.github.ericmschoi.theworldthatday.media.MediaOrigin;
 import io.github.ericmschoi.theworldthatday.media.Selection;
 import java.time.LocalDate;
 import java.util.List;
@@ -15,7 +16,9 @@ import java.util.Objects;
  * source states (a newsreel issue date), {@code official} whether the channel ID is an allowed one,
  * and {@code dateTextExcluded} that dates written in the title or description are not used. A
  * capture that breaks rule R8 or a {@code null} date is refused when the adapter builds it, so it
- * fails that source's task alone (plan M3a4b T0).
+ * fails that source's task alone (plan M3a4b T0). {@code origin} is what the adapter gave {@code
+ * MediaFilter} (plan M3a4c): the result cache stores it to filter the item again when it is read,
+ * and a candidate without one is never stored.
  */
 public record Candidate(
     MediaItem item,
@@ -26,7 +29,8 @@ public record Candidate(
     EventLink eventLink,
     boolean official,
     boolean dateTextExcluded,
-    Selection.Basis basis) {
+    Selection.Basis basis,
+    MediaOrigin origin) {
 
   public Candidate {
     Objects.requireNonNull(item, "item");
@@ -37,6 +41,30 @@ public record Candidate(
       throw new IllegalArgumentException("originalCapture breaks rule R8"); // no value in the text
     }
     explicitDates = explicitDates == null ? List.of() : List.copyOf(explicitDates); // no null date
+  }
+
+  /** A candidate without an origin, which the result cache never stores. */
+  public Candidate(
+      MediaItem item,
+      String title,
+      String description,
+      CaptureTime originalCapture,
+      List<LocalDate> explicitDates,
+      EventLink eventLink,
+      boolean official,
+      boolean dateTextExcluded,
+      Selection.Basis basis) {
+    this(
+        item,
+        title,
+        description,
+        originalCapture,
+        explicitDates,
+        eventLink,
+        official,
+        dateTextExcluded,
+        basis,
+        null);
   }
 
   /** How the video is tied to the event: Wikidata {@code P10}, its own category, or neither. */
