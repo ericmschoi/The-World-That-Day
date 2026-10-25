@@ -269,6 +269,9 @@ public class WikimediaHttpClient {
       lanes.lockInterruptibly();
       try {
         while (true) {
+          // Assumes at most one PHOTO request in flight per open photo path, so each path
+          // without one in flight keeps one slot: kept = photoPaths - photoInFlight. A path's
+          // requests go one after another (day category once; PageImages, then the file batch).
           int kept = Math.max(0, photoPaths - photoInFlight);
           // timed tryAcquire keeps a fair semaphore fair: never ahead of a waiting request
           if (permits.availablePermits() > kept && permits.tryAcquire(0, TimeUnit.NANOSECONDS)) {
