@@ -247,6 +247,8 @@ S1 = 제품 코드·설정(`server`, 테스트 제외 — 이전 계획과 같�
 
 ### B — 결과 캐시 (결정 1 (a)의 M3a4c `feat/media-search-cache`)
 
+> 이 절은 M3a4b 머지 뒤 `docs/plans/m3a4c-media-search-cache.md` 로 떼어 내 머지된 코드에 맞게 다시 쓰였다(2026-10-24). 아래 T6~T9는 기록으로 그대로 두며, 대응은 T6 → M3a4c T1, T7 → T2·T3, T8 → T5, T9 → T6 이다.
+
 | ID | 작업 | 담당 | 의존 | 완료 기준 |
 |----|------|------|------|-----------|
 | T6 | ★ 캐시 저장소: Flyway V3·엔티티·저장소·TTL 설정 (`feat(db)` 커밋) | backend-dev (PM 결정 3 (b)) | A 머지 (결정 1 (c)면 T4) | (1) `V3__event_media_search_cache.sql` 이 적용되고 `ddl-auto=validate` 로 컨텍스트가 뜬다(Testcontainers). (2) 열은 "결과 캐시" 절의 것뿐 — `information_schema.columns` 로 열 이름 목록을 단언(요청자 정보·IP·장소 없음). 열 타입(`TEXT`·`JSONB`)과 이름은 보고서에 이유와 함께. (3) 유일 키 (출처, 날짜, 사건 ID, `day_paths_off`). upsert는 같은 키를 덮어쓰고, 두 쓰기가 겹쳐도 예외 없이 하나만 남는다(V2 `upsert` 와 같은 방식). (4) `media.search-cache.ttl` 지도: `commons: 7d`(`application.yml`, 주석). 음수는 시작 실패(오류에 설정 이름), `0` 과 없는 출처는 "캐시 안 함". 기존 `media.*` 설정 시험 그대로. (5) 아직 흐름에 연결하지 않는다 → 응답·요청 수 그대로. (6) `./gradlew check` 성공. 보고서에 누적 S1 — 결정 1 (a)의 M3a4c 확인점(300 알림) |
