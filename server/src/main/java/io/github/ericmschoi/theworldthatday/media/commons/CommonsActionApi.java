@@ -5,6 +5,7 @@ import io.github.ericmschoi.theworldthatday.media.commons.CommonsClient.Pages;
 import io.github.ericmschoi.theworldthatday.wikimedia.ActionApiErrors;
 import io.github.ericmschoi.theworldthatday.wikimedia.CommonsProperties;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaHttpClient;
+import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaHttpClient.Lane;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaResponse;
 import java.net.URI;
 import java.time.Duration;
@@ -39,17 +40,23 @@ final class CommonsActionApi {
   private final CommonsProperties properties;
   private final JsonMapper json;
   private final Map<String, Object> info;
+  private final Lane lane;
 
-  /** {@code info}: the file info parameters in request order, e.g. {@code prop=imageinfo}. */
+  /**
+   * {@code info}: the file info parameters in request order, e.g. {@code prop=imageinfo}; {@code
+   * lane}: the photo or the video lane of the request slots.
+   */
   CommonsActionApi(
       WikimediaHttpClient http,
       CommonsProperties properties,
       JsonMapper json,
-      Map<String, Object> info) {
+      Map<String, Object> info,
+      Lane lane) {
     this.http = http;
     this.properties = properties;
     this.json = json;
     this.info = info;
+    this.lane = lane;
   }
 
   /** A new {@code action=query} request on the configured address. */
@@ -129,7 +136,7 @@ final class CommonsActionApi {
             .encode()
             .buildAndExpand(variables)
             .toUri();
-    if (!(http.getOnce(SOURCE, label, uri, readTimeout)
+    if (!(http.getOnce(SOURCE, label, uri, readTimeout, lane)
         instanceof WikimediaResponse.Ok(String body))) {
       return null;
     }

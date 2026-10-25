@@ -2,6 +2,7 @@ package io.github.ericmschoi.theworldthatday.media.commons;
 
 import io.github.ericmschoi.theworldthatday.wikimedia.CommonsProperties;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaHttpClient;
+import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaHttpClient.Lane;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
@@ -30,7 +31,7 @@ public class ActionApiCommonsClient implements CommonsClient {
     info.put("prop", "imageinfo");
     info.put("iiprop", "url|mime|size|extmetadata");
     info.put("iiurlwidth", 640);
-    this.api = new CommonsActionApi(http, properties, json, info);
+    this.api = new CommonsActionApi(http, properties, json, info, Lane.PHOTO);
   }
 
   @Override

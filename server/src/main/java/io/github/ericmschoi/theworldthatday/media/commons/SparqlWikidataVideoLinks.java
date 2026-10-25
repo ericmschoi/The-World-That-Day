@@ -2,6 +2,7 @@ package io.github.ericmschoi.theworldthatday.media.commons;
 
 import io.github.ericmschoi.theworldthatday.wikimedia.WikidataProperties;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaHttpClient;
+import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaHttpClient.Lane;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaResponse;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -69,7 +70,7 @@ public class SparqlWikidataVideoLinks implements WikidataVideoLinks {
             .buildAndExpand(query(items))
             .toUri();
     String label = LABEL + items.size() + " items";
-    if (!(http.getOnce(SOURCE, label, uri, readTimeout)
+    if (!(http.getOnce(SOURCE, label, uri, readTimeout, Lane.VIDEO)
         instanceof WikimediaResponse.Ok(String body))) {
       return Optional.empty(); // the HTTP client logged the failure
     }
