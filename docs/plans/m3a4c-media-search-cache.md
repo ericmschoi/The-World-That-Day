@@ -1,6 +1,6 @@
 # 영상 검색 결과 캐시 (M3a4c)
 
-> 브랜치: `feat/media-search-cache` (`main` 9203562 — PR #24 M3a4b 머지 뒤 — 에서 갈라짐) · 작성: planner · 상태: **계획 작성 2026-10-24, PM 승인 대기 — M3a4b 결정 1 (a)로 분리**. M3a4b 계획서(`docs/plans/m3a4b-commons-video.md`)의 "B — 결과 캐시"(그 계획서의 T6~T9)를 떼어 내 머지된 코드에 맞게 다시 썼다. M3a4b 계획서는 기록으로 그대로 둔다.
+> 브랜치: `feat/media-search-cache` (`main` 9203562 — PR #24 M3a4b 머지 뒤 — 에서 갈라짐) · 작성: planner · 상태: **PM 승인 (2026-10-24): 크기 결정 1 (a) 한 PR, 확인점 T1 뒤 300·T3 뒤 700(둘 다 알림) — M3a4b 결정 1 (a)로 분리**. M3a4b 계획서(`docs/plans/m3a4b-commons-video.md`)의 "B — 결과 캐시"(그 계획서의 T6~T9)를 떼어 내 머지된 코드에 맞게 다시 썼다. M3a4b 계획서는 기록으로 그대로 둔다.
 > 이미 정해진 것(다시 묻지 않음, 2026-10-24): 분할 (a) — 결과 캐시는 이 PR, 확인점 T1 뒤 300(알림), ★ 저장소 작업은 backend-dev(결정 3 (b)), M3 PR 22개.
 > 기준: `docs/research/video-sources.md` 공통-4(캐싱·저장), 종합 경로 표의 "캐시 허용" 열, 7절 R-V1~R-V7, 8절 위험 2·4·5·6, `docs/plans/m3a4b-commons-video.md`("결과 캐시 (Flyway V3)", 리스크 8·9), `docs/plans/m3a4-event-video.md`(검색 틀), `docs/plans/m3a1b-wiki-section-cache.md`(캐시 방식), `CLAUDE.md` 7절 1·2·3·5·6항, 제품 정의서 6.1·6.3·12절
 > 선행: **M3a4b 머지됨 (PR #24, `main` 9203562)** — `CommonsVideoSource`(key `commons`)가 `VideoSearch` 에 붙어 있고, 새 날짜의 첫 호출은 Wikidata 1 + Commons 영상 최대 5개 요청이다. **키가 필요 없다.**
@@ -216,6 +216,8 @@ M3a4b 계획서 B절의 파일별 셈(약 243)을 같은 기준으로 가져오�
 12. **서버 전체 시간 초과 계수기**(고침 리뷰 권장 3) — 이 기능에서 하지 않는다. M6b에서 다룬다.
 
 ## PM 결정 필요
+
+**PM 결정 (2026-10-24)**: 크기 결정 1 **(a)** 한 PR(`feat/media-search-cache`, T1~T6). 확인점 1: T1 뒤 누적 S1 300 넘으면 알림, 확인점 2: T3 뒤 700 넘으면 알림 — 둘 다 멈추지 않는다(T3 뒤 850 이상이면 (b)로 바꿀지 다시 묻는다). M3 PR 22개 그대로. planner 추천과 같다. 고르지 않은 것: (b) 한 번 더 나눔, (c) 출처 단위 전부-또는-없음.
 
 이미 정해져 다시 묻지 않는 것: 분할 (a)·확인점 T1 뒤 300(알림)·★ T1은 backend-dev(M3a4b 결정 1 (a)·3 (b), 2026-10-24).
 
