@@ -19,6 +19,8 @@ import io.github.ericmschoi.theworldthatday.wikimedia.Deadline.Interrupted;
 import io.github.ericmschoi.theworldthatday.wikimedia.Deadline.Outcome;
 import io.github.ericmschoi.theworldthatday.wikimedia.Deadline.Task;
 import io.github.ericmschoi.theworldthatday.wikimedia.Deadline.TimedOut;
+import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaHttpClient;
+import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaHttpClient.PhotoPath;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -32,6 +34,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +53,8 @@ import tools.jackson.databind.JsonNode;
  * timeout of each request (sent once, no retry); a path still running then is cancelled with up to
  * 1s of grace and left empty. A deadline is logged only when no other failure line was. Event
  * videos (plan M3a4): each video source of {@link VideoSearch} runs as one more task on the same
- * deadline; a chosen video follows the event's photo.
+ * deadline; a chosen video follows the event's photo. Each photo path keeps a request slot from the
+ * video requests while it runs ({@link WikimediaHttpClient#openPhotoPath}, plan M3a4b T3 (9)).
  */
 @Component
 public class CommonsMediaLookup implements MediaLookup {
@@ -65,6 +69,7 @@ public class CommonsMediaLookup implements MediaLookup {
   private final KoWikiPageImages pageImages;
   private final MediaLookupProperties properties;
   private final VideoSearch videos;
+  private final WikimediaHttpClient slots;
 
   /** Photos only, without a video search. */
   public CommonsMediaLookup(
@@ -72,21 +77,34 @@ public class CommonsMediaLookup implements MediaLookup {
       CommonsFileMapper mapper,
       KoWikiPageImages pageImages,
       MediaLookupProperties properties) {
-    this(client, mapper, pageImages, properties, null);
+    this(client, mapper, pageImages, properties, null, null);
   }
 
-  @Autowired
+  /** With a video search, without request slots to keep (fake clients). */
   public CommonsMediaLookup(
       CommonsClient client,
       CommonsFileMapper mapper,
       KoWikiPageImages pageImages,
       MediaLookupProperties properties,
       VideoSearch videos) {
+    this(client, mapper, pageImages, properties, videos, null);
+  }
+
+  /** {@code slots}: the HTTP client whose request slots the photo paths keep from videos. */
+  @Autowired
+  public CommonsMediaLookup(
+      CommonsClient client,
+      CommonsFileMapper mapper,
+      KoWikiPageImages pageImages,
+      MediaLookupProperties properties,
+      VideoSearch videos,
+      WikimediaHttpClient slots) {
     this.client = client;
     this.mapper = mapper;
     this.pageImages = pageImages;
     this.properties = properties;
     this.videos = videos;
+    this.slots = slots;
   }
 
   @Override
@@ -100,10 +118,18 @@ public class CommonsMediaLookup implements MediaLookup {
     boolean askDay = !tragicDay && properties.dayMediaLimit() > 0;
     List<EventTarget> asked = targets.stream().limit(KoWikiPageImages.MAX_TITLES).toList();
     String eventLabel = "event photos of " + asked.size();
+    // opened before any task starts, so no video request can take a slot first
+    PhotoPath dayPath = askDay ? photoPath() : null;
+    PhotoPath eventPath = asked.isEmpty() ? null : photoPath();
     try (Deadline deadline = Deadline.after(properties.lookupDeadline())) {
-      Task<DayMedia> day = askDay ? deadline.start("commons", () -> dayCandidates(date)) : null;
+      Task<DayMedia> day =
+          askDay
+              ? deadline.start("commons", () -> closing(dayPath, () -> dayCandidates(date)))
+              : null;
       Task<EventPhotos> events =
-          asked.isEmpty() ? null : deadline.start(MEDIA, () -> eventPhotos(date, asked));
+          asked.isEmpty()
+              ? null
+              : deadline.start(MEDIA, () -> closing(eventPath, () -> eventPhotos(date, asked)));
       Running search = videos == null ? null : videos.start(deadline, date, targets, tragicDay);
       EventPhotos photos =
           events == null
@@ -133,6 +159,28 @@ public class CommonsMediaLookup implements MediaLookup {
           eventMedia,
           dayItems.subList(0, Math.min(dayItems.size(), properties.dayMediaLimit())),
           candidates.failed() || photos.failed() || found.failed());
+    } finally {
+      close(dayPath);
+      close(eventPath);
+    }
+  }
+
+  private PhotoPath photoPath() {
+    return slots == null ? null : slots.openPhotoPath();
+  }
+
+  /** The value of {@code photos}, closing {@code path} when it ends, however it ends. */
+  private static <T> T closing(PhotoPath path, Supplier<T> photos) {
+    try {
+      return photos.get();
+    } finally {
+      close(path);
+    }
+  }
+
+  private static void close(PhotoPath path) {
+    if (path != null) {
+      path.close();
     }
   }
 

@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,6 +45,12 @@ class WorldStoryMediaOnceTest extends WikimediaWireMockTest {
   @Autowired private JdbcTemplate jdbc;
   @Autowired private MediaLookupProperties mediaLookup;
   private MockMvc mvc;
+
+  /** Plan M3a4b T4 (6): every request went to a stub, so nothing could reach the network. */
+  @AfterEach
+  void noUnmatchedRequest() {
+    assertThat(wikimedia.findAllUnmatchedRequests()).isEmpty();
+  }
 
   @BeforeEach
   void setUp() {
@@ -100,6 +107,7 @@ class WorldStoryMediaOnceTest extends WikimediaWireMockTest {
   private static long requests(String path) {
     return wikimedia.getAllServeEvents().stream()
         .filter(event -> event.getRequest().getUrl().startsWith(path))
+        .filter(event -> !isVideoSearch(event))
         .count();
   }
 
@@ -114,6 +122,7 @@ class WorldStoryMediaOnceTest extends WikimediaWireMockTest {
   void commonsLaterThanTheDeadlineIsOneRequestAndAPartialAnswer(CapturedOutput output)
       throws Exception {
     stubOpeningDayEvents();
+    stubNoVideos(); // the late day category below is the photo path's
     wikimedia.stubFor(
         WireMock.get(urlPathEqualTo(COMMONS_PATH))
             .willReturn(

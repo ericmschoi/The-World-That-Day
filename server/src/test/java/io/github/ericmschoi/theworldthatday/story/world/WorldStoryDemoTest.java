@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +74,12 @@ class WorldStoryDemoTest extends WikimediaWireMockTest {
   @Autowired private JdbcTemplate jdbc;
   @Autowired private EventCuration curation;
   private MockMvc mvc;
+
+  /** Plan M3a4b T4 (6): every request went to a stub, so nothing could reach the network. */
+  @AfterEach
+  void noUnmatchedRequest() {
+    assertThat(wikimedia.findAllUnmatchedRequests()).isEmpty();
+  }
 
   @BeforeEach
   void setUp() {
@@ -139,6 +146,7 @@ class WorldStoryDemoTest extends WikimediaWireMockTest {
   private static List<ServeEvent> sparqlRequests() {
     return wikimedia.getAllServeEvents().stream()
         .filter(event -> event.getRequest().getUrl().startsWith(SPARQL_PATH))
+        .filter(event -> !isVideoSearch(event))
         .toList();
   }
 

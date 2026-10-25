@@ -2,6 +2,7 @@ package io.github.ericmschoi.theworldthatday.media.pageimages;
 
 import io.github.ericmschoi.theworldthatday.wikimedia.ActionApiErrors;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaHttpClient;
+import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaHttpClient.Lane;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaProperties;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaResponse;
 import java.net.URI;
@@ -71,7 +72,7 @@ public class ActionApiKoWikiPageImages implements KoWikiPageImages {
             .buildAndExpand(String.join("|", batch))
             .toUri();
     String label = "kowiki pageimages of " + batch.size();
-    if (!(http.getOnce(SOURCE, label, uri, readTimeout)
+    if (!(http.getOnce(SOURCE, label, uri, readTimeout, Lane.PHOTO)
         instanceof WikimediaResponse.Ok(String body))) {
       return Optional.empty();
     }

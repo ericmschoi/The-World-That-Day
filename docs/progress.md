@@ -255,3 +255,16 @@
 | 2026-10-24 | backend-dev | M3a4 리뷰 권장 1 EventTarget Javadoc 바로잡기 (주석만, PM 결정 5 (a)) | 완료 | c2997ac |
 | 2026-10-24 | orchestrator | M3a4 README·진행 기록, PR 열기 | 완료 | - |
 | 2026-10-24 | orchestrator | **▶ PM(Eric) 결정** · 저장소 이전: iCloud 사본(" 2" 파일이 Flyway·서식 검사를 깨뜨림, `.git/index 2`) 때문에 작업 사본을 iCloud 동기화 Desktop에서 `~/Projects/The-World-That-Day`(새 clone)로 옮김. 모든 브랜치 origin과 같음 확인, 새 위치 server check 1737/0·web 714 통과, README 안내 추가 | 완료 | - |
+| 2026-10-24 | PM | M3a4 PR #23 머지 | 완료 | 298cb8e |
+| 2026-10-24 | planner | M3a4b 계획 개정 (머지 이름 대조, 리뷰 권장 2·3을 T0으로, 다시 셈 약 1,100 → 분할안) + 로드맵 M3a4 완료 — PM 승인·결정 4건 필요 | 완료(미커밋) | 298cb8e |
+| 2026-10-24 | PM | M3a4b 계획 승인, 결정 1 (a) 두 PR(M3a4c 결과 캐시 분리, M3 22개)·2 (a)·3 (b)·4 (a) | 결정 | 7ce96d4 |
+| 2026-10-24 | content-curator | M3a4b T1 확인용 기준표 (8날짜·근거 65, C1 ok, S3 529, 약한 칸 6개 표시) | 완료 | 4b5a143 |
+| 2026-10-24 | backend-dev | M3a4b T0 판정 출처별 격리·Candidate/SourceResult 입력 검사·패턴 재사용 (check 1794/0 ×2, 민감 69/0 3회째, 누적 S1 192/−81) | 완료 | 104d4fa, ad2ae3d |
+| 2026-10-24 | orchestrator | T1 커밋을 feat/commons-video로 옮김 (cherry-pick) | 완료 | 90f8462 |
+| 2026-10-24 | backend-dev | M3a4b T2 Commons 영상 부품·녹화 (check 1826/0 ×2, 민감 117/0 3회째, 누적 S1 763/−222 — 확인점 1 600 넘음, 멈춤) — PM 결정 필요: T3 진행 여부 | 완료 | b38a971, effba72 |
+| 2026-10-24 | PM | M3a4b 확인점 1 결정 (a) 이 PR에서 T3까지 | 결정 | 23d3ca5 |
+| 2026-10-24 | backend-dev | M3a4b T3 Commons 영상 출처 연결 (check 1850/0 ×2, 민감 127/0 3회째, 누적 S1 954/−222 — 확인점 2 850 넘음, 알림) | 완료 | 25a68e0 |
+| 2026-10-24 | test-engineer | M3a4b T4 완료 기준 검증 (clean check 1872/0 ×3, 시험 22개 추가, 미디어 구간 3.03s·최악 11.72s 변화 없음, S1 954) — PM 결정 필요: KBS 행 근거 번호, 녹화 속 제3자 이메일 | 완료 | 360ab8c |
+| 2026-10-24 | PM | M3a4b T4 결정 1 (a) KBS 두 행 그대로·2 (a) 녹화 바이트 그대로 | 결정 | 7cb8fc7 |
+| 2026-10-24 | code-reviewer | M3a4b 브랜치 리뷰 (승인, 필수 0·권장 5, cleanTest check 1872/0, 근거 직접 확인 일치) | 승인 | 7cb8fc7 |
+| 2026-10-24 | orchestrator | M3a4b README·진행 기록, PR 열기 | 완료 | - |

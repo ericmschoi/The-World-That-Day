@@ -3,7 +3,9 @@ package io.github.ericmschoi.theworldthatday.media.video;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * One video source (plan M3a4, adapters from M3a4b on): searched once per date for all of its
@@ -29,8 +31,14 @@ public interface EventVideoSource {
   record SourceResult(
       Map<String, List<Candidate>> byEvent, Map<String, String> englishLabels, Status status) {
 
+    /** Copies the candidate lists too; a {@code null} list or candidate is refused. */
     public SourceResult {
-      byEvent = byEvent == null ? Map.of() : Map.copyOf(byEvent);
+      byEvent =
+          byEvent == null
+              ? Map.of()
+              : byEvent.entrySet().stream()
+                  .collect(
+                      Collectors.toUnmodifiableMap(Entry::getKey, e -> List.copyOf(e.getValue())));
       englishLabels = englishLabels == null ? Map.of() : Map.copyOf(englishLabels);
       Objects.requireNonNull(status, "status");
     }

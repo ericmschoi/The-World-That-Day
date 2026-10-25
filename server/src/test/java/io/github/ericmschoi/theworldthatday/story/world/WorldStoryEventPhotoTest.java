@@ -217,6 +217,7 @@ class WorldStoryEventPhotoTest extends WikimediaWireMockTest {
   private static List<ServeEvent> served(String path) {
     return wikimedia.getAllServeEvents().stream()
         .filter(event -> event.getRequest().getUrl().startsWith(path + "?"))
+        .filter(event -> !isVideoSearch(event))
         .toList();
   }
 

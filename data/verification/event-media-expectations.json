@@ -1,0 +1,529 @@
+{
+  "version": 1,
+  "purpose": "Verification-only expectations for event video quality checks (M3a4b, reused by M3a5 and M3a5b). Not used in API responses. Each cell says what must and must not appear per event and per source, with research evidence numbers.",
+  "privacy_note": "All dates are public historical event dates or boundary values (docs/product-brief.md section 12, CLAUDE.md section 7.6). None is anyone's birthday.",
+  "scope": "Exactly 8 dates: 3 demo dates (1988-09-17, 2002-06-22, 1995-03-15) and 5 sample dates (1950-06-25, 1969-07-20, 1986-09-20, 2000-02-29, 2014-04-16). Do not add other dates.",
+  "research_doc": "docs/research/video-sources.md",
+  "source_columns": {
+    "commons": {"label": "Wikimedia Commons video (display_mode video_file)", "research_table": "section 5, table V1 (and the section 5 summary table)"},
+    "youtube": {"label": "Official YouTube channel: KTV Archive only (channel UC8_LPVE4Yuc6KF0opF6uS_w; plan M3a5, research 10.1 #5 (a))", "research_table": "section 3.5, table Y2 (PM run 2026-10-11); embeddable from table Y4"},
+    "daehan_news": {"label": "Daehan News issue (index date window d to d+7, played through the KTV Archive YouTube embed)", "research_table": "section 5, table V5"}
+  },
+  "cell_fields": {
+    "expect": "present = at least the must_appear / must_appear_one_of item | none = the source is called but nothing matching exists | no_request = the source must not be called at all (reason says why) | not_researched = research has no data for this cell",
+    "must_appear": "required videos",
+    "must_appear_one_of": "at least one of these",
+    "may_appear": "acceptable but not required",
+    "must_not_appear": "wrong videos the research saw (wrong day, wrong stage of the event, retrospective, unrelated)",
+    "found_but_not_allowlisted": "research found a match on a channel outside the allowlist; it must not appear while the allowlist is KTV Archive only",
+    "evidence": "research evidence numbers, resolved in the top-level evidence object (url null = no public URL)",
+    "evidence_gap": "what the research did not observe directly"
+  },
+  "global_rules": ["A video whose capture time is unknown is shown as unknown ('촬영 시점 미상'); the event date is never written into captured_at (CLAUDE.md 7.1).", "A Commons DateTimeOriginal later than the event date is an upload or restoration date: captured_at must be null (research R-V3).", "A 'today' retrospective edit (KTV 'YYYY-MM-DD 오늘' clips) may match the date but its captured_at must be null (research R-Y3).", "Daehan News matches are labeled approx: the issue date comes from the index and is not the filming day (research R-N3).", "tragic events: no video and no search request, including the date-level Commons date category (research R-V9, docs/product-brief.md 6.3).", "A date with no event: no Wikidata, Commons, YouTube or index request.", "Media files are never downloaded; only URLs are recorded."],
+  "dates": [
+    {
+      "date": "1988-09-17",
+      "role": "demo",
+      "events": [
+        {
+          "id": "1988-09-17-olympics-opening",
+          "label": "Opening of the 24th Summer Olympics in Seoul",
+          "primary_link": "1988년 하계 올림픽",
+          "qid": "Q8470",
+          "tone": "normal",
+          "tone_evidence": "data/curation/event-tone.json (reviewed 2026-10-12)",
+          "event_evidence": ["11"],
+          "sources": {
+            "commons": {
+              "expect": "none",
+              "reason": "no_match_found",
+              "must_not_appear": [
+                {"what": "Any Commons video attached to this event", "note": "Direct category, date category and date-string paths all returned 0; the response keeps photos only and has no selection key", "evidence": ["26", "59", "71"]},
+                {"what": "deepcat results (28): a US soccer player press conference, wiki workshop videos", "note": "deepcat is not used; none of the 28 matched", "evidence": ["25"]}
+              ],
+              "evidence": ["23", "25", "26", "59", "64", "71"]
+            },
+            "youtube": {
+              "expect": "present",
+              "must_appear": [
+                {"what": "1CwplL71AKI: Daehan News No. 1715 - Seoul Olympics opening (KTV Archive, rank 2)", "note": "embeddable true, public; description says production date 1988-09-17; shown as approx", "evidence": ["177", "120"]}
+              ],
+              "may_appear": [
+                {"what": "4F5fRvrD-6o (2016) and Vg0D3kSgktI (2023): opening ceremony edit clips on KTV Archive", "note": "ambiguous in research; not required, flag for PM review if attached", "evidence": ["177"]}
+              ],
+              "must_not_appear": [
+                {"what": "Other-day issues on the same topic: No. 1711 and No. 1704 (rehearsal), No. 1717 (closing), No. 1719 and No. 1720 (Paralympics), No. 1663 ('one year to the Olympics')", "evidence": ["177"]},
+                {"what": "Videos from channels outside the allowlist: KeWSC7iCnpM (Olympic Games), hdLBbmu_its (Busan MBC), nPZ16kzPaL8 (2024 youth Olympics channel), cZwoaZApl-Q (National Archives 'Records ON', channel dropped)", "evidence": ["124", "127", "177"]}
+              ],
+              "found_but_not_allowlisted": [
+                {"what": "OXRBM4LCb-c: KTV Gukmin Bangsong '1988-09-17 today' retrospective clip", "note": "if the channel is ever added, captured_at must be null", "evidence": ["177"]}
+              ],
+              "evidence": ["177", "120"]
+            },
+            "daehan_news": {
+              "expect": "present",
+              "must_appear": [
+                {"what": "Daehan News No. 1715 'Seoul Olympics opening', issue date 1988-09-17 (+0 days), 9 min 36 s", "note": "approx", "evidence": ["135"]}
+              ],
+              "must_not_appear": [
+                {"what": "Daehan News No. 1714 'Han River festival', 1988-09-13 (-4 days)", "note": "before the d to d+7 window", "evidence": ["archive-media:40"]}
+              ],
+              "evidence": ["135", "archive-media:40"]
+            }
+          }
+        },
+        {
+          "id": "1988-09-17-kbs-1tv",
+          "label": "KBS 1TV (advertising line, year page)",
+          "primary_link": "KBS 1TV",
+          "qid": "Q777278",
+          "tone": "normal",
+          "tone_evidence": "data/curation/event-tone.json",
+          "sources": {
+            "commons": {
+              "expect": "not_researched",
+              "reason": "not_researched",
+              "must_not_appear": [
+                {"what": "Olympic opening footage (No. 1715 or any Olympic clip)", "note": "derived from the accuracy rule (event word 'KBS 1TV' must match), not from a research sample"}
+              ],
+              "evidence_gap": "The research examined only the Olympic opening for this date.",
+              "evidence": []
+            },
+            "youtube": {
+              "expect": "not_researched",
+              "reason": "not_researched",
+              "must_not_appear": [
+                {"what": "Olympic opening footage (No. 1715 or any Olympic clip)", "note": "derived from the accuracy rule (event word 'KBS 1TV' must match), not from a research sample"}
+              ],
+              "evidence_gap": "The research examined only the Olympic opening for this date.",
+              "evidence": []
+            },
+            "daehan_news": {
+              "expect": "not_researched",
+              "reason": "not_researched",
+              "must_not_appear": [
+                {"what": "Olympic opening footage (No. 1715 or any Olympic clip)", "note": "derived from the accuracy rule (event word 'KBS 1TV' must match), not from a research sample"}
+              ],
+              "evidence_gap": "The research examined only the Olympic opening for this date.",
+              "evidence": []
+            }
+          }
+        },
+        {
+          "id": "1988-09-17-kbs-2tv",
+          "label": "KBS 2TV (advertising line, year page)",
+          "primary_link": "KBS 2TV",
+          "qid": "Q624509",
+          "tone": "normal",
+          "tone_evidence": "data/curation/event-tone.json",
+          "sources": {
+            "commons": {
+              "expect": "not_researched",
+              "reason": "not_researched",
+              "must_not_appear": [
+                {"what": "Olympic opening footage (No. 1715 or any Olympic clip)", "note": "derived from the accuracy rule (event word 'KBS 2TV' must match), not from a research sample"}
+              ],
+              "evidence_gap": "The research examined only the Olympic opening for this date.",
+              "evidence": []
+            },
+            "youtube": {
+              "expect": "not_researched",
+              "reason": "not_researched",
+              "must_not_appear": [
+                {"what": "Olympic opening footage (No. 1715 or any Olympic clip)", "note": "derived from the accuracy rule (event word 'KBS 2TV' must match), not from a research sample"}
+              ],
+              "evidence_gap": "The research examined only the Olympic opening for this date.",
+              "evidence": []
+            },
+            "daehan_news": {
+              "expect": "not_researched",
+              "reason": "not_researched",
+              "must_not_appear": [
+                {"what": "Olympic opening footage (No. 1715 or any Olympic clip)", "note": "derived from the accuracy rule (event word 'KBS 2TV' must match), not from a research sample"}
+              ],
+              "evidence_gap": "The research examined only the Olympic opening for this date.",
+              "evidence": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "date": "2002-06-22",
+      "role": "demo",
+      "events": [
+        {
+          "id": "2002-06-22-worldcup-korea-spain",
+          "label": "2002 FIFA World Cup quarter final, Korea vs Spain",
+          "primary_link": "2002년 FIFA 월드컵",
+          "qid": "Q47735",
+          "tone": "normal",
+          "tone_evidence": "data/curation/event-tone.json",
+          "event_evidence": ["12"],
+          "sources": {
+            "commons": {
+              "expect": "none",
+              "reason": "no_match_found",
+              "must_not_appear": [
+                {"what": "Any Commons video attached to this event", "note": "Direct category 0, date category 0, date string 0", "evidence": ["31", "59", "73"]},
+                {"what": "deepcat results (19), none matching the day", "evidence": ["29"]}
+              ],
+              "evidence": ["23", "29", "31", "59", "65", "73"]
+            },
+            "youtube": {
+              "expect": "none",
+              "reason": "no_match_found",
+              "must_not_appear": [
+                {"what": "Any KTV Archive video attached to this event", "note": "no match expected; photos only", "evidence": ["177"]},
+                {"what": "JTBC Sports quarter final replay 6Kr-_veieNw (broadcaster, outside the allowlist)", "evidence": ["125"]}
+              ],
+              "found_but_not_allowlisted": [
+                {"what": "FgiIwMIKMWY: KTV Gukmin Bangsong 2017 retrospective 'The hot days of the 2002 Korea-Japan World Cup'", "note": "ambiguous; channel not allowlisted", "evidence": ["177"]}
+              ],
+              "evidence_gap": "Y2 searched KTV Gukmin Bangsong ('2002 월드컵 스페인', 14 results, 0 matching) but not KTV Archive for this date. 'none' is the research expectation ('no video, photos only'), not a direct observation on the allowlisted channel. A KTV Archive hit with event word and date match is a finding to review, not an automatic failure.",
+              "evidence": ["177", "125"]
+            },
+            "daehan_news": {
+              "expect": "no_request",
+              "reason": "outside_coverage",
+              "note": "Issues exist only from 1953-06-23 to 1994-12-31.",
+              "evidence": ["149", "138"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "date": "1995-03-15",
+      "role": "demo",
+      "no_event": "Wikipedia lists no 1995 event for 3-15 (births only). Expect zero Wikidata, Commons, YouTube and index requests and an empty-date notice.",
+      "events": [],
+      "date_notes": [
+        {"what": "Commons date categories for this day are empty (date category 0, deepcat 0, insource 0); no request is made anyway", "evidence": ["59", "68", "75"]},
+        {"what": "Daehan News ended 1994-12-31; this date is outside coverage", "evidence": ["149"]}
+      ],
+      "sources": {
+        "commons": {
+          "expect": "no_request",
+          "reason": "no_event",
+          "evidence": ["18", "59"]
+        },
+        "youtube": {
+          "expect": "no_request",
+          "reason": "no_event",
+          "evidence": ["18"]
+        },
+        "daehan_news": {
+          "expect": "no_request",
+          "reason": "no_event",
+          "evidence": ["18", "149"]
+        }
+      }
+    },
+    {
+      "date": "1950-06-25",
+      "role": "sample",
+      "events": [
+        {
+          "id": "1950-06-25-korean-war-outbreak",
+          "label": "Outbreak of the Korean War",
+          "primary_link": "조선인민군",
+          "qid": "Q240670",
+          "tone": "tragic",
+          "tone_evidence": "research section 5 sample table (tone tragic); rule R-V9",
+          "link_note": "The page's first link is the North Korean army (Q240670); the war itself is Q8663 (research V7-5).",
+          "event_evidence": ["13", "22"],
+          "sources": {
+            "commons": {
+              "expect": "no_request",
+              "reason": "tragic",
+              "must_not_appear": [
+                {"what": "Any Commons video, including the 'Videos taken on 1950-06-25' date category path", "note": "tragic: zero Wikidata and Commons requests", "evidence": ["66", "76"]},
+                {"what": "Korean War deepcat videos (182, 0 matching), such as an Apollo 11 video in that category tree", "evidence": ["33"]},
+                {"what": "'6.25 전쟁' search results (64) and 'Korean War' search results (63): commemorations and other days", "evidence": ["50", "51"]}
+              ],
+              "evidence": ["13", "23", "33"]
+            },
+            "youtube": {
+              "expect": "no_request",
+              "reason": "tragic",
+              "note": "Research did not search YouTube for tragic dates.",
+              "evidence": ["13"]
+            },
+            "daehan_news": {
+              "expect": "no_request",
+              "reason": "tragic",
+              "note": "Also outside coverage: the first surviving issue is 1953-06-23.",
+              "evidence": ["137", "138"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "date": "1969-07-20",
+      "role": "sample",
+      "events": [
+        {
+          "id": "1969-07-20-apollo-11-landing",
+          "label": "Apollo 11 Moon landing",
+          "primary_link": "아폴로 11호",
+          "qid": "Q43653",
+          "tone": "normal",
+          "tone_evidence": "research section 5 sample table",
+          "event_evidence": ["14", "20", "22"],
+          "sources": {
+            "commons": {
+              "expect": "present",
+              "must_appear": [
+                {"what": "AP11 FINAL APPROACH.ogv via Wikidata P10 (basis commons_p10)", "note": "Public domain, 270 s, DateTimeOriginal 1969-07-20 so captured_at is 1969-07-20 day; video_sources smallest height first", "evidence": ["23", "80"]}
+              ],
+              "may_appear": [
+                {"what": "If P10 is absent: TV clip of Buzz descending the ladder (category direct)", "evidence": ["27"]},
+                {"what": "If P10 is absent: Historic Apollo 11 Moonwalk Footage (category direct)", "note": "its DateTimeOriginal is the upload date 2019-07-21, so captured_at must be null (capture time unknown)", "evidence": ["27", "82"]},
+                {"what": "If P10 is absent: Nixon speaking with astronauts Armstrong and Aldrin on the Moon (date category, 202 s)", "note": "captured_at 1969-07-20", "evidence": ["60", "79"]}
+              ],
+              "must_not_appear": [
+                {"what": "More than one Commons video for this event", "note": "at most one is attached"},
+                {"what": "Jack King's Apollo 11 Launch Commentary (launch day; its upload date 2015-06-12 must not become captured_at)", "evidence": ["27", "82"]},
+                {"what": "Flight of Apollo 11 (0:50 to 3:14 since launch)", "note": "launch footage found by the date-string path", "evidence": ["72"]},
+                {"what": "Launch-day videos (7), commemoration videos (7), training videos (4), R/V Neil Armstrong survey-ship videos (6), 2010s landing-site videos (3)", "note": "deepcat results judged wrong", "evidence": ["28"]},
+                {"what": "Monica Mihanovich 'experiencia' (retrospective)", "evidence": ["27"]}
+              ],
+              "evidence_gap": "Video titles are the research's title-based judgments; the videos were not played.",
+              "note": "'Rare NASA Films from the National Archives' (category direct) is ambiguous in research; attaching it is not a failure.",
+              "evidence": ["23", "27", "28", "60", "72", "79", "80", "82"]
+            },
+            "youtube": {
+              "expect": "present",
+              "must_appear": [
+                {"what": "dcJ7U2Eg4VM: Daehan News No. 736 - Man lands on the Moon - Apollo 11 part 1 (KTV Archive, rank 1)", "note": "embeddable true, public, PT4M59S; description says production date 1969-07-26 (+6 days); shown as approx", "evidence": ["177", "121"]}
+              ],
+              "must_not_appear": [
+                {"what": "wEm0L7AIwWQ: 'Apollo 11 launch [1969]' (launch day)", "evidence": ["177"]},
+                {"what": "Daehan News No. 750 'US astronauts visit Korea' (same year, other day)", "evidence": ["177"]},
+                {"what": "Other space events on the channel: Ranger, Gemini, Mariner", "evidence": ["177"]},
+                {"what": "Other items of issue 736 ('Constitutional amendment by the people's will', 'Strengthening the reserve forces')", "note": "event word mismatch", "evidence": ["177"]},
+                {"what": "NASA channel videos", "note": "outside the allowlist", "evidence": ["177"]}
+              ],
+              "evidence": ["177", "121"]
+            },
+            "daehan_news": {
+              "expect": "present",
+              "must_appear": [
+                {"what": "Daehan News No. 736 'Man lands on the Moon - Apollo 11 part 1', issue date 1969-07-26 (+6 days), 4 min 58 s", "note": "approx; content covers the launch on Jul 16 to the return on Jul 25", "evidence": ["140"]}
+              ],
+              "must_not_appear": [
+                {"what": "Daehan News No. 737 'Yesterday and today', 1969-08-02 (+13 days)", "note": "outside the d to d+7 window", "evidence": ["141"]}
+              ],
+              "evidence": ["140", "141"]
+            }
+          }
+        }
+      ],
+      "date_notes": [
+        {"what": "Commons date category 'Videos taken on 1969-07-20' holds one file (Nixon speaking with astronauts); the category page itself does not exist", "evidence": ["59", "60"]}
+      ]
+    },
+    {
+      "date": "1986-09-20",
+      "role": "sample",
+      "events": [
+        {
+          "id": "1986-09-20-asian-games-opening",
+          "label": "Opening of the 1986 Seoul Asian Games",
+          "primary_link": "1986년 아시안 게임",
+          "qid": "Q495611",
+          "tone": "normal",
+          "tone_evidence": "research section 5 sample table",
+          "link_note": "Wikidata has no P373 for this item; the Commons category comes from the P910 sitelink (Category:1986 Asian Games).",
+          "event_evidence": ["15", "21", "22"],
+          "sources": {
+            "commons": {
+              "expect": "none",
+              "reason": "no_match_found",
+              "must_not_appear": [
+                {"what": "Any Commons video attached to this event", "evidence": ["59", "67", "74"]},
+                {"what": "The 2 deepcat videos of 1986 Asian Games (volleyball), not the opening", "evidence": ["30"]}
+              ],
+              "evidence_gap": "The direct-category path was not run in research (the deepcat total of 2 is an upper bound). If the recorded response differs, report it.",
+              "note": "The request path must go through the P910 sitelink category (no P373).",
+              "evidence": ["23", "24", "30", "59", "67", "74"]
+            },
+            "youtube": {
+              "expect": "present",
+              "must_appear_one_of": [
+                {"what": "W0isyEBFRvI: Daehan News No. 1611 - Asian Games opening (KTV Archive, rank 2)", "note": "approx; embeddable not checked in Y4 (the search had videoEmbeddable=true)", "evidence": ["177"]},
+                {"what": "4q5L1rZKOM0: 1986 Seoul Asian Games opening ceremony clip (KTV Archive, rank 1)", "note": "embeddable true; title has only the year and 'opening', so the score is borderline", "evidence": ["177", "122"]}
+              ],
+              "must_not_appear": [
+                {"what": "Other issues of the same theme: No. 1609 (countdown), No. 1608 and No. 1610 (preparation), No. 1613 (closing special), No. 1412 (1982 ninth Asian Games)", "evidence": ["177"]}
+              ],
+              "found_but_not_allowlisted": [
+                {"what": "f1EG3w5l1Xc: KTV Gukmin Bangsong '1986-09-20 today' retrospective clip", "note": "if the channel is ever added, captured_at must be null", "evidence": ["123", "177"]}
+              ],
+              "evidence": ["177", "122"]
+            },
+            "daehan_news": {
+              "expect": "present",
+              "must_appear": [
+                {"what": "Daehan News No. 1611 'Asian Games opening', issue date 1986-09-20 (+0 days), 9 min 15 s", "note": "approx", "evidence": ["142"]}
+              ],
+              "must_not_appear": [
+                {"what": "Daehan News No. 1610 'Asian Games preparation', 1986-09-12 (-8 days)", "note": "before the window", "evidence": ["143"]}
+              ],
+              "evidence": ["142", "143"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "date": "2000-02-29",
+      "role": "sample",
+      "events": [
+        {
+          "id": "2000-02-29-subway-line-7-opening",
+          "label": "Seoul Subway Line 7 opening (Onsu to Sinpung)",
+          "primary_link": "서울 지하철 7호선",
+          "qid": "Q22910",
+          "tone": "normal",
+          "tone_evidence": "research section 5 sample table (leap day boundary)",
+          "event_evidence": ["16", "19", "22"],
+          "sources": {
+            "commons": {
+              "expect": "none",
+              "reason": "no_match_found",
+              "must_not_appear": [
+                {"what": "Any Commons video attached to this event", "note": "direct category 0 (deepcat 0), date category 0, date string 0", "evidence": ["32", "59", "77"]}
+              ],
+              "evidence": ["23", "32", "59", "69", "77"]
+            },
+            "youtube": {
+              "expect": "none",
+              "reason": "no_match_found",
+              "must_not_appear": [
+                {"what": "Opening issues of other lines: Line 2, Line 3, Line 4, and the Busan subway opening (1980s issues)", "note": "same kind of event, different line or city", "evidence": ["177"]}
+              ],
+              "evidence": ["177"]
+            },
+            "daehan_news": {
+              "expect": "no_request",
+              "reason": "outside_coverage",
+              "note": "2000 is after the last issue (1994-12-31).",
+              "evidence": ["149", "138"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "date": "2014-04-16",
+      "role": "sample",
+      "events": [
+        {
+          "id": "2014-04-16-sewol-disaster",
+          "label": "Sinking of the MV Sewol",
+          "primary_link": "전라남도",
+          "qid": "Q41161",
+          "tone": "tragic",
+          "tone_evidence": "research section 5 sample table (tone tragic); rule R-V9",
+          "link_note": "The page's first link is South Jeolla (Q41161); the disaster itself is Q16338015 (research V7-5).",
+          "event_evidence": ["17", "22"],
+          "sources": {
+            "commons": {
+              "expect": "no_request",
+              "reason": "tragic",
+              "must_not_appear": [
+                {"what": "Any Commons video, including the 'Videos taken on 2014-04-16' date category path", "note": "tragic: zero Wikidata and Commons requests", "evidence": ["61", "78"]},
+                {"what": "The 2 files of the date category: SDO solar observation videos", "note": "date matches, event does not", "evidence": ["61"]},
+                {"what": "insource search results (40, all unrelated) and deepcat 2014-04-16 results (5, Slovenian student protest)", "evidence": ["63", "78"]},
+                {"what": "Newstapa report of 2014-08-12 (free-licensed press video that appears for the keyword only)", "note": "not the day", "evidence": ["52"]}
+              ],
+              "evidence": ["17", "34", "52"]
+            },
+            "youtube": {
+              "expect": "no_request",
+              "reason": "tragic",
+              "note": "Research did not search YouTube for tragic dates.",
+              "evidence": ["17"]
+            },
+            "daehan_news": {
+              "expect": "no_request",
+              "reason": "tragic",
+              "note": "Also outside coverage (after 1994-12-31).",
+              "evidence": ["149"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "evidence": {
+    "11": {"description": "ko.wikipedia day page 9-17 (1988 Olympics line, primary link 1988 Summer Olympics)", "url": "https://ko.wikipedia.org/w/index.php?title=9%EC%9B%94_17%EC%9D%BC&action=raw", "checked": "2026-10-10"},
+    "12": {"description": "ko.wikipedia day page 6-22 (2002 line, primary link 2002 FIFA World Cup)", "url": "https://ko.wikipedia.org/w/index.php?title=6%EC%9B%94_22%EC%9D%BC&action=raw", "checked": "2026-10-10"},
+    "13": {"description": "ko.wikipedia day page 6-25 (1950 line, first link resolves to the North Korean army, not the war)", "url": "https://ko.wikipedia.org/w/index.php?title=6%EC%9B%94_25%EC%9D%BC&action=raw", "checked": "2026-10-10"},
+    "14": {"description": "ko.wikipedia day page 7-20 (1969 line, Apollo 11)", "url": "https://ko.wikipedia.org/w/index.php?title=7%EC%9B%94_20%EC%9D%BC&action=raw", "checked": "2026-10-10"},
+    "15": {"description": "ko.wikipedia day page 9-20 (1986 culture line, 1986 Asian Games)", "url": "https://ko.wikipedia.org/w/index.php?title=9%EC%9B%94_20%EC%9D%BC&action=raw", "checked": "2026-10-10"},
+    "16": {"description": "ko.wikipedia day page 2-29 (2000 culture line, Seoul Subway Line 7)", "url": "https://ko.wikipedia.org/w/index.php?title=2%EC%9B%94_29%EC%9D%BC&action=raw", "checked": "2026-10-10"},
+    "17": {"description": "ko.wikipedia day page 4-16 (2014 line, first link resolves to South Jeolla, not the disaster)", "url": "https://ko.wikipedia.org/w/index.php?title=4%EC%9B%94_16%EC%9D%BC&action=raw", "checked": "2026-10-10"},
+    "18": {"description": "ko.wikipedia day page 3-15 (no 1995 event, birth section only)", "url": "https://ko.wikipedia.org/w/index.php?title=3%EC%9B%94_15%EC%9D%BC&action=raw", "checked": "2026-10-10"},
+    "19": {"description": "ko.wikipedia year page 2000 (Feb 29: one culture item, Line 7 opening)", "url": "https://ko.wikipedia.org/w/index.php?title=2000%EB%85%84&action=raw", "checked": "2026-10-10"},
+    "20": {"description": "ko.wikipedia year page 1969 (Jul 20: one item, Apollo 11)", "url": "https://ko.wikipedia.org/w/index.php?title=1969%EB%85%84&action=raw", "checked": "2026-10-10"},
+    "21": {"description": "ko.wikipedia year page 1986 (Sep 20: no event, births only)", "url": "https://ko.wikipedia.org/w/index.php?title=1986%EB%85%84&action=raw", "checked": "2026-10-10"},
+    "22": {"description": "ko.wikipedia pageprops lookup, primary link titles to Wikidata QIDs", "url": "https://ko.wikipedia.org/w/api.php?action=query&prop=pageprops&ppprop=wikibase_item&redirects=1&titles=1988%EB%85%84%20%ED%95%98%EA%B3%84%20%EC%98%AC%EB%A6%BC%ED%94%BD%7C2002%20FIFA%20%EC%9B%94%EB%93%9C%EC%BB%B5%7C%EC%A1%B0%EC%84%A0%EC%9D%B8%EB%AF%BC%EA%B5%B0%7C6.25%20%EC%A0%84%EC%9F%81%7C%EC%95%84%ED%8F%B4%EB%A1%9C%2011%ED%98%B8%7C1986%EB%85%84%20%EC%95%84%EC%8B%9C%EC%95%88%20%EA%B2%8C%EC%9E%84%7C%EC%84%9C%EC%9A%B8%20%EC%A7%80%ED%95%98%EC%B2%A0%207%ED%98%B8%EC%84%A0%7C%EC%A0%84%EB%9D%BC%EB%82%A8%EB%8F%84%7C%EC%84%B8%EC%9B%94%ED%98%B8%20%EC%B9%A8%EB%AA%B0%20%EC%82%AC%EA%B3%A0&format=json&formatversion=2", "checked": "2026-10-10"},
+    "23": {"description": "Wikidata SPARQL: P373 / P10 / P910 / Commons sitelinks (P10 only on Q43653: AP11 FINAL APPROACH.ogv)", "url": "https://query.wikidata.org/sparql?format=json&query=SELECT%20%3Fitem%20%3Fp373%20%3Fcs%20%3Fvideo%20%3Fp910%20WHERE%20%7B%20VALUES%20%3Fitem%20%7Bwd%3AQ8470%20wd%3AQ47735%20wd%3AQ240670%20wd%3AQ8663%20wd%3AQ43653%20wd%3AQ495611%20wd%3AQ22910%20wd%3AQ41161%20wd%3AQ16338015%7D%20OPTIONAL%7B%3Fitem%20wdt%3AP373%20%3Fp373%7D%20OPTIONAL%7B%3Fs%20schema%3Aabout%20%3Fitem%3B%20schema%3AisPartOf%20%3Chttps%3A%2F%2Fcommons.wikimedia.org%2F%3E%3B%20schema%3Aname%20%3Fcs%7D%20OPTIONAL%7B%3Fitem%20wdt%3AP10%20%3Fvideo%7D%20OPTIONAL%7B%3Fitem%20wdt%3AP910%20%3Fp910%7D%20%7D", "checked": "2026-10-10"},
+    "24": {"description": "Wikidata SPARQL: P910 category sitelinks 7/7 (Q495611 -> Category:1986 Asian Games)", "url": "https://query.wikidata.org/sparql?format=json&query=SELECT%20%3Fitem%20%3Fcat%20%3Fcs%20WHERE%20%7B%20VALUES%20%3Fitem%20%7Bwd%3AQ8470%20wd%3AQ47735%20wd%3AQ8663%20wd%3AQ43653%20wd%3AQ495611%20wd%3AQ22910%20wd%3AQ16338015%7D%20%3Fitem%20wdt%3AP910%20%3Fcat.%20OPTIONAL%7B%3Fs%20schema%3Aabout%20%3Fcat%3B%20schema%3AisPartOf%20%3Chttps%3A%2F%2Fcommons.wikimedia.org%2F%3E%3B%20schema%3Aname%20%3Fcs%7D%20%7D", "checked": "2026-10-10"},
+    "25": {"description": "Commons search deepcat 1988 Summer Olympics: 28 results, 0 relevant", "url": "https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%20deepcat%3A%221988%20Summer%20Olympics%22&srnamespace=6&srlimit=50&srprop=size%7Ctimestamp&format=json", "checked": "2026-10-10"},
+    "26": {"description": "Commons search incategory 1988 Summer Olympics: 0 results", "url": "https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%20incategory%3A%221988%20Summer%20Olympics%22&srnamespace=6&srlimit=50&format=json", "checked": "2026-10-10"},
+    "27": {"description": "Commons search incategory Apollo 11: 5 results (2 correct, 1 ambiguous, rest launch day or retrospective)", "url": "https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%20incategory%3A%22Apollo%2011%22&srnamespace=6&srlimit=50&format=json", "checked": "2026-10-10"},
+    "28": {"description": "Commons search deepcat Apollo 11: 62 results (9 correct, 16 ambiguous, 37 wrong: launch day, commemoration, training, survey vessel)", "url": "https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%20deepcat%3A%22Apollo%2011%22&srnamespace=6&srlimit=100&format=json", "checked": "2026-10-10"},
+    "29": {"description": "Commons search deepcat 2002 FIFA World Cup: 19 results, 0 relevant", "url": "https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%20deepcat%3A%222002%20FIFA%20World%20Cup%22&srnamespace=6&srlimit=50&format=json", "checked": "2026-10-10"},
+    "30": {"description": "Commons search deepcat 1986 Asian Games: 2 results (volleyball videos, not the opening)", "url": "https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%20deepcat%3A%221986%20Asian%20Games%22&srnamespace=6&srlimit=50&format=json", "checked": "2026-10-10"},
+    "31": {"description": "Commons search incategory 2002 FIFA World Cup: 0 results", "url": "https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%20incategory%3A%222002%20FIFA%20World%20Cup%22&srnamespace=6&srlimit=50&format=json", "checked": "2026-10-10"},
+    "32": {"description": "Commons search deepcat Seoul Subway Line 7: 0 results", "url": "https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%20deepcat%3A%22Seoul%20Subway%20Line%207%22&srnamespace=6&srlimit=50&format=json", "checked": "2026-10-10"},
+    "33": {"description": "Commons search deepcat Korean War: 182 results, 0 for the day, includes an Apollo 11 video", "url": "https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%20deepcat%3A%22Korean%20War%22&srnamespace=6&srlimit=50&format=json", "checked": "2026-10-10"},
+    "34": {"description": "Commons search deepcat Sinking of the MV Sewol: 0 results", "url": "https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%20deepcat%3A%22Sinking%20of%20the%20MV%20Sewol%22&srnamespace=6&srlimit=50&format=json", "checked": "2026-10-10"},
+    "50": {"description": "Commons search '6.25 전쟁': 64 results, commemorations and other days, 0 correct", "url": "https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%206.25%20%EC%A0%84%EC%9F%81&srnamespace=6&srlimit=50&format=json", "checked": "2026-10-10"},
+    "51": {"description": "Commons search 'Korean War': 63 results, 0 correct", "url": "https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%20%22Korean%20War%22&srnamespace=6&srlimit=50&format=json", "checked": "2026-10-10"},
+    "52": {"description": "Commons search '세월호': 1 result (Newstapa report, 2014-08-12), not the day", "url": "https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%20%EC%84%B8%EC%9B%94%ED%98%B8&srnamespace=6&srlimit=50&format=json", "checked": "2026-10-10"},
+    "59": {"description": "Commons category info for 'Videos taken on' and plain date categories of all 8 dates (category pages absent for all 8)", "url": "https://commons.wikimedia.org/w/api.php?action=query&titles=Category:Videos%20taken%20on%201988-09-17%7CCategory:Videos%20taken%20on%202002-06-22%7CCategory:Videos%20taken%20on%201995-03-15%7CCategory:Videos%20taken%20on%201950-06-25%7CCategory:Videos%20taken%20on%201969-07-20%7CCategory:Videos%20taken%20on%201986-09-20%7CCategory:Videos%20taken%20on%202000-02-29%7CCategory:Videos%20taken%20on%202014-04-16%7CCategory:1988-09-17%7CCategory:2002-06-22%7CCategory:1995-03-15%7CCategory:1950-06-25%7CCategory:1969-07-20%7CCategory:1986-09-20%7CCategory:2000-02-29%7CCategory:2014-04-16&prop=categoryinfo&format=json&formatversion=2", "checked": "2026-10-10"},
+    "60": {"description": "Commons Videos taken on 1969-07-20: 1 file (Nixon speaking with astronauts on the Moon, 202.272 s)", "url": "https://commons.wikimedia.org/w/api.php?action=query&generator=categorymembers&gcmtitle=Category:Videos%20taken%20on%201969-07-20&gcmtype=file&gcmlimit=50&prop=imageinfo&iiprop=mime%7Cmediatype%7Csize%7Curl&format=json&formatversion=2", "checked": "2026-10-10"},
+    "61": {"description": "Commons Videos taken on 2014-04-16: 2 files (SDO solar observation, unrelated)", "url": "https://commons.wikimedia.org/w/api.php?action=query&generator=categorymembers&gcmtitle=Category:Videos%20taken%20on%202014-04-16&gcmtype=file&gcmlimit=50&prop=imageinfo&iiprop=mime%7Cmediatype&format=json&formatversion=2", "checked": "2026-10-10"},
+    "63": {"description": "Commons search deepcat 2014-04-16: 5 results (Slovenian student protest, unrelated)", "url": "https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%20deepcat%3A%222014-04-16%22&srnamespace=6&srlimit=50&format=json", "checked": "2026-10-10"},
+    "64": {"description": "Commons search deepcat 1988-09-17: 0 results", "url": "https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%20deepcat%3A%221988-09-17%22&srnamespace=6&srlimit=50&format=json", "checked": "2026-10-10"},
+    "65": {"description": "Commons search deepcat 2002-06-22: 0 results", "url": "https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%20deepcat%3A%222002-06-22%22&srnamespace=6&srlimit=50&format=json", "checked": "2026-10-10"},
+    "66": {"description": "Commons search deepcat 1950-06-25: 0 results", "url": "https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%20deepcat%3A%221950-06-25%22&srnamespace=6&srlimit=50&format=json", "checked": "2026-10-10"},
+    "67": {"description": "Commons search deepcat 1986-09-20: 0 results", "url": "https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%20deepcat%3A%221986-09-20%22&srnamespace=6&srlimit=50&format=json", "checked": "2026-10-10"},
+    "68": {"description": "Commons search deepcat 1995-03-15: 0 results", "url": "https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%20deepcat%3A%221995-03-15%22&srnamespace=6&srlimit=50&format=json", "checked": "2026-10-10"},
+    "69": {"description": "Commons search deepcat 2000-02-29: 0 results", "url": "https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%20deepcat%3A%222000-02-29%22&srnamespace=6&srlimit=50&format=json", "checked": "2026-10-10"},
+    "71": {"description": "Commons search insource 1988-09-17: 0 results", "url": "https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%20insource%3A%221988-09-17%22&srnamespace=6&srlimit=50&format=json", "checked": "2026-10-10"},
+    "72": {"description": "Commons search insource 1969-07-20: 7 results (5 correct, 1 ambiguous, 1 launch footage)", "url": "https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%20insource%3A%221969-07-20%22&srnamespace=6&srlimit=50&format=json", "checked": "2026-10-10"},
+    "73": {"description": "Commons search insource 2002-06-22: 0 results", "url": "https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%20insource%3A%222002-06-22%22&srnamespace=6&srlimit=50&format=json", "checked": "2026-10-10"},
+    "74": {"description": "Commons search insource 1986-09-20: 0 results", "url": "https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%20insource%3A%221986-09-20%22&srnamespace=6&srlimit=50&format=json", "checked": "2026-10-10"},
+    "75": {"description": "Commons search insource 1995-03-15: 0 results", "url": "https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%20insource%3A%221995-03-15%22&srnamespace=6&srlimit=50&format=json", "checked": "2026-10-10"},
+    "76": {"description": "Commons search insource 1950-06-25: 0 results", "url": "https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%20insource%3A%221950-06-25%22&srnamespace=6&srlimit=50&format=json", "checked": "2026-10-10"},
+    "77": {"description": "Commons search insource 2000-02-29: 0 results", "url": "https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%20insource%3A%222000-02-29%22&srnamespace=6&srlimit=50&format=json", "checked": "2026-10-10"},
+    "78": {"description": "Commons search insource 2014-04-16: 40 results, all unrelated", "url": "https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=filetype%3Avideo%20insource%3A%222014-04-16%22&srnamespace=6&srlimit=50&format=json", "checked": "2026-10-10"},
+    "79": {"description": "Commons videoinfo for Nixon speaking with astronauts: derivatives, Public domain, DateTimeOriginal 'Taken on 20 July 1969'", "url": "https://commons.wikimedia.org/w/api.php?action=query&titles=File:President_Nixon_speaking_with_astronauts_Armstrong_and_Aldrin_on_the_Moon.webm&prop=videoinfo&viprop=url%7Csize%7Cmime%7Cmediatype%7Cderivatives%7Cextmetadata&viurlwidth=640&viextmetadatafilter=DateTimeOriginal%7CLicenseShortName%7CLicenseUrl%7CArtist%7CCredit%7CImageDescription%7CCopyrighted%7CAttributionRequired%7CUsageTerms%7CRestrictions%7CNonFree%7CObjectName&format=json&formatversion=2", "checked": "2026-10-10"},
+    "80": {"description": "Commons videoinfo for AP11 FINAL APPROACH.ogv: 270 s, derivatives, Public domain, DateTimeOriginal 1969-07-20", "url": "https://commons.wikimedia.org/w/api.php?action=query&titles=File:AP11_FINAL_APPROACH.ogv&prop=videoinfo&viprop=url%7Csize%7Cmime%7Cmediatype%7Cderivatives%7Cextmetadata&viurlwidth=320&viextmetadatafilter=DateTimeOriginal%7CLicenseShortName%7CLicenseUrl%7CArtist%7CCredit%7CImageDescription%7CAttributionRequired%7CUsageTerms%7CRestrictions%7CNonFree&format=json&formatversion=2", "checked": "2026-10-10"},
+    "82": {"description": "Commons generator search + imageinfo for Apollo 11 videos: 3 of 5 files carry the upload date in DateTimeOriginal (e.g. 2019-07-21, 2015-06-12)", "url": "https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=filetype%3Avideo%20incategory%3A%22Apollo%2011%22&gsrnamespace=6&gsrlimit=10&prop=imageinfo&iiprop=url%7Csize%7Cmime%7Cextmetadata&iiurlwidth=330&iiextmetadatafilter=DateTimeOriginal%7CLicenseShortName%7CArtist&format=json&formatversion=2", "checked": "2026-10-11"},
+    "120": {"description": "YouTube oEmbed: KTV Archive 'Daehan News No. 1715 - Seoul Olympics opening' (1CwplL71AKI)", "url": "https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=1CwplL71AKI&format=json", "checked": "2026-10-11"},
+    "121": {"description": "YouTube oEmbed: KTV Archive 'Daehan News No. 736 - Man lands on the Moon - Apollo 11 part 1' (dcJ7U2Eg4VM)", "url": "https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=dcJ7U2Eg4VM&format=json", "checked": "2026-10-11"},
+    "122": {"description": "YouTube oEmbed: KTV Archive 1986 Seoul Asian Games opening ceremony clip (4q5L1rZKOM0)", "url": "https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=4q5L1rZKOM0&format=json", "checked": "2026-10-11"},
+    "123": {"description": "YouTube oEmbed: KTV Gukmin Bangsong '1986-09-20 today' retrospective clip (f1EG3w5l1Xc)", "url": "https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=f1EG3w5l1Xc&format=json", "checked": "2026-10-11"},
+    "124": {"description": "YouTube oEmbed: Olympic Games channel 'Seoul 1988 - Opening Ceremony' (KeWSC7iCnpM, outside the allowlist)", "url": "https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=KeWSC7iCnpM&format=json", "checked": "2026-10-11"},
+    "125": {"description": "YouTube oEmbed: JTBC Sports 2002 World Cup quarter final (6Kr-_veieNw, broadcaster, outside the allowlist)", "url": "https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=6Kr-_veieNw&format=json", "checked": "2026-10-11"},
+    "127": {"description": "YouTube oEmbed field structure and two out-of-allowlist 1988 videos (hdLBbmu_its, nPZ16kzPaL8)", "url": "https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=M7lc1UVf-VE&format=json", "checked": "2026-10-11"},
+    "135": {"description": "e-History: Daehan News No. 1715 'Seoul Olympics opening', 1988-09-17, 9 min 36 s", "url": "https://www.ehistory.go.kr/view/movie?mediasrcgbn=KV&mediagbn=DH&mediaid=12525&mediadtl=29377", "checked": "2026-10-11"},
+    "137": {"description": "e-History: Daehan News No. 22, 1953-06-23 (oldest surviving issue)", "url": "https://www.ehistory.go.kr/view/movie?mediasrcgbn=KV&mediagbn=DH&mediaid=13&mediadtl=38", "checked": "2026-10-11"},
+    "138": {"description": "e-History Daehan News list (12,804 items; last page = Nos. 22-23 of 1953)", "url": "https://www.ehistory.go.kr/koreanews/korea_news", "checked": "2026-10-11"},
+    "140": {"description": "e-History: Daehan News No. 736 'Man lands on the Moon - Apollo 11 part 1', 1969-07-26, 4 min 58 s", "url": "https://www.ehistory.go.kr/view/movie?mediasrcgbn=KV&mediagbn=DH&mediaid=630&mediadtl=4513", "checked": "2026-10-11"},
+    "141": {"description": "e-History: Daehan News No. 737 'Yesterday and today', 1969-08-02", "url": "https://www.ehistory.go.kr/view/movie?mediasrcgbn=KV&mediagbn=DH&mediaid=631&mediadtl=4522", "checked": "2026-10-11"},
+    "142": {"description": "e-History: Daehan News No. 1611 'Asian Games opening', 1986-09-20, 9 min 15 s", "url": "https://www.ehistory.go.kr/view/movie?mediasrcgbn=KV&mediagbn=DH&mediaid=11076&mediadtl=24486", "checked": "2026-10-11"},
+    "143": {"description": "e-History: Daehan News No. 1610 'Asian Games preparation', 1986-09-12, 50 s", "url": "https://www.ehistory.go.kr/view/movie?mediasrcgbn=KV&mediagbn=DH&mediaid=11073&mediadtl=24479", "checked": "2026-10-11"},
+    "149": {"description": "National Archives of Korea: Daehan News ended 1994-12-31 (No. 2040)", "url": "https://theme.archives.go.kr/next/koreaOfRecord/koreaNews.do", "checked": "2026-10-11"},
+    "177": {"description": "YouTube Data API results run by the PM on 2026-10-11 (Y1, Y2, Y4, N3); the raw output is outside the repository, short values are copied into research section 3.5", "url": null, "checked": "2026-10-11"},
+    "archive-media:40": {"description": "e-History: Daehan News No. 1714 'Han River festival', 1988-09-13 (docs/research/archive-media.md #40)", "url": "https://www.ehistory.go.kr/view/movie?mediasrcgbn=KV&mediagbn=DH&mediaid=12523&mediadtl=29369", "checked": "2026-10-09"}
+  }
+}

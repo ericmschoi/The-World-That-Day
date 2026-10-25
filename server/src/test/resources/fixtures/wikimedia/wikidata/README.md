@@ -26,3 +26,19 @@ SELECT ?item ?tragicClass ?deaths ?country WHERE { VALUES ?item { wd:Q8470 wd:Q7
 | 파일 | 확인하는 것 |
 |---|---|
 | `synthetic/synthetic-signals.json` | Q1 비극 분류, Q2 사망자 3, Q3 사망자 0(신호 아님), Q4 국가 Q884와 Q17, Q5 국가 Q17만, Q6 신호 없음, Q7 읽을 수 없는 사망자 수(신호 아님), Q99 묻지 않은 항목(무시) |
+
+## 녹화 fixture — 영상 연결 질의 (`video-links-*.json`, M3a4b T2)
+
+- 출처: Wikidata Query Service SPARQL 응답(`format=json`). Commons 영상 어댑터의 연결 질의(`SparqlWikidataVideoLinks.query`)를 날짜마다 1회 보냈고, 받은 바이트를 그대로 저장했다(수정 없음).
+- 녹화 일자: 2026-10-24 (21:14 UTC 무렵), backend-dev가 `curl` 로 한 번씩 받았다. User-Agent는 `TheWorldThatDay/0.1 (https://github.com/ericmschoi/The-World-That-Day)`(저장소 URL만, 개인 연락처 없음).
+- 라이선스: Wikidata 구조화 데이터, [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/). 출처 표시 의무는 없다.
+- 질의는 서버 코드가 만드는 문자열과 글자 하나까지 같다(`SparqlWikidataVideoLinksTest` 가 아래 원 URL로 확인). 항목은 데모 날짜의 대표 링크 QID(기존 `../kowiki/pageprops-*.json` 녹화 값)와 표본 날짜의 공개 사건 QID다.
+
+| 파일 | 날짜 | 질의한 항목 | 결과 (`P10` / `P373` / `P910` 사이트링크 / 영어 라벨) | 원 URL |
+|---|---|---|---|---|
+| `video-links-1969-07-20.json` | 1969-07-20 | Q43653 | `AP11 FINAL APPROACH.ogv` / `Apollo 11` / `Category:Apollo 11` / `Apollo 11` | `https://query.wikidata.org/sparql?format=json&query=SELECT+%3fitem+%3fvideo+%3fp373+%3fcs+%3flabel+WHERE+%7b+VALUES+%3fitem+%7b+wd%3aQ43653+%7d+OPTIONAL+%7b+%3fitem+wdt%3aP10+%3fvideo+%7d+OPTIONAL+%7b+%3fitem+wdt%3aP373+%3fp373+%7d+OPTIONAL+%7b+%3fitem+wdt%3aP910+%3fcat+.+%3fpage+schema%3aabout+%3fcat+%3b+schema%3aisPartOf+%3chttps%3a%2f%2fcommons.wikimedia.org%2f%3e+%3b+schema%3aname+%3fcs+%7d+OPTIONAL+%7b+%3fitem+rdfs%3alabel+%3flabel+.+FILTER%28LANG%28%3flabel%29+%3d+%22en%22%29+%7d+%7d` |
+| `video-links-1988-09-17.json` | 1988-09-17 | Q8470 Q777278 Q624509 | Q8470: 없음 / `1988 Summer Olympics` / `Category:1988 Summer Olympics` / `1988 Summer Olympics`. Q777278·Q624509: 라벨(`KBS 1TV`·`KBS 2TV`)만 | `https://query.wikidata.org/sparql?format=json&query=SELECT+%3fitem+%3fvideo+%3fp373+%3fcs+%3flabel+WHERE+%7b+VALUES+%3fitem+%7b+wd%3aQ8470+wd%3aQ777278+wd%3aQ624509+%7d+OPTIONAL+%7b+%3fitem+wdt%3aP10+%3fvideo+%7d+OPTIONAL+%7b+%3fitem+wdt%3aP373+%3fp373+%7d+OPTIONAL+%7b+%3fitem+wdt%3aP910+%3fcat+.+%3fpage+schema%3aabout+%3fcat+%3b+schema%3aisPartOf+%3chttps%3a%2f%2fcommons.wikimedia.org%2f%3e+%3b+schema%3aname+%3fcs+%7d+OPTIONAL+%7b+%3fitem+rdfs%3alabel+%3flabel+.+FILTER%28LANG%28%3flabel%29+%3d+%22en%22%29+%7d+%7d` |
+| `video-links-2002-06-22.json` | 2002-06-22 | Q47735 | 없음 / `2002 FIFA World Cup` / `Category:2002 FIFA World Cup` / `2002 FIFA World Cup` | `https://query.wikidata.org/sparql?format=json&query=SELECT+%3fitem+%3fvideo+%3fp373+%3fcs+%3flabel+WHERE+%7b+VALUES+%3fitem+%7b+wd%3aQ47735+%7d+OPTIONAL+%7b+%3fitem+wdt%3aP10+%3fvideo+%7d+OPTIONAL+%7b+%3fitem+wdt%3aP373+%3fp373+%7d+OPTIONAL+%7b+%3fitem+wdt%3aP910+%3fcat+.+%3fpage+schema%3aabout+%3fcat+%3b+schema%3aisPartOf+%3chttps%3a%2f%2fcommons.wikimedia.org%2f%3e+%3b+schema%3aname+%3fcs+%7d+OPTIONAL+%7b+%3fitem+rdfs%3alabel+%3flabel+.+FILTER%28LANG%28%3flabel%29+%3d+%22en%22%29+%7d+%7d` |
+| `video-links-1986-09-20.json` | 1986-09-20 | Q495611 | 없음 / **없음** / `Category:1986 Asian Games` / `1986 Asian Games` (`P373` 없이 `P910` 사이트링크만 — 녹화로 그 경우를 본다) | `https://query.wikidata.org/sparql?format=json&query=SELECT+%3fitem+%3fvideo+%3fp373+%3fcs+%3flabel+WHERE+%7b+VALUES+%3fitem+%7b+wd%3aQ495611+%7d+OPTIONAL+%7b+%3fitem+wdt%3aP10+%3fvideo+%7d+OPTIONAL+%7b+%3fitem+wdt%3aP373+%3fp373+%7d+OPTIONAL+%7b+%3fitem+wdt%3aP910+%3fcat+.+%3fpage+schema%3aabout+%3fcat+%3b+schema%3aisPartOf+%3chttps%3a%2f%2fcommons.wikimedia.org%2f%3e+%3b+schema%3aname+%3fcs+%7d+OPTIONAL+%7b+%3fitem+rdfs%3alabel+%3flabel+.+FILTER%28LANG%28%3flabel%29+%3d+%22en%22%29+%7d+%7d` |
+
+걸린 시간: 0.57초, 0.46초, 0.39초, 0.30초. `P10` 값은 `http://commons.wikimedia.org/wiki/Special:FilePath/AP11%20FINAL%20APPROACH.ogv` 처럼 오고, 코드가 퍼센트 부호만 풀어 파일 이름으로 쓴다.

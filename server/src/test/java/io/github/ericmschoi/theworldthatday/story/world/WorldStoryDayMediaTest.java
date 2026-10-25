@@ -27,6 +27,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -98,6 +99,12 @@ class WorldStoryDayMediaTest extends WikimediaWireMockTest {
   @Autowired private JsonMapper springJson;
   private MockMvc mvc;
 
+  /** Plan M3a4b T4 (6): every request went to a stub, so nothing could reach the network. */
+  @AfterEach
+  void noUnmatchedRequest() {
+    assertThat(wikimedia.findAllUnmatchedRequests()).isEmpty();
+  }
+
   @BeforeEach
   void setUp() {
     jdbc.execute("TRUNCATE wiki_section_cache");
@@ -167,6 +174,7 @@ class WorldStoryDayMediaTest extends WikimediaWireMockTest {
   private static long requests(String path) {
     return wikimedia.getAllServeEvents().stream()
         .filter(event -> event.getRequest().getUrl().startsWith(path))
+        .filter(event -> !isVideoSearch(event))
         .count();
   }
 
@@ -337,6 +345,7 @@ class WorldStoryDayMediaTest extends WikimediaWireMockTest {
   @Test
   void slowCommonsEndsAtTheDeadlineWithOneWarning(CapturedOutput output) throws Exception {
     stubOpeningDayEvents();
+    stubNoVideos(); // the slow day category below is the photo path's
     wikimedia.stubFor(
         WireMock.get(urlPathEqualTo(COMMONS_PATH))
             .willReturn(okJson("{\"batchcomplete\":true}").withFixedDelay(8_000)));

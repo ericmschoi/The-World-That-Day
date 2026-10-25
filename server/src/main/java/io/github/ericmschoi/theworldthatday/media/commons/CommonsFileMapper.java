@@ -11,9 +11,15 @@ import io.github.ericmschoi.theworldthatday.media.MediaRecord;
 import io.github.ericmschoi.theworldthatday.media.MediaRecord.DisplayMode;
 import io.github.ericmschoi.theworldthatday.media.MediaRecord.Type;
 import io.github.ericmschoi.theworldthatday.media.MediaText;
+import io.github.ericmschoi.theworldthatday.media.VideoSource;
+import io.github.ericmschoi.theworldthatday.media.video.VideoAccuracy;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -23,9 +29,10 @@ import tools.jackson.databind.JsonNode;
 
 /**
  * One Commons file page ({@code query.pages[]} with {@code imageinfo}) to a photo {@link MediaItem}
- * (plan M3a3b "Commons 사진 규칙"). The caller picks the allowed MIME types and the place used when the
- * file has no GPS position. Order: record, then {@link MediaFilter}, then {@link MediaNormalizer}.
- * Addresses are copied exactly as the API gives them. It never logs.
+ * (plan M3a3b "Commons 사진 규칙"), or with {@code videoinfo} to a video item (plan M3a4b). The caller
+ * picks the allowed MIME types and the place used when the file has no GPS position. Order: record,
+ * then {@link MediaFilter}, then {@link MediaNormalizer}. Addresses are copied exactly as the API
+ * gives them. It never logs.
  */
 @Component
 public class CommonsFileMapper {
@@ -67,23 +74,53 @@ public class CommonsFileMapper {
   }
 
   public Result map(JsonNode page, Predicate<String> mime, String placeRef, LocalDate date) {
-    JsonNode info = page.path("imageinfo").path(0);
+    VideoResult mapped = file(page, false, info -> mime.test(text(info, "mime")), placeRef, date);
+    return new Result(mapped.item(), mapped.drop());
+  }
+
+  /**
+   * A {@code videoinfo} page to a {@code video_file} item (plan M3a4b "미디어 레코드"), only for {@code
+   * mediatype} {@code VIDEO} (other files are dropped as {@code MIME}). Its {@code captured_at} is
+   * the {@code DateTimeOriginal} value unless that is later than {@code date} ({@link
+   * VideoAccuracy#notAfter}); the upload time is never read.
+   */
+  public VideoResult mapVideo(JsonNode page, String placeRef, LocalDate date) {
+    return file(page, true, info -> "VIDEO".equals(text(info, "mediatype")), placeRef, date);
+  }
+
+  /**
+   * A video item, or why there is none; with what the accuracy rules read when there is one: the
+   * file name without {@code File:}, the whole plain description and the capture time as parsed.
+   */
+  public record VideoResult(
+      MediaItem item, Drop drop, String title, String description, CaptureTime originalCapture) {
+
+    static VideoResult dropped(Drop drop) {
+      return new VideoResult(null, drop, null, null, null);
+    }
+  }
+
+  private VideoResult file(
+      JsonNode page, boolean video, Predicate<JsonNode> accepted, String placeRef, LocalDate date) {
+    JsonNode info = page.path(video ? "videoinfo" : "imageinfo").path(0);
     long pageId = page.path("pageid").asLong(0);
     if (page.has("missing") || pageId <= 0 || !info.isObject()) {
-      return new Result(null, Drop.MISSING);
+      return VideoResult.dropped(Drop.MISSING);
     }
     JsonNode meta = info.path("extmetadata");
     String nonFree = MediaText.strip(value(meta, "NonFree"));
     if (nonFree != null && !nonFree.isEmpty() && !"false".equalsIgnoreCase(nonFree)) {
-      return new Result(null, Drop.NON_FREE);
+      return VideoResult.dropped(Drop.NON_FREE);
     }
-    if (!mime.test(text(info, "mime"))) {
-      return new Result(null, Drop.MIME);
+    if (!accepted.test(info)) {
+      return VideoResult.dropped(Drop.MIME);
     }
     String artist = plain(value(meta, "Artist"));
     String credit = plain(value(meta, "Credit"));
     String license = plain(value(meta, "LicenseShortName"));
-    CaptureTime captured = CaptureTimeParser.parse(value(meta, "DateTimeOriginal"));
+    String description = plain(value(meta, "ImageDescription"));
+    CaptureTime original = CaptureTimeParser.parse(value(meta, "DateTimeOriginal"));
+    CaptureTime captured = video ? VideoAccuracy.notAfter(original, date) : original;
     Double lat = coordinate(value(meta, "GPSLatitude"), 90);
     Double lng = coordinate(value(meta, "GPSLongitude"), 180);
     boolean located = lat != null && lng != null;
@@ -91,14 +128,14 @@ public class CommonsFileMapper {
     MediaRecord record =
         new MediaRecord(
             "commons-" + pageId,
-            Type.PHOTO,
-            DisplayMode.IMAGE,
+            video ? Type.VIDEO : Type.PHOTO,
+            video ? DisplayMode.VIDEO_FILE : DisplayMode.IMAGE,
             text(info, "url"),
             text(info, "thumburl"),
             integer(info, "thumbwidth"),
             integer(info, "thumbheight"),
-            null,
-            null,
+            video ? videoSources(info) : null,
+            video && info.path("duration").isNumber() ? info.path("duration").doubleValue() : null,
             null,
             null,
             null,
@@ -109,7 +146,7 @@ public class CommonsFileMapper {
             LicenseClassifier.classify(license),
             value(meta, "LicenseUrl"),
             String.join(" · ", author, license != null ? license : NO_LICENSE, SOURCE_NAME),
-            description(plain(value(meta, "ImageDescription"))),
+            description(description),
             captured.capturedAt(),
             captured.datePrecision(),
             located ? lat : null,
@@ -121,12 +158,59 @@ public class CommonsFileMapper {
     if (filter
         .check(record, new MediaOrigin("commons", fileName, artist, credit, null))
         .isPresent()) {
-      return new Result(null, Drop.FILTERED);
+      return VideoResult.dropped(Drop.FILTERED);
     }
     return normalizer
         .normalize(record, date)
-        .map(item -> new Result(item, null))
-        .orElseGet(() -> new Result(null, Drop.RULE));
+        .map(item -> new VideoResult(item, null, fileName, description, original))
+        .orElseGet(() -> VideoResult.dropped(Drop.RULE));
+  }
+
+  /**
+   * The derivatives (the original's own entry, which has no {@code transcodekey}, left out), lowest
+   * first and at one height {@code video/webm} first and {@code video/quicktime} last, with the
+   * codec parameters cut from the MIME type; then the original when its MIME type is {@code
+   * video/…}. An {@code application/ogg} original stays in {@code url} only. {@code null} when
+   * none.
+   */
+  private static List<VideoSource> videoSources(JsonNode info) {
+    List<VideoSource> sources = new ArrayList<>();
+    for (JsonNode derivative : info.path("derivatives")) {
+      String src = text(derivative, "src");
+      String mime = bareMime(text(derivative, "type"));
+      if (derivative.has("transcodekey")
+          && src != null
+          && mime != null
+          && mime.startsWith("video/")) {
+        sources.add(new VideoSource(src, mime, integer(derivative, "height")));
+      }
+    }
+    sources.sort(
+        Comparator.comparing(
+                VideoSource::height, Comparator.nullsLast(Comparator.<Integer>naturalOrder()))
+            .thenComparingInt(CommonsFileMapper::mimeRank));
+    String originalMime = bareMime(text(info, "mime"));
+    if (originalMime != null && originalMime.startsWith("video/")) {
+      sources.add(new VideoSource(text(info, "url"), originalMime, integer(info, "height")));
+    }
+    return sources.isEmpty() ? null : sources;
+  }
+
+  private static int mimeRank(VideoSource source) {
+    return switch (source.mime()) {
+      case "video/webm" -> 0;
+      case "video/quicktime" -> 2;
+      default -> 1;
+    };
+  }
+
+  /** The MIME type before any {@code ;} parameter, lowercase; {@code null} when there is none. */
+  private static String bareMime(String type) {
+    if (type == null) {
+      return null;
+    }
+    String bare = type.split(";", 2)[0].strip().toLowerCase(Locale.ROOT);
+    return bare.isEmpty() ? null : bare;
   }
 
   /**

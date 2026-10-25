@@ -7,6 +7,7 @@ import io.github.ericmschoi.theworldthatday.media.Selection;
 import io.github.ericmschoi.theworldthatday.media.Selection.Basis;
 import io.github.ericmschoi.theworldthatday.media.video.EventVideoSource.SourceResult;
 import io.github.ericmschoi.theworldthatday.media.video.EventVideoSource.Status;
+import io.github.ericmschoi.theworldthatday.media.video.VideoAccuracy.EventJudge;
 import io.github.ericmschoi.theworldthatday.media.video.VideoAccuracy.Judgement;
 import io.github.ericmschoi.theworldthatday.media.video.VideoAccuracy.Reject;
 import io.github.ericmschoi.theworldthatday.wikimedia.Deadline;
@@ -38,8 +39,9 @@ import org.springframework.stereotype.Component;
  * (never a {@code tragic} event: the service does not make them targets). Each candidate is judged
  * by {@link VideoAccuracy}; per event the same video from two sources counts once (higher score,
  * then the basis order), the order is free license, official, other, then score, basis and ID, and
- * the first video not already chosen for an earlier event is kept. A source that fails, throws or
- * misses the deadline is left empty and makes the answer partial; a skipped quota does not.
+ * the first video not already chosen for an earlier event is kept. A source that fails, throws,
+ * misses the deadline or whose candidates cannot be judged is left empty and makes the answer
+ * partial; a skipped quota does not.
  */
 @Component
 public class VideoSearch {
@@ -128,24 +130,16 @@ public class VideoSearch {
       boolean failed = false;
       for (Started source : started) {
         SourceResult result = result(source);
-        if (result == null) {
+        Judged judged = result == null ? null : judged(source.key(), result);
+        if (judged == null) {
           failed = true;
           continue;
         }
-        for (EventContext event : events) {
-          String label = result.englishLabels().get(event.eventId());
-          EventContext asked = label == null ? event : event.withEnglishLabel(label);
-          for (Candidate candidate : result.byEvent().getOrDefault(event.eventId(), List.of())) {
-            Judgement judgement = accuracy.judge(asked, candidate);
-            if (judgement.accepted()) {
-              byEvent
-                  .computeIfAbsent(event.eventId(), id -> new ArrayList<>())
-                  .add(new Scored(candidate, judgement.score()));
-            } else {
-              rejected.merge(judgement.reject(), 1, Integer::sum);
-            }
-          }
-        }
+        judged
+            .byEvent()
+            .forEach(
+                (id, scored) -> byEvent.computeIfAbsent(id, k -> new ArrayList<>()).addAll(scored));
+        judged.rejected().forEach((reason, n) -> rejected.merge(reason, n, Integer::sum));
       }
       if (!rejected.isEmpty()) {
         log.debug("Video candidates rejected: {}", rejected); // reason counts only
@@ -187,6 +181,40 @@ public class VideoSearch {
       };
     }
 
+    /**
+     * One source's accepted candidates by event and its rejection counts, or {@code null} when
+     * judging them threw: that is logged with its class and only this source is left empty.
+     */
+    private Judged judged(String key, SourceResult result) {
+      Map<String, List<Scored>> accepted = new HashMap<>();
+      Map<Reject, Integer> rejected = new EnumMap<>(Reject.class);
+      try {
+        for (EventContext event : events) {
+          List<Candidate> candidates = result.byEvent().getOrDefault(event.eventId(), List.of());
+          if (candidates.isEmpty()) {
+            continue;
+          }
+          String label = result.englishLabels().get(event.eventId());
+          EventJudge judge =
+              accuracy.forEvent(label == null ? event : event.withEnglishLabel(label));
+          for (Candidate candidate : candidates) {
+            Judgement judgement = judge.judge(candidate);
+            if (judgement.accepted()) {
+              accepted
+                  .computeIfAbsent(event.eventId(), id -> new ArrayList<>())
+                  .add(new Scored(candidate, judgement.score()));
+            } else {
+              rejected.merge(judgement.reject(), 1, Integer::sum);
+            }
+          }
+        }
+      } catch (RuntimeException e) {
+        warn(key, e.getClass().getSimpleName());
+        return null;
+      }
+      return new Judged(accepted, rejected);
+    }
+
     private void warn(String key, String cause) {
       log.warn("Video search failed: source={} events={} cause={}", key, events.size(), cause);
     }
@@ -202,6 +230,8 @@ public class VideoSearch {
   }
 
   private record Started(String key, Task<SourceResult> task) {}
+
+  private record Judged(Map<String, List<Scored>> byEvent, Map<Reject, Integer> rejected) {}
 
   private record Scored(Candidate candidate, int score) {
 

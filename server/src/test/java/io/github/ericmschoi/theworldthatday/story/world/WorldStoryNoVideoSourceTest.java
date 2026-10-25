@@ -1,5 +1,6 @@
 package io.github.ericmschoi.theworldthatday.story.world;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
@@ -31,15 +32,17 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * Plan M3a4 T6 (1) and (12): this PR has no video source bean, the context still starts with the
- * search wired, and the 1988-09-17 demo answer carries no {@code selection} key, no video and no
- * {@code link_only} item, with no video failure line. Recorded fixtures and WireMock only.
+ * Plan M3a4 T6 (1) and (12), with plan M3a4b T3 (8): the one video source bean is Commons, and the
+ * 1988-09-17 demo answer, with the recorded video search finding nothing, carries no {@code
+ * selection} key, no video and no {@code link_only} item, with no video failure line. Recorded
+ * fixtures and WireMock only.
  */
 @ExtendWith(OutputCaptureExtension.class)
 class WorldStoryNoVideoSourceTest extends WikimediaWireMockTest {
 
   private static final JsonMapper JSON = JsonMapper.builder().build();
   private static final String KOWIKI = "fixtures/wikimedia/kowiki/";
+  private static final String VIDEO = "fixtures/wikimedia/commons/video/";
 
   @Autowired private WebApplicationContext context;
   @Autowired private JdbcTemplate jdbc;
@@ -85,6 +88,31 @@ class WorldStoryNoVideoSourceTest extends WikimediaWireMockTest {
     }
   }
 
+  /**
+   * The recorded video search of the opening day: Wikidata links and Commons, all without video.
+   */
+  private static void stubRecordedNoVideos() {
+    wikimedia.stubFor(
+        WireMock.get(urlPathEqualTo(SPARQL_PATH))
+            .withQueryParam("query", containing("?video"))
+            .atPriority(1)
+            .willReturn(
+                okJson(SparqlWikidataSignalSourceTest.fixture("video-links-1988-09-17.json"))));
+    wikimedia.stubFor(
+        WireMock.get(urlPathEqualTo(COMMONS_PATH))
+            .withQueryParam("prop", equalTo("videoinfo"))
+            .withQueryParam("generator", equalTo("categorymembers"))
+            .atPriority(1)
+            .willReturn(okJson(read(VIDEO + "date-category-1988-09-17.json"))));
+    wikimedia.stubFor(
+        WireMock.get(urlPathEqualTo(COMMONS_PATH))
+            .withQueryParam("prop", equalTo("videoinfo"))
+            .withQueryParam(
+                "gsrsearch", equalTo("incategory:\"1988 Summer Olympics\" filetype:video"))
+            .atPriority(1)
+            .willReturn(okJson(read(VIDEO + "category-1988-summer-olympics.json"))));
+  }
+
   @Test
   void theDemoAnswerHasNoSelectionNoVideoAndNoLinkOnlyItem(CapturedOutput output) throws Exception {
     stubPage("9월 17일", "09-17");
@@ -99,12 +127,13 @@ class WorldStoryNoVideoSourceTest extends WikimediaWireMockTest {
     wikimedia.stubFor(
         WireMock.get(urlPathEqualTo(COMMONS_PATH))
             .willReturn(okJson(read("fixtures/wikimedia/commons/day-category-1988-09-17.json"))));
+    stubRecordedNoVideos();
 
     MockHttpServletResponse response =
         mvc.perform(get("/api/story/world").param("date", "1988-09-17")).andReturn().getResponse();
     JsonNode root = JSON.readTree(response.getContentAsString(StandardCharsets.UTF_8));
 
-    assertThat(sources.stream()).isEmpty();
+    assertThat(sources.stream()).extracting(EventVideoSource::key).containsExactly("commons");
     assertThat(search).isNotNull();
     assertThat(response.getStatus()).isEqualTo(200);
     assertThat(root.path("events").size()).isEqualTo(3);
