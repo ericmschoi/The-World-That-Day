@@ -96,7 +96,7 @@ class WorldStoryVideoCacheTest extends WikimediaWireMockTest {
     wikimedia.stubFor(
         WireMock.get(urlPathEqualTo(COMMONS_PATH))
             .willReturn(okJson(read("fixtures/wikimedia/commons/day-category-1988-09-17.json"))));
-    WorldStoryNoVideoSourceTest.stubRecordedNoVideos();
+    WorldStoryCommonsSourceNoVideosTest.stubRecordedNoVideos();
   }
 
   @Test

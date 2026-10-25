@@ -377,7 +377,7 @@ class CommonsVideoSourceTest {
   }
 
   @Test
-  void withoutP10TheBestCategoryVideoWinsAndTheLaunchVideoNeverAttaches() {
+  void launchVideoPassesAt70ButLosesToTheBestCategoryVideoOnRank() {
     recordedMoonDay(new Links(List.of(), "Apollo 11", "Apollo 11"));
 
     Videos videos = search(source(), MOON_TARGET, false);
