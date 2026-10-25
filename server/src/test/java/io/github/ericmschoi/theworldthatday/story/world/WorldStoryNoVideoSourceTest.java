@@ -91,7 +91,7 @@ class WorldStoryNoVideoSourceTest extends WikimediaWireMockTest {
   /**
    * The recorded video search of the opening day: Wikidata links and Commons, all without video.
    */
-  private static void stubRecordedNoVideos() {
+  static void stubRecordedNoVideos() {
     wikimedia.stubFor(
         WireMock.get(urlPathEqualTo(SPARQL_PATH))
             .withQueryParam("query", containing("?video"))
