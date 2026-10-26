@@ -32,15 +32,15 @@ class SearchCachePropertiesTest {
       new ApplicationContextRunner().withUserConfiguration(PropertiesOnly.class);
 
   @Test
-  void applicationYmlCachesCommonsForSevenDaysAndNothingElse() {
+  void applicationYmlCachesCommonsAndYoutubeForSevenDaysAndNothingElse() {
     runner
         .withInitializer(new ConfigDataApplicationContextInitializer())
         .run(
             context -> {
               SearchCacheProperties properties = context.getBean(SearchCacheProperties.class);
-              assertThat(properties.ttl()).containsOnlyKeys("commons");
+              assertThat(properties.ttl()).containsOnlyKeys("commons", "youtube");
               assertThat(properties.ttl("commons")).contains(Duration.ofDays(7));
-              assertThat(properties.ttl("youtube")).isEmpty();
+              assertThat(properties.ttl("youtube")).contains(Duration.ofDays(7));
               assertThat(properties.ttl("x")).isEmpty();
             });
   }
@@ -138,7 +138,7 @@ class SearchCachePropertiesTest {
               assertThat(lookup.lookupDeadline()).isEqualTo(Duration.ofSeconds(3));
               assertThat(lookup.maxYearsApart()).isEqualTo(5);
               MediaProperties media = context.getBean(MediaProperties.class);
-              assertThat(media.allowedVideoEmbedProviders()).isEmpty();
+              assertThat(media.allowedVideoEmbedProviders()).containsExactly("youtube");
               assertThat(media.blocklist()).isEmpty();
               assertThat(media.excludedCredits()).contains("Yonhap", "AP");
               VideoSearchProperties video = context.getBean(VideoSearchProperties.class);

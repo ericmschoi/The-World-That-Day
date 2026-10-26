@@ -8,3 +8,8 @@ wikimedia:
   kowiki-api-url: http://localhost:9/w/api.php
   wikidata-sparql-url: http://localhost:9/sparql
   commons-api-url: http://localhost:9/commons/w/api.php
+# YouTube is off in tests whatever the root .env holds, and its address is local, so no test can
+# reach Google (plan M3a5 T1). Tests that talk to WireMock set their own key and address.
+youtube:
+  api-key: ""
+  api-url: http://localhost:9/youtube/v3

@@ -87,4 +87,23 @@ class ApplicationConfigTest {
     assertThat(value("wikimedia.kowiki-day-deadline")).isEqualTo("5s");
     assertThat(value("wikimedia.dedup.min-link-overlap")).isEqualTo("0.6");
   }
+
+  /** Plan M3a5 T1: the key comes from the environment with an empty default, never a value. */
+  @Test
+  void youtubeSettingsMatchPlan() {
+    assertThat(value("youtube.api-key")).isEqualTo("${YOUTUBE_API_KEY:}");
+    assertThat(value("youtube.api-url")).isEqualTo("https://www.googleapis.com/youtube/v3");
+    assertThat(value("youtube.allowed-channels[0]")).isEqualTo("UC8_LPVE4Yuc6KF0opF6uS_w");
+    assertThat(value("youtube.allowed-channels[1]")).isNull();
+    assertThat(value("youtube.daily-search-budget")).isEqualTo("80");
+    assertThat(value("youtube.daily-unit-budget")).isEqualTo("8000");
+    assertThat(value("youtube.max-results")).isEqualTo("25");
+    assertThat(value("youtube.connect-timeout")).isEqualTo("2s");
+    assertThat(value("youtube.retrospective-title-patterns[0]"))
+        .isEqualTo("\\d{4}년\\s*\\d{1,2}월\\s*\\d{1,2}일\\s*오늘");
+    assertThat(value("app.web-origin")).isEqualTo("http://localhost:5173");
+    assertThat(value("media.allowed-video-embed-providers[0]")).isEqualTo("youtube");
+    assertThat(value("media.allowed-video-embed-providers[1]")).isNull();
+    assertThat(value("media.search-cache.ttl.youtube")).isEqualTo("7d");
+  }
 }

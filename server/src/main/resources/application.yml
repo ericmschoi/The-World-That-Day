@@ -93,10 +93,10 @@ wikimedia:
 
 # Shared media format (plan M3a3). Only these providers' image_embed / video_embed items are
 # returned; anything else is dropped. Entries are lowercase provider IDs; a blank or malformed
-# entry fails startup. Image embeds are out of M3; M3a5 adds youtube for videos.
+# entry fails startup. Image embeds are out of M3; youtube is allowed for videos (plan M3a5).
 media:
   allowed-image-embed-providers: []
-  allowed-video-embed-providers: []
+  allowed-video-embed-providers: [youtube]
   # Day photos of the world section (plan M3a3b): at most day-media-limit photos of the day's
   # Commons category (0 turns the lookup off; none on a day with a tragic event). The whole media
   # lookup ends within lookup-deadline, then is cancelled with up to 1s of grace; a failure only
@@ -172,10 +172,12 @@ media:
   # source's result for an event of a date is used without asking again. Fresh while
   # fetched_at + ttl is after now. A result with no candidates is kept too; a failed, timed-out or
   # skipped search is not. Only addresses and text metadata are stored, never files. A source with
-  # 0 or no entry is not cached; a negative value fails startup.
+  # 0 or no entry is not cached; a negative value fails startup. youtube is kept at most 30 days
+  # (YouTube's terms for API data), so a longer value fails startup too; 7d keeps it fresh.
   search-cache:
     ttl:
       commons: 7d
+      youtube: 7d
   # Items taken down at a rights holder's request (plan M3a3a, safeguard 5); applied on restart.
   # Each entry has a lowercase source and at least one of id, author or channel; an entry without
   # them, or without a source, fails startup. Matching: id exactly (Commons file name without
@@ -208,6 +210,31 @@ media:
     - Getty
     - EPA
 
+# YouTube Data API (plan M3a5): videos of the allowed official channels. The key stays in the
+# environment (YOUTUBE_API_KEY, root .env) and is sent in a request header only. An empty key turns
+# the YouTube source off: no request is sent and a WARN is logged once at startup.
+youtube:
+  api-key: ${YOUTUBE_API_KEY:}
+  api-url: https://www.googleapis.com/youtube/v3
+  # Only these channels are searched and shown, compared by channel ID. UC8_LPVE4Yuc6KF0opF6uS_w is
+  # the KTV archive channel. Each entry is UC followed by 22 characters; at least one is needed.
+  allowed-channels:
+    - UC8_LPVE4Yuc6KF0opF6uS_w
+  # Daily limits the app stays within, about 80% of the API's: 100 search calls (1 each) and 10,000
+  # units for the other calls. The day changes at midnight Pacific time. 0 turns that part off.
+  daily-search-budget: 80
+  daily-unit-budget: 8000
+  # Results asked per search (1 to 50).
+  max-results: 25
+  connect-timeout: 2s
+  # A title matching one of these regular expressions is a retrospective edit ("1986년 9월 20일
+  # 오늘 ..."): it is scored by its date text but gets no capture time.
+  retrospective-title-patterns:
+    - '\d{4}년\s*\d{1,2}월\s*\d{1,2}일\s*오늘'
+
 app:
   # Curated data (data/ of the repository). bootRun and tests run in server/.
   data-dir: ../data
+  # Where the web app is served from (scheme, host, optional port; no path). It is the origin
+  # given to embedded video players. Change it when the web app runs elsewhere.
+  web-origin: http://localhost:5173
