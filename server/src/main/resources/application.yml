@@ -173,7 +173,8 @@ media:
   # fetched_at + ttl is after now. A result with no candidates is kept too; a failed, timed-out or
   # skipped search is not. Only addresses and text metadata are stored, never files. A source with
   # 0 or no entry is not cached; a negative value fails startup. youtube is kept at most 30 days
-  # (YouTube's terms for API data), so a longer value fails startup too; 7d keeps it fresh.
+  # (YouTube's terms for API data), so a longer value fails startup too; 7d keeps it fresh. youtube
+  # rows are deleted 29 days after they were fetched, checked at startup and every hour.
   search-cache:
     ttl:
       commons: 7d
