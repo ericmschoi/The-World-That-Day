@@ -1,0 +1,95 @@
+{
+  "kind": "youtube#videoListResponse",
+  "etag": "synthetic-etag-videos",
+  "items": [
+    {
+      "kind": "youtube#video",
+      "etag": "synthetic-etag-v0",
+      "id": "Abc123xyz_0",
+      "snippet": {
+        "publishedAt": "2020-01-01T03:04:05Z",
+        "channelId": "UCsyntheticChannelId0001",
+        "title": "시험용 영상 제목 첫째",
+        "description": "시험용 개막식 영상 설명\n둘째 줄",
+        "thumbnails": {
+          "medium": {
+            "url": "https://i.ytimg.com/vi/Abc123xyz_0/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          }
+        },
+        "channelTitle": "시험용 채널",
+        "categoryId": "25",
+        "liveBroadcastContent": "none"
+      },
+      "contentDetails": {
+        "duration": "PT1M57S",
+        "dimension": "2d",
+        "definition": "sd",
+        "caption": "false",
+        "licensedContent": false,
+        "contentRating": {},
+        "projection": "rectangular"
+      },
+      "status": {
+        "uploadStatus": "processed",
+        "privacyStatus": "public",
+        "license": "youtube",
+        "embeddable": true,
+        "publicStatsViewable": true,
+        "madeForKids": false
+      },
+      "recordingDetails": {}
+    },
+    {
+      "kind": "youtube#video",
+      "etag": "synthetic-etag-v1",
+      "id": "Abc123xyz_1",
+      "snippet": {
+        "publishedAt": "2020-01-02T03:04:05Z",
+        "channelId": "UCsyntheticChannelId0001",
+        "title": "시험용 영상 제목 둘째",
+        "description": "",
+        "thumbnails": {
+          "medium": {
+            "url": "https://i.ytimg.com/vi/Abc123xyz_1/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          }
+        },
+        "channelTitle": "시험용 채널",
+        "categoryId": "25",
+        "liveBroadcastContent": "none"
+      },
+      "contentDetails": {
+        "duration": "PT10M1S",
+        "dimension": "2d",
+        "definition": "sd",
+        "caption": "false",
+        "licensedContent": false,
+        "regionRestriction": {
+          "blocked": ["KR"]
+        },
+        "contentRating": {
+          "ytRating": "ytAgeRestricted"
+        },
+        "projection": "rectangular"
+      },
+      "status": {
+        "uploadStatus": "processed",
+        "privacyStatus": "unlisted",
+        "license": "youtube",
+        "embeddable": false,
+        "publicStatsViewable": true,
+        "madeForKids": false
+      },
+      "recordingDetails": {
+        "recordingDate": "1986-09-20T00:00:00Z"
+      }
+    }
+  ],
+  "pageInfo": {
+    "totalResults": 2,
+    "resultsPerPage": 2
+  }
+}

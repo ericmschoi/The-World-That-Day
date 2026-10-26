@@ -1,0 +1,13 @@
+{
+  "error": {
+    "code": 403,
+    "message": "Synthetic quota message.",
+    "errors": [
+      {
+        "message": "Synthetic quota message.",
+        "domain": "youtube.quota",
+        "reason": "quotaExceeded"
+      }
+    ]
+  }
+}

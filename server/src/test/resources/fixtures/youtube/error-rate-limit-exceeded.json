@@ -1,0 +1,13 @@
+{
+  "error": {
+    "code": 403,
+    "message": "Synthetic rate limit message.",
+    "errors": [
+      {
+        "message": "Synthetic rate limit message.",
+        "domain": "youtube.quota",
+        "reason": "rateLimitExceeded"
+      }
+    ]
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "kind": "youtube#searchListResponse",
+  "etag": "synthetic-etag-search",
+  "regionCode": "KR",
+  "pageInfo": {
+    "totalResults": 2,
+    "resultsPerPage": 25
+  },
+  "items": [
+    {
+      "kind": "youtube#searchResult",
+      "etag": "synthetic-etag-1",
+      "id": {
+        "kind": "youtube#video",
+        "videoId": "Abc123xyz_1"
+      },
+      "snippet": {
+        "publishedAt": "2020-01-02T03:04:05Z",
+        "channelId": "UCsyntheticChannelId0001",
+        "title": "시험용 영상 제목 둘째",
+        "description": "시험용 설명",
+        "thumbnails": {
+          "medium": {
+            "url": "https://i.ytimg.com/vi/Abc123xyz_1/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          }
+        },
+        "channelTitle": "시험용 채널",
+        "liveBroadcastContent": "none",
+        "publishTime": "2020-01-02T03:04:05Z"
+      }
+    },
+    {
+      "kind": "youtube#searchResult",
+      "etag": "synthetic-etag-0",
+      "id": {
+        "kind": "youtube#video",
+        "videoId": "Abc123xyz_0"
+      },
+      "snippet": {
+        "publishedAt": "2020-01-01T03:04:05Z",
+        "channelId": "UCsyntheticChannelId0001",
+        "title": "시험용 영상 제목 첫째",
+        "description": "시험용 설명",
+        "thumbnails": {
+          "medium": {
+            "url": "https://i.ytimg.com/vi/Abc123xyz_0/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          }
+        },
+        "channelTitle": "시험용 채널",
+        "liveBroadcastContent": "none",
+        "publishTime": "2020-01-01T03:04:05Z"
+      }
+    }
+  ]
+}

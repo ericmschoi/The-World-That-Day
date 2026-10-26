@@ -1,0 +1,10 @@
+{
+  "kind": "youtube#searchListResponse",
+  "etag": "synthetic-etag-search-empty",
+  "regionCode": "KR",
+  "pageInfo": {
+    "totalResults": 0,
+    "resultsPerPage": 25
+  },
+  "items": []
+}
