@@ -268,3 +268,18 @@
 | 2026-10-24 | PM | M3a4b T4 결정 1 (a) KBS 두 행 그대로·2 (a) 녹화 바이트 그대로 | 결정 | 7cb8fc7 |
 | 2026-10-24 | code-reviewer | M3a4b 브랜치 리뷰 (승인, 필수 0·권장 5, cleanTest check 1872/0, 근거 직접 확인 일치) | 승인 | 7cb8fc7 |
 | 2026-10-24 | orchestrator | M3a4b README·진행 기록, PR 열기 | 완료 | - |
+| 2026-10-24 | orchestrator | PR #24 server-ci 실패 1건 (WorldStoryEventPhotoPartsRegressionTest:320 PageImages 요청 0 — 영상·사진 요청 자리 다툼 추정) → backend-dev | 진행 | 690806d |
+| 2026-10-24 | backend-dev | PR #24 CI 수정: 사진 경로마다 요청 자리 남김 (영상 Lane), check 1878/0 ×2, 부하 3회 통과, 누적 S1 1155/−236 | 완료 | 943244e |
+| 2026-10-24 | code-reviewer | PR #24 수정 커밋 리뷰 (승인, 필수 0·권장 4, cleanTest check 1878/0) | 승인 | 943244e |
+| 2026-10-24 | PM | M3a4b PR #24 머지 (T5 확인) | 완료 | 9203562 |
+| 2026-10-24 | PM | M3a4b T5·M3b3 T6 확인: 1969-07-20 화면에 Commons 영상 재생 | 완료 | 9203562 |
+| 2026-10-24 | planner | M3a4c 계획 작성 (M3a4b B절 분리, Candidate.origin, PR #24 권장 T4, 다시 셈 약 650) + 로드맵 M3a4b 완료 — PM 승인·크기 결정 필요 | 완료(미커밋) | 9203562 |
+| 2026-10-24 | PM | M3a4c 계획 승인, 크기 결정 1 (a) 한 PR (확인점 T1 300·T3 700 알림) | 결정 | a3469ba |
+| 2026-10-24 | backend-dev | M3a4c T1 결과 캐시 저장소 V3·저장소·TTL 설정 (check 1902/0 ×2, DB 22/0 3회째, 누적 S1 181) — DatabaseSmokeTest 기대값 V3만큼 늘림 | 완료 | aa77bb3 |
+| 2026-10-24 | backend-dev | M3a4c T2 Candidate.origin·저장 형식·되살리기 (check 1933/0 ×2, 민감 118/0 3회째, 누적 S1 384/−9) | 완료 | 6f3b93e |
+| 2026-10-24 | backend-dev | M3a4c T3 VideoSearch 캐시 흐름·DB 실패 처리 (check 1961/0 ×2, 민감 78/0 3회째, 누적 S1 580/−23 — 확인점 2 700 아래) | 완료 | 5d4be2e |
+| 2026-10-24 | backend-dev (Sonnet) | M3a4c T4 PR #24 리뷰 이월 (영상 WARN 단언, 시험 이름 2개, lane 대기 상한, 주석; check 1961/0 ×2) — PM 결정 필요: 영상 WARN 줄 수 단언 방식 | 완료 | f342068, b950b84, 122c78d |
+| 2026-10-25 | PM | M3a4c T4 결정 (a) 그대로, T5에서 부하 아래 20회 흔들리면 (b) | 결정 | 2af734c |
+| 2026-10-25 | test-engineer (Sonnet) | M3a4c T5 완료 기준 표·빠진 시험 10개 추가 (clean check 1971/0 ×3, clean build 1972/0, 회귀 시험 부하 20/20 → 대체안 (b) 미적용, 시간 3.03 s/11.7 s 동일, S1 583/−23) | 완료 | 4fd00fb |
+| 2026-10-25 | code-reviewer (Opus) | M3a4c 리뷰 main...feat/media-search-cache (clean check 1972/0, 필수 0, 권장 5) | 승인 | - |
+| 2026-10-25 | orchestrator | M3a4c PR 열기 (README 19 of 22, M3a4b ✅ PR #24, M3a4c 리뷰 중) | 완료 | - |
