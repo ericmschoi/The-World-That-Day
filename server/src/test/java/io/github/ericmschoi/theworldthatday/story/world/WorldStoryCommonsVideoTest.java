@@ -75,7 +75,7 @@ class WorldStoryCommonsVideoTest extends WikimediaWireMockTest {
     assertThat(wikimedia.findAllUnmatchedRequests()).isEmpty();
   }
 
-  private static String read(String path) {
+  static String read(String path) {
     try (InputStream in =
         WorldStoryCommonsVideoTest.class.getClassLoader().getResourceAsStream(path)) {
       if (in == null) {
@@ -90,7 +90,7 @@ class WorldStoryCommonsVideoTest extends WikimediaWireMockTest {
   // ---- stubs ----
 
   /** Section list by title, then the level-2 사건 and 문화 sections by revid and index. */
-  private static void stubPage(String title, String prefix) {
+  static void stubPage(String title, String prefix) {
     String kowiki = "fixtures/wikimedia/kowiki/";
     JsonNode parse = JSON.readTree(read(kowiki + prefix + "-sections.json")).path("parse");
     String revid = Long.toString(parse.path("revid").asLong());
@@ -111,7 +111,7 @@ class WorldStoryCommonsVideoTest extends WikimediaWireMockTest {
     }
   }
 
-  private static void stubPageprops(String body) {
+  static void stubPageprops(String body) {
     wikimedia.stubFor(
         WireMock.get(urlPathEqualTo(KOWIKI_PATH))
             .withQueryParam("action", equalTo("query"))
@@ -119,11 +119,11 @@ class WorldStoryCommonsVideoTest extends WikimediaWireMockTest {
   }
 
   /** The tone and scope signals (the video query is told apart by its {@code ?video}). */
-  private static void stubSignals(String body) {
+  static void stubSignals(String body) {
     wikimedia.stubFor(WireMock.get(urlPathEqualTo(SPARQL_PATH)).willReturn(okJson(body)));
   }
 
-  private static void stubVideoLinks(ResponseDefinitionBuilder response) {
+  static void stubVideoLinks(ResponseDefinitionBuilder response) {
     wikimedia.stubFor(
         WireMock.get(urlPathEqualTo(SPARQL_PATH))
             .withQueryParam("query", containing("?video"))
@@ -132,7 +132,7 @@ class WorldStoryCommonsVideoTest extends WikimediaWireMockTest {
   }
 
   /** A Commons video request: {@code generator} (date category or category search) or files. */
-  private static void stubVideos(String parameter, ResponseDefinitionBuilder response) {
+  static void stubVideos(String parameter, ResponseDefinitionBuilder response) {
     wikimedia.stubFor(
         WireMock.get(urlPathEqualTo(COMMONS_PATH))
             .withQueryParam("prop", equalTo("videoinfo"))
@@ -141,14 +141,14 @@ class WorldStoryCommonsVideoTest extends WikimediaWireMockTest {
             .willReturn(response));
   }
 
-  private static final String NO_PAGES = "{\"batchcomplete\":true}";
+  static final String NO_PAGES = "{\"batchcomplete\":true}";
 
   /**
    * The leap day: 시험 문서 가 (Q1, in Korea) and, when {@code withTragic}, 시험 문서 나 (Q2, a disaster by
    * its Wikidata class) in the 2000 lines of the 2월 29일 page. The untitled lines (2000년 page, 문화)
    * have no signal and show as tragic, so the day paths (date categories) are off.
    */
-  private static void stubLeapDay(boolean withTragic) {
+  static void stubLeapDay(boolean withTragic) {
     stubPage("2월 29일", "synthetic/synthetic-02-29");
     stubPage("2000년", "synthetic/synthetic-2000");
     String second = withTragic ? "\\n* [[2000년]] - [[시험 문서 나|시험 사건 나]]가 일어났다." : "";
@@ -192,7 +192,7 @@ class WorldStoryCommonsVideoTest extends WikimediaWireMockTest {
             .willReturn(okJson(PHOTO)));
   }
 
-  private static final String PHOTO =
+  static final String PHOTO =
       """
       {"batchcomplete":true,"query":{
        "normalized":[{"fromencoded":false,"from":"File:Synthetic_test_photo.jpg",
@@ -207,14 +207,14 @@ class WorldStoryCommonsVideoTest extends WikimediaWireMockTest {
          "LicenseShortName":{"value":"CC BY-SA 4.0"},"DateTimeOriginal":{"value":"1998"}}}]}]}}""";
 
   /** Q1's P10 file, an English label, no category. */
-  private static final String LINKS =
+  static final String LINKS =
       """
       {"results":{"bindings":[{"item":{"value":"http://www.wikidata.org/entity/Q1"},
        "video":{"value":"http://commons.wikimedia.org/wiki/Special:FilePath/Synthetic%20test%20event%20footage.webm"},
        "label":{"value":"Synthetic test event"}}]}}""";
 
   /** The P10 file: free, filmed on the leap day. */
-  private static final String FOOTAGE =
+  static final String FOOTAGE =
       """
       {"batchcomplete":true,"query":{"pages":[{"pageid":900002,"ns":6,
        "title":"File:Synthetic test event footage.webm","videoinfo":[{
@@ -224,7 +224,7 @@ class WorldStoryCommonsVideoTest extends WikimediaWireMockTest {
         "extmetadata":{"Artist":{"value":"Synthetic Author"},"LicenseShortName":{"value":"CC0"},
          "DateTimeOriginal":{"value":"2000-02-29"}}}]}]}}""";
 
-  private static void stubLeapDayVideo() {
+  static void stubLeapDayVideo() {
     stubVideoLinks(okJson(LINKS));
     stubVideos("generator", okJson(NO_PAGES));
     stubVideos("titles", okJson(FOOTAGE));
@@ -252,19 +252,19 @@ class WorldStoryCommonsVideoTest extends WikimediaWireMockTest {
     return root;
   }
 
-  private static List<ServeEvent> videoRequests() {
+  static List<ServeEvent> videoRequests() {
     return wikimedia.getAllServeEvents().stream()
         .filter(WikimediaWireMockTest::isVideoSearch)
         .toList();
   }
 
-  private static List<ServeEvent> videoRequests(String parameter) {
+  static List<ServeEvent> videoRequests(String parameter) {
     return videoRequests().stream()
         .filter(e -> e.getRequest().queryParameter(parameter).isPresent())
         .toList();
   }
 
-  private static JsonNode event(JsonNode root, String title) {
+  static JsonNode event(JsonNode root, String title) {
     for (JsonNode event : root.path("events")) {
       if (title.equals(event.path("title").asString(null))) {
         return event;

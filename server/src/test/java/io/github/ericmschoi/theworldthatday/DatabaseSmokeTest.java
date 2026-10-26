@@ -24,25 +24,28 @@ class DatabaseSmokeTest {
   @Autowired private ApplicationContext context;
 
   @Test
-  void flywayAppliesTheBaselineAndTheWikiSectionCacheMigrations() {
+  void flywayAppliesTheBaselineAndBothCacheMigrations() {
     List<Map<String, Object>> rows =
         jdbc.queryForList(
             "SELECT version, success FROM flyway_schema_history WHERE version IS NOT NULL"
                 + " ORDER BY installed_rank");
 
-    assertThat(rows).hasSize(2);
+    assertThat(rows).hasSize(3);
     assertThat(rows.get(0)).containsEntry("version", "1").containsEntry("success", true);
     assertThat(rows.get(1)).containsEntry("version", "2").containsEntry("success", true);
+    assertThat(rows.get(2)).containsEntry("version", "3").containsEntry("success", true);
   }
 
   @Test
-  void onlyTheWikiSectionCacheTableExists() {
+  void onlyTheTwoCacheTablesExist() {
     List<String> tables =
         jdbc.queryForList(
             "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'",
             String.class);
 
-    assertThat(tables).containsExactlyInAnyOrder("flyway_schema_history", "wiki_section_cache");
+    assertThat(tables)
+        .containsExactlyInAnyOrder(
+            "flyway_schema_history", "wiki_section_cache", "event_media_search_cache");
   }
 
   @Test

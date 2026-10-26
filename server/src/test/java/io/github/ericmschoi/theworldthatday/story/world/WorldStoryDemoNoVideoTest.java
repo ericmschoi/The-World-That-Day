@@ -31,9 +31,9 @@ import tools.jackson.databind.json.JsonMapper;
  * Plan M3a4 T7 (2) and (7), the other two demo dates: with nothing found by the video search
  * (WorldStoryCommonsVideoTest runs it on the recorded answers), the 2002-06-22 and 1995-03-15
  * answers hold no {@code selection} key, no video and no {@code link_only} item, log no video
- * failure, and WireMock sees no request it has no stub for ({@link WorldStoryNoVideoSourceTest}
- * does the same for 1988-09-17). Recorded fixtures, WireMock only; the absence of a video is the
- * right answer for these dates (plan M3a4 demo table).
+ * failure, and WireMock sees no request it has no stub for ({@link
+ * WorldStoryCommonsSourceNoVideosTest} does the same for 1988-09-17). Recorded fixtures, WireMock
+ * only; the absence of a video is the right answer for these dates (plan M3a4 demo table).
  */
 @ExtendWith(OutputCaptureExtension.class)
 class WorldStoryDemoNoVideoTest extends WikimediaWireMockTest {

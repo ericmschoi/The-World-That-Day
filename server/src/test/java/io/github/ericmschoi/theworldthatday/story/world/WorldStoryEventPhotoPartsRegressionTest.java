@@ -21,6 +21,8 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -143,14 +145,49 @@ class WorldStoryEventPhotoPartsRegressionTest extends WikimediaWireMockTest {
             .willReturn(okJson(NO_PAGE_IMAGES).withFixedDelay(delayMs)));
   }
 
+  /**
+   * The video path's own WARN lines: {@code title} starts with "commons video"/"wikidata video".
+   */
+  private static final String VIDEO_TITLE = ".*title=(commons|wikidata) video .*";
+
+  /**
+   * The video search's four fixed labels ({@code SparqlWikidataVideoLinks.LABEL}, {@code
+   * ActionApiCommonsVideoClient.DATE_CATEGORY}, {@code CATEGORY} and {@code FILES}), each followed
+   * by {@code cause=}, so the line carries no date, category name, file name or QID.
+   */
+  /**
+   * Video requests for the day's three target events: Wikidata, date category, 3 searches, files.
+   */
+  private static final int MAX_VIDEO_REQUESTS = 6;
+
+  private static final Pattern VIDEO_WARNING =
+      Pattern.compile(
+          "Wikimedia call failed: source=\\S+ title=(wikidata video links of \\d+ items"
+              + "|commons video date category|commons video category search"
+              + "|commons video files of \\d+) cause=.*");
+
+  /** The photo paths' WARN lines; the video path's are left to {@link #videoFailures}. */
   private static List<String> failures(CapturedOutput output) {
+    return warnings(output).filter(l -> !l.matches(VIDEO_TITLE)).toList();
+  }
+
+  /** The video path's WARN lines, kept apart from the photo paths' count. */
+  private static List<String> videoFailures(CapturedOutput output) {
+    return warnings(output).filter(l -> l.matches(VIDEO_TITLE)).toList();
+  }
+
+  private static Stream<String> warnings(CapturedOutput output) {
     return output
         .getAll()
         .lines()
         .filter(l -> l.contains("Wikimedia call failed"))
-        .filter(l -> !l.matches(".*title=(commons|wikidata) video .*")) // the video path's own
-        .map(l -> l.substring(l.indexOf("Wikimedia call failed")))
-        .toList();
+        .map(l -> l.substring(l.indexOf("Wikimedia call failed")));
+  }
+
+  private static long videoRequests() {
+    return wikimedia.getAllServeEvents().stream()
+        .filter(WikimediaWireMockTest::isVideoSearch)
+        .count();
   }
 
   private JsonNode ok(String date) throws Exception {
@@ -374,5 +411,19 @@ class WorldStoryEventPhotoPartsRegressionTest extends WikimediaWireMockTest {
                 l.contains("title=kowiki pageimages of 3") || l.contains("title=event photos of 3"))
         .hasSize(1);
     assertThat(lines).as("one WARN line per media path, nothing else").hasSize(2);
+    List<String> videoLines = videoFailures(output);
+    assertThat(videoLines)
+        .as("every video WARN line has one of the four fixed labels")
+        .allSatisfy(l -> assertThat(VIDEO_WARNING.matcher(l).matches()).as(l).isTrue());
+    // A request refused for want of a slot ("no free request slot") never reaches WireMock, so the
+    // lines are bounded by the video requests the search can make for three targets (plan M3a4b
+    // T3 (4): Wikidata 1, date category 1, category search 3, file batch 1), and those that did
+    // go out are bounded by what WireMock received.
+    assertThat(videoLines.size())
+        .as("at most one WARN line per video request the search can make")
+        .isLessThanOrEqualTo(MAX_VIDEO_REQUESTS);
+    assertThat(videoLines.stream().filter(l -> !l.contains("cause=no free request slot")).count())
+        .as("at most one WARN line per video request WireMock received")
+        .isLessThanOrEqualTo(videoRequests());
   }
 }

@@ -168,6 +168,14 @@ media:
       - for
       - to
       - 및
+  # Result cache of event video searches (plan M3a4c, table event_media_search_cache): how long a
+  # source's result for an event of a date is used without asking again. Fresh while
+  # fetched_at + ttl is after now. A result with no candidates is kept too; a failed, timed-out or
+  # skipped search is not. Only addresses and text metadata are stored, never files. A source with
+  # 0 or no entry is not cached; a negative value fails startup.
+  search-cache:
+    ttl:
+      commons: 7d
   # Items taken down at a rights holder's request (plan M3a3a, safeguard 5); applied on restart.
   # Each entry has a lowercase source and at least one of id, author or channel; an entry without
   # them, or without a source, fails startup. Matching: id exactly (Commons file name without

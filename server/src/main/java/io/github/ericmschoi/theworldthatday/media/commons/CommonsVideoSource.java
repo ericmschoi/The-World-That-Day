@@ -162,7 +162,8 @@ public class CommonsVideoSource implements EventVideoSource {
               link,
               false,
               false,
-              basis));
+              basis,
+              video.origin()));
     }
   }
 

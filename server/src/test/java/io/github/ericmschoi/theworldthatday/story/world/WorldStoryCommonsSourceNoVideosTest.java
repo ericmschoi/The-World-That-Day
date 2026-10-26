@@ -32,13 +32,13 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * Plan M3a4 T6 (1) and (12), with plan M3a4b T3 (8): the one video source bean is Commons, and the
- * 1988-09-17 demo answer, with the recorded video search finding nothing, carries no {@code
- * selection} key, no video and no {@code link_only} item, with no video failure line. Recorded
- * fixtures and WireMock only.
+ * Plan M3a4 T6 (1) and (12), with plan M3a4b T3 (8): the one video source bean is Commons (key
+ * {@code commons}), and the 1988-09-17 demo answer, with the recorded video search finding nothing
+ * (zero recorded videos), carries no {@code selection} key, no video and no {@code link_only} item,
+ * with no video failure line. Recorded fixtures and WireMock only.
  */
 @ExtendWith(OutputCaptureExtension.class)
-class WorldStoryNoVideoSourceTest extends WikimediaWireMockTest {
+class WorldStoryCommonsSourceNoVideosTest extends WikimediaWireMockTest {
 
   private static final JsonMapper JSON = JsonMapper.builder().build();
   private static final String KOWIKI = "fixtures/wikimedia/kowiki/";
@@ -58,7 +58,7 @@ class WorldStoryNoVideoSourceTest extends WikimediaWireMockTest {
 
   private static String read(String path) {
     try (InputStream in =
-        WorldStoryNoVideoSourceTest.class.getClassLoader().getResourceAsStream(path)) {
+        WorldStoryCommonsSourceNoVideosTest.class.getClassLoader().getResourceAsStream(path)) {
       if (in == null) {
         throw new IllegalArgumentException("no fixture " + path);
       }
@@ -91,7 +91,7 @@ class WorldStoryNoVideoSourceTest extends WikimediaWireMockTest {
   /**
    * The recorded video search of the opening day: Wikidata links and Commons, all without video.
    */
-  private static void stubRecordedNoVideos() {
+  static void stubRecordedNoVideos() {
     wikimedia.stubFor(
         WireMock.get(urlPathEqualTo(SPARQL_PATH))
             .withQueryParam("query", containing("?video"))

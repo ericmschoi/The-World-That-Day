@@ -1,6 +1,7 @@
 package io.github.ericmschoi.theworldthatday.wikimedia;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import io.github.ericmschoi.theworldthatday.MutableClock;
 import io.github.ericmschoi.theworldthatday.config.ClockConfig;
@@ -12,6 +13,7 @@ import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 /**
  * Plan M3a4b T3 (9), the CI failure of PR #24: with the three shared request slots, the video
@@ -20,7 +22,11 @@ import org.junit.jupiter.api.Test;
  * sleep): a refused video request is one whose wait ran out, and a waiting one is seen through the
  * lock's condition.
  */
+@Timeout(value = 30, unit = TimeUnit.SECONDS)
 class WikimediaHttpClientLanesTest {
+
+  /** The longest a test waits to see a video request queue for a slot. */
+  private static final Duration WAIT_LIMIT = Duration.ofSeconds(5);
 
   /** How long a request waits for a slot; short, as a refused video request waits it out. */
   private static final Duration READ_TIMEOUT = Duration.ofMillis(200);
@@ -112,9 +118,7 @@ class WikimediaHttpClientLanesTest {
 
     CompletableFuture<Boolean> third =
         CompletableFuture.supplyAsync(() -> patient.acquirePermit(Lane.VIDEO));
-    while (!patient.videoWaiting()) {
-      Thread.onSpinWait();
-    }
+    awaitVideoWaiting(patient);
     assertThat(third).isNotDone();
     day.close();
     day.close(); // closing twice keeps no slot back for a path that is gone
@@ -144,11 +148,24 @@ class WikimediaHttpClientLanesTest {
 
     CompletableFuture<Boolean> fourth =
         CompletableFuture.supplyAsync(() -> patient.acquirePermit(Lane.VIDEO));
-    while (!patient.videoWaiting()) {
-      Thread.onSpinWait();
-    }
+    awaitVideoWaiting(patient);
     patient.releasePermit(Lane.DEFAULT);
 
     assertThat(fourth.get(5, TimeUnit.SECONDS)).isTrue();
+  }
+
+  /**
+   * Waits until a video request is queued for a slot. The loop has its own end time: the class
+   * timeout cannot stop a loop that never checks for an interrupt, so a regression must fail here
+   * instead of hanging the build.
+   */
+  private static void awaitVideoWaiting(WikimediaHttpClient target) {
+    long end = System.nanoTime() + WAIT_LIMIT.toNanos();
+    while (!target.videoWaiting()) {
+      if (System.nanoTime() - end >= 0) {
+        fail("no video request queued for a slot within " + WAIT_LIMIT);
+      }
+      Thread.onSpinWait();
+    }
   }
 }

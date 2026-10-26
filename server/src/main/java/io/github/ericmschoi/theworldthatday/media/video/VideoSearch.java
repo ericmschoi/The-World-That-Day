@@ -7,6 +7,7 @@ import io.github.ericmschoi.theworldthatday.media.Selection;
 import io.github.ericmschoi.theworldthatday.media.Selection.Basis;
 import io.github.ericmschoi.theworldthatday.media.video.EventVideoSource.SourceResult;
 import io.github.ericmschoi.theworldthatday.media.video.EventVideoSource.Status;
+import io.github.ericmschoi.theworldthatday.media.video.SearchCacheFormat.Restored;
 import io.github.ericmschoi.theworldthatday.media.video.VideoAccuracy.EventJudge;
 import io.github.ericmschoi.theworldthatday.media.video.VideoAccuracy.Judgement;
 import io.github.ericmschoi.theworldthatday.media.video.VideoAccuracy.Reject;
@@ -41,7 +42,10 @@ import org.springframework.stereotype.Component;
  * then the basis order), the order is free license, official, other, then score, basis and ID, and
  * the first video not already chosen for an earlier event is kept. A source that fails, throws,
  * misses the deadline or whose candidates cannot be judged is left empty and makes the answer
- * partial; a skipped quota does not.
+ * partial; a skipped quota does not. With a {@link SearchCache} (plan M3a4c) each source is asked
+ * only for the events without a fresh cached answer, read before its task starts; the cached and
+ * new candidates are judged together, and a new {@code OK} answer that was judged is stored after.
+ * Both happen on the caller's thread, outside the deadline's tasks.
  */
 @Component
 public class VideoSearch {
@@ -58,6 +62,8 @@ public class VideoSearch {
           Basis.COMMONS_DATE_CATEGORY,
           Basis.COMMONS_SEARCH);
 
+  private static final SourceResult NOTHING = new SourceResult(Map.of(), Map.of(), Status.OK);
+
   private static final Comparator<Scored> STRONGER =
       Comparator.comparingInt((Scored s) -> -s.score())
           .thenComparingInt(s -> BASIS_ORDER.indexOf(s.candidate().basis()));
@@ -67,23 +73,38 @@ public class VideoSearch {
   private final List<EventVideoSource> sources;
   private final VideoAccuracy accuracy;
   private final VideoSearchProperties properties;
+  private final SearchCache cache;
 
   @Autowired
   public VideoSearch(
       ObjectProvider<EventVideoSource> sources,
       VideoAccuracy accuracy,
-      VideoSearchProperties properties) {
-    this(sources.orderedStream().toList(), accuracy, properties);
+      VideoSearchProperties properties,
+      SearchCache cache) {
+    this(sources.orderedStream().toList(), accuracy, properties, cache);
   }
 
+  /** Without a cache. */
   public VideoSearch(
       List<EventVideoSource> sources, VideoAccuracy accuracy, VideoSearchProperties properties) {
+    this(sources, accuracy, properties, null);
+  }
+
+  VideoSearch(
+      List<EventVideoSource> sources,
+      VideoAccuracy accuracy,
+      VideoSearchProperties properties,
+      SearchCache cache) {
     this.sources = List.copyOf(sources);
     this.accuracy = accuracy;
     this.properties = properties;
+    this.cache = cache;
   }
 
-  /** Starts one task per source on {@code deadline}; nothing when there is no event to search. */
+  /**
+   * Starts one task per source on {@code deadline} for its events without a fresh cached answer;
+   * nothing when there is no event to search or every event is cached.
+   */
   public Running start(
       Deadline deadline, LocalDate date, List<EventTarget> targets, boolean dayPathsOff) {
     List<EventContext> events =
@@ -91,15 +112,23 @@ public class VideoSearch {
             .limit(properties.maxEvents())
             .map(target -> EventContext.of(target, date))
             .toList();
+    List<String> ids = events.stream().map(EventContext::eventId).toList();
+    SearchCache.Session session = cache == null ? null : cache.session();
     List<Started> started = new ArrayList<>();
     for (EventVideoSource source : events.isEmpty() ? List.<EventVideoSource>of() : sources) {
+      Map<String, Restored> cached =
+          session == null ? Map.of() : session.read(source.key(), date, ids, dayPathsOff);
+      List<EventContext> missing =
+          events.stream().filter(event -> !cached.containsKey(event.eventId())).toList();
       Task<SourceResult> task =
-          deadline.start(
-              "video-" + source.key(),
-              () -> Objects.requireNonNull(source.find(date, events, dayPathsOff), "result"));
-      started.add(new Started(source.key(), task));
+          missing.isEmpty()
+              ? null
+              : deadline.start(
+                  "video-" + source.key(),
+                  () -> Objects.requireNonNull(source.find(date, missing, dayPathsOff), "result"));
+      started.add(new Started(source.key(), task, cached, missing));
     }
-    return new Running(events, started);
+    return new Running(events, started, session, date, dayPathsOff);
   }
 
   /**
@@ -117,10 +146,21 @@ public class VideoSearch {
 
     private final List<EventContext> events;
     private final List<Started> started;
+    private final SearchCache.Session session;
+    private final LocalDate date;
+    private final boolean dayPathsOff;
 
-    private Running(List<EventContext> events, List<Started> started) {
+    private Running(
+        List<EventContext> events,
+        List<Started> started,
+        SearchCache.Session session,
+        LocalDate date,
+        boolean dayPathsOff) {
       this.events = events;
       this.started = started;
+      this.session = session;
+      this.date = date;
+      this.dayPathsOff = dayPathsOff;
     }
 
     /** Awaits every source (until the shared end at most), then judges and chooses. */
@@ -129,10 +169,15 @@ public class VideoSearch {
       Map<Reject, Integer> rejected = new EnumMap<>(Reject.class);
       boolean failed = false;
       for (Started source : started) {
-        SourceResult result = result(source);
-        Judged judged = result == null ? null : judged(source.key(), result);
-        if (judged == null) {
+        SourceResult found = source.task() == null ? NOTHING : result(source);
+        Judged judged = judged(source.key(), merged(source.cached(), found));
+        if (judged == null || found == null) {
           failed = true;
+        } else if (source.task() != null && session != null && found.status() == Status.OK) {
+          List<String> asked = source.missing().stream().map(EventContext::eventId).toList();
+          session.write(source.key(), date, asked, dayPathsOff, found);
+        }
+        if (judged == null) {
           continue;
         }
         judged
@@ -220,6 +265,27 @@ public class VideoSearch {
     }
   }
 
+  /** The cached answers plus the new one ({@code null} when the search failed). */
+  private static SourceResult merged(Map<String, Restored> cached, SourceResult found) {
+    if (cached.isEmpty()) {
+      return found == null ? NOTHING : found;
+    }
+    Map<String, List<Candidate>> byEvent = new HashMap<>();
+    Map<String, String> labels = new HashMap<>();
+    cached.forEach(
+        (id, restored) -> {
+          byEvent.put(id, restored.candidates());
+          if (restored.englishLabel() != null) {
+            labels.put(id, restored.englishLabel());
+          }
+        });
+    if (found != null) {
+      byEvent.putAll(found.byEvent());
+      labels.putAll(found.englishLabels());
+    }
+    return new SourceResult(byEvent, labels, Status.OK);
+  }
+
   /** One per video ID (the stronger), in the order of safeguard 4. */
   private static List<Scored> ordered(List<Scored> videos) {
     List<Scored> strongest = new ArrayList<>(videos);
@@ -229,7 +295,12 @@ public class VideoSearch {
     return once.values().stream().sorted(ORDER).toList();
   }
 
-  private record Started(String key, Task<SourceResult> task) {}
+  /** {@code task} is {@code null} when every event had a fresh cached answer. */
+  private record Started(
+      String key,
+      Task<SourceResult> task,
+      Map<String, Restored> cached,
+      List<EventContext> missing) {}
 
   private record Judged(Map<String, List<Scored>> byEvent, Map<Reject, Integer> rejected) {}
 

@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.TestPropertySource;
 
 /**
  * Base for Spring context tests that talk to Wikimedia (plan M3a1 test policy 1). Every {@code
@@ -33,6 +34,9 @@ import org.springframework.test.context.DynamicPropertySource;
  */
 @SpringBootTest
 @Import({TestcontainersConfiguration.class, WikimediaWireMockTest.TestClock.class})
+// The video search result cache is off, so no test meets a row of another (plan M3a4c T3 (8)). A
+// property source, not a dynamic one, so a cache test can turn it on with its own.
+@TestPropertySource(properties = "media.search-cache.ttl.commons=0")
 public abstract class WikimediaWireMockTest {
 
   public static final String TEST_USER_AGENT =

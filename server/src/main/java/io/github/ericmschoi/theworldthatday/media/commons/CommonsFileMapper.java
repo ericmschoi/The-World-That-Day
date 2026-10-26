@@ -90,10 +90,22 @@ public class CommonsFileMapper {
 
   /**
    * A video item, or why there is none; with what the accuracy rules read when there is one: the
-   * file name without {@code File:}, the whole plain description and the capture time as parsed.
+   * file name without {@code File:}, the whole plain description and the capture time as parsed,
+   * and the {@link MediaFilter} input it passed (plan M3a4c, for the result cache).
    */
   public record VideoResult(
-      MediaItem item, Drop drop, String title, String description, CaptureTime originalCapture) {
+      MediaItem item,
+      Drop drop,
+      String title,
+      String description,
+      CaptureTime originalCapture,
+      MediaOrigin origin) {
+
+    /** A result without an origin. */
+    public VideoResult(
+        MediaItem item, Drop drop, String title, String description, CaptureTime originalCapture) {
+      this(item, drop, title, description, originalCapture, null);
+    }
 
     static VideoResult dropped(Drop drop) {
       return new VideoResult(null, drop, null, null, null);
@@ -155,14 +167,13 @@ public class CommonsFileMapper {
             clock.instant().truncatedTo(ChronoUnit.SECONDS).toString());
     String title = page.path("title").asString("");
     String fileName = title.startsWith("File:") ? title.substring(5) : title;
-    if (filter
-        .check(record, new MediaOrigin("commons", fileName, artist, credit, null))
-        .isPresent()) {
+    MediaOrigin origin = new MediaOrigin("commons", fileName, artist, credit, null);
+    if (filter.check(record, origin).isPresent()) {
       return VideoResult.dropped(Drop.FILTERED);
     }
     return normalizer
         .normalize(record, date)
-        .map(item -> new VideoResult(item, null, fileName, description, original))
+        .map(item -> new VideoResult(item, null, fileName, description, original, origin))
         .orElseGet(() -> VideoResult.dropped(Drop.RULE));
   }
 
