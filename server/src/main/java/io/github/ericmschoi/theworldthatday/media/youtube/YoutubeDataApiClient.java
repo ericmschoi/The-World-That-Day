@@ -53,11 +53,14 @@ public class YoutubeDataApiClient implements YoutubeClient {
       YoutubeProperties properties, MediaLookupProperties lookup, JsonMapper json) {
     this.properties = properties;
     this.json = json;
-    JdkClientHttpRequestFactory factory =
-        new JdkClientHttpRequestFactory(
-            HttpClient.newBuilder().connectTimeout(properties.connectTimeout()).build());
+    JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory(httpClient(properties));
     factory.setReadTimeout(lookup.lookupDeadline());
     this.restClient = RestClient.builder().requestFactory(factory).build();
+  }
+
+  /** The HTTP client of every call, connecting within {@code youtube.connect-timeout}. */
+  static HttpClient httpClient(YoutubeProperties properties) {
+    return HttpClient.newBuilder().connectTimeout(properties.connectTimeout()).build();
   }
 
   @Override

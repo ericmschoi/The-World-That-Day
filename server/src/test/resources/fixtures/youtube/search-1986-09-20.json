@@ -1,0 +1,107 @@
+{
+  "kind": "youtube#searchListResponse",
+  "etag": "synthetic-etag-search-1986",
+  "regionCode": "KR",
+  "pageInfo": {
+    "totalResults": 4,
+    "resultsPerPage": 25
+  },
+  "items": [
+    {
+      "kind": "youtube#searchResult",
+      "etag": "synthetic-etag-search-1986-0",
+      "id": {
+        "kind": "youtube#video",
+        "videoId": "Abc123xyz_0"
+      },
+      "snippet": {
+        "publishedAt": "2020-01-01T03:04:05Z",
+        "channelId": "UCsyntheticChannelId0001",
+        "title": "1986년 서울아시안게임 개막식",
+        "description": "시험용 설명",
+        "thumbnails": {
+          "medium": {
+            "url": "https://i.ytimg.com/vi/Abc123xyz_0/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          }
+        },
+        "channelTitle": "KTV 아카이브",
+        "liveBroadcastContent": "none",
+        "publishTime": "2020-01-01T03:04:05Z"
+      }
+    },
+    {
+      "kind": "youtube#searchResult",
+      "etag": "synthetic-etag-search-1986-1",
+      "id": {
+        "kind": "youtube#video",
+        "videoId": "Abc123xyz_2"
+      },
+      "snippet": {
+        "publishedAt": "2020-01-02T03:04:05Z",
+        "channelId": "UCsyntheticChannelId0001",
+        "title": "대한뉴스 제 1610호-아시안 게임 준비",
+        "description": "시험용 설명",
+        "thumbnails": {
+          "medium": {
+            "url": "https://i.ytimg.com/vi/Abc123xyz_2/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          }
+        },
+        "channelTitle": "KTV 아카이브",
+        "liveBroadcastContent": "none",
+        "publishTime": "2020-01-02T03:04:05Z"
+      }
+    },
+    {
+      "kind": "youtube#searchResult",
+      "etag": "synthetic-etag-search-1986-2",
+      "id": {
+        "kind": "youtube#video",
+        "videoId": "Abc123xyz_3"
+      },
+      "snippet": {
+        "publishedAt": "2020-01-03T03:04:05Z",
+        "channelId": "UCsyntheticChannelId0001",
+        "title": "대한뉴스 제 1610호-아시안 게임 카운트 다운",
+        "description": "시험용 설명",
+        "thumbnails": {
+          "medium": {
+            "url": "https://i.ytimg.com/vi/Abc123xyz_3/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          }
+        },
+        "channelTitle": "KTV 아카이브",
+        "liveBroadcastContent": "none",
+        "publishTime": "2020-01-03T03:04:05Z"
+      }
+    },
+    {
+      "kind": "youtube#searchResult",
+      "etag": "synthetic-etag-search-1986-3",
+      "id": {
+        "kind": "youtube#video",
+        "videoId": "Abc123xyz_9"
+      },
+      "snippet": {
+        "publishedAt": "2020-01-04T03:04:05Z",
+        "channelId": "UCsyntheticChannelId0001",
+        "title": "시험용 영상 제목 (videos.list 답에 없음)",
+        "description": "시험용 설명",
+        "thumbnails": {
+          "medium": {
+            "url": "https://i.ytimg.com/vi/Abc123xyz_9/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          }
+        },
+        "channelTitle": "KTV 아카이브",
+        "liveBroadcastContent": "none",
+        "publishTime": "2020-01-04T03:04:05Z"
+      }
+    }
+  ]
+}

@@ -47,8 +47,8 @@ import tools.jackson.databind.JsonNode;
  * VideoAccuracy}. The capture time is the first of {@code recordingDate}, the title's first date
  * and the description's first date that is not after the event, and none for a retrospective edit
  * or a newsreel title (the newsreel's written dates are issue dates, M3a5b dates it). {@code
- * publishedAt} is never read. Pure apart from the clock: no request, no storage. Not used by the
- * flow yet.
+ * publishedAt} is never read. Pure apart from the clock: no request, no storage. Used by {@link
+ * YoutubeVideoSource}.
  */
 @Component
 public class YoutubeVideoMapper {

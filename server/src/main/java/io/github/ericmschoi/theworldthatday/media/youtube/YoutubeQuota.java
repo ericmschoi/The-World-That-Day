@@ -19,8 +19,8 @@ import org.springframework.stereotype.Component;
  * <p>Google resets its quota at midnight in {@code America/Los_Angeles}, so the counts and the
  * exhausted marks clear when that date changes on the injected clock (daylight saving included).
  * The counts live in memory only: a restart starts from 0 and the 403 handling backs this up (a
- * restart on the same Pacific day can spend the 20% margin below Google's limit). Not used by the
- * flow yet.
+ * restart on the same Pacific day can spend the 20% margin below Google's limit). Used by {@link
+ * YoutubeVideoSource} (plan M3a5a T5).
  */
 @Component
 public class YoutubeQuota {
@@ -72,6 +72,25 @@ public class YoutubeQuota {
       warnOnce(bucket);
     }
     return true;
+  }
+
+  /**
+   * {@link #reserve}, giving the Pacific day the units were taken on, or {@code null} if refused.
+   */
+  public synchronized LocalDate reserveOn(Bucket bucket, int n) {
+    return reserve(bucket, n) ? day : null;
+  }
+
+  /**
+   * {@link #exhausted(Bucket)} unless the Pacific day is no longer {@code reservedOn}: a 403 that
+   * arrives after the reset answers a request of the old day and says nothing about the new one
+   * (M3a5 review recommendation 1).
+   */
+  public synchronized void exhausted(Bucket bucket, LocalDate reservedOn) {
+    rollOver();
+    if (day.equals(reservedOn)) {
+      exhausted(bucket);
+    }
   }
 
   /** Marks the bucket spent until the next reset (Google answered 403 {@code quotaExceeded}). */
