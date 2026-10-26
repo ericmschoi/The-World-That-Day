@@ -5,6 +5,8 @@ import static io.github.ericmschoi.theworldthatday.media.video.FakeVideoSource.d
 import static io.github.ericmschoi.theworldthatday.media.video.FakeVideoSource.ok;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import io.github.ericmschoi.theworldthatday.media.CaptureTime;
 import io.github.ericmschoi.theworldthatday.media.MediaFilter;
 import io.github.ericmschoi.theworldthatday.media.MediaLookup.EventTarget;
@@ -23,6 +25,7 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
@@ -422,5 +425,135 @@ class VideoSearchCacheTest extends WikimediaWireMockTest {
 
     assertThat(alpha.asked).hasSize(2);
     assertThat(rows()).isZero();
+  }
+
+  // ---- plan M3a4c T5: gaps of T3 (3) and (5) ----
+
+  /** E1 is cached by a first search; the second asks for E2 too and gets {@code newPart}. */
+  private Videos cachedE1ThenNewPart(FakeVideoSource newPart) {
+    SearchCache cache = cache();
+    run(search(cache, alpha(Map.of(E1, List.of(C130)))), ONE, false);
+    Videos videos = run(search(cache, newPart), TWO, false);
+    assertThat(newPart.asked.getFirst()).extracting(EventContext::eventId).containsExactly(E2);
+    return videos;
+  }
+
+  private void assertCachedKeptAndNothingNewStored(Videos videos) {
+    assertThat(videos.byEvent()).containsOnlyKeys(E1);
+    assertThat(videos.byEvent().get(E1).selection().score()).isEqualTo(130);
+    assertThat(videos.failed()).isTrue();
+    assertThat(jdbc.queryForList("SELECT event_id FROM event_media_search_cache", String.class))
+        .containsExactly(E1);
+  }
+
+  @Test
+  void cachedCandidatesStayWhenTheNewPartThrows() {
+    assertCachedKeptAndNothingNewStored(
+        cachedE1ThenNewPart(
+            new FakeVideoSource(
+                "alpha",
+                events -> {
+                  throw new IllegalStateException("synthetic");
+                })));
+  }
+
+  @Test
+  void cachedCandidatesStayWhenTheNewPartIsLateEvenIfItAnswersOk() {
+    assertCachedKeptAndNothingNewStored(
+        cachedE1ThenNewPart(
+            new FakeVideoSource(
+                "alpha",
+                events -> {
+                  try {
+                    Thread.sleep(DEADLINE.plusMillis(300));
+                  } catch (InterruptedException e) {
+                    // the deadline stops it; it still answers OK, late
+                  }
+                  return ok(Map.of(E2, List.of(C90)));
+                })));
+  }
+
+  @Test
+  void cachedCandidatesStayWhenTheCallerIsInterruptedDuringTheNewPart() {
+    Thread caller = Thread.currentThread();
+    FakeVideoSource interrupting =
+        new FakeVideoSource(
+            "alpha",
+            events -> {
+              caller.interrupt();
+              return FakeVideoSource.silent();
+            });
+    Videos videos;
+    try {
+      videos = cachedE1ThenNewPart(interrupting);
+    } finally {
+      assertThat(Thread.interrupted()).isTrue();
+    }
+
+    assertCachedKeptAndNothingNewStored(videos);
+  }
+
+  @Test
+  void onlyTheFirstMaxEventsTargetsAreReadAskedAndStored() {
+    String e3 = "kowiki-2000-02-29-0000000c";
+    String e4 = "kowiki-2000-02-29-0000000d";
+    List<EventTarget> four = List.of(target(E1), target(E2), target(e3), target(e4));
+    FakeVideoSource alpha = alpha(Map.of(E1, List.of(C130), e4, List.of(C90)));
+    VideoSearch search = search(cache(), alpha); // max-events 3
+
+    Videos first = run(search, four, false);
+    Videos second = run(search, four, false);
+
+    assertThat(alpha.asked).hasSize(1);
+    assertThat(alpha.asked.getFirst())
+        .extracting(EventContext::eventId)
+        .containsExactly(E1, E2, e3);
+    assertThat(jdbc.queryForList("SELECT event_id FROM event_media_search_cache", String.class))
+        .containsExactlyInAnyOrder(E1, E2, e3);
+    assertThat(second).isEqualTo(first);
+    assertThat(second.byEvent()).containsOnlyKeys(E1);
+  }
+
+  @Test
+  void aVideoCachedForOneSourceAndAskedFromAnotherIsChosenOnce() {
+    SearchCache cache = cache();
+    FakeVideoSource alpha = alpha(Map.of(E1, List.of(C130), E2, List.of()));
+    run(search(cache, alpha), TWO, false);
+    FakeVideoSource beta =
+        new FakeVideoSource("beta", events -> ok(Map.of(E1, List.of(C90), E2, List.of(C130))));
+
+    Videos videos = run(search(cache, alpha, beta), TWO, false);
+
+    assertThat(alpha.asked).hasSize(1); // fully cached the second time
+    assertThat(beta.asked).hasSize(1);
+    assertThat(videos.byEvent()).containsOnlyKeys(E1);
+    assertThat(videos.byEvent().get(E1).record().id()).isEqualTo("commons-900001");
+    assertThat(videos.failed()).isFalse();
+  }
+
+  @Test
+  void debugLogsOfTheCacheFlowCarryNoDateEventFileOrQid(CapturedOutput output) {
+    Logger app = (Logger) LoggerFactory.getLogger("io.github.ericmschoi.theworldthatday");
+    Level before = app.getLevel();
+    app.setLevel(Level.DEBUG);
+    try {
+      FakeVideoSource alpha = alpha(Map.of(E1, List.of(C130), E2, List.of(C90)));
+      VideoSearch search = search(cache(), alpha);
+      run(search, TWO, false); // write
+      run(search, TWO, false); // read
+
+      FakeCacheRepository down = new FakeCacheRepository();
+      down.findThrows = new DataAccessResourceFailureException("synthetic");
+      run(search(cache(down.proxy(), Map.of("alpha", TTL)), alpha), TWO, false);
+      FakeCacheRepository noWrite = new FakeCacheRepository();
+      noWrite.upsertThrows = new DataAccessResourceFailureException("synthetic");
+      run(search(cache(noWrite.proxy(), Map.of("alpha", TTL)), alpha), TWO, false);
+    } finally {
+      app.setLevel(before);
+    }
+
+    assertThat(output.getAll()).contains("Media search cache read failed");
+    assertThat(output.getAll())
+        .doesNotContain("2000-02-29", E1, E2, "Example test video", "Q999", "commons-9000", "알파");
   }
 }

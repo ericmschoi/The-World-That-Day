@@ -222,4 +222,113 @@ class WorldStoryVideoCacheTest extends WikimediaWireMockTest {
     assertThat(videoRequests()).isEmpty();
     assertThat(rows()).isEmpty();
   }
+
+  // ---- plan M3a4c T5: request counts per source, the TTL edge and the other demo date ----
+
+  private static long wikidataVideoRequests() {
+    return videoRequests().stream()
+        .filter(e -> e.getRequest().getUrl().startsWith(SPARQL_PATH))
+        .count();
+  }
+
+  private static long commonsVideoRequests() {
+    return videoRequests().stream()
+        .filter(e -> e.getRequest().getUrl().startsWith(COMMONS_PATH))
+        .count();
+  }
+
+  @Test
+  void theLeapDayRequestsPerSourceDropToZeroOnTheSecondCall() throws Exception {
+    stubLeapDay(false);
+    stubLeapDayVideo();
+
+    call("2000-02-29");
+    // one Wikidata link query and one Commons file batch; the date categories are off that day
+    assertThat(wikidataVideoRequests()).isEqualTo(1);
+    assertThat(commonsVideoRequests()).isEqualTo(1);
+    wikimedia.resetRequests();
+    call("2000-02-29");
+
+    assertThat(wikidataVideoRequests()).isZero();
+    assertThat(commonsVideoRequests()).isZero();
+  }
+
+  @Test
+  void theDemoDayRequestsPerSourceDropToZeroOnTheSecondCall() throws Exception {
+    stubDemoDay();
+
+    call("1988-09-17");
+    long wikidata = wikidataVideoRequests();
+    long commons = commonsVideoRequests();
+    assertThat(wikidata).isEqualTo(1);
+    assertThat(commons).isGreaterThanOrEqualTo(1);
+    wikimedia.resetRequests();
+    call("1988-09-17");
+
+    assertThat(wikidataVideoRequests()).isZero();
+    assertThat(commonsVideoRequests()).isZero();
+  }
+
+  @Test
+  void theQuarterFinalDayIsCachedToo() throws Exception {
+    stubPage("6월 22일", "06-22");
+    stubPage("2002년", "2002");
+    stubPageprops(read("fixtures/wikimedia/kowiki/pageprops-2002-06-22.json"));
+    stubSignals(SparqlWikidataSignalSourceTest.fixture("sparql-2002-06-22.json"));
+
+    String first = call("2002-06-22");
+    assertThat(videoRequests()).isNotEmpty();
+    assertThat(rows())
+        .hasSize(1)
+        .allSatisfy(row -> assertThat(row).containsEntry("source", "commons"));
+    wikimedia.resetRequests();
+    String second = call("2002-06-22");
+
+    assertThat(videoRequests()).isEmpty();
+    assertThat(second).isEqualTo(first);
+  }
+
+  @Test
+  void aRowIsStaleExactlyAtFetchedAtPlusTtlThroughTheWholeApplication() throws Exception {
+    stubLeapDay(false);
+    stubLeapDayVideo();
+    call("2000-02-29");
+    Duration ttl = cacheProperties.ttl("commons").orElseThrow();
+
+    clock.advance(ttl.minusSeconds(1));
+    wikimedia.resetRequests();
+    call("2000-02-29");
+    assertThat(videoRequests()).isEmpty();
+
+    clock.advance(Duration.ofSeconds(1));
+    wikimedia.resetRequests();
+    call("2000-02-29");
+    assertThat(videoRequests()).hasSize(2);
+    assertThat(rows()).hasSize(1); // replaced, not added
+  }
+
+  @Test
+  void aCachedDateAnswersWithoutWaitingForTheSlowVideoSearch() throws Exception {
+    stubLeapDay(false);
+    stubVideoLinks(okJson(LINKS).withFixedDelay(1_500)); // slow, but inside media.lookup-deadline
+    stubVideos("generator", okJson(NO_PAGES));
+    stubVideos("titles", okJson(FOOTAGE));
+
+    long start = System.nanoTime();
+    String first = call("2000-02-29");
+    Duration firstTime = Duration.ofNanos(System.nanoTime() - start);
+    start = System.nanoTime();
+    String second = call("2000-02-29");
+    Duration secondTime = Duration.ofNanos(System.nanoTime() - start);
+
+    System.out.println(
+        "M3a4c T5 world section, leap day with a 1.5 s Wikidata video query (stubs): first "
+            + firstTime.toMillis()
+            + " ms, cached second call "
+            + secondTime.toMillis()
+            + " ms");
+    assertThat(firstTime).isGreaterThanOrEqualTo(Duration.ofMillis(1_500));
+    assertThat(secondTime).isLessThan(firstTime);
+    assertThat(second).isEqualTo(first);
+  }
 }
