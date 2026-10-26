@@ -283,3 +283,19 @@
 | 2026-10-25 | test-engineer (Sonnet) | M3a4c T5 완료 기준 표·빠진 시험 10개 추가 (clean check 1971/0 ×3, clean build 1972/0, 회귀 시험 부하 20/20 → 대체안 (b) 미적용, 시간 3.03 s/11.7 s 동일, S1 583/−23) | 완료 | 4fd00fb |
 | 2026-10-25 | code-reviewer (Opus) | M3a4c 리뷰 main...feat/media-search-cache (clean check 1972/0, 필수 0, 권장 5) | 승인 | - |
 | 2026-10-25 | orchestrator | M3a4c PR 열기 (README 19 of 22, M3a4b ✅ PR #24, M3a4c 리뷰 중) | 완료 | - |
+| 2026-10-25 | PM | M3a4c PR #25 머지 (T6 캐시 확인) | 완료 | 28ffb01 |
+| 2026-10-25 | planner (Opus) | M3a5 계획 개정(머지 코드 대조, 작업 11개, 다시 셈 약 830) + 로드맵 — PM 결정 필요: 크기 1, ★ T3 담당 2 | 완료(미커밋) | - |
+| 2026-10-25 | PM | M3a5 계획 승인 — 크기 결정 1 (a) 한 PR, 확인점 T3 뒤 500(멈춤)·T5 뒤 1,000(알림), 결정 2 (b) ★ T3 backend-dev | 결정 | 14f1017, 31e2412 |
+| 2026-10-25 | data-researcher (Sonnet) | M3a5 T0c YouTube 약관·쿼터 문서 다시 확인 (9개 날짜 바뀜, 뜻 바뀐 조항 없음; `error.errors[].reason` 구조는 문서에 없음) | 완료 | b3f6be6 |
+| 2026-10-25 | backend-dev (Sonnet) | M3a5 T1 YouTube 설정·키·웹 origin·TTL 30일 상한 (check 2032/0 ×2, S1 200/−6) — 기존 단언 4개를 새 yml 값에 맞춰 바꿈(약화 없음, T7 허용 목록에 더함) | 완료 | 97ff244 |
+| 2026-10-25 | backend-dev (Opus) | M3a5 T2 YouTube Data API 클라이언트 (check 2056/0 ×2, 누적 S1 413/−6 — 확인점 1 근접) | 완료 | ab060b3 |
+| 2026-10-26 | backend-dev (Sonnet) | M3a5 T3 쿼터 두 버킷 (check 2077/0 1회, 이후 3회 기존 WorldStoryCommonsVideoTest가 T1 YoutubeKeyCheck WARN에 깨짐 — 순서 의존) — 확인점 1: 누적 S1 525/−6 > 500 멈춤, PM 결정 필요 | 완료(막힘) | 876affb |
+| 2026-10-26 | PM | M3a5 확인점 1 결정: 1 (b) 나눔(M3a5 = T0c~T3, T4~T6·T8은 M3a5a `feat/youtube-video-source`, M3 PR 23개), 2 (a) 시험 설정에서 YoutubeKeyCheck 로그 수준을 낮춤, 3 (a) reserve 그대로 | 결정 | - |
+| 2026-10-26 | backend-dev (Sonnet) | M3a5 T1 fix 시험 설정에서 YoutubeKeyCheck 로그 수준 ERROR (check --rerun-tasks 2077/0 ×2, S1 그대로 525/−6) | 완료 | 4cce75d |
+| 2026-10-26 | planner (Sonnet) | M3a5 분할 반영: M3a5 계획을 T0c~T3·T1b·T7로 좁힘, 새 M3a5a 계획(T0·T4·T5·T6·T7·T8, 약 510 — 시작 때 크기·★ T4 결정), 로드맵 23개 (오케스트레이터가 실수로 고쳐 쓴 지난 결정 기록 줄을 되돌림) | 완료 | f55be36 |
+| 2026-10-26 | test-engineer (Sonnet) | M3a5 T7 검증 + M3a4c 리뷰 권장 1 javadoc 이동 (+26 케이스, check --rerun-tasks 2104/0 ×3, 시간 3.03 s/11.7 s 그대로, S1 525/−6) | 완료 | 86a219b |
+| 2026-10-26 | code-reviewer (Opus) | M3a5 리뷰 main...feat/official-channel-video (check 2104/0) — 필수 1: YoutubeTestDefaultsTest가 셸 환경변수까지 막는다고 잘못 주장, 권장 7 | 수정 요청 | - |
+| 2026-10-26 | PM | M3a5 리뷰 선택: server/build.gradle.kts tasks.test에서 YOUTUBE_API_KEY 환경변수를 지움, 이 PR에 넣음 | 결정 | - |
+| 2026-10-26 | backend-dev (Sonnet) | M3a5 리뷰 수정: 필수 1(YoutubeTestDefaultsTest 이름·설명, 공유 컨텍스트), PM 선택 tasks.test에서 YOUTUBE_API_KEY 제거, 권장 2·3 (키를 export한 상태로 check --rerun-tasks 2106/0 ×2, S1 532/−6) | 완료 | 1092495 |
+| 2026-10-26 | code-reviewer (Opus) | M3a5 재리뷰 86a219b..HEAD (재현 29/0, check 2106/0) | 승인 | - |
+| 2026-10-26 | orchestrator | M3a5 PR 열기 (README 20 of 23, M3a4c ✅ PR #25, M3a5 리뷰 중, M3a5a 행) | 완료 | - |
