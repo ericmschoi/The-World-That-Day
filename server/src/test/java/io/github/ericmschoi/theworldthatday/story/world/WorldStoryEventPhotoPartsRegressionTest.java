@@ -151,15 +151,15 @@ class WorldStoryEventPhotoPartsRegressionTest extends WikimediaWireMockTest {
   private static final String VIDEO_TITLE = ".*title=(commons|wikidata) video .*";
 
   /**
-   * The video search's four fixed labels ({@code SparqlWikidataVideoLinks.LABEL}, {@code
-   * ActionApiCommonsVideoClient.DATE_CATEGORY}, {@code CATEGORY} and {@code FILES}), each followed
-   * by {@code cause=}, so the line carries no date, category name, file name or QID.
-   */
-  /**
    * Video requests for the day's three target events: Wikidata, date category, 3 searches, files.
    */
   private static final int MAX_VIDEO_REQUESTS = 6;
 
+  /**
+   * The video search's four fixed labels ({@code SparqlWikidataVideoLinks.LABEL}, {@code
+   * ActionApiCommonsVideoClient.DATE_CATEGORY}, {@code CATEGORY} and {@code FILES}), each followed
+   * by {@code cause=}, so the line carries no date, category name, file name or QID.
+   */
   private static final Pattern VIDEO_WARNING =
       Pattern.compile(
           "Wikimedia call failed: source=\\S+ title=(wikidata video links of \\d+ items"

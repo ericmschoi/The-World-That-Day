@@ -1,0 +1,13 @@
+{
+  "error": {
+    "code": 403,
+    "message": "Synthetic forbidden message.",
+    "errors": [
+      {
+        "message": "Synthetic forbidden message.",
+        "domain": "youtube.common",
+        "reason": "forbidden"
+      }
+    ]
+  }
+}

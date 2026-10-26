@@ -105,7 +105,7 @@ class VideoSearchPropertiesTest {
               assertThat(lookup.lookupDeadline()).isEqualTo(Duration.ofSeconds(3));
               assertThat(lookup.maxYearsApart()).isEqualTo(5);
               MediaProperties media = context.getBean(MediaProperties.class);
-              assertThat(media.allowedVideoEmbedProviders()).isEmpty();
+              assertThat(media.allowedVideoEmbedProviders()).containsExactly("youtube");
               assertThat(media.blocklist()).isEmpty();
               assertThat(media.excludedCredits()).contains("Yonhap", "AP");
             });

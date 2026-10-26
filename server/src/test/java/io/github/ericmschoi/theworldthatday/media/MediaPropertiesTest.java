@@ -33,14 +33,14 @@ class MediaPropertiesTest {
   }
 
   @Test
-  void applicationYmlStartsWithBothListsEmpty() {
+  void applicationYmlAllowsOnlyYoutubeVideoEmbeds() {
     runner
         .withInitializer(new ConfigDataApplicationContextInitializer())
         .run(
             context -> {
               MediaProperties properties = context.getBean(MediaProperties.class);
               assertThat(properties.allowedImageEmbedProviders()).isEmpty();
-              assertThat(properties.allowedVideoEmbedProviders()).isEmpty();
+              assertThat(properties.allowedVideoEmbedProviders()).containsExactly("youtube");
             });
   }
 
