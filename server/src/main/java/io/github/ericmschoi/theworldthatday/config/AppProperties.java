@@ -16,8 +16,9 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
  */
 @ConfigurationProperties("app")
 public record AppProperties(
-    @DefaultValue("../data") String dataDir,
-    @DefaultValue("http://localhost:5173") String webOrigin) {
+    @DefaultValue("../data") String dataDir, @DefaultValue(DEFAULT_WEB_ORIGIN) String webOrigin) {
+
+  static final String DEFAULT_WEB_ORIGIN = "http://localhost:5173";
 
   @ConstructorBinding
   public AppProperties {
@@ -29,7 +30,7 @@ public record AppProperties(
 
   /** The data folder with the default web origin. */
   public AppProperties(String dataDir) {
-    this(dataDir, "http://localhost:5173");
+    this(dataDir, DEFAULT_WEB_ORIGIN);
   }
 
   private static boolean isOrigin(String value) {
@@ -38,7 +39,7 @@ public record AppProperties(
     }
     try {
       URI uri = new URI(value);
-      return ("http".equals(uri.getScheme()) || "https".equals(uri.getScheme()))
+      return ("http".equalsIgnoreCase(uri.getScheme()) || "https".equalsIgnoreCase(uri.getScheme()))
           && uri.getHost() != null
           && uri.getUserInfo() == null
           && (uri.getRawPath() == null || uri.getRawPath().isEmpty())

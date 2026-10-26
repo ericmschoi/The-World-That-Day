@@ -43,6 +43,8 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    // An exported YOUTUBE_API_KEY would override the empty test key (relaxed binding).
+    environment.remove("YOUTUBE_API_KEY")
 }
 
 spotless {

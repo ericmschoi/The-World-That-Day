@@ -5,25 +5,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 import io.github.ericmschoi.theworldthatday.TestcontainersConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.ConfigDataApplicationContextInitializer;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
- * A plain test context can never reach Google: the key is empty and the address is local, even when
- * the root {@code .env} (or the environment) holds {@code YOUTUBE_API_KEY} (plan M3a5 T1 (4)). Same
- * configuration as EffectiveSettingsTest, so the cached context is shared.
+ * A plain test context cannot reach Google: the key is empty and the address is local, even when
+ * the root {@code .env} gives {@code YOUTUBE_API_KEY} as a property value (plan M3a5 T1 (4)). Same
+ * configuration as EffectiveSettingsTest (the app configuration), so the cached context is shared.
+ *
+ * <p>Limit: the Gradle test task removes {@code YOUTUBE_API_KEY} from the test JVM's environment,
+ * so an exported key never reaches these tests. A run outside Gradle (for example from an IDE) can
+ * still pass the variable on; it would bind to {@code youtube.api-key} through relaxed binding and
+ * override the test settings. The API address stays local, so nothing reaches Google even then.
  */
 @SpringBootTest
 @Import(TestcontainersConfiguration.class)
 class YoutubeTestDefaultsTest {
-
-  @Configuration(proxyBeanMethods = false)
-  @EnableConfigurationProperties(YoutubeProperties.class)
-  static class PropertiesOnly {}
 
   @Autowired private YoutubeProperties properties;
 
@@ -35,9 +34,9 @@ class YoutubeTestDefaultsTest {
   }
 
   @Test
-  void anEnvironmentKeyDoesNotReachTheTestSettings() {
+  void aKeyGivenAsAPropertyValueDoesNotReachTheTestSettings() {
     new ApplicationContextRunner()
-        .withUserConfiguration(PropertiesOnly.class)
+        .withUserConfiguration(YoutubePropertiesTest.PropertiesOnly.class)
         .withInitializer(new ConfigDataApplicationContextInitializer())
         .withPropertyValues("YOUTUBE_API_KEY=" + YoutubePropertiesTest.FAKE_KEY)
         .run(
@@ -53,7 +52,7 @@ class YoutubeTestDefaultsTest {
   @Test
   void theMainApplicationYmlAloneReadsTheEnvironmentKey() {
     new ApplicationContextRunner()
-        .withUserConfiguration(PropertiesOnly.class)
+        .withUserConfiguration(YoutubePropertiesTest.PropertiesOnly.class)
         .withInitializer(new ConfigDataApplicationContextInitializer())
         .withPropertyValues(
             "spring.config.location=classpath:/application.yml",

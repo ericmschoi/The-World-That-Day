@@ -3,7 +3,11 @@ package io.github.ericmschoi.theworldthatday.media.youtube;
 import java.util.List;
 import tools.jackson.databind.JsonNode;
 
-/** The YouTube Data API calls the official channel video source uses (plan M3a5 T2). */
+/**
+ * The YouTube Data API calls the official channel video source uses (plan M3a5 T2). Calling while
+ * YouTube is disabled (empty key) throws {@link IllegalStateException}; callers check {@link
+ * YoutubeProperties#enabled()} first.
+ */
 public interface YoutubeClient {
 
   /** The most IDs one {@link #videos} call takes; the caller splits longer lists. */
@@ -18,7 +22,7 @@ public interface YoutubeClient {
    */
   Response<List<JsonNode>> videos(List<String> ids);
 
-  /** Outcome of one call. Failures are values, never exceptions. */
+  /** Outcome of one call. Call failures are values, never exceptions. */
   sealed interface Response<T> {
 
     record Ok<T>(T value) implements Response<T> {}

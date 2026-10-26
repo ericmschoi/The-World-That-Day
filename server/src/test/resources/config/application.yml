@@ -9,7 +9,11 @@ wikimedia:
   wikidata-sparql-url: http://localhost:9/sparql
   commons-api-url: http://localhost:9/commons/w/api.php
 # YouTube is off in tests whatever the root .env holds, and its address is local, so no test can
-# reach Google (plan M3a5 T1). Tests that talk to WireMock set their own key and address.
+# reach Google (plan M3a5 T1). The Gradle test task removes YOUTUBE_API_KEY from the test JVM's
+# environment. Limit: a run outside Gradle (for example from an IDE) can still pass the variable on,
+# and it would override these test settings (relaxed binding); the API address stays local, so
+# nothing reaches Google even then.
+# Tests that talk to WireMock set their own key and address.
 youtube:
   api-key: ""
   api-url: http://localhost:9/youtube/v3

@@ -49,7 +49,9 @@ class AppPropertiesTest {
         "http://localhost:5173",
         "https://example.test",
         "https://example.test:8443",
-        "http://127.0.0.1:3000"
+        "http://127.0.0.1:3000",
+        "HTTP://localhost:5173",
+        "Https://example.test"
       })
   void anOriginStarts(String origin) {
     runner
