@@ -13,3 +13,11 @@ wikimedia:
 youtube:
   api-key: ""
   api-url: http://localhost:9/youtube/v3
+# The empty key above makes YoutubeKeyCheck log its startup WARN in every test context. Tests that
+# count WARN lines (for example "exactly one WARN for a failed Commons call") would also capture
+# that line when they happen to start the shared context, so the order of test classes would
+# decide the result. Only the test log level is lowered; the real app still logs the WARN, and
+# YoutubeKeyCheckTest sets the level back to WARN itself.
+logging:
+  level:
+    io.github.ericmschoi.theworldthatday.media.youtube.YoutubeKeyCheck: ERROR

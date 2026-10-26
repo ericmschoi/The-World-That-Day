@@ -3,6 +3,8 @@ package io.github.ericmschoi.theworldthatday.media.youtube;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import ch.qos.logback.classic.Level;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.LoggerFactory;
@@ -26,6 +28,22 @@ class YoutubeKeyCheckTest {
 
   private final ApplicationContextRunner runner =
       new ApplicationContextRunner().withUserConfiguration(WithCheck.class);
+
+  private final ch.qos.logback.classic.Logger checkLogger =
+      (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(YoutubeKeyCheck.class);
+  private Level levelBefore;
+
+  /** The test yml lowers this logger to ERROR for other tests; this class needs the WARN. */
+  @BeforeEach
+  void showTheWarning() {
+    levelBefore = checkLogger.getLevel();
+    checkLogger.setLevel(Level.WARN);
+  }
+
+  @AfterEach
+  void restoreTheLevel() {
+    checkLogger.setLevel(levelBefore);
+  }
 
   private static int count(String text, String part) {
     return text.split(java.util.regex.Pattern.quote(part), -1).length - 1;
