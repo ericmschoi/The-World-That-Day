@@ -25,6 +25,12 @@ interface EventMediaSearchCacheRepository extends JpaRepository<EventMediaSearch
       @Param("dayPathsOff") boolean dayPathsOff,
       @Param("eventIds") Collection<String> eventIds);
 
+  /** Deletes the rows of {@code source} fetched at or before {@code before}; returns how many. */
+  @Transactional
+  @Modifying
+  @Query("DELETE FROM EventMediaSearchCache c WHERE c.source = :source AND c.fetchedAt <= :before")
+  int deleteFetchedUpTo(@Param("source") String source, @Param("before") Instant before);
+
   /** Inserts the result or replaces the row of the same key, even when two race. */
   @Transactional
   @Modifying

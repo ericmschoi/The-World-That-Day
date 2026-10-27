@@ -39,7 +39,7 @@ flowchart LR
 | M0 Data source research | Verify sources for place search, aerial photos, maps and street view, archive media, and day-of events | ✅ Done (PR #1) |
 | M1 Bootstrap | `server/` (Spring Boot + PostgreSQL) and `web/` (React) skeletons, CI, empty result screen | ✅ Done (PR #2, #3) |
 | M1 follow-ups | CI path filter, `.env.example` cleanup, documented commands | ✅ Done (PR #4) |
-| M3 The world that day | Events by exact date for any birth date, event photos and videos, design foundation and shared media card | 🟡 In progress (20 of 23 PRs merged) |
+| M3 The world that day | Events by exact date for any birth date, event photos and videos, design foundation and shared media card | 🟡 In progress (21 of 23 PRs merged) |
 | M2 Place resolution and input | Classify the place as region / neighborhood / spot, pick from candidates, opening line | ⚪ Planned |
 | M4 The neighborhood | Then-and-now aerial photos, street view, neighborhood photos | ⚪ Planned |
 | M5 The city's landmarks | Curated landmarks per region with archive media | ⚪ Planned |
@@ -62,8 +62,8 @@ flowchart LR
 | M3a4 Video search framework and accuracy rules | ✅ Done (PR #23) |
 | M3a4b Commons videos | ✅ Done (PR #24) |
 | M3a4c Shared result cache for video searches | ✅ Done (PR #25) |
-| M3a5 YouTube parts: settings, API client, daily quota (KTV archive) | 🟡 In review |
-| M3a5a YouTube videos in "the world that day" | ⚪ Planned |
+| M3a5 YouTube parts: settings, API client, daily quota (KTV archive) | ✅ Done (PR #26) |
+| M3a5a YouTube videos in "the world that day" | 🟡 In review |
 | M3a5b 대한뉴스 newsreel matching | ⚪ Planned, needs a one-time index |
 | M3b1 Design tokens and media label rules | ✅ Done (PR #6) |
 | M3b1b Shared media card | ✅ Done (PR #7) |

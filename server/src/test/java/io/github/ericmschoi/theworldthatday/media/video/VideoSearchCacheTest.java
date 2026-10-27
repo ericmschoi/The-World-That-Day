@@ -392,7 +392,7 @@ class VideoSearchCacheTest extends WikimediaWireMockTest {
   }
 
   @Test
-  void aFailedWriteKeepsTheAnswerWithOneLinePerSource(CapturedOutput output) {
+  void aFailedWriteKeepsTheAnswerAndSkipsTheOtherSourcesWritesWithOneLine(CapturedOutput output) {
     FakeCacheRepository store = new FakeCacheRepository();
     store.upsertThrows = new DataAccessResourceFailureException("synthetic");
     FakeVideoSource alpha = alpha(Map.of(E1, List.of(C130), E2, List.of()));
@@ -402,15 +402,13 @@ class VideoSearchCacheTest extends WikimediaWireMockTest {
     Videos videos = run(search(cache(store.proxy(), ttl), alpha, beta), TWO, false);
 
     assertThat(store.count("find")).isEqualTo(2);
-    assertThat(store.count("upsert")).isEqualTo(2); // one try per source, not per event
+    assertThat(store.count("upsert")).isEqualTo(1); // one try per lookup: beta is not tried
     assertThat(videos).isEqualTo(run(search(null, alpha, beta), TWO, false));
     assertThat(videos.failed()).isFalse();
     assertThat(cacheLines(output))
         .map(l -> l.substring(l.indexOf("Media search cache")))
         .containsExactly(
             "Media search cache write failed: source=alpha"
-                + " cause=DataAccessResourceFailureException",
-            "Media search cache write failed: source=beta"
                 + " cause=DataAccessResourceFailureException");
     assertThat(output.getAll()).doesNotContain("2000-02-29", E1, E2, "Example test video", "Q999");
   }

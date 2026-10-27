@@ -1,0 +1,144 @@
+{
+  "kind": "youtube#videoListResponse",
+  "etag": "synthetic-etag-videos-1986",
+  "items": [
+    {
+      "kind": "youtube#video",
+      "etag": "synthetic-etag-1986-0",
+      "id": "Abc123xyz_0",
+      "snippet": {
+        "publishedAt": "2020-01-01T03:04:05Z",
+        "channelId": "UCsyntheticChannelId0001",
+        "title": "1986년 서울아시안게임 개막식",
+        "description": "시험용 개막식 영상 설명\n둘째 줄",
+        "thumbnails": {
+          "default": {
+            "url": "https://i.ytimg.com/vi/Abc123xyz_0/default.jpg",
+            "width": 120,
+            "height": 90
+          },
+          "medium": {
+            "url": "https://i.ytimg.com/vi/Abc123xyz_0/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          }
+        },
+        "channelTitle": "KTV 아카이브",
+        "categoryId": "25",
+        "liveBroadcastContent": "none"
+      },
+      "contentDetails": {
+        "duration": "PT1M57S",
+        "dimension": "2d",
+        "definition": "sd",
+        "caption": "false",
+        "licensedContent": false,
+        "contentRating": {},
+        "projection": "rectangular"
+      },
+      "status": {
+        "uploadStatus": "processed",
+        "privacyStatus": "public",
+        "license": "youtube",
+        "embeddable": true,
+        "publicStatsViewable": true,
+        "madeForKids": false
+      },
+      "recordingDetails": {}
+    },
+    {
+      "kind": "youtube#video",
+      "etag": "synthetic-etag-1986-2",
+      "id": "Abc123xyz_2",
+      "snippet": {
+        "publishedAt": "2020-01-03T03:04:05Z",
+        "channelId": "UCsyntheticChannelId0001",
+        "title": "대한뉴스 제 1610호-아시안 게임 준비",
+        "description": "시험용 설명",
+        "thumbnails": {
+          "medium": {
+            "url": "https://i.ytimg.com/vi/Abc123xyz_2/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          }
+        },
+        "channelTitle": "KTV 아카이브",
+        "categoryId": "25",
+        "liveBroadcastContent": "none"
+      },
+      "contentDetails": {
+        "duration": "PT2M10S",
+        "contentRating": {}
+      },
+      "status": {
+        "privacyStatus": "public",
+        "embeddable": true
+      },
+      "recordingDetails": {}
+    },
+    {
+      "kind": "youtube#video",
+      "etag": "synthetic-etag-1986-3",
+      "id": "Abc123xyz_3",
+      "snippet": {
+        "publishedAt": "2020-01-04T03:04:05Z",
+        "channelId": "UCsyntheticChannelId0001",
+        "title": "대한뉴스 제 1610호-아시안 게임 카운트 다운",
+        "description": "시험용 설명",
+        "thumbnails": {
+          "medium": {
+            "url": "https://i.ytimg.com/vi/Abc123xyz_3/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          }
+        },
+        "channelTitle": "KTV 아카이브",
+        "categoryId": "25",
+        "liveBroadcastContent": "none"
+      },
+      "contentDetails": {
+        "duration": "PT1M5S",
+        "contentRating": {}
+      },
+      "status": {
+        "privacyStatus": "public",
+        "embeddable": true
+      },
+      "recordingDetails": {}
+    },
+    {
+      "kind": "youtube#video",
+      "etag": "synthetic-etag-1986-4",
+      "id": "Abc123xyz_4",
+      "snippet": {
+        "publishedAt": "2020-01-05T03:04:05Z",
+        "channelId": "UCsyntheticChannelId0002",
+        "title": "1986년 9월 20일 오늘 #제10회 #아시안게임 #개막",
+        "description": "시험용 회고 설명",
+        "thumbnails": {
+          "medium": {
+            "url": "https://i.ytimg.com/vi/Abc123xyz_4/mqdefault.jpg",
+            "width": 320,
+            "height": 180
+          }
+        },
+        "channelTitle": "시험용 둘째 채널",
+        "categoryId": "25",
+        "liveBroadcastContent": "none"
+      },
+      "contentDetails": {
+        "duration": "PT58S",
+        "contentRating": {}
+      },
+      "status": {
+        "privacyStatus": "public",
+        "embeddable": true
+      },
+      "recordingDetails": {}
+    }
+  ],
+  "pageInfo": {
+    "totalResults": 4,
+    "resultsPerPage": 4
+  }
+}
