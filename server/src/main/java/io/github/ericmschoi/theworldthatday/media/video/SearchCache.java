@@ -48,7 +48,10 @@ public class SearchCache {
 
   final class Session {
 
-    /** Set after a failed read: the lookup's other reads and all its writes are skipped. */
+    /**
+     * Set after a failed read or write: the lookup's other reads and writes, of every source, are
+     * skipped, so a database that is down costs one wait per lookup (plan M3a5a T5 (6)).
+     */
     private boolean down;
 
     /** The fresh, readable answers of {@code source} by event ID; none when it is not cached. */
@@ -99,11 +102,12 @@ public class SearchCache {
         try {
           repository.upsert(source, date, id, dayPathsOff, text.get(), clock.instant());
         } catch (RuntimeException e) {
+          down = true;
           log.warn(
               "Media search cache write failed: source={} cause={}",
               source,
               e.getClass().getSimpleName());
-          return; // one line per source and lookup; the other events are not tried
+          return; // one line per lookup; no other event or source is tried
         }
       }
     }
