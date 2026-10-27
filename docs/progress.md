@@ -308,3 +308,8 @@
 | 2026-10-26 | backend-dev | M3a5a T5 결정 (a) 반영 | 완료, S1 563 | 3b83879 |
 | 2026-10-26 | test-engineer | M3a5a T7 | 완료, 2213/0 (check 2회, 해당 범위 3회) | f9c38ce |
 | 2026-10-26 | code-reviewer | M3a5a 리뷰 | 승인 (필수 0, 권장 4) | f9c38ce |
+| 2026-10-26 | orchestrator | M3a5a PR | PR #27 열림, PM T0 Y5·T8 대기 | 473e3f0 |
+| 2026-10-26 | PM | M3a5a | PR #27 머지 | 124cf31 |
+| 2026-10-26 | frontend-dev | M3a5a T6 | 완료, web 714/0 | 0016f0f |
+| 2026-10-26 | test-engineer | M3a5a T6 | 완료, web 714/0 x2, 빌드 통과 | 0016f0f |
+| 2026-10-26 | code-reviewer | M3a5a T6 리뷰 | 승인 (필수 0, 권장 2) | 0016f0f |
