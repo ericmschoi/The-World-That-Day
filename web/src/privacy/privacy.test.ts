@@ -57,7 +57,7 @@ describe('privacy policy page (T1 (1))', () => {
   // T1 (9): the sources match the merged server (application.yml, M3a3b).
   it('lists the outside sources the server calls now, and the one to come', () => {
     expect(text).toContain(
-      '지금은 한국어 위키백과, Wikidata, Wikimedia Commons(날짜별 사진 분류)이고, YouTube Data API가 더해질 예정입니다.',
+      '지금은 한국어 위키백과, Wikidata, Wikimedia Commons(사진·영상), YouTube Data API(KTV 아카이브 채널 영상 검색)입니다.',
     )
   })
 
@@ -86,7 +86,7 @@ describe('facts the PM decided, word for word (T1 (2))', () => {
   })
 
   it('states the effective date as the merge day, with no other date', () => {
-    expect(text).toContain('시행일: 2026년 10월 16일')
+    expect(text).toContain('시행일: 2026년 10월 27일')
     expect(text).not.toContain('머지하는 날 넣음')
     expect(text.match(/\d{4}\s*년|\d{4}-\d{2}-\d{2}/g)).toEqual(['2026년'])
   })
