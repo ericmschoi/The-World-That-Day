@@ -299,3 +299,12 @@
 | 2026-10-26 | backend-dev (Sonnet) | M3a5 리뷰 수정: 필수 1(YoutubeTestDefaultsTest 이름·설명, 공유 컨텍스트), PM 선택 tasks.test에서 YOUTUBE_API_KEY 제거, 권장 2·3 (키를 export한 상태로 check --rerun-tasks 2106/0 ×2, S1 532/−6) | 완료 | 1092495 |
 | 2026-10-26 | code-reviewer (Opus) | M3a5 재리뷰 86a219b..HEAD (재현 29/0, check 2106/0) | 승인 | - |
 | 2026-10-26 | orchestrator | M3a5 PR 열기 (README 20 of 23, M3a4c ✅ PR #25, M3a5 리뷰 중, M3a5a 행) | 완료 | - |
+| 2026-10-26 | PM | M3a5 PR #26 머지 | 완료 | 40f520d |
+| 2026-10-26 | PM | M3a5a 계획 승인 — 크기 결정 1 (a) 한 PR, 확인점 T4 뒤 300(멈춤)·T5 뒤 650(알림), 결정 2 (b) ★ T4 backend-dev | 결정 | - |
+| 2026-10-26 | backend-dev (Opus) | M3a5a T4 YoutubeVideoMapper 확인·버림 규칙과 레코드 (check --rerun-tasks 2161/0 ×2, 확인점 1: S1 281/−0 ≤ 300) — PM 결정 필요: 계획 T4 (5) 제목 문구, 기존 DEBUG 줄의 영상 ID | 완료(결정 대기) | 478b78d |
+| 2026-10-26 | PM | M3a5a T4 결정: 1 (a) 계획 문구 1986년, 2 (a) 기존 DEBUG 줄 예외·공개 배포 전 fix/ | 결정 | - |
+| 2026-10-26 | backend-dev | M3a5a T5 | 완료 (PM 결정 필요: T5 (6) 캐시 쓰기 실패 처리), S1 557 | 725a614, b4cf0fd |
+| 2026-10-26 | PM | M3a5a T5 결정: (a) 쓰기 한 번 실패하면 down=true, VideoSearchCacheTest 단언 2개 변경 | 결정 | - |
+| 2026-10-26 | backend-dev | M3a5a T5 결정 (a) 반영 | 완료, S1 563 | 3b83879 |
+| 2026-10-26 | test-engineer | M3a5a T7 | 완료, 2213/0 (check 2회, 해당 범위 3회) | f9c38ce |
+| 2026-10-26 | code-reviewer | M3a5a 리뷰 | 승인 (필수 0, 권장 4) | f9c38ce |
