@@ -84,6 +84,37 @@ class PlaceQueryTest {
     assertThat(PlaceQuery.parse("　 광주   서구 풍암동 　").value()).isEqualTo("광주 서구 풍암동");
   }
 
+  /** PM decision 2026-10-27 (A): tabs and line breaks separate words; they are not removed. */
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "서울\t종로구",
+        "서울\n종로구",
+        "서울\r\n종로구",
+        "서울\r종로구",
+        "서울\u000b종로구",
+        "서울\f종로구",
+        "서울\u0085종로구",
+        "서울 \t\r\n \u3000종로구",
+        "\t서울\t\t종로구\r\n"
+      })
+  void tabsAndLineBreaksBecomeOneSpace(String raw) {
+    assertThat(PlaceQuery.parse(raw).value()).isEqualTo("서울 종로구");
+  }
+
+  @Test
+  void otherControlCharactersAreStillRemovedNextToBreaks() {
+    assertThat(PlaceQuery.parse("서울\u0000\t\u0007종로구").value()).isEqualTo("서울 종로구");
+    assertThat(PlaceQuery.parse("서울\u0000\u001f종로구").value()).isEqualTo("서울종로구");
+  }
+
+  @Test
+  void breaksCountAsSpacesForTheLength() {
+    String fifty = "가".repeat(25) + "\r\n" + "가".repeat(24);
+    assertThat(PlaceQuery.parse(fifty).value()).hasSize(50);
+    assertProblem("가".repeat(25) + "\t" + "가".repeat(25), "PLACE_QUERY_TOO_LONG");
+  }
+
   @Test
   void controlCharactersAreRemovedBeforeSpacesAreCollapsed() {
     assertThat(PlaceQuery.parse("서울\u0000역").value()).isEqualTo("서울역");

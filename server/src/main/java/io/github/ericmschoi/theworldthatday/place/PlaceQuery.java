@@ -7,14 +7,19 @@ import org.springframework.http.HttpStatus;
 
 /**
  * The {@code q} query parameter of {@code GET /api/places/resolve} after normalization (plan M2a):
- * NFC, control characters removed, every run of spaces (full-width and other Unicode separators
- * included) made one ASCII space, leading and trailing spaces removed. The result is 1 to {@value
- * #MAX_LENGTH} code points. The value is a user's input: it is never logged, and the error {@code
- * detail} never contains it.
+ * NFC, tabs and line breaks made spaces and other control characters removed, every run of spaces
+ * (full-width and other Unicode separators included) made one ASCII space, leading and trailing
+ * spaces removed. The result is 1 to {@value #MAX_LENGTH} code points. The value is a user's input:
+ * it is never logged, and the error {@code detail} never contains it.
  */
 public record PlaceQuery(String value) {
 
   public static final int MAX_LENGTH = 50;
+
+  /**
+   * The control characters that are Unicode white space: tab, line feed to carriage return, NEL.
+   */
+  private static final Pattern BREAKS = Pattern.compile("[\\t\\n\\x0B\\f\\r\\x{85}]");
 
   private static final Pattern CONTROL = Pattern.compile("\\p{Cc}+");
   private static final Pattern SPACES = Pattern.compile("\\p{Z}+");
@@ -24,6 +29,7 @@ public record PlaceQuery(String value) {
       throw invalid("PLACE_QUERY_REQUIRED", "q is required");
     }
     String value = Normalizer.normalize(raw, Normalizer.Form.NFC);
+    value = BREAKS.matcher(value).replaceAll(" ");
     value = CONTROL.matcher(value).replaceAll("");
     value = SPACES.matcher(value).replaceAll(" ").strip();
     if (value.isEmpty()) {
