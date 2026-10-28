@@ -50,7 +50,7 @@ export const exampleDaehanNews = {
   captured_at: '1988',
   date_precision: 'approx',
   date_relation: { kind: 'approximate', years: 0 },
-  selection: { basis: 'daehan_news', score: 0.9 },
+  selection: { basis: 'daehan_news', score: 90 },
 } satisfies Media
 
 export const exampleYoutubeUndated = {
