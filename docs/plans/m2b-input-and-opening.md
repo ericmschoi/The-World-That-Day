@@ -149,4 +149,6 @@ git diff --numstat main...HEAD -- server web/src web/index.html web/privacy.html
 
 ## PM 결정 필요
 
+- PM 결정 (2026-10-27, 구현 중 질문 — 추천대로): (B) 단언은 그대로 두고 이름이 낡은 시험 3개(`App.test`, `consent.test`, e2e `consent.spec`)의 이름만 바꾼다. (C) 출생 시각을 덜 채우면 지금처럼 "시각 없음"으로 두고, 칸 아래에 시와 분을 모두 넣어야 반영된다는 안내 한 줄을 더한다(오류로 막지 않음). A·D·E는 `docs/plans/m2a-place-resolve.md` (M2a 브랜치).
+
 M2 공통 결정(`docs/plans/m2a-place-resolve.md` "M2 공통") 가운데 이 PR에 걸린 것: **#3**(시작 날짜), **M2-P1**(나누기), **M2-P3**(공유 링크 없음 — 주소 규칙 C1), **M2-P6**(생년월일 입력 모양), **M2-P7**(오프닝과 방침), **M2-P10**(★ T1 `StoryDate` 하한: PM 직접 추천).
