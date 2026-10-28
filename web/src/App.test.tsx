@@ -92,7 +92,9 @@ describe('App', () => {
       .getAllByRole('region')
       .filter((region) => region.id !== 'world')
     expect(others).toHaveLength(4)
-    for (const region of others) {
+    // M2b T4: the opening is filled now; the other three stay placeholders.
+    expect(others[0]).toHaveTextContent('1988년 9월 17일 토요일, 서울')
+    for (const region of others.slice(1)) {
       expect(region).toHaveTextContent('아직 준비 중인 섹션입니다.')
     }
   })

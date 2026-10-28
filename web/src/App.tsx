@@ -5,8 +5,11 @@ import { ConsentProvider } from './consent/ConsentProvider'
 import { InputScreen, type StoryInput } from './screens/InputScreen'
 import { StoryScreen } from './screens/StoryScreen'
 
-// The input stays in memory only: never in the URL or browser storage.
-type Screen = { screen: 'input' } | { screen: 'story'; input: StoryInput }
+// The input stays in memory only: never in the URL or browser storage. Back
+// on the input screen, the last input fills the form again.
+type Screen =
+  | { screen: 'input'; last?: StoryInput }
+  | { screen: 'story'; input: StoryInput }
 
 function App() {
   const [state, setState] = useState<Screen>({ screen: 'input' })
@@ -15,12 +18,13 @@ function App() {
       <main className={styles.main}>
         {state.screen === 'input' ? (
           <InputScreen
+            initial={state.last}
             onSubmit={(input) => setState({ screen: 'story', input })}
           />
         ) : (
           <StoryScreen
-            date={state.input.date}
-            onRestart={() => setState({ screen: 'input' })}
+            {...state.input}
+            onRestart={() => setState({ screen: 'input', last: state.input })}
           />
         )}
       </main>

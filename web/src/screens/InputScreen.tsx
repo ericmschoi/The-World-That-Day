@@ -1,4 +1,4 @@
-import { useId, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import { flushSync } from 'react-dom'
 import { useConsentState } from '../consent/consent'
 import { ConsentNotice } from '../consent/ConsentNotice'
@@ -11,26 +11,43 @@ import styles from './Screen.module.css'
 // What the form hands over. The time is for the opening only (never sent).
 export type StoryInput = { date: string; place: string; time?: string }
 
-type Props = { onSubmit: (input: StoryInput) => void }
+type Props = {
+  // The input shown last, when coming back from the story.
+  initial?: StoryInput
+  onSubmit: (input: StoryInput) => void
+}
 
 type Errors = { date?: DateCode; place?: PlaceCode }
 
 const EMPTY: DateParts = { year: '', month: '', day: '' }
 
+// "1988-09-17" as the select boxes' values ("1988", "9", "17").
+function toParts(date: string): DateParts {
+  const [year, month, day] = date.split('-').map((n) => String(Number(n)))
+  return { year, month, day }
+}
+
 // The input form (plan M2b). Submit is never blocked: it checks every field,
 // puts a message under each wrong one and focuses the first, in DOM order.
 // Before agreeing the button stays focusable (aria-disabled, not disabled).
-export function InputScreen({ onSubmit }: Props) {
+export function InputScreen({ initial, onSubmit }: Props) {
   const { agreed } = useConsentState()
-  const [date, setDate] = useState(EMPTY)
-  const [place, setPlace] = useState('')
-  const [time, setTime] = useState('')
+  const [date, setDate] = useState(initial ? toParts(initial.date) : EMPTY)
+  const [place, setPlace] = useState(initial?.place ?? '')
+  const [time, setTime] = useState(initial?.time ?? '')
   const [errors, setErrors] = useState<Errors>({})
   const [hint, setHint] = useState(false)
   const yearBox = useRef<HTMLSelectElement>(null)
   const placeBox = useRef<HTMLInputElement>(null)
   const checkbox = useRef<HTMLInputElement>(null)
+  const title = useRef<HTMLHeadingElement>(null)
   const id = useId()
+  const back = initial !== undefined
+
+  // Back from the story: start reading at the title again.
+  useEffect(() => {
+    if (back) title.current?.focus()
+  }, [back])
 
   const submit = (event: FormEvent) => {
     event.preventDefault()
@@ -53,7 +70,7 @@ export function InputScreen({ onSubmit }: Props) {
   const placeError = errors.place && PLACE_MESSAGES[errors.place]
   return (
     <>
-      <h1 className={styles.title} tabIndex={-1}>
+      <h1 ref={title} className={styles.title} tabIndex={-1}>
         The World That Day
       </h1>
       <form noValidate autoComplete="off" onSubmit={submit}>

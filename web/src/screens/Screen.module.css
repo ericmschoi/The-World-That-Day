@@ -4,6 +4,13 @@
   line-height: var(--line-height-heading);
 }
 
+.opening {
+  margin: 0;
+  font-size: var(--font-size-display);
+  font-weight: 700;
+  line-height: var(--line-height-heading);
+}
+
 .button {
   min-height: 2.75rem;
   padding: var(--space-2) var(--space-5);
