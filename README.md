@@ -39,6 +39,7 @@ flowchart LR
 | M0 Data source research | Verify sources for place search, aerial photos, maps and street view, archive media, and day-of events | ✅ Done (PR #1) |
 | M1 Bootstrap | `server/` (Spring Boot + PostgreSQL) and `web/` (React) skeletons, CI, empty result screen | ✅ Done (PR #2, #3) |
 | M1 follow-ups | CI path filter, `.env.example` cleanup, documented commands | ✅ Done (PR #4) |
+| M3 follow-ups | CI path filter for curated data, no video IDs in logs, shared Wikipedia error checks, test clean-ups | 🟡 In review |
 | M3 The world that day | Events by exact date for any birth date, event photos and videos, design foundation and shared media card | 🟡 In progress (21 of 23 PRs merged) |
 | M2 Place resolution and input | Classify the place as region / neighborhood / spot, pick from candidates, opening line | ⚪ Planned |
 | M4 The neighborhood | Then-and-now aerial photos, street view, neighborhood photos | ⚪ Planned |

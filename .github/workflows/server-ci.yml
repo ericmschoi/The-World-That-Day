@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - "server/**"
+      - "data/**"
+      - "web/src/media/types.ts"
       - "docker-compose.yml"
       - ".env.example"
       - ".github/workflows/server-ci.yml"
@@ -12,6 +14,8 @@ on:
       - main
     paths:
       - "server/**"
+      - "data/**"
+      - "web/src/media/types.ts"
       - "docker-compose.yml"
       - ".env.example"
       - ".github/workflows/server-ci.yml"

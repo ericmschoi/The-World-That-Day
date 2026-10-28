@@ -84,4 +84,15 @@ public class ActionApiErrorsTest {
     assertThat(ActionApiErrors.isRateLimited(errorWithCode("badvalue"))).isFalse();
     assertThat(ActionApiErrors.isRateLimited(read("{\"error\":{\"info\":\"x\"}}"))).isFalse();
   }
+
+  @Test
+  void hasCodeComparesTheTrimmedOriginalCode() {
+    assertThat(ActionApiErrors.hasCode(errorWithCode("missingtitle"), "missingtitle")).isTrue();
+    assertThat(ActionApiErrors.hasCode(errorWithCode(" missingtitle "), "missingtitle")).isTrue();
+    assertThat(ActionApiErrors.hasCode(errorWithCode("Missingtitle"), "missingtitle")).isFalse();
+    assertThat(ActionApiErrors.hasCode(errorWithCode("badvalue"), "missingtitle")).isFalse();
+    assertThat(ActionApiErrors.hasCode(read("{\"error\":{\"info\":\"x\"}}"), "missingtitle"))
+        .isFalse();
+    assertThat(ActionApiErrors.hasCode(read("{\"batchcomplete\":true}"), "missingtitle")).isFalse();
+  }
 }

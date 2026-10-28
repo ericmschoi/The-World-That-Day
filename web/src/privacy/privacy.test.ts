@@ -54,8 +54,9 @@ describe('privacy policy page (T1 (1))', () => {
     expect(text).toContain(phrase)
   })
 
-  // T1 (9): the sources match the merged server (application.yml, M3a3b).
-  it('lists the outside sources the server calls now, and the one to come', () => {
+  // T1 (9): the sources match the merged server (application.yml, M3a5a,
+  // which includes the YouTube Data API).
+  it('lists the outside sources the server calls now', () => {
     expect(text).toContain(
       '지금은 한국어 위키백과, Wikidata, Wikimedia Commons(사진·영상), YouTube Data API(KTV 아카이브 채널 영상 검색)입니다.',
     )

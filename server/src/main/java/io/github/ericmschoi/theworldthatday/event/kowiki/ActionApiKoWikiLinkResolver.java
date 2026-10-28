@@ -1,5 +1,6 @@
 package io.github.ericmschoi.theworldthatday.event.kowiki;
 
+import io.github.ericmschoi.theworldthatday.wikimedia.ActionApiErrors;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaHttpClient;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaProperties;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaResponse;
@@ -96,12 +97,12 @@ public class ActionApiKoWikiLinkResolver implements KoWikiLinkResolver {
     }
     try {
       JsonNode tree = json.readTree(body);
-      String error = tree.path("error").path("code").asString(null);
-      if (ActionApiKoWikiClient.RATELIMITED.equals(error)) {
+      if (ActionApiErrors.isRateLimited(tree)) {
         http.blockHost(uri);
       }
-      if (error != null || !tree.path("query").isObject()) {
-        return failed(label, error != null ? "api error " + error : "no query");
+      Optional<String> error = ActionApiErrors.cause(tree);
+      if (error.isPresent() || !tree.path("query").isObject()) {
+        return failed(label, error.orElse("no query"));
       }
       return tree.path("query");
     } catch (JacksonException e) {
