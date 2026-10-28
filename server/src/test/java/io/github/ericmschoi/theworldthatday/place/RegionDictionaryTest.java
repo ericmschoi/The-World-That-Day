@@ -163,7 +163,7 @@ class RegionDictionaryTest {
     assertThat(load(write(dataDir, root.toString())).regions()).isEmpty();
   }
 
-  private static ObjectNode region(ObjectNode root, String code) {
+  static ObjectNode region(ObjectNode root, String code) {
     for (JsonNode node : root.path("regions")) {
       if (node.path("code").asString().equals(code)) {
         return (ObjectNode) node;
