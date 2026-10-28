@@ -10,6 +10,8 @@ import unknownLicenseExample from '../../../data/schema/examples/media/valid/exa
 import videoFileExample from '../../../data/schema/examples/media/valid/example-video-file.json'
 import { exampleVideoFile } from '../mocks/fixtures/world/media'
 import * as responses from '../mocks/fixtures/world/responses'
+import * as youtube from '../mocks/fixtures/world/youtube'
+import type { Media } from '../media/types'
 import type { WorldResponse } from './types'
 
 const TOP_KEYS = ['date', 'events', 'day_media', 'notice', 'partial']
@@ -270,5 +272,34 @@ describe('world fixtures: media copied from the M3a3 examples (T1b (7))', () => 
     expect(withoutRelation(media[0])).toEqual(koglExample)
     expect(media[0].date_relation).toEqual({ kind: 'same_day', years: 0 })
     expect(responses.world2002WithMedia.day_media).toEqual([])
+  })
+})
+
+// The server's Selection.score is an int: the sum of the rule table. It is not
+// bounded by 100 (the table can add up to 130), so only integer-ness is checked.
+describe('world fixtures: YouTube media selection score', () => {
+  const isWorld = (value: unknown): value is WorldResponse =>
+    typeof value === 'object' && value !== null && 'events' in value
+  const exported: unknown[] = Object.values(youtube)
+  const media: Media[] = [
+    ...exported.filter((value): value is Media => !isWorld(value)),
+    ...exported
+      .filter(isWorld)
+      .flatMap((world) => [
+        ...world.day_media,
+        ...world.events.flatMap((event) => event.media),
+      ]),
+  ]
+
+  it('has a scored item to check', () => {
+    expect(media.some((item) => item.selection)).toBe(true)
+  })
+
+  it('gives every item that has a selection an integer score', () => {
+    for (const item of media) {
+      if (item.selection) {
+        expect(Number.isInteger(item.selection.score), item.id).toBe(true)
+      }
+    }
   })
 })
