@@ -15,6 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiLinkResolver.Link;
+import io.github.ericmschoi.theworldthatday.wikimedia.ActionApiErrorsTest;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaResponse.Reason;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaResponse.Unavailable;
 import java.time.Duration;
@@ -22,11 +23,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 
 /** Plan M3a1c T1 (5)(6): the pageprops lookup and link title normalization. */
+@ExtendWith(OutputCaptureExtension.class)
 class ActionApiKoWikiLinkResolverTest {
 
   @RegisterExtension
@@ -190,5 +196,41 @@ class ActionApiKoWikiLinkResolverTest {
     wikimedia.resetAll();
     wikimedia.stubFor(get(urlPathEqualTo(PATH)).willReturn(okJson("{\"batchcomplete\":true}")));
     assertThat(parts.resolver.resolve(List.of("대한민국"))).isEmpty();
+  }
+
+  @ParameterizedTest(name = "code [{0}] is not logged")
+  @MethodSource("io.github.ericmschoi.theworldthatday.wikimedia.ActionApiErrorsTest#unsafeCodes")
+  void unsafeErrorCodeNeverShapesTheLogLine(String code, CapturedOutput output) {
+    wikimedia.stubFor(
+        get(urlPathEqualTo(PATH))
+            .willReturn(okJson(ActionApiErrorsTest.errorWithCode(code).toString())));
+
+    assertThat(parts.resolver.resolve(List.of("대한민국"))).isEmpty();
+    assertThat(output.getAll()).contains("title=pageprops of 1 titles cause=api error\n");
+    if (!code.isEmpty()) {
+      assertThat(output.getAll()).doesNotContain(code);
+    }
+  }
+
+  @Test
+  void errorObjectWithoutACodeFailsTheLookupEvenWithAQuery(CapturedOutput output) {
+    wikimedia.stubFor(
+        get(urlPathEqualTo(PATH))
+            .willReturn(okJson("{\"error\":{\"info\":\"x\"},\"query\":{\"pages\":[]}}")));
+
+    assertThat(parts.resolver.resolve(List.of("대한민국"))).isEmpty();
+    assertThat(output.getAll()).contains("title=pageprops of 1 titles cause=api error\n");
+  }
+
+  @Test
+  void ratelimitedLogNamesTheCodeAndBlocksTheHost(CapturedOutput output) {
+    wikimedia.stubFor(
+        get(urlPathEqualTo(PATH))
+            .willReturn(okJson(ActionApiErrorsTest.errorWithCode("ratelimited").toString())));
+
+    assertThat(parts.resolver.resolve(List.of("대한민국"))).isEmpty();
+    assertThat(output.getAll()).contains("cause=api error ratelimited");
+    assertThat(parts.http.get("kowiki", "대한민국", parts.properties.kowikiApiUrl()))
+        .isEqualTo(new Unavailable(Reason.RATE_LIMITED));
   }
 }
