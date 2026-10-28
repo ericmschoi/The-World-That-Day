@@ -5,7 +5,7 @@ import {
   type DateCode,
   type DateParts,
 } from './dateRules'
-import styles from './BirthDateField.module.css'
+import styles from './Form.module.css'
 
 type Props = {
   value: DateParts
@@ -32,14 +32,14 @@ export function BirthDateField({ value, onChange, error, ref }: Props) {
 
   return (
     <fieldset className={styles.field}>
-      <legend className={styles.legend}>생년월일 (필수)</legend>
+      <legend className={styles.label}>생년월일 (필수)</legend>
       <div className={styles.boxes}>
         {boxes.map(({ key, label, options }) => (
           <span key={key} className={styles.box}>
             <select
               ref={key === 'year' ? ref : undefined}
               id={`${id}-${key}`}
-              className={styles.select}
+              className={styles.control}
               value={value[key]}
               aria-invalid={error ? true : undefined}
               aria-describedby={error ? errorId : undefined}

@@ -8,17 +8,25 @@ import { YOUTUBE_TERMS_URL } from '../external/urls'
 import { server } from '../mocks/server'
 import screenCss from '../screens/Screen.module.css?raw'
 import { agree, consentBox, CONSENT_LABEL } from '../test/consent'
+import {
+  fillStory,
+  openStory,
+  submitButton,
+  submitStory,
+} from '../test/storyInput'
 import { CONSENT_HINT, useConsent } from './consent'
 import consentCss from './Consent.module.css?raw'
 import { ConsentNotice } from './ConsentNotice'
 import { ConsentProvider } from './ConsentProvider'
 
-const BUTTONS = [
-  ['1988년 9월 17일로 보기', '1988-09-17'],
-  ['2002년 6월 22일로 보기', '2002-06-22'],
-  ['1995년 3월 15일로 보기', '1995-03-15'],
-  ['표본: 1969년 7월 20일로 보기', '1969-07-20'],
-  ['표본: 1986년 9월 20일로 보기', '1986-09-20'],
+// Demo pairs (product brief 12) and the sample dates of public events with
+// 서울, entered through the form (M2b T3 (4)).
+const INPUTS = [
+  ['1988-09-17', '서울'],
+  ['2002-06-22', '광주 서구 풍암동'],
+  ['1995-03-15', '서울대학교병원'],
+  ['1969-07-20', '서울'],
+  ['1986-09-20', '서울'],
 ] as const
 
 // Every request the app starts, by path and date.
@@ -40,7 +48,8 @@ const buttons = () => screen.getAllByRole('button')
 function expectNotAgreed() {
   expect(consentBox()).not.toBeChecked()
   expect(screen.queryByText(CONSENT_HINT)).toBeNull()
-  expect(buttons()).toHaveLength(5)
+  // M2b T3: the form's submit is the only button.
+  expect(buttons()).toHaveLength(1)
   for (const button of buttons()) {
     expect(button).toHaveAttribute('aria-disabled', 'true')
     expect(button).not.toHaveAttribute('disabled')
@@ -64,34 +73,41 @@ describe('before agreeing (T2 (1)·(2))', () => {
     expectNotAgreed()
   })
 
-  it.each(BUTTONS)('%s does not open the story when clicked', async (label) => {
-    const user = userEvent.setup()
-    render(<App />)
-    await user.click(screen.getByRole('button', { name: label }))
-    expectBlocked()
-  })
+  it.each(INPUTS)(
+    '%s, %s does not open the story when clicked',
+    async (date, place) => {
+      const user = userEvent.setup()
+      render(<App />)
+      await openStory(user, { date, place })
+      expectBlocked()
+    },
+  )
 
-  it.each(BUTTONS)('%s does not open the story with Enter', async (label) => {
-    const user = userEvent.setup()
-    render(<App />)
-    screen.getByRole('button', { name: label }).focus()
-    await user.keyboard('{Enter}')
-    expectBlocked()
-  })
+  it.each(INPUTS)(
+    '%s, %s does not open the story with Enter',
+    async (date, place) => {
+      const user = userEvent.setup()
+      render(<App />)
+      await fillStory(user, { date, place })
+      submitButton().focus()
+      await user.keyboard('{Enter}')
+      expectBlocked()
+    },
+  )
 })
 
 describe('after agreeing (T2 (3)·(4))', () => {
-  it.each(BUTTONS)('%s opens the story for %s', async (label, date) => {
+  it.each(INPUTS)('%s, %s opens the story', async (date, place) => {
     const user = userEvent.setup()
     render(<App />)
-    await user.click(screen.getByRole('button', { name: label }))
+    await openStory(user, { date, place })
     await agree(user)
     expect(screen.queryByText(CONSENT_HINT)).toBeNull()
     expect(consentBox()).not.toHaveAccessibleDescription()
     for (const button of buttons()) {
       expect(button).not.toHaveAttribute('aria-disabled')
     }
-    await user.click(screen.getByRole('button', { name: label }))
+    await submitStory(user)
     expect(screen.getAllByRole('region')).toHaveLength(5)
     expect(asked).toEqual([`/api/story/world?${date}`])
   })
@@ -99,7 +115,7 @@ describe('after agreeing (T2 (3)·(4))', () => {
   it('goes back to the first state when unchecked', async () => {
     const user = userEvent.setup()
     render(<App />)
-    await user.click(buttons()[0])
+    await openStory(user, { date: '1988-09-17', place: '서울' })
     await agree(user)
     await user.click(consentBox())
     expectNotAgreed()
@@ -109,11 +125,11 @@ describe('after agreeing (T2 (3)·(4))', () => {
     const user = userEvent.setup()
     render(<App />)
     await agree(user)
-    await user.click(buttons()[0])
+    await openStory(user, { date: '1988-09-17', place: '서울' })
     await screen.findByRole('list', { name: '사건 목록' })
     await user.click(screen.getByRole('button', { name: '처음으로' }))
     expect(consentBox()).toBeChecked()
-    await user.click(buttons()[2])
+    await openStory(user, { date: '1995-03-15', place: '서울대학교병원' })
     expect(screen.getAllByRole('region')).toHaveLength(5)
   })
 })
@@ -178,7 +194,7 @@ describe('nothing kept in the browser (T2 (7))', () => {
     const user = userEvent.setup()
     render(<App />)
     await agree(user)
-    await user.click(buttons()[0])
+    await openStory(user, { date: '1988-09-17', place: '서울' })
     await screen.findByRole('list', { name: '사건 목록' })
     expect(localStorage.length).toBe(0)
     expect(sessionStorage.length).toBe(0)

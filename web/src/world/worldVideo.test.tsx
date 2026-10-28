@@ -14,6 +14,7 @@ import { http, HttpResponse } from 'msw'
 import { describe, expect, it } from 'vitest'
 import App from '../App'
 import { agree } from '../test/consent'
+import { openStory } from '../test/storyInput'
 import { sdkRoadview, videoEmbed } from '../mocks/fixtures/media/modes'
 import { exampleVideoFile } from '../mocks/fixtures/world/media'
 import {
@@ -223,9 +224,9 @@ describe('no video where none was sent (T3 (5))', () => {
 
 describe('sample date buttons (T3 (6))', () => {
   it.each([
-    ['표본: 1969년 7월 20일로 보기', '1969-07-20'],
-    ['표본: 1986년 9월 20일로 보기', '1986-09-20'],
-  ])('%s asks the world API for %s', async (label, date) => {
+    ['표본: 1969년 7월 20일, 서울', '1969-07-20'],
+    ['표본: 1986년 9월 20일, 서울', '1986-09-20'],
+  ])('%s asks the world API for %s', async (_label, date) => {
     const asked: (string | null)[] = []
     server.use(
       http.get('/api/story/world', ({ request }) => {
@@ -236,7 +237,7 @@ describe('sample date buttons (T3 (6))', () => {
     const user = userEvent.setup()
     render(<App />)
     await agree(user)
-    await user.click(screen.getByRole('button', { name: label }))
+    await openStory(user, { date, place: '서울' })
     await screen.findByText('이 날짜에 기록된 큰 사건을 찾지 못했습니다.')
     expect(asked).toEqual([date])
     expect(screen.getAllByRole('region')).toHaveLength(5)

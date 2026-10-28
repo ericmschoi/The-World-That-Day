@@ -4,7 +4,7 @@
 // paints nothing over it, so the page behind body is the token colour too.
 import { expect, test } from '@playwright/test'
 import { world1988WithMedia } from '../src/mocks/fixtures/world/responses'
-import { interceptNetwork, openDemo, tokenColor } from './network'
+import { interceptNetwork, openStory, tokenColor } from './network'
 
 const TRANSPARENT = 'rgba(0, 0, 0, 0)'
 
@@ -13,7 +13,7 @@ test('the page shows --color-bg: html holds it, body paints nothing over it', as
   page,
 }) => {
   const outside = await interceptNetwork(context, world1988WithMedia)
-  await openDemo(page, '1988년 9월 17일로 보기')
+  await openStory(page, { date: '1988-09-17', place: '서울' })
 
   const background = (selector: string) =>
     page

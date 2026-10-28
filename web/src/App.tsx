@@ -2,13 +2,12 @@ import { useState } from 'react'
 import styles from './App.module.css'
 import { SiteFooter } from './components/SiteFooter'
 import { ConsentProvider } from './consent/ConsentProvider'
-import { InputScreen } from './screens/InputScreen'
+import { InputScreen, type StoryInput } from './screens/InputScreen'
 import { StoryScreen } from './screens/StoryScreen'
 
-// The date stays in memory only: never in the URL or browser storage.
-type Screen = { screen: 'input' } | { screen: 'story'; date: string }
+// The input stays in memory only: never in the URL or browser storage.
+type Screen = { screen: 'input' } | { screen: 'story'; input: StoryInput }
 
-// Temporary screen switch; M2b replaces it with the real input flow.
 function App() {
   const [state, setState] = useState<Screen>({ screen: 'input' })
   return (
@@ -16,11 +15,11 @@ function App() {
       <main className={styles.main}>
         {state.screen === 'input' ? (
           <InputScreen
-            onShowStory={(date) => setState({ screen: 'story', date })}
+            onSubmit={(input) => setState({ screen: 'story', input })}
           />
         ) : (
           <StoryScreen
-            date={state.date}
+            date={state.input.date}
             onRestart={() => setState({ screen: 'input' })}
           />
         )}

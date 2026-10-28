@@ -5,18 +5,21 @@
 import { expect, test, type Page } from '@playwright/test'
 import { CONTACT_ISSUES_URL } from '../src/external/urls'
 import { world1988 } from '../src/mocks/fixtures/world/responses'
-import { interceptNetwork, openDemo, tokenColor } from './network'
+import { fillStory, interceptNetwork, openStory, tokenColor } from './network'
 
-const DEMO_1988 = '1988년 9월 17일로 보기'
+const DEMO_1988 = { date: '1988-09-17', place: '서울' }
 const CONSENT_LABEL = '개인정보처리방침에 동의합니다 (필수)'
 const CONSENT_HINT = '개인정보처리방침에 동의해야 볼 수 있습니다.'
-const BUTTONS = [
+// Demo pairs (product brief 12) and sample dates of public events with
+// 서울, entered through the form (M2b T3 (4)).
+const INPUTS = [
   DEMO_1988,
-  '2002년 6월 22일로 보기',
-  '1995년 3월 15일로 보기',
-  '표본: 1969년 7월 20일로 보기',
-  '표본: 1986년 9월 20일로 보기',
+  { date: '2002-06-22', place: '광주 서구 풍암동' },
+  { date: '1995-03-15', place: '서울대학교병원' },
+  { date: '1969-07-20', place: '서울' },
+  { date: '1986-09-20', place: '서울' },
 ]
+const SUBMIT = '그날 보기'
 const LOCAL = new Set(['localhost', '127.0.0.1'])
 
 const consentBox = (page: Page) =>
@@ -66,17 +69,16 @@ test.describe('before agreeing', () => {
   }) => {
     await page.goto('/')
     await expect(consentBox(page)).not.toBeChecked()
-    for (const label of BUTTONS) {
-      await expect(page.getByRole('button', { name: label })).toHaveAttribute(
-        'aria-disabled',
-        'true',
-      )
-    }
+    await expect(page.getByRole('button', { name: SUBMIT })).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    )
+    await fillStory(page, DEMO_1988)
 
     // Playwright waits for aria-disabled elements to become enabled; a
     // reader can still press the button, so the click is forced (a real
     // mouse click at the button, only the wait is skipped).
-    await page.getByRole('button', { name: DEMO_1988 }).click({ force: true })
+    await page.getByRole('button', { name: SUBMIT }).click({ force: true })
     await expect(page.getByText(CONSENT_HINT)).toBeVisible()
     await expect(consentBox(page)).toBeFocused()
     await expect(consentBox(page)).toHaveAccessibleDescription(CONSENT_HINT)
@@ -88,7 +90,8 @@ test.describe('before agreeing', () => {
 
   test('(a) Enter on a focused button does the same', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('button', { name: BUTTONS[4] }).focus()
+    await fillStory(page, INPUTS[4])
+    await page.getByRole('button', { name: SUBMIT }).focus()
     await page.keyboard.press('Enter')
     await expect(page.getByText(CONSENT_HINT)).toBeVisible()
     await expect(consentBox(page)).toBeFocused()
@@ -102,24 +105,31 @@ test.describe('before agreeing', () => {
   }) => {
     await page.goto('/')
     const order: string[] = []
-    for (let i = 0; i < 9; i++) {
+    // M2b T3: the form fields come first. Tab may step through the time
+    // box's parts, so a repeat of the same element is folded.
+    while (order.at(-1) !== 'a:개인정보처리방침 (새 창에서 열림)') {
+      if (order.length > 20) throw new Error(order.join(', '))
       await page.keyboard.press('Tab')
-      order.push(
-        await page.evaluate(() => {
-          const el = document.activeElement as HTMLElement
-          const name =
-            el instanceof HTMLInputElement
-              ? (el.labels?.[0]?.textContent ?? '')
-              : (el.textContent ?? '')
-          return `${el.tagName.toLowerCase()}:${name.replace(/\s+/g, ' ').trim()}`
-        }),
-      )
+      const now = await page.evaluate(() => {
+        const el = document.activeElement as HTMLElement
+        const name =
+          el instanceof HTMLInputElement || el instanceof HTMLSelectElement
+            ? (el.labels?.[0]?.textContent ?? '')
+            : (el.textContent ?? '')
+        return `${el.tagName.toLowerCase()}:${name.replace(/\s+/g, ' ').trim()}`
+      })
+      if (now !== order.at(-1)) order.push(now)
     }
     expect(order).toEqual([
+      'select:년',
+      'select:월',
+      'select:일',
+      'input:태어난 장소 (필수)',
+      'input:출생 시각 (선택)',
       `input:${CONSENT_LABEL}`,
       'a:개인정보처리방침 보기 (새 창에서 열림)',
       'a:YouTube 이용약관 (새 창에서 열림)',
-      ...BUTTONS.map((label) => `button:${label}`),
+      `button:${SUBMIT}`,
       'a:개인정보처리방침 (새 창에서 열림)',
     ])
   })
@@ -129,10 +139,12 @@ test('(b) after agreeing the button opens the story', async ({ page }) => {
   await page.goto('/')
   await consentBox(page).check()
   await expect(page.getByText(CONSENT_HINT)).toHaveCount(0)
-  await expect(
-    page.getByRole('button', { name: DEMO_1988 }),
-  ).not.toHaveAttribute('aria-disabled', 'true')
-  await page.getByRole('button', { name: DEMO_1988 }).click()
+  await expect(page.getByRole('button', { name: SUBMIT })).not.toHaveAttribute(
+    'aria-disabled',
+    'true',
+  )
+  await fillStory(page, DEMO_1988)
+  await page.getByRole('button', { name: SUBMIT }).click()
   await expect(
     world(page).getByRole('list', { name: '사건 목록' }).getByRole('listitem'),
   ).toHaveCount(3)
@@ -213,7 +225,7 @@ test.describe('(c) the footer link opens the policy in a new tab', () => {
   })
 
   test('from the result screen, which stays open', async ({ page }) => {
-    await openDemo(page, DEMO_1988)
+    await openStory(page, DEMO_1988)
     const policy = await openPolicyFrom(page)
     await expectPolicy(policy, page)
     await expect(
@@ -227,28 +239,27 @@ test.describe('(c) the footer link opens the policy in a new tab', () => {
 test('(d) the agreement survives 처음으로 and not a reload', async ({
   page,
 }) => {
-  await openDemo(page, DEMO_1988)
+  await openStory(page, DEMO_1988)
   await page.getByRole('button', { name: '처음으로' }).click()
   await expect(consentBox(page)).toBeChecked()
-  await page.getByRole('button', { name: BUTTONS[1] }).click()
+  await fillStory(page, INPUTS[1])
+  await page.getByRole('button', { name: SUBMIT }).click()
   await expect(world(page)).toBeVisible()
   await expect.poll(askedDates).toEqual(['1988-09-17', '2002-06-22'])
 
   await page.reload()
   await expect(consentBox(page)).not.toBeChecked()
-  for (const label of BUTTONS) {
-    await expect(page.getByRole('button', { name: label })).toHaveAttribute(
-      'aria-disabled',
-      'true',
-    )
-  }
+  await expect(page.getByRole('button', { name: SUBMIT })).toHaveAttribute(
+    'aria-disabled',
+    'true',
+  )
 })
 
 test('(e) nothing is kept in the browser after agreeing and the story', async ({
   context,
   page,
 }) => {
-  await openDemo(page, DEMO_1988)
+  await openStory(page, DEMO_1988)
   const kept = await page.evaluate(() => ({
     local: localStorage.length,
     session: sessionStorage.length,

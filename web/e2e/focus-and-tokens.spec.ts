@@ -6,9 +6,9 @@ import {
   world1988WithMedia,
   worldWithTragic,
 } from '../src/mocks/fixtures/world/responses'
-import { interceptNetwork, openDemo, tokenColor } from './network'
+import { interceptNetwork, openStory, tokenColor } from './network'
 
-const DEMO_1988 = '1988년 9월 17일로 보기'
+const DEMO_1988 = { date: '1988-09-17', place: '서울' }
 
 const outline = (link: Locator) =>
   link.evaluate((element) => {
@@ -45,7 +45,7 @@ test.describe('1988-09-17 with media', () => {
 
   test.beforeEach(async ({ context, page }) => {
     outside = await interceptNetwork(context, world1988WithMedia)
-    await openDemo(page, DEMO_1988)
+    await openStory(page, DEMO_1988)
   })
 
   test.afterEach(() => {
@@ -114,7 +114,7 @@ test.describe('a day with a tragic event (synthetic)', () => {
 
   test.beforeEach(async ({ context, page }) => {
     outside = await interceptNetwork(context, worldWithTragic)
-    await openDemo(page, DEMO_1988)
+    await openStory(page, DEMO_1988)
   })
 
   test.afterEach(() => {

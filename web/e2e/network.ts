@@ -50,14 +50,28 @@ export async function interceptNetwork(
   return outside
 }
 
-// From the input screen to the story: agree to the privacy policy
-// (M3b3b), then a demo date button.
-export async function openDemo(page: Page, label: string) {
+// The input form's values: a demo pair (product brief 12), or a sample date
+// of a public event with 서울.
+export type StoryInput = { date: string; place: string }
+
+// Fills the input form on the current page, without agreeing or submitting.
+export async function fillStory(page: Page, { date, place }: StoryInput) {
+  const [year, month, day] = date.split('-').map((part) => String(Number(part)))
+  await page.getByRole('combobox', { name: '년' }).selectOption(year)
+  await page.getByRole('combobox', { name: '월' }).selectOption(month)
+  await page.getByRole('combobox', { name: '일' }).selectOption(day)
+  await page.getByRole('textbox', { name: '태어난 장소 (필수)' }).fill(place)
+}
+
+// From the input screen to the story: the form (M2b), the privacy consent
+// (M3b3b), then 그날 보기.
+export async function openStory(page: Page, input: StoryInput) {
   await page.goto('/')
+  await fillStory(page, input)
   await page
     .getByRole('checkbox', { name: '개인정보처리방침에 동의합니다 (필수)' })
     .check()
-  await page.getByRole('button', { name: label }).click()
+  await page.getByRole('button', { name: '그날 보기' }).click()
   await page
     .getByRole('region', { name: '그날의 세계' })
     .and(page.locator(':not([aria-busy])'))

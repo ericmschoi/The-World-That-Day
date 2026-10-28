@@ -25,7 +25,7 @@ import {
   exampleYoutubeUndated,
   world1988WithYoutube,
 } from '../src/mocks/fixtures/world/youtube'
-import { interceptNetwork, openDemo } from './network'
+import { fillStory, interceptNetwork, openStory } from './network'
 import {
   installFakeYT,
   ytCount,
@@ -43,7 +43,7 @@ import {
   type FakeOptions,
 } from './youtubeFake'
 
-const DEMO_1988 = '1988년 9월 17일로 보기'
+const DEMO_1988 = { date: '1988-09-17', place: '서울' }
 const CONSENT_LABEL = '개인정보처리방침에 동의합니다 (필수)'
 const EVENT_1 = '「1988년 하계 올림픽」 관련 자료'
 const EVENT_2 = '「KBS 1TV」 관련 자료'
@@ -208,7 +208,7 @@ async function open(
 ) {
   if (options) await page.addInitScript(installFakeYT, options)
   outside = await interceptNetwork(context, story, { videos: 'hold' })
-  await openDemo(page, DEMO_1988)
+  await openStory(page, DEMO_1988)
   await expect(page.locator('iframe')).toHaveCount(
     story === world1988WithYoutube ? 2 : 1,
   )
@@ -668,16 +668,24 @@ test.describe('without the fake (decision 1 (a))', () => {
 // Demo table rows 2002-06-22 and 1995-03-15, without the fake: a story with
 // no YouTube record never loads the API script.
 test.describe('days without YouTube', () => {
-  for (const [label, story] of [
-    ['2002년 6월 22일로 보기', world2002WithMedia],
-    ['1995년 3월 15일로 보기', world1995],
+  for (const [label, story, input] of [
+    [
+      '2002년 6월 22일, 광주 서구 풍암동',
+      world2002WithMedia,
+      { date: '2002-06-22', place: '광주 서구 풍암동' },
+    ],
+    [
+      '1995년 3월 15일, 서울대학교병원',
+      world1995,
+      { date: '1995-03-15', place: '서울대학교병원' },
+    ],
   ] as const) {
     test(`${label}: no iframe, no API script, no YouTube request`, async ({
       context,
       page,
     }) => {
       outside = await interceptNetwork(context, story)
-      await openDemo(page, label)
+      await openStory(page, input)
       await page.waitForTimeout(300)
       await expect(page.locator('iframe')).toHaveCount(0)
       await expect(page.locator('script[src*="iframe_api"]')).toHaveCount(0)
@@ -700,7 +708,8 @@ test.describe('before consent (plan T4 (3), 10.1 #23)', () => {
     await expect(
       page.getByRole('checkbox', { name: CONSENT_LABEL }),
     ).not.toBeChecked()
-    await page.getByRole('button', { name: DEMO_1988 }).click({ force: true })
+    await fillStory(page, DEMO_1988)
+    await page.getByRole('button', { name: '그날 보기' }).click({ force: true })
     await page.waitForTimeout(500)
     await expect(world(page)).toHaveCount(0)
     await expect(page.locator('iframe')).toHaveCount(0)

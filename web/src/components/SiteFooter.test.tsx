@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import App from '../App'
 import { agree } from '../test/consent'
+import { openStory } from '../test/storyInput'
 
 // Plan M3b3b T1 (6): one footer outside <main> on both screens, holding only
 // the privacy policy link.
@@ -25,9 +26,7 @@ describe('SiteFooter', () => {
     expectFooter()
 
     await agree(user)
-    await user.click(
-      screen.getByRole('button', { name: '1988년 9월 17일로 보기' }),
-    )
+    await openStory(user, { date: '1988-09-17', place: '서울' })
     await screen.findByRole('list', { name: '사건 목록' })
     expectFooter()
   })
