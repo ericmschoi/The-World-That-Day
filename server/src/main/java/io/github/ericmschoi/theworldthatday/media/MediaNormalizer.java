@@ -38,6 +38,8 @@ public class MediaNormalizer {
   private static final Pattern DATE_TIME =
       Pattern.compile("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:[0-5]\\dZ");
 
+  private static final Pattern SOURCE_PREFIX = Pattern.compile("[a-z0-9]{1,16}");
+
   private static final Pattern VIDEO_MIME = Pattern.compile("video/[a-z0-9.+-]+");
 
   private final MediaProperties properties;
@@ -51,14 +53,28 @@ public class MediaNormalizer {
     Objects.requireNonNull(requested, "requested");
     String broken = brokenRule(record);
     if (broken != null) {
-      // The ID names the source item only; no date or place is logged.
-      log.debug("Media dropped: id={} rule={}", record.id(), broken);
+      // Only the source prefix and the rule: no item ID (a video ID), date, place or title.
+      log.debug("Media dropped: source={} rule={}", sourcePrefix(record.id()), broken);
       return Optional.empty();
     }
     MediaRecord kept = isUrl(record.licenseUrl()) ? record : record.withLicenseUrl(null);
     return Optional.of(
         new MediaItem(
             kept, DateRelation.of(record.capturedAt(), record.datePrecision(), requested)));
+  }
+
+  /**
+   * The part of {@code id} before the first {@code -} when it is 1 to 16 of {@code [a-z0-9]}
+   * ({@code youtube-Abc} gives {@code youtube}), else {@code unknown}. The ID itself may be
+   * remote-controlled, so nothing else of it reaches a log line.
+   */
+  static String sourcePrefix(String id) {
+    int dash = id == null ? -1 : id.indexOf('-');
+    if (dash < 0) {
+      return "unknown";
+    }
+    String prefix = id.substring(0, dash);
+    return SOURCE_PREFIX.matcher(prefix).matches() ? prefix : "unknown";
   }
 
   /** The first rule {@code r} breaks, or {@code null} when it passes. */
