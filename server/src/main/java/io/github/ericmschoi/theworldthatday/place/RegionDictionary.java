@@ -114,6 +114,16 @@ public class RegionDictionary {
     return Optional.ofNullable(byCode.get(code));
   }
 
+  /** The province and, for a city district, the city of {@code region}, top-down. */
+  public List<Region> ancestors(Region region) {
+    List<Region> ancestors = new ArrayList<>();
+    for (Region at = region; at.parentCode().isPresent(); ) {
+      at = byCode.get(at.parentCode().get());
+      ancestors.addFirst(at);
+    }
+    return ancestors;
+  }
+
   /** Empty only when the file is missing. */
   public Optional<Source> source() {
     return source;

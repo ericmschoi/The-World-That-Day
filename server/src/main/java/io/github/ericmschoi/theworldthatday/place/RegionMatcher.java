@@ -53,7 +53,7 @@ public class RegionMatcher {
    * Whether every word names an ancestor, the words in top-down order (ancestors may be left out).
    */
   private boolean ancestorsMatch(Region region, List<String> words) {
-    List<Region> ancestors = ancestors(region);
+    List<Region> ancestors = dictionary.ancestors(region);
     int next = 0;
     for (String word : words) {
       while (next < ancestors.size()
@@ -66,17 +66,6 @@ public class RegionMatcher {
       next++;
     }
     return true;
-  }
-
-  /** The region's province and city, top-down. */
-  private List<Region> ancestors(Region region) {
-    List<Region> ancestors = new ArrayList<>();
-    Region current = region;
-    while (current.parentCode().isPresent()) {
-      current = dictionary.byCode(current.parentCode().get()).orElseThrow();
-      ancestors.addFirst(current);
-    }
-    return ancestors;
   }
 
   /**
