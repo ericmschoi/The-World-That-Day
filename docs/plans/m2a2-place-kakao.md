@@ -114,6 +114,6 @@ git diff -U0 main...HEAD -- server/src/test web/src | grep -E '^-[[:space:]]*@(T
 
 ## PM 결정 필요
 
-- PM 결정 (2026-10-27) (D): M2a 확인점 2를 넘으면 M2a T5(Spring 기본 응답 `code`, 약 60줄)가 이 PR로 온다 — T0b 뒤 계획 갱신 때 작업 목록에 넣는다.
+- PM 결정 (2026-10-27) (D): M2a 확인점 2를 넘으면 M2a T5(Spring 기본 응답 `code`, 약 60줄)가 이 PR로 온다 — T0b 뒤 계획 갱신 때 작업 목록에 넣는다. **결과: M2a T4 뒤 누적 S1 585 > 450 → T5는 이 PR로 옴.** 계획 갱신 때 함께 볼 것(M2a T4 보고): Spring이 직접 만드는 404·405 등에는 `Cache-Control: no-store` 가 붙지 않는다(계약은 "모든 응답"), `?q=a&q=b` 는 Spring이 쉼표로 이어 하나로 받는다(계약에 없음).
 
 M2 공통 결정(`docs/plans/m2a-place-resolve.md` "M2 공통")의 #2·#11·#26이 이 PR의 전제다. ★ T3(카카오 문서 → 후보 분류: 규칙표를 순수 함수로, 합성 fixture 설계)의 담당은 T0b 뒤 계획 갱신 때 묻는다.
