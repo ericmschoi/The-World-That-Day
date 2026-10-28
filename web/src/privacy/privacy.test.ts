@@ -54,6 +54,23 @@ describe('privacy policy page (T1 (1))', () => {
     expect(text).toContain(phrase)
   })
 
+  // M2b T5 (1)·(2): the birth time, and what the IFrame API script can read.
+  it('says what it takes and that only the date is sent', () => {
+    expect(text).toContain(
+      '이 서비스는 입력한 생년월일(날짜), 태어난 장소, 출생 시각(선택)을 받습니다. 계정, 이름, 연락처는 받지 않습니다. 날짜만 서버로 보내고, 장소와 출생 시각은 지금 화면에 보여 주는 데만 씁니다.',
+    )
+    expect(text).not.toContain('장소 입력이 생긴 뒤부터')
+  })
+
+  it('says the YouTube IFrame API script can read the screen', () => {
+    const section = [...page.querySelectorAll('h2')].find(
+      (h2) => h2.textContent === '다른 곳의 콘텐츠와 광고',
+    )!.nextElementSibling!
+    expect((section.textContent ?? '').replace(/\s+/g, ' ')).toContain(
+      '같은 화면의 YouTube IFrame API 스크립트는 화면에 보이는 내용(입력한 날짜와 장소 포함)을 읽을 수 있습니다.',
+    )
+  })
+
   // T1 (9): the sources match the merged server (application.yml, M3a5a,
   // which includes the YouTube Data API).
   it('lists the outside sources the server calls now', () => {
