@@ -7,12 +7,18 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
-/** .github/workflows/server-ci.yml (plan M1a T4, chore-m1-followups T1). */
+/** .github/workflows/server-ci.yml (plan M1a T4, chore-m1-followups T1, chore-m3-followups T1). */
 class ServerCiWorkflowTest {
 
   private static final String WORKFLOW = ".github/workflows/server-ci.yml";
   private static final List<String> PATHS =
-      List.of("server/**", "docker-compose.yml", ".env.example", ".github/workflows/server-ci.yml");
+      List.of(
+          "server/**",
+          "data/**",
+          "web/src/media/types.ts",
+          "docker-compose.yml",
+          ".env.example",
+          ".github/workflows/server-ci.yml");
 
   private static Map<Object, Object> workflow() {
     return RepositoryFiles.yaml(WORKFLOW);

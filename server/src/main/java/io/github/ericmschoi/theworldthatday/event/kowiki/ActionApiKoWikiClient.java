@@ -1,10 +1,12 @@
 package io.github.ericmschoi.theworldthatday.event.kowiki;
 
+import io.github.ericmschoi.theworldthatday.wikimedia.ActionApiErrors;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaHttpClient;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaProperties;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaResponse;
 import java.net.URI;
 import java.time.Clock;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -26,7 +28,6 @@ public class ActionApiKoWikiClient implements KoWikiClient {
   static final String SOURCE = "kowiki";
   static final String EVENTS = "사건";
   static final String CULTURE = "문화";
-  static final String RATELIMITED = "ratelimited";
 
   private static final Logger log = LoggerFactory.getLogger(ActionApiKoWikiClient.class);
 
@@ -50,13 +51,13 @@ public class ActionApiKoWikiClient implements KoWikiClient {
     if (toc == null) {
       return KoWikiPage.unavailable(title);
     }
-    String error = toc.path("error").path("code").asString(null);
-    if ("missingtitle".equals(error)) {
+    if (ActionApiErrors.hasCode(toc, "missingtitle")) {
       return KoWikiPage.absent(title);
     }
+    Optional<String> error = ActionApiErrors.cause(toc);
     long revid = toc.path("parse").path("revid").asLong(0);
-    if (error != null || revid <= 0) {
-      return failed(title, error != null ? "api error " + error : "no revision");
+    if (error.isPresent() || revid <= 0) {
+      return failed(title, error.orElse("no revision"));
     }
     String eventsIndex = null;
     String cultureIndex = null;
@@ -118,9 +119,9 @@ public class ActionApiKoWikiClient implements KoWikiClient {
     }
     try {
       JsonNode tree = json.readTree(body);
-      if (RATELIMITED.equals(tree.path("error").path("code").asString(null))) {
+      if (ActionApiErrors.isRateLimited(tree)) {
         http.blockHost(uri);
-        failed(title, "api error " + RATELIMITED);
+        failed(title, ActionApiErrors.cause(tree).orElse("api error"));
         return null;
       }
       return tree;

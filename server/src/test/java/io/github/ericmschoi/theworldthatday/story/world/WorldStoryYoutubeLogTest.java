@@ -11,7 +11,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.LoggerFactory;
@@ -23,19 +22,16 @@ import tools.jackson.databind.node.ObjectNode;
 
 /**
  * Plan M3a5a T7 (6): the log of a YouTube lookup, DEBUG included, never holds the key, the search
- * words (the event title), a channel ID, the date or a video ID. One exception was accepted by the
- * PM (T4 decision 2 (a)): the DEBUG line {@code Media dropped: id=youtube-<video ID> rule=R<n>}
- * that {@code MediaNormalizer} writes for an item broken by a media rule. It is the only line with
- * a video ID, and it carries no date, place or title. The flows: a new answer with a broken item,
- * the same answer from the cache, a failed search, a failed videos call, a 403 {@code
- * quotaExceeded} and an unreadable 403. Synthetic 1986-09-20 sample.
+ * words (the event title), a channel ID, the date or a video ID. The one exception of M3a5a T4
+ * decision 2 (a), a DEBUG line with the video ID, is gone (chore-m3-followups T2): {@code
+ * MediaNormalizer} now writes {@code Media dropped: source=youtube rule=R<n>}. The flows: a new
+ * answer with a broken item, the same answer from the cache, a failed search, a failed videos call,
+ * a 403 {@code quotaExceeded} and an unreadable 403. Synthetic 1986-09-20 sample.
  */
 @ExtendWith(OutputCaptureExtension.class)
 class WorldStoryYoutubeLogTest extends YoutubeWorldTest {
 
   private static final ZoneId PACIFIC = ZoneId.of("America/Los_Angeles");
-  private static final Pattern ACCEPTED_ID_LINE =
-      Pattern.compile("Media dropped: id=youtube-Abc123xyz_5 rule=R\\d+$");
 
   private static String searchOf(String... ids) {
     ObjectNode search = JSON.createObjectNode().put("kind", "youtube#searchListResponse");
@@ -67,8 +63,8 @@ class WorldStoryYoutubeLogTest extends YoutubeWorldTest {
   }
 
   @Test
-  void noLogLineHoldsTheKeyTheTitleTheChannelTheDateOrAVideoIdExceptTheAcceptedOne(
-      CapturedOutput output) throws Exception {
+  void noLogLineHoldsTheKeyTheTitleTheChannelTheDateOrAVideoId(CapturedOutput output)
+      throws Exception {
     ch.qos.logback.classic.Logger logger =
         (ch.qos.logback.classic.Logger)
             LoggerFactory.getLogger("io.github.ericmschoi.theworldthatday");
@@ -114,18 +110,13 @@ class WorldStoryYoutubeLogTest extends YoutubeWorldTest {
         .anyMatch(l -> l.contains("YouTube call failed: call=search cause=quotaExceeded"))
         .anyMatch(l -> l.contains("YouTube call failed: call=search cause=status 403"));
 
-    List<String> idLines = lines.stream().filter(l -> l.contains("Abc123xyz")).toList();
-    assertThat(idLines)
-        .as("a video ID appears only in the accepted MediaNormalizer DEBUG line")
-        .isNotEmpty()
-        .allSatisfy(
-            l -> {
-              assertThat(l).contains(" DEBUG ").contains("MediaNormalizer");
-              assertThat(ACCEPTED_ID_LINE.matcher(l).find()).as(l).isTrue();
-            });
+    assertThat(lines)
+        .as("the dropped item is logged by source and rule only, at DEBUG")
+        .anyMatch(
+            l -> l.contains(" DEBUG ") && l.contains("Media dropped: source=youtube rule=R1"));
+    assertThat(lines).as("no line holds a video ID").noneMatch(l -> l.contains("Abc123xyz"));
 
-    String rest = String.join("\n", lines.stream().filter(l -> !l.contains("Abc123xyz")).toList());
-    assertThat(rest)
+    assertThat(String.join("\n", lines))
         .doesNotContain(
             "test-key-not-real",
             "Abc123xyz",

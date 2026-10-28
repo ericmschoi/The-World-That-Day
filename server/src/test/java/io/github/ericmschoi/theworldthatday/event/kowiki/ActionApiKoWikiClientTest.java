@@ -15,6 +15,7 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import io.github.ericmschoi.theworldthatday.MutableClock;
 import io.github.ericmschoi.theworldthatday.config.ClockConfig;
 import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiPage.State;
+import io.github.ericmschoi.theworldthatday.wikimedia.ActionApiErrorsTest;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaHttpClient;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaProperties;
 import java.net.URI;
@@ -24,6 +25,8 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 
@@ -253,5 +256,41 @@ class ActionApiKoWikiClientTest {
     assertThat(client.fetch("9월 17일").state()).isEqualTo(State.UNAVAILABLE);
     assertThat(client.fetch("1988년").state()).isEqualTo(State.UNAVAILABLE);
     assertThat(requests()).extracting(event -> param(event, "section")).containsExactly(null, "1");
+  }
+
+  @ParameterizedTest(name = "code [{0}] is not logged")
+  @MethodSource("io.github.ericmschoi.theworldthatday.wikimedia.ActionApiErrorsTest#unsafeCodes")
+  void unsafeErrorCodeNeverShapesTheLogLine(String code, CapturedOutput output) {
+    wikimedia.stubFor(
+        get(urlPathEqualTo(PATH))
+            .willReturn(okJson(ActionApiErrorsTest.errorWithCode(code).toString())));
+
+    assertThat(client.fetch("9월 17일").state()).isEqualTo(State.UNAVAILABLE);
+    assertThat(output.getAll()).contains("title=9월 17일 cause=api error\n");
+    if (!code.isEmpty()) {
+      assertThat(output.getAll()).doesNotContain(code);
+    }
+    assertThat(requests()).hasSize(1);
+  }
+
+  @Test
+  void errorObjectWithoutACodeIsAFailureEvenWithARevision(CapturedOutput output) {
+    wikimedia.stubFor(
+        get(urlPathEqualTo(PATH))
+            .willReturn(okJson("{\"error\":{\"info\":\"x\"},\"parse\":{\"revid\":5}}")));
+
+    assertThat(client.fetch("9월 17일").state()).isEqualTo(State.UNAVAILABLE);
+    assertThat(output.getAll()).contains("title=9월 17일 cause=api error\n");
+    assertThat(requests()).hasSize(1);
+  }
+
+  @Test
+  void missingTitleLogsNoFailure(CapturedOutput output) {
+    wikimedia.stubFor(
+        get(urlPathEqualTo(PATH))
+            .willReturn(okJson(read("synthetic/synthetic-missingtitle.json"))));
+
+    assertThat(client.fetch("9월 17일").state()).isEqualTo(State.ABSENT);
+    assertThat(output.getAll()).doesNotContain("Wikimedia call failed");
   }
 }

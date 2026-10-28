@@ -318,3 +318,10 @@
 | 2026-10-26 | planner | M3a5b 계획 개정 | 막힘 (PM T0 대기), PM 결정 필요 1~5 | - |
 | 2026-10-27 | PM | M3a5b 개정 재승인: 결정 1 (a), 2 (a), 3 (a), 4 (a) 한 PR·T2 뒤 450 멈춤·T2b 뒤 650 알림, 5 (b) | 결정 | 4bd5787 |
 | 2026-10-27 | frontend-dev | M3a5a T6 시행일 2026년 10월 27일 (머지 당일) | 완료, web 714/0 | 2ad2b34 |
+| 2026-10-27 | PM | M3a5b T0 대기 중 후속 정리 계획: chore/m3-followups | 결정 | - |
+| 2026-10-27 | planner | chore-m3-followups 계획 | 완료, PM 결정 필요 D1~D5 | - |
+| 2026-10-27 | PM | chore-m3-followups 계획 승인: D1 (a), D2 (a), D3 (b), D4 (c), D5 (a) | 결정 | - |
+| 2026-10-27 | frontend-dev | chore T5·T6 | 완료, web 716/0 | db18c35, 1bad99d |
+| 2026-10-27 | backend-dev | chore T1~T4 | 완료, server 2244/0 x2, S1 +44/−17 | 9c86279, 62f7dc0, 695619c, b8468f7 |
+| 2026-10-27 | test-engineer | chore T7·T8 | 완료, server 2244/0 x2, web 716/0, T8 60회 재현 안 됨 | - |
+| 2026-10-27 | code-reviewer | chore-m3-followups 리뷰 | 승인 (필수 0, 권장 3) | 727ad54 |
