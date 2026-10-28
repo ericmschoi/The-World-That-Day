@@ -142,7 +142,7 @@ describe('WorldSection with media (default handler, T2 (2), (6))', () => {
   })
 })
 
-describe('WorldSection with today’s server shape (T2 (3))', () => {
+describe('WorldSection with an answer without media (T2 (3))', () => {
   it('shows three events and no media', async () => {
     answer(world1988)
     render(<WorldSection date="1988-09-17" />)
@@ -176,7 +176,7 @@ describe('WorldSection on a day without events (T2 (4))', () => {
   })
 })
 
-describe('WorldSection leaves tragic events to M3b2b (T2 (5))', () => {
+describe('WorldSection keeps tragic events out of the event list (T2 (5))', () => {
   it('shows the normal event only, with no media for the tragic one', async () => {
     answer(response([eventA, tragicEvent]))
     render(<WorldSection date="1988-09-17" />)
