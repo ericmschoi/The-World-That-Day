@@ -65,7 +65,7 @@ function expectBlocked() {
 }
 
 describe('before agreeing (T2 (1)·(2))', () => {
-  it('starts unchecked and required, with all five buttons aria-disabled', () => {
+  it('starts unchecked and required, with the submit button aria-disabled', () => {
     render(<App />)
     expect(consentBox()).toHaveAccessibleName(CONSENT_LABEL)
     expect(consentBox()).toBeRequired()

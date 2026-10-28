@@ -66,9 +66,7 @@ describe('App', () => {
     await screen.findByRole('list', { name: '사건 목록' })
   })
 
-  // M2b T3 (3): the demo date buttons are gone; the form's submit is the
-  // only button on the input screen.
-  it('offers the three demo dates and no empty-story button', () => {
+  it('offers only the submit button and no empty-story button', () => {
     render(<App />)
 
     expect(

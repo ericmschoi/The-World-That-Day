@@ -45,7 +45,7 @@ describe('InputScreen', () => {
     const time = screen.getByLabelText(TIME_LABEL)
     expect(time).toHaveAttribute('type', 'time')
     expect(time).toHaveAccessibleDescription(
-      '오프닝 문구에만 씁니다. 서버로 보내지 않습니다.',
+      '오프닝 문구에만 씁니다. 서버로 보내지 않습니다. 시와 분을 모두 넣어야 반영됩니다.',
     )
     expect(submitButton()).toHaveAttribute('type', 'submit')
     expect(submitButton()).not.toHaveAttribute('disabled')
@@ -128,6 +128,27 @@ describe('InputScreen', () => {
     await agree(user)
     await fillStory(user, { date: '1988-09-17', place: '서울' })
     await user.type(placeBox(), '{Enter}')
+    expect(onSubmit).toHaveBeenCalledWith({
+      date: '1988-09-17',
+      place: '서울',
+      time: undefined,
+    })
+  })
+
+  // PM decision (C): a half-filled time is "no time", not an error.
+  it('submits a partial time as no time, with the hint on the field', async () => {
+    const { onSubmit, user } = setup()
+    const time = screen.getByLabelText(TIME_LABEL)
+    expect(time).toHaveAccessibleDescription(
+      /시와 분을 모두 넣어야 반영됩니다\.$/,
+    )
+    await agree(user)
+    await fillStory(user, { date: '1988-09-17', place: '서울' })
+    // Hour only: the browser reports an empty value, as here.
+    await user.type(time, '15')
+    expect(time).toHaveValue('')
+    await submitStory(user)
+    expect(time).not.toHaveAttribute('aria-invalid')
     expect(onSubmit).toHaveBeenCalledWith({
       date: '1988-09-17',
       place: '서울',

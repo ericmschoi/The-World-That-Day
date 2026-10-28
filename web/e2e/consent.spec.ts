@@ -100,7 +100,7 @@ test.describe('before agreeing', () => {
     expect(storyRequests).toEqual([])
   })
 
-  test('Tab goes checkbox, policy, terms, the five buttons, footer', async ({
+  test('Tab goes through the fields, checkbox, policy, terms, submit, footer', async ({
     page,
   }) => {
     await page.goto('/')

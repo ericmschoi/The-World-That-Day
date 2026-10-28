@@ -114,11 +114,14 @@ export function InputScreen({ initial, onSubmit }: Props) {
             className={formStyles.control}
             autoComplete="off"
             value={time}
-            aria-describedby={`${id}-time-hint`}
+            aria-describedby={`${id}-time-hint ${id}-time-partial`}
             onChange={(event) => setTime(event.currentTarget.value)}
           />
           <p id={`${id}-time-hint`} className={formStyles.hint}>
             오프닝 문구에만 씁니다. 서버로 보내지 않습니다.
+          </p>
+          <p id={`${id}-time-partial`} className={formStyles.hint}>
+            시와 분을 모두 넣어야 반영됩니다.
           </p>
         </div>
         <ConsentNotice
