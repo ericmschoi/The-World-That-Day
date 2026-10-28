@@ -114,4 +114,6 @@ git diff -U0 main...HEAD -- server/src/test web/src | grep -E '^-[[:space:]]*@(T
 
 ## PM 결정 필요
 
+- PM 결정 (2026-10-27) (D): M2a 확인점 2를 넘으면 M2a T5(Spring 기본 응답 `code`, 약 60줄)가 이 PR로 온다 — T0b 뒤 계획 갱신 때 작업 목록에 넣는다.
+
 M2 공통 결정(`docs/plans/m2a-place-resolve.md` "M2 공통")의 #2·#11·#26이 이 PR의 전제다. ★ T3(카카오 문서 → 후보 분류: 규칙표를 순수 함수로, 합성 fixture 설계)의 담당은 T0b 뒤 계획 갱신 때 묻는다.
