@@ -326,3 +326,5 @@
 | 2026-10-27 | backend-dev | chore T1~T4 | 완료, server 2244/0 x2, S1 +44/−17 | 9c86279, 62f7dc0, 695619c, b8468f7 |
 | 2026-10-27 | test-engineer | chore T7·T8 | 완료, server 2244/0 x2, web 716/0, T8 60회 재현 안 됨 | - |
 | 2026-10-27 | code-reviewer | chore-m3-followups 리뷰 | 승인 (필수 0, 권장 3) | 727ad54 |
+| 2026-10-27 | orchestrator | chore-m3-followups PR | PR #29 열림 | 526ca50 |
+| 2026-10-27 | PM | chore-m3-followups | PR #29 머지 | 49248e9 |
