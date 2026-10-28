@@ -25,3 +25,6 @@ youtube:
 logging:
   level:
     io.github.ericmschoi.theworldthatday.media.youtube.YoutubeKeyCheck: ERROR
+# Same for the region dictionary (plan M2a T2): until data/places/regions.json lands, every test
+# context logs its "file not found" WARN at startup. RegionDictionaryTest sets the level back.
+    io.github.ericmschoi.theworldthatday.place.RegionDictionary: ERROR

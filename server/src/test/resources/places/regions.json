@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "source": {
+    "name": "행정안전부 법정동코드 (공공데이터포털)",
+    "url": "https://www.data.go.kr/data/15077871/openapi.do",
+    "terms": "시험용 합성 사전 — 실제 파일이 아님",
+    "retrieved_at": "2026-10-27"
+  },
+  "regions": [
+    { "code": "4111100000", "level": "gu", "name": "장안구", "parent": "4111000000", "aliases": [] },
+    { "code": "1100000000", "level": "sido", "name": "서울특별시", "short_name": "서울", "parent": null, "aliases": ["서울시"] },
+    { "code": "1111000000", "level": "sigungu", "name": "종로구", "parent": "1100000000", "aliases": [] },
+    { "code": "1114000000", "level": "sigungu", "name": "중구", "parent": "1100000000", "aliases": [] },
+    { "code": "2600000000", "level": "sido", "name": "부산광역시", "short_name": "부산", "parent": null, "aliases": ["부산시"] },
+    { "code": "2614000000", "level": "sigungu", "name": "서구", "parent": "2600000000", "aliases": [] },
+    { "code": "2700000000", "level": "sido", "name": "대구광역시", "short_name": "대구", "parent": null, "aliases": [] },
+    { "code": "2723000000", "level": "sigungu", "name": "서구", "parent": "2700000000", "aliases": [] },
+    { "code": "2800000000", "level": "sido", "name": "인천광역시", "short_name": "인천", "parent": null, "aliases": [] },
+    { "code": "2811000000", "level": "sigungu", "name": "중구", "parent": "2800000000", "aliases": [] },
+    { "code": "2826000000", "level": "sigungu", "name": "서구", "parent": "2800000000", "aliases": [] },
+    { "code": "2900000000", "level": "sido", "name": "광주광역시", "short_name": "광주", "parent": null, "aliases": [] },
+    { "code": "2914000000", "level": "sigungu", "name": "서구", "parent": "2900000000", "aliases": [] },
+    { "code": "3000000000", "level": "sido", "name": "대전광역시", "short_name": "대전", "parent": null, "aliases": [] },
+    { "code": "3017000000", "level": "sigungu", "name": "서구", "parent": "3000000000", "aliases": [] },
+    { "code": "4100000000", "level": "sido", "name": "경기도", "short_name": "경기", "parent": null, "aliases": [] },
+    { "code": "4111000000", "level": "sigungu", "name": "수원시", "parent": "4100000000", "aliases": [] },
+    { "code": "4161000000", "level": "sigungu", "name": "광주시", "parent": "4100000000", "aliases": [] },
+    { "code": "4800000000", "level": "sido", "name": "경상남도", "short_name": "경남", "parent": null, "aliases": [] },
+    { "code": "4882000000", "level": "sigungu", "name": "고성군", "parent": "4800000000", "aliases": [] },
+    { "code": "5100000000", "level": "sido", "name": "강원특별자치도", "short_name": "강원", "parent": null, "aliases": ["강원도"] },
+    { "code": "5182000000", "level": "sigungu", "name": "고성군", "parent": "5100000000", "aliases": [] }
+  ]
+}
