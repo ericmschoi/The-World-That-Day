@@ -351,3 +351,4 @@
 | 2026-10-29 | data-researcher | Canada T1 장소 해석 | 완료, SGC·CGNDB 확인됨(사전), Nominatim 부분 확인(검색), 결정 후보 D1~D5 (T9) | dd16199 (병합) |
 | 2026-10-29 | data-researcher | Canada T7 문화 | 완료, 같은 생일·스탠리컵·아기 이름(BC·ON·QC) 확인됨, 노래 부분 확인(Y1 대기), 발명·기기 자동 출처 없음, 결정 후보 D1~D10 (T9) | 11372eb (병합) |
 | 2026-10-29 | data-researcher | Canada T2 동네 그때/지금 이미지 | 완료, NAPL·토론토 타일·몽레알 기록보관소 확인됨, 캘거리·몽레알 사진 부분 확인, 지금 위성(Esri·Mapbox) 미확인, 결정 후보 D1~D6 (C6 계획 전) | 79d341d (병합 90e66d5) |
+| 2026-10-29 | data-researcher | Canada T8 개인정보 근거 | 완료, PIPEDA 본문·Wikimedia 정책 확인됨, OPC·퀘벡 Law 25·BC/AB PIPA 부분 확인, 방침 바꿀 곳 12개, 결정 후보 D1~D6 (T9). 커밋 트레일러 단락 분리 흠(수정 안 함) | 6963246 (병합) |
