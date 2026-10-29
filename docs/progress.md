@@ -355,3 +355,4 @@
 | 2026-10-29 | planner | S3 영어 위키백과 사건 계획 (c2-english-events, S3a·S3b·S3c 3 PR 제안) | 완료, PM 결정 필요 D1~D9 + ★ S3b T2 | - |
 | 2026-10-29 | planner | S1 영어 화면·S2 M2b 고쳐 쓰기 계획 (c1-english-ui, c1-input-and-opening-ca, PR 2개) | 완료, PM 결정 필요 S1-P1~P4, S2-P1~P2 | - |
 | 2026-10-29 | data-researcher | Canada T6 지역 지표 (날씨·집값·인구) | 완료, ECCC 일별 기후·StatCan 인구 추계·NHPI 확인됨, 도시 인구 2001~·도시권 1976~, 집값은 1981~ 지수 비율만, CREA 부적합, 결정 후보 D1~D7 (T9) | 9e1cbcb (병합) |
+| 2026-10-29 | data-researcher | Canada T4 기록 사진·영상과 공식 채널 | 완료, 카드 16개 (Commons 기록보관소 사본·Radio-Canada Archives·Olympic 채널 부분 확인, 날짜·장소 검색 API 가진 기록보관소 없음), 결정 후보 D1~D7 (T9), PM 명령 C1~C4 | 90ee455 (병합) |
