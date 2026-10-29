@@ -354,3 +354,4 @@
 | 2026-10-29 | data-researcher | Canada T8 개인정보 근거 | 완료, PIPEDA 본문·Wikimedia 정책 확인됨, OPC·퀘벡 Law 25·BC/AB PIPA 부분 확인, 방침 바꿀 곳 12개, 결정 후보 D1~D6 (T9). 커밋 트레일러 단락 분리 흠(수정 안 함) | 6963246 (병합) |
 | 2026-10-29 | planner | S3 영어 위키백과 사건 계획 (c2-english-events, S3a·S3b·S3c 3 PR 제안) | 완료, PM 결정 필요 D1~D9 + ★ S3b T2 | - |
 | 2026-10-29 | planner | S1 영어 화면·S2 M2b 고쳐 쓰기 계획 (c1-english-ui, c1-input-and-opening-ca, PR 2개) | 완료, PM 결정 필요 S1-P1~P4, S2-P1~P2 | - |
+| 2026-10-29 | data-researcher | Canada T6 지역 지표 (날씨·집값·인구) | 완료, ECCC 일별 기후·StatCan 인구 추계·NHPI 확인됨, 도시 인구 2001~·도시권 1976~, 집값은 1981~ 지수 비율만, CREA 부적합, 결정 후보 D1~D7 (T9) | 9e1cbcb (병합) |
