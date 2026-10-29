@@ -346,3 +346,7 @@
 | 2026-10-29 | orchestrator | M2a·M2a2·M2b·M2b2·M3a5b 멈춤 (브랜치 유지, PM T0·T0b·★T1 보류) | 멈춤 | - |
 | 2026-10-29 | planner | 캐나다 전환 리서치 계획 (T1~T9, S1~S5, C0~C8) | 완료, PM 결정 필요 1~10 | - |
 | 2026-10-29 | PM | 캐나다 리서치 계획 승인: 결정 1~9 추천대로, 10 (b) backend-dev | 결정 | - |
+| 2026-10-29 | data-researcher | Canada T5 돈 | 완료, 카드 12개 (CPI·최저임금·주담대 금리 확인됨, 영화표·우표 빼기 추천) | ca8df1d (병합 5dbb684) |
+| 2026-10-29 | data-researcher | Canada T3 영어 위키백과 사건 | 완료, 날짜·연도·YYYY in Canada 확인됨, 결정 후보 D1~D5 (S3 계획 때) | 9018d51 (병합) |
+| 2026-10-29 | data-researcher | Canada T1 장소 해석 | 완료, SGC·CGNDB 확인됨(사전), Nominatim 부분 확인(검색), 결정 후보 D1~D5 (T9) | dd16199 (병합) |
+| 2026-10-29 | data-researcher | Canada T7 문화 | 완료, 같은 생일·스탠리컵·아기 이름(BC·ON·QC) 확인됨, 노래 부분 확인(Y1 대기), 발명·기기 자동 출처 없음, 결정 후보 D1~D10 (T9) | 11372eb (병합) |
