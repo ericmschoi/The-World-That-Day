@@ -47,7 +47,7 @@ async function mount() {
     <ConsentContext value={agreed}>
       <PlaybackProvider>
         {[videoFile, exampleYoutubeEmbed].map((item) => (
-          <MediaItem key={item.id} media={item} fallbackAlt="기록 영상" />
+          <MediaItem key={item.id} media={item} fallbackAlt="Archive video" />
         ))}
       </PlaybackProvider>
     </ConsentContext>,

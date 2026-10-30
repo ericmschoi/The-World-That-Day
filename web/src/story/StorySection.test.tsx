@@ -4,34 +4,40 @@ import { StorySection } from './StorySection'
 
 describe('StorySection', () => {
   it('shows a loading message and marks the section busy', () => {
-    render(<StorySection id="world" title="그날의 세계" status="loading" />)
-    const region = screen.getByRole('region', { name: '그날의 세계' })
+    render(
+      <StorySection id="world" title="The world that day" status="loading" />,
+    )
+    const region = screen.getByRole('region', { name: 'The world that day' })
     expect(region).toHaveAttribute('aria-busy', 'true')
-    expect(region).toHaveTextContent('불러오는 중')
+    expect(region).toHaveTextContent('Loading')
   })
 
   it('shows the empty message', () => {
-    render(<StorySection id="world" title="그날의 세계" status="empty" />)
-    expect(screen.getByText(/아직 준비 중/)).toBeInTheDocument()
+    render(
+      <StorySection id="world" title="The world that day" status="empty" />,
+    )
+    expect(screen.getByText(/coming soon/)).toBeInTheDocument()
     expect(screen.getByRole('region')).not.toHaveAttribute('aria-busy')
   })
 
   it('shows the error message as a status', () => {
-    render(<StorySection id="world" title="그날의 세계" status="error" />)
+    render(
+      <StorySection id="world" title="The world that day" status="error" />,
+    )
     expect(screen.getByRole('status')).toHaveTextContent(
-      '이 섹션을 불러오지 못했습니다',
+      "This section couldn't be loaded",
     )
   })
 
   it('renders children only when ready', () => {
     const { rerender } = render(
-      <StorySection id="city" title="그 도시의 풍경" status="empty">
+      <StorySection id="city" title="Scenes of the city" status="empty">
         <p>준비된 내용</p>
       </StorySection>,
     )
     expect(screen.queryByText('준비된 내용')).not.toBeInTheDocument()
     rerender(
-      <StorySection id="city" title="그 도시의 풍경" status="ready">
+      <StorySection id="city" title="Scenes of the city" status="ready">
         <p>준비된 내용</p>
       </StorySection>,
     )
@@ -49,17 +55,17 @@ describe('StorySection', () => {
   it('keeps a ready section visible next to a failed one', () => {
     render(
       <>
-        <StorySection id="world" title="그날의 세계" status="error" />
-        <StorySection id="city" title="그 도시의 풍경" status="ready">
+        <StorySection id="world" title="The world that day" status="error" />
+        <StorySection id="city" title="Scenes of the city" status="ready">
           <p>도시 섹션 내용</p>
         </StorySection>
       </>,
     )
     expect(
-      screen.getByRole('region', { name: '그날의 세계' }),
-    ).toHaveTextContent('이 섹션을 불러오지 못했습니다')
+      screen.getByRole('region', { name: 'The world that day' }),
+    ).toHaveTextContent("This section couldn't be loaded")
     expect(
-      screen.getByRole('region', { name: '그 도시의 풍경' }),
+      screen.getByRole('region', { name: 'Scenes of the city' }),
     ).toHaveTextContent('도시 섹션 내용')
   })
 })

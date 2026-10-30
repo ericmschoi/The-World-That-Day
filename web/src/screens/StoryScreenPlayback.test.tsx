@@ -13,7 +13,7 @@ vi.mock('../media/playbackCoordinator', async (importOriginal) => {
   }
 })
 
-const NO_EVENTS = '이 날짜에 기록된 큰 사건을 찾지 못했습니다.'
+const NO_EVENTS = 'No major events were found for this date.'
 
 describe('StoryScreen playback coordinator (M3b3 T1 (4))', () => {
   it('makes one coordinator per result screen', async () => {
@@ -29,7 +29,8 @@ describe('StoryScreen playback coordinator (M3b3 T1 (4))', () => {
     expect(create).toHaveBeenCalledTimes(1)
     unmount()
 
-    // A new result (after "처음으로") is a new screen with its own coordinator.
+    // A new result (after "Start over") is a new screen with its own
+    // coordinator.
     render(<StoryScreen date="1995-03-15" onRestart={() => {}} />)
     await screen.findByText(NO_EVENTS)
     expect(create).toHaveBeenCalledTimes(2)

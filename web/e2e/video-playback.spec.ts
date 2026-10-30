@@ -16,10 +16,10 @@ import type { WorldResponse } from '../src/world/types'
 import { interceptNetwork, openDemo, type VideoRequests } from './network'
 
 const DEMO_1988 = '1988년 9월 17일로 보기'
-const SAME_DAY = '그날 찍힌 사진'
-const UNDATED = '촬영 시점을 확인하지 못한 사진'
-const EVENT_VIDEO = '「1988년 하계 올림픽」 관련 자료'
-const DAY_VIDEO = '기록 영상'
+const SAME_DAY = 'Photos taken that day'
+const UNDATED = 'Photos with an unknown capture time'
+const EVENT_VIDEO = 'Material about “1988년 하계 올림픽”'
+const DAY_VIDEO = 'Archive video'
 const VIDEO_URLS = exampleVideoFile.video_sources.map((source) => source.url)
 
 type Call = { kind: 'play' | 'pause'; label: string; muted: boolean }
@@ -82,7 +82,7 @@ const callsOf = async (page: Page, kind: Call['kind'], label: string) =>
   )
 
 const eventVideo = (page: Page) =>
-  page.getByRole('list', { name: '사건 목록' }).locator('video')
+  page.getByRole('list', { name: 'Events' }).locator('video')
 const dayVideo = (page: Page) => page.getByLabel(DAY_VIDEO, { exact: true })
 
 const toCenter = (video: Locator) =>
@@ -272,7 +272,7 @@ test.describe('video files that fail', () => {
   test('(e) hides both video cards and captions, leaves the rest', async ({
     page,
   }) => {
-    const world = page.getByRole('region', { name: '그날의 세계' })
+    const world = page.getByRole('region', { name: 'The world that day' })
     await expect(world.locator('video')).toHaveCount(0)
     // Chromium tried every source before giving up.
     for (const url of VIDEO_URLS) expect(outside.aborted).toContain(url)
@@ -293,14 +293,16 @@ test.describe('video files that fail', () => {
     await expect(undated.getByRole('img')).toHaveCount(1)
 
     const first = world
-      .getByRole('list', { name: '사건 목록' })
+      .getByRole('list', { name: 'Events' })
       .getByRole('listitem')
       .first()
     await expect(first).toContainText('제24회 서울 하계 올림픽 개막.')
     await expect(first.getByRole('img')).toHaveCount(2)
-    await expect(first).toContainText('출처: 한국어 위키백과')
+    await expect(first).toContainText('Source: 한국어 위키백과')
 
-    await expect(world).not.toContainText(/오류|실패|재생할 수 없/)
+    await expect(world).not.toContainText(
+      /오류|실패|재생할 수 없|error|fail|couldn't|can't play/i,
+    )
   })
 })
 
@@ -309,7 +311,7 @@ test.describe('video files that fail', () => {
 // each event up to one video, so two events in a row can each carry one.
 // The plan's rules ("보이면 음소거 자동 재생", "하나만 재생") mean exactly one
 // of them plays.
-const SECOND_EVENT_VIDEO = '「KBS 1TV」 관련 자료'
+const SECOND_EVENT_VIDEO = 'Material about “KBS 1TV”'
 const twoEventVideos: WorldResponse = {
   ...world1988WithVideo,
   events: [
@@ -333,7 +335,7 @@ test.describe('two videos entering the view together', () => {
   })
 
   test('exactly one of them autoplays', async ({ page }) => {
-    const list = page.getByRole('list', { name: '사건 목록' })
+    const list = page.getByRole('list', { name: 'Events' })
     const first = list.getByLabel(EVENT_VIDEO, { exact: true })
     const second = list.getByLabel(SECOND_EVENT_VIDEO, { exact: true })
     await expect(second).toHaveCount(1)

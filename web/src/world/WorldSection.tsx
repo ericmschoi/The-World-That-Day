@@ -21,9 +21,9 @@ type Result = { date: string; data: WorldResponse | null }
 
 const TITLE = SECTIONS.find((section) => section.id === 'world')?.title ?? ''
 
-// "그날의 세계": the day's `normal` events in server order, the day's photos
-// in three groups, then the `tragic` events in their own calm block. Never
-// shows the error details or the requested date.
+// "The world that day": the day's `normal` events in server order, the day's
+// photos in three groups, then the `tragic` events in their own calm block.
+// Never shows the error details or the requested date.
 export function WorldSection({ date, timeoutMs }: Props) {
   const [result, setResult] = useState<Result | null>(null)
 
@@ -57,11 +57,11 @@ export function WorldSection({ date, timeoutMs }: Props) {
     <StorySection id="world" title={TITLE} status="ready">
       {notice?.code === 'NO_EVENTS_FOUND' && (
         <p className={styles.notice}>
-          이 날짜에 기록된 큰 사건을 찾지 못했습니다.
+          No major events were found for this date.
         </p>
       )}
       {normal.length > 0 && (
-        <ul aria-label="사건 목록" className={styles.events}>
+        <ul aria-label="Events" className={styles.events}>
           {normal.map((event) => (
             <WorldEventItem key={event.id} event={event} />
           ))}

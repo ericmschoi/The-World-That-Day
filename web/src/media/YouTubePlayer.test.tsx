@@ -24,8 +24,8 @@ import { canRender } from './isDisplayable'
 import { MediaItem } from './MediaItem'
 import type { Media } from './types'
 
-const ALT = '「1988년 하계 올림픽」 관련 자료'
-const ERROR_TEXT = /오류|실패|재생할 수 없/
+const ALT = 'Material about “1988년 하계 올림픽”'
+const ERROR_TEXT = /오류|실패|재생할 수 없|error|fail|couldn't|can't play/i
 
 let fake: YouTubeFake | null = null
 

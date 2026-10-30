@@ -6,9 +6,9 @@ import { NewTabLink } from './NewTabLink'
 // becomes a link. The http(s) behaviour is covered by the caption tests.
 describe('NewTabLink', () => {
   it('links /privacy.html in a new tab, with the hidden notice', () => {
-    render(<NewTabLink href="/privacy.html">개인정보처리방침</NewTabLink>)
+    render(<NewTabLink href="/privacy.html">Privacy policy</NewTabLink>)
     const link = screen.getByRole('link', {
-      name: /^개인정보처리방침\s*\(opens in a new tab\)$/,
+      name: /^Privacy policy\s*\(opens in a new tab\)$/,
     })
     expect(link).toHaveAttribute('href', '/privacy.html')
     expect(link).toHaveAttribute('target', '_blank')

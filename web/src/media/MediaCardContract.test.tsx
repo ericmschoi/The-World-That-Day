@@ -187,7 +187,7 @@ describe('honest date boundaries on the card (demo 1988-09-17)', () => {
       expect(within(figure).getByRole('img')).toBeInTheDocument()
       expect(firstLine(figure)).toHaveTextContent(/^Capture time unknown$/)
       expect(firstLine(figure).querySelector('span')).toBeNull()
-      expect(figure.textContent).not.toContain('1988년 9월 17일')
+      expect(figure.textContent).not.toContain('September 17, 1988')
       for (const hint of THAT_DAY_HINTS) {
         expect(figure.textContent).not.toContain(hint)
       }
@@ -198,7 +198,7 @@ describe('honest date boundaries on the card (demo 1988-09-17)', () => {
 describe('unknown capture time is never presented as that day', () => {
   // Undated variants of a photo for each demo input with media.
   it.each([
-    ['1988-09-17', undatedPhoto, '1988년 9월 17일'],
+    ['1988-09-17', undatedPhoto, 'September 17, 1988'],
     [
       '2002-06-22',
       patch(koglPhoto, {
@@ -206,7 +206,7 @@ describe('unknown capture time is never presented as that day', () => {
         date_precision: null,
         date_relation: { kind: 'unknown', years: 0 },
       }),
-      '2002년 6월 22일',
+      'June 22, 2002',
     ],
   ])('demo %s: image shown, no badge, no requested date', (_d, media, day) => {
     renderItem(media)
@@ -231,7 +231,7 @@ describe('unknown capture time is never presented as that day', () => {
     renderItem(patch(undatedPhoto, { captured_at: '1988-09-17' }))
     const figure = screen.getByRole('figure')
     expect(firstLine(figure)).toHaveTextContent(/^Capture time unknown$/)
-    expect(figure.textContent).not.toContain('1988년 9월 17일')
+    expect(figure.textContent).not.toContain('September 17, 1988')
   })
 
   // With no description the alt text is the caller's fallbackAlt, so the
@@ -245,7 +245,7 @@ describe('unknown capture time is never presented as that day', () => {
       renderItem(patch(undatedPhoto, { description }))
       const alt = screen.getByRole('img').getAttribute('alt') ?? ''
       expect(alt).toBe(FALLBACK)
-      expect(alt).not.toContain('1988년 9월 17일')
+      expect(alt).not.toContain('September 17, 1988')
       for (const hint of THAT_DAY_HINTS) {
         expect(alt).not.toContain(hint)
       }

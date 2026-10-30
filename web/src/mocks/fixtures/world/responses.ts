@@ -154,8 +154,8 @@ export const world2002WithMedia = {
 const testEventA = {
   ...olympicsOpening,
   id: 'kowiki-1988-09-17-0000000a',
-  title: '시험용 사건',
-  summary: '시험용 사건 문장 A',
+  title: 'Test event',
+  summary: 'Test event sentence A',
   wikidata_qid: null,
   related_links: [],
 } satisfies WorldEvent
@@ -165,7 +165,7 @@ const testTragic = {
   ...testEventA,
   id: 'kowiki-1988-09-17-0000000e',
   title: null,
-  summary: '시험용 비극 사건 문장',
+  summary: 'Test tragic event sentence',
   tone: 'tragic',
   tone_basis: 'rule:keyword',
   media: [

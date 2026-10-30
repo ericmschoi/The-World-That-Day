@@ -28,7 +28,7 @@ describe('outside URLs (T1 (8))', () => {
 
 describe('privacy policy page (T1 (1))', () => {
   it('is a Korean page titled 개인정보처리방침', () => {
-    expect(page.documentElement.lang).toBe('ko')
+    expect(page.documentElement.lang).toBe('en-CA')
     const headings = page.querySelectorAll('h1')
     expect(headings).toHaveLength(1)
     expect(headings[0].textContent).toBe('개인정보처리방침')

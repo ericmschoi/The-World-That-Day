@@ -9,9 +9,9 @@ import styles from './WorldSection.module.css'
 type Props = { media: Media[] }
 
 const TITLES = [
-  '그날 찍힌 사진',
-  '다른 때 찍힌 사진',
-  '촬영 시점을 확인하지 못한 사진',
+  'Photos taken that day',
+  'Photos taken at other times',
+  'Photos with an unknown capture time',
 ]
 
 // M3-P17 (a) and decision 4 (a), read from the caption's own badge so a
@@ -49,7 +49,7 @@ export function DayMediaGroups({ media }: Props) {
             key={item.id}
             media={item}
             fallbackAlt={
-              item.display_mode === 'image' ? '기록 사진' : '기록 영상'
+              item.display_mode === 'image' ? 'Archive photo' : 'Archive video'
             }
             onUnavailable={hide}
           />

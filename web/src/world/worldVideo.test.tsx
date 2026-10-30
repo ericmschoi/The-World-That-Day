@@ -1,6 +1,6 @@
 // Plan M3b3 T3: videos on the world screen. `day_media` counts only media
 // MediaItem draws, a failed video takes its group heading with it when it
-// was the last item, videos in `day_media` read "기록 영상", and the sample
+// was the last item, videos in `day_media` read "Archive video", and the sample
 // date buttons. MSW only; demo dates, sample dates and synthetic fixtures.
 import {
   fireEvent,
@@ -28,17 +28,17 @@ import type { Media } from '../media/types'
 import type { WorldResponse } from './types'
 import { WorldSection } from './WorldSection'
 
-const SAME_DAY = '그날 찍힌 사진'
-const OTHER_TIME = '다른 때 찍힌 사진'
-const UNDATED = '촬영 시점을 확인하지 못한 사진'
+const SAME_DAY = 'Photos taken that day'
+const OTHER_TIME = 'Photos taken at other times'
+const UNDATED = 'Photos with an unknown capture time'
 
-const world = () => screen.getByRole('region', { name: '그날의 세계' })
+const world = () => screen.getByRole('region', { name: 'The world that day' })
 
 async function showWorld(body: WorldResponse) {
   server.use(http.get('/api/story/world', () => HttpResponse.json(body)))
   render(<WorldSection date="1988-09-17" />)
   await waitFor(() => expect(world()).not.toHaveAttribute('aria-busy'))
-  expect(screen.queryByText('이 섹션을 불러오지 못했습니다.')).toBeNull()
+  expect(screen.queryByText("This section couldn't be loaded.")).toBeNull()
 }
 
 const headings = () =>
@@ -73,7 +73,7 @@ describe('day_media counts only drawn media (T3 (1))', () => {
       dayMedia([videoEmbed, world1988WithMedia.day_media[0], sdkRoadview]),
     )
     // videoEmbed and sdkRoadview are same_day/current: without canRender
-    // they would open "그날 찍힌 사진"/"다른 때" on their own.
+    // they would open "Photos taken that day"/"other times" on their own.
     expect(headings()).toEqual([SAME_DAY])
     expect(within(block(SAME_DAY)).getAllByRole('figure')).toHaveLength(1)
   })
@@ -90,7 +90,7 @@ describe('a video that cannot play (T3 (2))', () => {
 
   it('leaves the heading while the undated photo copy remains', async () => {
     await showWorld(world1988WithVideo)
-    failLastSource(within(block(UNDATED)).getByLabelText('기록 영상'))
+    failLastSource(within(block(UNDATED)).getByLabelText('Archive video'))
     expect(headings()).toEqual([SAME_DAY, UNDATED])
     expect(within(block(UNDATED)).getAllByRole('figure')).toHaveLength(1)
     expect(within(block(UNDATED)).getByRole('img')).toBeInTheDocument()
@@ -99,15 +99,15 @@ describe('a video that cannot play (T3 (2))', () => {
   it('leaves the event text, its photos and source line', async () => {
     await showWorld(world1988WithVideo)
     const [first] = within(
-      screen.getByRole('list', { name: '사건 목록' }),
+      screen.getByRole('list', { name: 'Events' }),
     ).getAllByRole('listitem')
     failLastSource(first.querySelector('video')!)
     expect(first.querySelector('video')).toBeNull()
     expect(first).toHaveTextContent('제24회 서울 하계 올림픽 개막.')
     expect(within(first).getAllByRole('img')).toHaveLength(2)
-    expect(first.lastElementChild).toHaveTextContent('출처: 한국어 위키백과')
+    expect(first.lastElementChild).toHaveTextContent('Source: 한국어 위키백과')
     expect(
-      within(first).getByRole('link', { name: /「9월 17일」/ }),
+      within(first).getByRole('link', { name: /“9월 17일”/ }),
     ).toBeInTheDocument()
   })
 })
@@ -116,7 +116,7 @@ describe('world1988WithVideo on screen (T3 (3)·(5))', () => {
   it('puts the video after the two photos, between text and source line', async () => {
     await showWorld(world1988WithVideo)
     const [first] = within(
-      screen.getByRole('list', { name: '사건 목록' }),
+      screen.getByRole('list', { name: 'Events' }),
     ).getAllByRole('listitem')
     const order = [...first.children].map((child) =>
       child.tagName === 'FIGURE'
@@ -130,7 +130,7 @@ describe('world1988WithVideo on screen (T3 (3)·(5))', () => {
   it('captions the event video with 같은 달, its month and links', async () => {
     await showWorld(world1988WithVideo)
     const [first] = within(
-      screen.getByRole('list', { name: '사건 목록' }),
+      screen.getByRole('list', { name: 'Events' }),
     ).getAllByRole('listitem')
     const figure = first.querySelector('video')!.closest('figure')!
     const caption = figure.querySelector('figcaption')!
@@ -162,13 +162,13 @@ describe('world1988WithVideo on screen (T3 (3)·(5))', () => {
     await showWorld(world1988WithVideo)
     expect(headings()).toEqual([SAME_DAY, UNDATED])
     const undated = block(UNDATED)
-    const video = within(undated).getByLabelText('기록 영상')
+    const video = within(undated).getByLabelText('Archive video')
     expect(video.tagName).toBe('VIDEO')
     expect(video.closest('figure')).toHaveTextContent('Capture time unknown')
     expect(video.closest('figure')).not.toHaveTextContent('Same day')
-    // Photos in day_media still read "기록 사진".
+    // Photos in day_media still read "Archive photo".
     for (const img of within(world()).getAllByRole('img')) {
-      if (!img.closest('li')) expect(img).toHaveAccessibleName('기록 사진')
+      if (!img.closest('li')) expect(img).toHaveAccessibleName('Archive photo')
     }
     expect(world().querySelectorAll('video')).toHaveLength(2)
   })
@@ -183,7 +183,9 @@ describe('world1988WithVideo on screen (T3 (3)·(5))', () => {
       ]),
     )
     expect(headings()).toEqual([OTHER_TIME])
-    expect(within(block(OTHER_TIME)).getByLabelText('기록 영상')).toBeVisible()
+    expect(
+      within(block(OTHER_TIME)).getByLabelText('Archive video'),
+    ).toBeVisible()
   })
 })
 
@@ -194,7 +196,9 @@ describe('no video where none was sent (T3 (5))', () => {
   ])('%s has no video or iframe and no error text', async (_name, body) => {
     await showWorld(body)
     expect(world().querySelectorAll('video, iframe')).toHaveLength(0)
-    expect(world()).not.toHaveTextContent(/영상|오류|실패/)
+    expect(world()).not.toHaveTextContent(
+      /영상|오류|실패|video|error|fail|couldn't/i,
+    )
   })
 
   it('draws no video in the tragic block', async () => {
@@ -215,7 +219,7 @@ describe('no video where none was sent (T3 (5))', () => {
         },
       ],
     })
-    const tragicBlock = block('같은 날 있었던 아픈 일')
+    const tragicBlock = block('Difficult events on the same day')
     expect(tragicBlock.querySelectorAll('img, iframe, video')).toHaveLength(0)
     expect(world().querySelectorAll('video')).toHaveLength(0)
   })
@@ -237,7 +241,7 @@ describe('sample date buttons (T3 (6))', () => {
     render(<App />)
     await agree(user)
     await user.click(screen.getByRole('button', { name: label }))
-    await screen.findByText('이 날짜에 기록된 큰 사건을 찾지 못했습니다.')
+    await screen.findByText('No major events were found for this date.')
     expect(asked).toEqual([date])
     expect(screen.getAllByRole('region')).toHaveLength(5)
   })

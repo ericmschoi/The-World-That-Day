@@ -4,7 +4,7 @@ import styles from './WorldSection.module.css'
 
 type Props = { events: WorldEvent[] }
 
-const TITLE = '같은 날 있었던 아픈 일'
+const TITLE = 'Difficult events on the same day'
 
 // `tragic` events after the normal ones, in a calm grey block (product brief
 // 6.3, #22 (c)): text and source line only, never their media, no accent.
@@ -16,7 +16,9 @@ export function TragicEvents({ events }: Props) {
       <ul className={styles.events}>
         {events.map((event) => (
           <li key={event.id} className={styles.event}>
-            <p className={styles.summary}>{event.summary}</p>
+            <p className={styles.summary} lang={event.summary_lang}>
+              {event.summary}
+            </p>
             <SourceLine event={event} />
           </li>
         ))}

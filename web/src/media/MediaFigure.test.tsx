@@ -58,8 +58,8 @@ describe('MediaFigure, demo 1988-09-17', () => {
     const figure = screen.getByRole('figure')
     expect(figure).toHaveTextContent('Capture time unknown')
     expect(figure.textContent).not.toContain('Same day')
-    expect(figure.textContent).not.toContain('그날')
-    expect(figure.textContent).not.toContain('1988년 9월 17일')
+    expect(figure.textContent).not.toContain('that day')
+    expect(figure.textContent).not.toContain('September 17, 1988')
   })
 
   it('shows the 무렵 badge for an approximate year', () => {

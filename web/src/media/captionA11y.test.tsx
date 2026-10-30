@@ -12,7 +12,7 @@ import { olympicsOpeningPd } from '../mocks/fixtures/world/media'
 import { MediaItem } from './MediaItem'
 import type { Media } from './types'
 
-const FALLBACK = '기록 사진'
+const FALLBACK = 'Archive photo'
 
 const renderCard = (media: Media) => {
   render(<MediaItem media={media} fallbackAlt={FALLBACK} />)

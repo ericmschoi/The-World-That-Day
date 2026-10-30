@@ -21,24 +21,26 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-const SAME_DAY = '그날 찍힌 사진'
-const OTHER_TIME = '다른 때 찍힌 사진'
-const UNKNOWN = '촬영 시점을 확인하지 못한 사진'
-const TRAGIC = '같은 날 있었던 아픈 일'
-const NOTICE = '이 날짜에 기록된 큰 사건을 찾지 못했습니다.'
+const SAME_DAY = 'Photos taken that day'
+const OTHER_TIME = 'Photos taken at other times'
+const UNKNOWN = 'Photos with an unknown capture time'
+const TRAGIC = 'Difficult events on the same day'
+const NOTICE = 'No major events were found for this date.'
 const DATE_WORDS = [
   '그날',
   'Same day',
+  'that day',
   '당일',
   '1988-09-17',
   '1988년 9월 17일',
+  'September 17',
   '9월 17일',
 ]
 
 const answer = (body: JsonBodyType) =>
   server.use(http.get('/api/story/world', () => HttpResponse.json(body)))
 
-const region = () => screen.getByRole('region', { name: '그날의 세계' })
+const region = () => screen.getByRole('region', { name: 'The world that day' })
 
 async function renderReady(date = '1988-09-17') {
   render(<WorldSection date={date} />)
@@ -116,7 +118,7 @@ describe('demo 1988-09-17 day_media groups (T1 (1))', () => {
   it('keeps the groups after the event list', async () => {
     await renderReady()
 
-    const list = screen.getByRole('list', { name: '사건 목록' })
+    const list = screen.getByRole('list', { name: 'Events' })
     const heading = within(region()).getByRole('heading', { name: SAME_DAY })
 
     expect(
@@ -129,7 +131,7 @@ describe('days without day_media (T1 (1))', () => {
   it('2002-06-22: no group heading', async () => {
     await renderReady('2002-06-22')
 
-    expect(screen.getByRole('list', { name: '사건 목록' })).toBeInTheDocument()
+    expect(screen.getByRole('list', { name: 'Events' })).toBeInTheDocument()
     expect(h3s()).toEqual([])
   })
 
@@ -221,14 +223,14 @@ describe('tragic block (T1 (1), (3))', () => {
 
     expect(h3s()).toEqual([TRAGIC])
     expect(
-      within(tragicBlock()).getByText('시험용 비극 사건 문장'),
+      within(tragicBlock()).getByText('Test tragic event sentence'),
     ).toBeInTheDocument()
     expect(worldTragicOnly.events[0].media).toHaveLength(1)
     expect(screen.queryAllByRole('img')).toHaveLength(0)
     expect(region().querySelector('img, iframe, video')).toBeNull()
     expect(screen.queryByText(NOTICE)).not.toBeInTheDocument()
     expect(
-      screen.queryByRole('list', { name: '사건 목록' }),
+      screen.queryByRole('list', { name: 'Events' }),
     ).not.toBeInTheDocument()
   })
 
@@ -236,9 +238,9 @@ describe('tragic block (T1 (1), (3))', () => {
     answer(worldWithTragic)
     await renderReady()
 
-    const list = screen.getByRole('list', { name: '사건 목록' })
-    const normal = screen.getByText('시험용 사건 문장 A')
-    const tragic = screen.getByText('시험용 비극 사건 문장')
+    const list = screen.getByRole('list', { name: 'Events' })
+    const normal = screen.getByText('Test event sentence A')
+    const tragic = screen.getByText('Test tragic event sentence')
 
     expect(list).toContainElement(normal)
     expect(tragicBlock()).toContainElement(tragic)
@@ -267,7 +269,7 @@ describe('tragic block (T1 (1), (3))', () => {
       expect(link).toHaveAttribute('rel', 'noopener noreferrer')
     }
     expect(links[0].closest('p')).toHaveTextContent(
-      `출처: 한국어 위키백과 「${event.source_title}」`,
+      `Source: 한국어 위키백과, “${event.source_title}”`,
     )
   })
 })
@@ -299,7 +301,7 @@ describe('day_media alt text (T1 (5))', () => {
     )
 
     expect(alts).toHaveLength(5)
-    expect(dayAlts).toEqual(['기록 사진', '기록 사진', '기록 사진'])
+    expect(dayAlts).toEqual(['Archive photo', 'Archive photo', 'Archive photo'])
     for (const alt of alts) {
       for (const word of DATE_WORDS) expect(alt).not.toContain(word)
     }

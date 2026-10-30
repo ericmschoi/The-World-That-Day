@@ -12,7 +12,7 @@ import { MediaItem } from './MediaItem'
 import { PlaybackProvider } from './PlaybackProvider'
 import type { Media } from './types'
 
-const ALT = '기록 영상'
+const ALT = 'Archive video'
 
 const patch = (media: Media, fields: Record<string, unknown>) =>
   ({ ...media, ...fields }) as Media
@@ -287,7 +287,9 @@ describe('VideoFilePlayer when it cannot play (T2 (8))', () => {
     )
     expect(onUnavailable).toHaveBeenCalledTimes(1)
     expect(onUnavailable).toHaveBeenCalledWith(twoSources.id)
-    expect(document.body).not.toHaveTextContent(/오류|실패|재생할 수 없/)
+    expect(document.body).not.toHaveTextContent(
+      /오류|실패|재생할 수 없|error|fail|couldn't|can't play/i,
+    )
   })
 
   it('hides the card when the video itself fails', () => {

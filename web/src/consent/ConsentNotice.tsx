@@ -35,16 +35,19 @@ export function ConsentNotice({ ref, hint = false, onToggle }: Props) {
           }}
         />
         <label htmlFor={`${id}-check`}>
-          개인정보처리방침에 동의합니다 (필수)
+          I agree to the privacy policy (required)
         </label>
       </p>
       <p>
-        <NewTabLink href={PRIVACY_PAGE}>개인정보처리방침 보기</NewTabLink>
+        <NewTabLink href={PRIVACY_PAGE}>Read the privacy policy</NewTabLink>
       </p>
       <p>
-        이 서비스는 YouTube API 서비스를 사용합니다. 이 서비스를 이용하면{' '}
-        <NewTabLink href={YOUTUBE_TERMS_URL}>YouTube 이용약관</NewTabLink>에
-        동의하게 됩니다.
+        This service uses YouTube API Services. By using it, you agree to be
+        bound by the{' '}
+        <NewTabLink href={YOUTUBE_TERMS_URL}>
+          YouTube Terms of Service
+        </NewTabLink>
+        .
       </p>
       {showHint && (
         <p id={`${id}-hint`} className={styles.hint}>
