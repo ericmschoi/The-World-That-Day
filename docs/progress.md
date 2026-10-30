@@ -325,3 +325,39 @@
 | 2026-10-27 | backend-dev | chore T1~T4 | 완료, server 2244/0 x2, S1 +44/−17 | 9c86279, 62f7dc0, 695619c, b8468f7 |
 | 2026-10-27 | test-engineer | chore T7·T8 | 완료, server 2244/0 x2, web 716/0, T8 60회 재현 안 됨 | - |
 | 2026-10-27 | code-reviewer | chore-m3-followups 리뷰 | 승인 (필수 0, 권장 3) | 727ad54 |
+| 2026-10-27 | PM | M3a5a T6 | PR #28 머지 | 7bbdc96 |
+| 2026-10-27 | orchestrator | chore-m3-followups PR | PR #29 열림 | 526ca50 |
+| 2026-10-27 | PM | chore-m3-followups | PR #29 머지 | 49248e9 |
+| 2026-10-27 | PM | M3a5b T0 대기 중 M2 계획 시작 | 결정 | - |
+| 2026-10-27 | planner | M2 계획 (M2a·M2a2·M2b·M2b2) | 완료, PM 결정 필요 1~16 | - |
+| 2026-10-27 | PM | M2 계획 승인: 결정 1~16 모두 추천대로 (#2 a, #3 a, #7 a, #10 a, #11 a, #26 b, M2-P1~P8 a, P9 b, P10 a) | 결정 | - |
+| 2026-10-27 | frontend-dev | M2b T2 | 완료, web 755/0 x2, S1 +201 (계획 약 120) | 63560c9 |
+| 2026-10-27 | data-researcher | M2a T0a | 완료, 법정동코드 확인됨(#10 a), R1 작성, PM 결정 필요 D6(#27) | 7e0875d |
+| 2026-10-27 | PM | M2a D6 (#27): (a) R1만 쓴다 | 결정 | - |
+| 2026-10-27 | backend-dev | M2a T2 | 완료, server 2303/0 x2, S1 +278 (계획 약 150), 기준 (4)는 T1 뒤 | 337fc6f |
+| 2026-10-27 | frontend-dev | M2b T3 | 완료, web 772/0 x2, e2e 118/0 x2, 누적 S1 +341/−63 > 확인점 330 (알림) | 583fe37 |
+| 2026-10-27 | backend-dev | M2a ★ T3 | 완료, server 2353/0 x2 (데모 6개 T1 뒤), 누적 S1 +380 > 확인점 1 300 (알림) | e464db8 |
+| 2026-10-27 | frontend-dev | M2b T4 | 완료, web 782/0 x2, e2e 126/0 x2, 누적 S1 +398/−67 | f98cc8d |
+| 2026-10-27 | PM | M2 구현 중 질문 A~E 모두 추천대로 | 결정 | - |
+| 2026-10-27 | frontend-dev | M2b T5 | 완료, web 784/0 x2, 누적 S1 +403/−70 | 144f80f |
+| 2026-10-27 | frontend-dev | M2b T3 후속 (PM 결정 B·C) | 완료, web 785/0 x2, e2e 126/0 x2, 누적 S1 +406/−70 | 5fb7630 |
+| 2026-10-27 | backend-dev | M2a T4 + T2 후속 A | 완료, server 2380/0 x2, 로그 시험 x3, 누적 S1 +585 > 확인점 2 450 → 결정 D로 T5는 M2a2로 | afafb38, fd4c171 |
+| 2026-10-29 | PM | 방향 전환: 주 대상을 캐나다로, 화면은 영어만, 세계의 사건은 그대로(영어 위키백과로), "그때 vs 지금" 콘텐츠 11가지 모두 범위에, 연·월 단위 값은 "그해" 문구로 표시. 확인된 출처는 바로 시작, 나머지는 리서치 뒤 보고 | 결정 | - |
+| 2026-10-29 | orchestrator | M2a·M2a2·M2b·M2b2·M3a5b 멈춤 (브랜치 유지, PM T0·T0b·★T1 보류) | 멈춤 | - |
+| 2026-10-29 | planner | 캐나다 전환 리서치 계획 (T1~T9, S1~S5, C0~C8) | 완료, PM 결정 필요 1~10 | - |
+| 2026-10-29 | PM | 캐나다 리서치 계획 승인: 결정 1~9 추천대로, 10 (b) backend-dev | 결정 | - |
+| 2026-10-29 | data-researcher | Canada T5 돈 | 완료, 카드 12개 (CPI·최저임금·주담대 금리 확인됨, 영화표·우표 빼기 추천) | ca8df1d (병합 5dbb684) |
+| 2026-10-29 | data-researcher | Canada T3 영어 위키백과 사건 | 완료, 날짜·연도·YYYY in Canada 확인됨, 결정 후보 D1~D5 (S3 계획 때) | 9018d51 (병합) |
+| 2026-10-29 | data-researcher | Canada T1 장소 해석 | 완료, SGC·CGNDB 확인됨(사전), Nominatim 부분 확인(검색), 결정 후보 D1~D5 (T9) | dd16199 (병합) |
+| 2026-10-29 | data-researcher | Canada T7 문화 | 완료, 같은 생일·스탠리컵·아기 이름(BC·ON·QC) 확인됨, 노래 부분 확인(Y1 대기), 발명·기기 자동 출처 없음, 결정 후보 D1~D10 (T9) | 11372eb (병합) |
+| 2026-10-29 | data-researcher | Canada T2 동네 그때/지금 이미지 | 완료, NAPL·토론토 타일·몽레알 기록보관소 확인됨, 캘거리·몽레알 사진 부분 확인, 지금 위성(Esri·Mapbox) 미확인, 결정 후보 D1~D6 (C6 계획 전) | 79d341d (병합 90e66d5) |
+| 2026-10-29 | data-researcher | Canada T8 개인정보 근거 | 완료, PIPEDA 본문·Wikimedia 정책 확인됨, OPC·퀘벡 Law 25·BC/AB PIPA 부분 확인, 방침 바꿀 곳 12개, 결정 후보 D1~D6 (T9). 커밋 트레일러 단락 분리 흠(수정 안 함) | 6963246 (병합) |
+| 2026-10-29 | planner | S3 영어 위키백과 사건 계획 (c2-english-events, S3a·S3b·S3c 3 PR 제안) | 완료, PM 결정 필요 D1~D9 + ★ S3b T2 | - |
+| 2026-10-29 | planner | S1 영어 화면·S2 M2b 고쳐 쓰기 계획 (c1-english-ui, c1-input-and-opening-ca, PR 2개) | 완료, PM 결정 필요 S1-P1~P4, S2-P1~P2 | - |
+| 2026-10-29 | data-researcher | Canada T6 지역 지표 (날씨·집값·인구) | 완료, ECCC 일별 기후·StatCan 인구 추계·NHPI 확인됨, 도시 인구 2001~·도시권 1976~, 집값은 1981~ 지수 비율만, CREA 부적합, 결정 후보 D1~D7 (T9) | 9e1cbcb (병합) |
+| 2026-10-29 | data-researcher | Canada T4 기록 사진·영상과 공식 채널 | 완료, 카드 16개 (Commons 기록보관소 사본·Radio-Canada Archives·Olympic 채널 부분 확인, 날짜·장소 검색 API 가진 기록보관소 없음), 결정 후보 D1~D7 (T9), PM 명령 C1~C4 | 90ee455 (병합) |
+| 2026-10-29 | data-researcher | Canada T9 요약과 판정 | 완료, 11개 항목 판정(지금 구현 1·2·3·6·11, PM 확인 뒤 4·5·7·9·10, 빼기 8), 결정 47개(막는 것 A1·A2·T1 D1~D5·T8 D4), PM 명령 50개 | 04e3492 |
+| 2026-10-29 | PM | S1·S2·S3 계획 승인 ("모두 추천대로"): S1-P1~P4·S2-P1~P2·S3 D1~D9 추천안, ★ S3b T2 (a) 기록 후 S3b 전에 재확인 | 결정 | - |
+| 2026-10-29 | code-reviewer | Canada 리서치 브랜치 리뷰 | 수정 요청 (필수 1: summary 2.1 GeoNames CC BY 4.0 누락, 권장 4), 핵심 근거 직접 확인 모두 일치 | - |
+| 2026-10-29 | data-researcher | Canada T9 리뷰 수정 | 완료, GeoNames CC BY 4.0 행 분리 + 권장 3건 | 0df7f69 |
+| 2026-10-29 | code-reviewer | Canada 리서치 브랜치 재리뷰 | 승인 | - |
