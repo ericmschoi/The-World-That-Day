@@ -110,7 +110,7 @@ describe('facts the PM decided, word for word (T1 (2))', () => {
 
   it('takes questions through GitHub Issues, linked', () => {
     expect(text).toContain(
-      'Questions about this policy or your personal information: GitHub Issues.',
+      'Questions or complaints: open an issue at GitHub Issues.',
     )
     expect(linkTo(CONTACT_ISSUES_URL).map((a) => a.textContent)).toEqual([
       'GitHub Issues',
@@ -125,6 +125,60 @@ describe('facts the PM decided, word for word (T1 (2))', () => {
 
   it('has no e-mail address or other contact', () => {
     expect(privacyHtml).not.toMatch(/@|mailto:|tel:/)
+  })
+})
+
+// Plan C1 S1 T3b: the drafts in docs/research/canada-privacy.md 10.1, one
+// key phrase each, and nothing that goes beyond the current design.
+describe('additions from the Canada privacy review (C1 S1 T3b)', () => {
+  it.each([
+    ['S-2 purpose', 'We do not use it for advertising or profiling.'],
+    ['S-3 retention', 'Results are cached by date and event, not by person.'],
+    ['S-4 outside sources', 'They are not told whose date it is.'],
+    [
+      'S-5 other countries',
+      'Your information may be processed in other countries, where authorities may be able to access it.',
+    ],
+    ['S-6 access and contact', 'so there is nothing to access or correct.'],
+    [
+      'S-6 public issues',
+      'Do not post personal information in a public issue.',
+    ],
+    ['S-6 responsible person', 'Responsible person: the operator.'],
+  ])('%s', (_rule, sentence) => {
+    expect(text).toContain(sentence)
+  })
+
+  it('puts the purpose first in "How we use and share it"', () => {
+    const [first] = page.querySelectorAll('ul > li')
+    expect(first.textContent?.replace(/\s+/g, ' ').trim()).toBe(
+      'We use the information we receive only to find photos, videos and events for that day and place. We do not use it for advertising or profiling.',
+    )
+  })
+
+  it('says outside sources get the date as a search term', () => {
+    expect(text).toContain('Outside sources receive the date as a search term.')
+    expect(text).not.toContain('whose date of birth it is')
+  })
+
+  it('names no place where Google processes data, and no log period', () => {
+    expect(text).not.toMatch(/Google[^.]*servers in/)
+    expect(text).not.toMatch(/\b(days|weeks|months)\b/)
+  })
+
+  it('has no age sentence yet (D4 waits for the PM, S2 T8b)', () => {
+    expect(text).not.toMatch(/under 13|parent or guardian|general audience/)
+  })
+
+  // T3b (4): only the date goes to the server, nothing is stored on the
+  // device, and there are no accounts.
+  it('claims nothing beyond the current design', () => {
+    expect(text).toContain('Right now only the date is sent to the server')
+    expect(text).toContain(
+      'This service does not use cookies or browser storage.',
+    )
+    expect(text).toContain('We have no accounts')
+    expect(text).not.toMatch(/sign in|log in|your account|newsletter/i)
   })
 })
 
