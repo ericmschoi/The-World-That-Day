@@ -1,7 +1,7 @@
 // T4 extra checks for T2 (docs/plans/m3b1-design-foundation.md) and the PM
 // media decision of 2026-10-11: media with an unknown capture time is shown
-// as "촬영 시점 미상", media without a source stays hidden, and only http(s)
-// URLs reach href/src. Inputs are the demo dates (product brief 12) and the
+// as "Capture time unknown", media without a source stays hidden, and only
+// http(s) URLs reach href/src. Inputs are the demo dates (product brief 12) and the
 // leap-day boundary 2000-02-29.
 import { describe, expect, it } from 'vitest'
 import { videoFile } from '../mocks/fixtures/media/modes'
@@ -23,8 +23,8 @@ describe('demo 1988-09-17 (fixtures)', () => {
   it('same-day photo: shown, 같은 날, full capture date', () => {
     expect(isDisplayable(sameDayPhoto)).toBe(true)
     expect(dateLabel(sameDayPhoto)).toEqual({
-      badge: '같은 날',
-      text: '1988년 9월 17일 촬영',
+      badge: 'Same day',
+      text: 'Taken September 17, 1988',
     })
   })
 
@@ -32,7 +32,7 @@ describe('demo 1988-09-17 (fixtures)', () => {
     expect(isDisplayable(undatedPhoto)).toBe(true)
     expect(dateLabel(undatedPhoto)).toEqual({
       badge: null,
-      text: '촬영 시점 미상',
+      text: 'Capture time unknown',
     })
   })
 })
@@ -53,8 +53,11 @@ describe('unknown capture time and unknown license together', () => {
 
   it('is still shown, with both honest labels', () => {
     expect(isDisplayable(both)).toBe(true)
-    expect(dateLabel(both)).toEqual({ badge: null, text: '촬영 시점 미상' })
-    expect(licenseLabel(both)).toBe('라이선스 확인 안 됨')
+    expect(dateLabel(both)).toEqual({
+      badge: null,
+      text: 'Capture time unknown',
+    })
+    expect(licenseLabel(both)).toBe('Licence not verified')
   })
 
   it('is hidden once the source is missing', () => {
@@ -134,26 +137,26 @@ describe('dateLabel boundaries', () => {
     [
       'same day on the leap day (D = 2000-02-29)',
       photo('2000-02-29', 'day', { kind: 'same_day', years: 0 }),
-      '같은 날',
-      '2000년 2월 29일 촬영',
+      'Same day',
+      'Taken February 29, 2000',
     ],
     [
       'same year, different month, day precision (D = 1988-09-17)',
       photo('1988-01-01', 'day', { kind: 'same_year', years: 0 }),
-      '같은 해',
-      '1988년 1월 1일 촬영',
+      'Same year',
+      'Taken January 1, 1988',
     ],
     [
       'different year, month precision (D = 2002-06-22)',
       photo('2001-12', 'month', { kind: 'years_apart', years: -1 }),
-      '1년 전',
-      '2001년 12월 촬영',
+      '1 year earlier',
+      'Taken December 2001',
     ],
     [
       'approximate a year off (D = 1988-09-17)',
       photo('1987', 'approx', { kind: 'approximate', years: -1 }),
-      '1년 전 무렵',
-      '1987년 무렵 촬영(추정)',
+      'About 1 year earlier',
+      'Taken around 1987 (estimated)',
     ],
   ])('%s', (_name, media, badge, text) => {
     expect(dateLabel(media)).toEqual({ badge, text })
@@ -161,11 +164,11 @@ describe('dateLabel boundaries', () => {
 
   it('shows 현재 모습 but no date for current precision with a leaked captured_at', () => {
     // R8: current precision has captured_at null; if a date leaks in, the
-    // badge stays 현재 모습 and the text still says it was not provided.
+    // badge stays Present day and the text still says it was not provided.
     const media = photo('1988-09-17', 'current', { kind: 'current', years: 0 })
     expect(dateLabel(media)).toEqual({
-      badge: '현재 모습',
-      text: '촬영 시점 미제공',
+      badge: 'Present day',
+      text: 'Capture time not provided',
     })
   })
 })

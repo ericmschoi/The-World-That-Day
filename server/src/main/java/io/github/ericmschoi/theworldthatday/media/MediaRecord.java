@@ -116,7 +116,7 @@ public record MediaRecord(
     }
   }
 
-  /** {@code unknown} is shown as "라이선스 확인 안 됨". */
+  /** {@code unknown} is shown as "Licence not verified". */
   public enum LicenseStatus {
     FREE,
     OTHER,

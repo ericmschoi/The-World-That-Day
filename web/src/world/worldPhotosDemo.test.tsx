@@ -28,9 +28,9 @@ const DEMO = {
   '2002-06-22': '2002년 6월 22일로 보기',
 } as const
 
-const NEW_TAB = /\(새 창에서 열림\)/
+const NEW_TAB = /\(opens in a new tab\)/
 
-const world = () => screen.getByRole('region', { name: '그날의 세계' })
+const world = () => screen.getByRole('region', { name: 'The world that day' })
 
 async function openDemo(date: keyof typeof DEMO) {
   const user = userEvent.setup()
@@ -38,7 +38,7 @@ async function openDemo(date: keyof typeof DEMO) {
   await agree(user)
   await user.click(screen.getByRole('button', { name: DEMO[date] }))
   await waitFor(() => expect(world()).not.toHaveAttribute('aria-busy'))
-  expect(screen.queryByText('이 섹션을 불러오지 못했습니다.')).toBeNull()
+  expect(screen.queryByText("This section couldn't be loaded.")).toBeNull()
 }
 
 // The block that a subheading opens.
@@ -68,7 +68,7 @@ describe('demo 1988-09-17 captions on the screen (데모 표 1행)', () => {
   it('event ①’s PD photo: no separate license line and no 라이선스 link', async () => {
     await openDemo('1988-09-17')
 
-    const list = screen.getByRole('list', { name: '사건 목록' })
+    const list = screen.getByRole('list', { name: 'Events' })
     const [pd] = within(list).getAllByRole('figure')
 
     expect(within(pd).getByRole('img')).toHaveAttribute(
@@ -77,31 +77,35 @@ describe('demo 1988-09-17 captions on the screen (데모 표 1행)', () => {
     )
     expect(lines(pd)).toContain(olympicsOpeningPd.attribution)
     expect(lines(pd)).not.toContain('Public domain')
-    expect(within(pd).queryByRole('link', { name: /라이선스/ })).toBeNull()
+    expect(within(pd).queryByRole('link', { name: /Licence/ })).toBeNull()
     expect(
-      within(pd).getByRole('link', { name: /^원문 보기.*새 창에서 열림/ }),
+      within(pd).getByRole('link', {
+        name: /^View original.*opens in a new tab/,
+      }),
     ).toHaveAttribute('href', olympicsOpeningPd.source_url)
   })
 
   it('the unlicensed day photo keeps its honest "라이선스 확인 안 됨" line', async () => {
     await openDemo('1988-09-17')
 
-    const [figure] = within(block('그날 찍힌 사진')).getAllByRole('figure')
+    const [figure] = within(block('Photos taken that day')).getAllByRole(
+      'figure',
+    )
 
     expect(within(figure).getByRole('img')).toHaveAttribute(
       'src',
       licenseUnknown.thumbnail_url,
     )
-    expect(lines(figure)).toContain('라이선스 확인 안 됨')
+    expect(lines(figure)).toContain('Licence not verified')
   })
 
   it('every new-tab link, caption 원문 보기 included, says "새 창에서 열림"', async () => {
     await openDemo('1988-09-17')
 
-    // Four cards, one 원문 보기 each.
+    // Four cards, one View original each.
     expect(
       within(world()).getAllByRole('link', {
-        name: /^원문 보기.*새 창에서 열림/,
+        name: /^View original.*opens in a new tab/,
       }),
     ).toHaveLength(4)
     expectNewTabNotices()
@@ -110,22 +114,24 @@ describe('demo 1988-09-17 captions on the screen (데모 표 1행)', () => {
   it('photos with a description: alt is the short fallback, the caption has the text', async () => {
     await openDemo('1988-09-17')
 
-    const list = screen.getByRole('list', { name: '사건 목록' })
+    const list = screen.getByRole('list', { name: 'Events' })
     const eventAlts = within(list)
       .getAllByRole('img')
       .map((img) => img.getAttribute('alt'))
     const dayImgs = [
-      ...within(block('그날 찍힌 사진')).getAllByRole('img'),
-      ...within(block('촬영 시점을 확인하지 못한 사진')).getAllByRole('img'),
+      ...within(block('Photos taken that day')).getAllByRole('img'),
+      ...within(block('Photos with an unknown capture time')).getAllByRole(
+        'img',
+      ),
     ]
 
     expect(eventAlts).toEqual([
-      '「1988년 하계 올림픽」 관련 자료',
-      '「1988년 하계 올림픽」 관련 자료',
+      'Material about “1988년 하계 올림픽”',
+      'Material about “1988년 하계 올림픽”',
     ])
     expect(dayImgs.map((img) => img.getAttribute('alt'))).toEqual([
-      '기록 사진',
-      '기록 사진',
+      'Archive photo',
+      'Archive photo',
     ])
     // The fixture photos do carry descriptions; none is read twice.
     const described = [olympicsOpeningPd, captureTimeUnknown, licenseUnknown]
@@ -149,7 +155,7 @@ describe('demo 1988-09-17 captions on the screen (데모 표 1행)', () => {
       within(world())
         .getAllByRole('heading', { level: 3 })
         .map((heading) => heading.textContent),
-    ).toEqual(['그날 찍힌 사진', '촬영 시점을 확인하지 못한 사진'])
+    ).toEqual(['Photos taken that day', 'Photos with an unknown capture time'])
     expect(world1988WithMedia.day_media).toHaveLength(2)
   })
 })
@@ -163,7 +169,9 @@ describe('demo 2002-06-22 caption on the screen (데모 표 2행)', () => {
     expect(lines(figure)).toContain(worldCupKogl1.attribution)
     expect(lines(figure)).not.toContain('KOGL Type 1')
     expect(
-      within(figure).getByRole('link', { name: /^라이선스.*새 창에서 열림/ }),
+      within(figure).getByRole('link', {
+        name: /^Licence.*opens in a new tab/,
+      }),
     ).toHaveAttribute('href', worldCupKogl1.license_url)
     expectNewTabNotices()
   })
@@ -183,8 +191,8 @@ describe('synthetic tragic days through the demo button', () => {
       await openDemo('1988-09-17')
 
       expect(
-        within(block('같은 날 있었던 아픈 일')).getByText(
-          '시험용 비극 사건 문장',
+        within(block('Difficult events on the same day')).getByText(
+          'Test tragic event sentence',
         ),
       ).toBeInTheDocument()
       expect(world().querySelector('img, iframe, video')).toBeNull()

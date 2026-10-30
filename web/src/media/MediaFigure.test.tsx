@@ -13,9 +13,9 @@ import type { Media } from './types'
 
 const FALLBACK = '서울 사진'
 
-// Caption links carry the hidden "(새 창에서 열림)" (M3b2b T2).
-const SOURCE_LINK = /^원문 보기\s*\(새 창에서 열림\)$/
-const LICENSE_LINK = /^라이선스\s*\(새 창에서 열림\)$/
+// Caption links carry the hidden "(opens in a new tab)" (M3b2b T2).
+const SOURCE_LINK = /^View original\s*\(opens in a new tab\)$/
+const LICENSE_LINK = /^Licence\s*\(opens in a new tab\)$/
 
 const renderFigure = (media: Media) =>
   render(<MediaFigure media={media} fallbackAlt={FALLBACK} />)
@@ -37,8 +37,8 @@ describe('MediaFigure, demo 1988-09-17', () => {
   it('captions it with 같은 날, the capture date, source and both links', () => {
     renderFigure(sameDayPhoto)
     const figure = screen.getByRole('figure')
-    expect(within(figure).getByText('같은 날')).toBeInTheDocument()
-    expect(figure).toHaveTextContent('같은 날 1988년 9월 17일 촬영')
+    expect(within(figure).getByText('Same day')).toBeInTheDocument()
+    expect(figure).toHaveTextContent('Same day Taken September 17, 1988')
     expect(figure).toHaveTextContent(sameDayPhoto.attribution)
     expect(figure).toHaveTextContent('CC BY-SA 4.0')
     expect(
@@ -56,17 +56,17 @@ describe('MediaFigure, demo 1988-09-17', () => {
       undatedPhoto.thumbnail_url,
     )
     const figure = screen.getByRole('figure')
-    expect(figure).toHaveTextContent('촬영 시점 미상')
-    expect(figure.textContent).not.toContain('같은 날')
-    expect(figure.textContent).not.toContain('그날')
-    expect(figure.textContent).not.toContain('1988년 9월 17일')
+    expect(figure).toHaveTextContent('Capture time unknown')
+    expect(figure.textContent).not.toContain('Same day')
+    expect(figure.textContent).not.toContain('that day')
+    expect(figure.textContent).not.toContain('September 17, 1988')
   })
 
   it('shows the 무렵 badge for an approximate year', () => {
     renderFigure(approximatePhoto)
     const figure = screen.getByRole('figure')
-    expect(within(figure).getByText('1년 전 무렵')).toBeInTheDocument()
-    expect(figure).toHaveTextContent('1987년 무렵 촬영(추정)')
+    expect(within(figure).getByText('About 1 year earlier')).toBeInTheDocument()
+    expect(figure).toHaveTextContent('Taken around 1987 (estimated)')
   })
 })
 
@@ -91,7 +91,7 @@ describe('MediaFigure, missing values', () => {
       'src',
       unlicensedPhoto.thumbnail_url,
     )
-    expect(screen.getByText('라이선스 확인 안 됨')).toBeInTheDocument()
+    expect(screen.getByText('Licence not verified')).toBeInTheDocument()
   })
 
   it('uses the fallback alt for a blank description', () => {

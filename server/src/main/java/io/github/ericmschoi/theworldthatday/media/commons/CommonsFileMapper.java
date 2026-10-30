@@ -29,7 +29,7 @@ import tools.jackson.databind.JsonNode;
 
 /**
  * One Commons file page ({@code query.pages[]} with {@code imageinfo}) to a photo {@link MediaItem}
- * (plan M3a3b "Commons 사진 규칙"), or with {@code videoinfo} to a video item (plan M3a4b). The caller
+ * (plan M3a3b: Commons 사진 규칙), or with {@code videoinfo} to a video item (plan M3a4b). The caller
  * picks the allowed MIME types and the place used when the file has no GPS position. Order: record,
  * then {@link MediaFilter}, then {@link MediaNormalizer}. Addresses are copied exactly as the API
  * gives them. It never logs.
@@ -38,8 +38,11 @@ import tools.jackson.databind.JsonNode;
 public class CommonsFileMapper {
 
   public static final String SOURCE_NAME = "Wikimedia Commons";
-  static final String NO_AUTHOR = "작가 정보 없음";
-  static final String NO_LICENSE = "라이선스 확인 안 됨";
+  static final String NO_AUTHOR = "No author information";
+
+  /** Same text as the web's LICENSE_UNKNOWN (web/src/media/licenseLabel.ts); change both. */
+  static final String NO_LICENSE = "Licence not verified";
+
   static final int DESCRIPTION_LIMIT = 200;
 
   private static final Pattern TAG = Pattern.compile("<[^>]*>");
@@ -79,7 +82,7 @@ public class CommonsFileMapper {
   }
 
   /**
-   * A {@code videoinfo} page to a {@code video_file} item (plan M3a4b "미디어 레코드"), only for {@code
+   * A {@code videoinfo} page to a {@code video_file} item (plan M3a4b: 미디어 레코드), only for {@code
    * mediatype} {@code VIDEO} (other files are dropped as {@code MIME}). Its {@code captured_at} is
    * the {@code DateTimeOriginal} value unless that is later than {@code date} ({@link
    * VideoAccuracy#notAfter}); the upload time is never read.

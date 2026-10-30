@@ -2,7 +2,28 @@ import type { DatePrecision, DateRelation, Media } from './types'
 
 export type DateLabel = { badge: string | null; text: string }
 
-const UNKNOWN: DateLabel = { badge: null, text: '촬영 시점 미상' }
+// The badge `DayMediaGroups` reads to put a card in its same-day group.
+// Exported so the grouping never spells the text out again.
+export const SAME_DAY = 'Same day'
+
+const UNKNOWN: DateLabel = { badge: null, text: 'Capture time unknown' }
+
+// A table, not `Intl`: ICU builds differ in the spaces they put in dates.
+// The result matches the en-CA long date ("September 17, 1988").
+const MONTHS = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+]
 
 // `captured_at` shape for each precision (M3a3 rule R8).
 const SHAPES: Partial<Record<DatePrecision, RegExp>> = {
@@ -46,27 +67,33 @@ function formatCapturedAt(media: Media): string | null {
   if (!parts) return null
   const [, year, month, day] = parts
   if (!isRealDate(year, month, day)) return null
-  return [`${year}년`, month && `${Number(month)}월`, day && `${Number(day)}일`]
-    .filter(Boolean)
-    .join(' ')
+  if (month === undefined) return year
+  const name = MONTHS[Number(month) - 1]
+  return day === undefined
+    ? `${name} ${year}`
+    : `${name} ${Number(day)}, ${year}`
 }
 
-// Distance from the requested year, in the D1 wording ("N년 전" / "N년 뒤").
-const distance = (years: number) =>
-  years < 0 ? `${-years}년 전` : `${years}년 뒤`
+// Distance from the requested year ("3 years earlier" / "1 year later").
+function distance(years: number): string {
+  const count = Math.abs(years)
+  const unit = count === 1 ? 'year' : 'years'
+  return `${count} ${unit} ${years < 0 ? 'earlier' : 'later'}`
+}
 
 function badgeFor({ kind, years }: DateRelation): string | null {
   switch (kind) {
     case 'same_day':
-      return '같은 날'
+      return SAME_DAY
     case 'same_month':
-      return '같은 달'
+      return 'Same month'
     case 'same_year':
-      return '같은 해'
+      return 'Same year'
     case 'approximate':
-      // The year is an estimate, so the badge keeps "무렵" (product brief 6.1).
+      // The year is an estimate, so the badge keeps "Around" / "About"
+      // (product brief 6.1).
       if (!Number.isInteger(years)) return null
-      return years === 0 ? '같은 해 무렵' : `${distance(years)} 무렵`
+      return years === 0 ? 'Around the same year' : `About ${distance(years)}`
     case 'years_apart':
       if (!Number.isInteger(years)) return null
       return years === 0 ? null : distance(years)
@@ -76,12 +103,12 @@ function badgeFor({ kind, years }: DateRelation): string | null {
 }
 
 // Badge and capture-time text for the caption. Anything inconsistent falls
-// back to "촬영 시점 미상" rather than a badge that may be wrong.
+// back to "Capture time unknown" rather than a badge that may be wrong.
 export function dateLabel(media: Media): DateLabel {
   const relation = media.date_relation
   const precision = media.date_precision
   if (relation?.kind === 'current' && precision === 'current') {
-    return { badge: '현재 모습', text: '촬영 시점 미제공' }
+    return { badge: 'Present day', text: 'Capture time not provided' }
   }
   const allowed =
     relation && precision && NEEDS[relation.kind]?.includes(precision)
@@ -89,6 +116,8 @@ export function dateLabel(media: Media): DateLabel {
   const when = formatCapturedAt(media)
   if (!badge || !when) return UNKNOWN
   const text =
-    precision === 'approx' ? `${when} 무렵 촬영(추정)` : `${when} 촬영`
+    precision === 'approx'
+      ? `Taken around ${when} (estimated)`
+      : `Taken ${when}`
   return { badge, text }
 }

@@ -26,7 +26,7 @@ export const sameDayPhoto: Media = {
   license_status: 'free',
   license_url: 'https://creativecommons.org/licenses/by-sa/4.0/',
   attribution: 'Example Author · CC BY-SA 4.0 · Wikimedia Commons',
-  description: '1988년 서울 올림픽 개막식',
+  description: 'Opening ceremony of the 1988 Seoul Olympics',
   captured_at: '1988-09-17',
   date_precision: 'day',
   lat: null,
@@ -48,7 +48,7 @@ export const undatedPhoto: Media = {
   license: 'Public domain',
   license_url: null,
   attribution: 'Example Author · Public domain · Wikimedia Commons',
-  description: '서울 올림픽 경기장 전경',
+  description: 'Seoul Olympic Stadium, wide view',
   captured_at: null,
   date_precision: null,
   date_relation: { kind: 'unknown', years: 0 },
@@ -65,7 +65,7 @@ export const koglPhoto: Media = {
   license: 'KOGL Type 1',
   license_url: 'https://www.kogl.or.kr/info/licenseType1.do',
   attribution: 'Example Agency · KOGL Type 1 · Wikimedia Commons',
-  description: '2002년 월드컵 거리 응원',
+  description: 'Street cheering during the 2002 World Cup',
   captured_at: '2002-06-22',
   lat: 35.13,
   lng: 126.86,
@@ -83,7 +83,8 @@ export const unlicensedPhoto: Media = {
   license: null,
   license_status: 'unknown',
   license_url: null,
-  attribution: '작가 정보 없음 · 라이선스 확인 안 됨 · Wikimedia Commons',
+  attribution:
+    'No author information · Licence not verified · Wikimedia Commons',
   description: null,
 }
 
@@ -96,7 +97,7 @@ export const approximatePhoto: Media = {
   thumbnail_url:
     'https://media.example.org/commons/thumb/640px-Example_1987_approx.jpg',
   source_url: 'https://commons.example.org/wiki/File:Example_1987_approx.jpg',
-  description: '올림픽 경기장 건설 현장',
+  description: 'Olympic stadium under construction',
   captured_at: '1987',
   date_precision: 'approx',
   date_relation: { kind: 'approximate', years: -1 },

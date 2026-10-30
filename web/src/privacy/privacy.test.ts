@@ -1,5 +1,6 @@
-// The privacy policy page (plan M3b3b T1 (1)~(4), (8), C7). The page is plain
-// HTML, read here as text and parsed; its links are never followed.
+// The privacy policy page (plan M3b3b T1 (1)~(4), (8), C7), in Canadian
+// English since plan C1 S1 T3. The page is plain HTML, read here as text and
+// parsed; its links are never followed.
 import { describe, expect, it } from 'vitest'
 import privacyHtml from '../../privacy.html?raw'
 import * as urls from '../external/urls'
@@ -27,29 +28,59 @@ describe('outside URLs (T1 (8))', () => {
 })
 
 describe('privacy policy page (T1 (1))', () => {
-  it('is a Korean page titled 개인정보처리방침', () => {
-    expect(page.documentElement.lang).toBe('ko')
+  it('is an en-CA page titled Privacy policy', () => {
+    expect(page.documentElement.lang).toBe('en-CA')
+    expect(page.title).toBe('Privacy policy - The World That Day')
     const headings = page.querySelectorAll('h1')
     expect(headings).toHaveLength(1)
-    expect(headings[0].textContent).toBe('개인정보처리방침')
+    expect(headings[0].textContent).toBe('Privacy policy')
+  })
+
+  // Plan C1 S1 T3 (2): the seven sections, in the Korean page's order.
+  it('has the seven section headings in order', () => {
+    expect([...page.querySelectorAll('h2')].map((h) => h.textContent)).toEqual([
+      'What we receive',
+      'How we use and share it',
+      'Content from elsewhere and ads',
+      'YouTube API Services',
+      'Cookies and device storage',
+      'Contact',
+      'Effective date and changes',
+    ])
+  })
+
+  it('has no Korean left anywhere on the page', () => {
+    expect(privacyHtml).not.toMatch(/[ᄀ-ᇿ㄰-㆏가-힯]/)
+  })
+
+  it('says what it receives, as the plan words it', () => {
+    expect(text).toContain(
+      'This service receives the date of birth (a date) and place of birth that you enter. It does not receive accounts, names or contact details. Right now only the date is sent to the server; the place will be received once place input is added.',
+    )
+  })
+
+  it('keeps the result address free of the date of birth and place', () => {
+    expect(text).toContain(
+      'The address of the result page never contains your date of birth or place.',
+    )
   })
 
   it.each([
-    'YouTube API 서비스',
-    '생년월일',
-    '장소',
-    '쿠키',
-    '광고',
-    '개인정보 보호 강화 모드',
-    '이 서비스를 이용하면 YouTube 이용약관에 동의하게 됩니다.',
-    '결과 화면 주소',
-    '로그',
-    '위키백과',
+    'YouTube API Services',
+    'date of birth',
+    'place',
+    'cookies',
+    'ads',
+    'privacy-enhanced mode',
+    'By using it, you agree to be bound by the YouTube Terms of Service.',
+    'address of the result page',
+    'logs',
+    'Wikipedia',
     'Wikidata',
     'Wikimedia Commons',
     'YouTube Data API',
-    '시행일',
-    '문의',
+    'Effective date',
+    'Questions',
   ])('says %s', (phrase) => {
     expect(text).toContain(phrase)
   })
@@ -58,28 +89,28 @@ describe('privacy policy page (T1 (1))', () => {
   // which includes the YouTube Data API).
   it('lists the outside sources the server calls now', () => {
     expect(text).toContain(
-      '지금은 한국어 위키백과, Wikidata, Wikimedia Commons(사진·영상), YouTube Data API(KTV 아카이브 채널 영상 검색)입니다.',
+      'Right now these are Korean Wikipedia, Wikidata, Wikimedia Commons (photos and videos) and YouTube Data API (video search on the KTV Archive channel).',
     )
   })
 
   it('links the YouTube terms and the Google privacy policy', () => {
     expect(linkTo(YOUTUBE_TERMS_URL).map((a) => a.textContent)).toEqual([
-      'YouTube 이용약관',
+      'YouTube Terms of Service',
     ])
     expect(linkTo(GOOGLE_PRIVACY_URL).map((a) => a.textContent)).toEqual([
-      'Google 개인정보처리방침',
+      'Google Privacy Policy',
     ])
   })
 })
 
 describe('facts the PM decided, word for word (T1 (2))', () => {
   it('names the operator', () => {
-    expect(text).toContain('The World That Day 운영자')
+    expect(text).toContain('Operator: The World That Day operator')
   })
 
   it('takes questions through GitHub Issues, linked', () => {
     expect(text).toContain(
-      '이 방침이나 개인정보에 관한 문의는 GitHub Issues로 받습니다.',
+      'Questions or complaints: open an issue at GitHub Issues.',
     )
     expect(linkTo(CONTACT_ISSUES_URL).map((a) => a.textContent)).toEqual([
       'GitHub Issues',
@@ -87,13 +118,67 @@ describe('facts the PM decided, word for word (T1 (2))', () => {
   })
 
   it('states the effective date as the merge day, with no other date', () => {
-    expect(text).toContain('시행일: 2026년 10월 27일')
-    expect(text).not.toContain('머지하는 날 넣음')
-    expect(text.match(/\d{4}\s*년|\d{4}-\d{2}-\d{2}/g)).toEqual(['2026년'])
+    expect(text).toContain('Effective date: October 27, 2026')
+    expect(text).not.toMatch(/Month D|YYYY/)
+    expect(text.match(/\b\d{4}\b|\d{4}-\d{2}-\d{2}/g)).toEqual(['2026'])
   })
 
   it('has no e-mail address or other contact', () => {
     expect(privacyHtml).not.toMatch(/@|mailto:|tel:/)
+  })
+})
+
+// Plan C1 S1 T3b: the drafts in docs/research/canada-privacy.md 10.1, one
+// key phrase each, and nothing that goes beyond the current design.
+describe('additions from the Canada privacy review (C1 S1 T3b)', () => {
+  it.each([
+    ['S-2 purpose', 'We do not use it for advertising or profiling.'],
+    ['S-3 retention', 'Results are cached by date and event, not by person.'],
+    ['S-4 outside sources', 'They are not told whose date it is.'],
+    [
+      'S-5 other countries',
+      'Your information may be processed in other countries, where authorities may be able to access it.',
+    ],
+    ['S-6 access and contact', 'so there is nothing to access or correct.'],
+    [
+      'S-6 public issues',
+      'Do not post personal information in a public issue.',
+    ],
+    ['S-6 responsible person', 'Responsible person: the operator.'],
+  ])('%s', (_rule, sentence) => {
+    expect(text).toContain(sentence)
+  })
+
+  it('puts the purpose first in "How we use and share it"', () => {
+    const [first] = page.querySelectorAll('ul > li')
+    expect(first.textContent?.replace(/\s+/g, ' ').trim()).toBe(
+      'We use the information we receive only to find photos, videos and events for that day and place. We do not use it for advertising or profiling.',
+    )
+  })
+
+  it('says outside sources get the date as a search term', () => {
+    expect(text).toContain('Outside sources receive the date as a search term.')
+    expect(text).not.toContain('whose date of birth it is')
+  })
+
+  it('names no place where Google processes data, and no log period', () => {
+    expect(text).not.toMatch(/Google[^.]*servers in/)
+    expect(text).not.toMatch(/\b(days|weeks|months)\b/)
+  })
+
+  it('has no age sentence yet (D4 waits for the PM, S2 T8b)', () => {
+    expect(text).not.toMatch(/under 13|parent or guardian|general audience/)
+  })
+
+  // T3b (4): only the date goes to the server, nothing is stored on the
+  // device, and there are no accounts.
+  it('claims nothing beyond the current design', () => {
+    expect(text).toContain('Right now only the date is sent to the server')
+    expect(text).toContain(
+      'This service does not use cookies or browser storage.',
+    )
+    expect(text).toContain('We have no accounts')
+    expect(text).not.toMatch(/sign in|log in|your account|newsletter/i)
   })
 })
 

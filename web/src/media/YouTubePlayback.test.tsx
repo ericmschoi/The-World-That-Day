@@ -52,7 +52,7 @@ async function mount(items: Media[], { ready = true } = {}) {
     <ConsentContext value={agreed}>
       <PlaybackProvider>
         {items.map((item) => (
-          <MediaItem key={item.id} media={item} fallbackAlt="기록 영상" />
+          <MediaItem key={item.id} media={item} fallbackAlt="Archive video" />
         ))}
       </PlaybackProvider>
     </ConsentContext>,
@@ -303,7 +303,9 @@ describe('blocked autoplay (T3 (11))', () => {
     fake.autoplayBlocked(playerOf(iframe))
     expect(iframes()).toEqual([iframe])
     expect(screen.getByRole('figure')).toContainElement(iframe)
-    expect(document.body).not.toHaveTextContent(/오류|실패|재생할 수 없/)
+    expect(document.body).not.toHaveTextContent(
+      /오류|실패|재생할 수 없|error|fail|couldn't|can't play/i,
+    )
   })
 
   it('takes a later tap as the user’s, not as our cancelled start', async () => {

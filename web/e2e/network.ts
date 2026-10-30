@@ -55,11 +55,11 @@ export async function interceptNetwork(
 export async function openDemo(page: Page, label: string) {
   await page.goto('/')
   await page
-    .getByRole('checkbox', { name: '개인정보처리방침에 동의합니다 (필수)' })
+    .getByRole('checkbox', { name: 'I agree to the privacy policy (required)' })
     .check()
   await page.getByRole('button', { name: label }).click()
   await page
-    .getByRole('region', { name: '그날의 세계' })
+    .getByRole('region', { name: 'The world that day' })
     .and(page.locator(':not([aria-busy])'))
     .waitFor()
 }

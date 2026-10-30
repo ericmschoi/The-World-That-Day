@@ -8,8 +8,8 @@ import { world1988 } from './responses'
 export const shapeEventA = {
   ...world1988.events[0],
   id: 'kowiki-1988-09-17-0000000a',
-  title: '시험용 사건',
-  summary: '시험용 사건 문장 A',
+  title: 'Test event',
+  summary: 'Test event sentence A',
   media: [],
 } satisfies WorldEvent
 
@@ -24,7 +24,7 @@ const shapeEventB = {
     Object.entries(shapeEventA).filter(([key]) => key !== 'media'),
   ),
   id: 'kowiki-1988-09-17-0000000b',
-  summary: '시험용 사건 문장 B',
+  summary: 'Test event sentence B',
 }
 
 // `summary` is a number: the whole event is dropped.
@@ -38,7 +38,7 @@ const shapeEventC = {
 const shapeEventD = {
   ...shapeEventA,
   id: 'kowiki-1988-09-17-0000000d',
-  summary: '시험용 사건 문장 D',
+  summary: 'Test event sentence D',
   media: [null, shapePhoto],
 }
 

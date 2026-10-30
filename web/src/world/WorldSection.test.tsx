@@ -1,5 +1,6 @@
-// Plan M3b2 T2: the "그날의 세계" section. MSW only, demo dates (product brief
-// 12) plus the boundary date 2001-02-29. Every test waits for the final state.
+// Plan M3b2 T2: the "The world that day" section. MSW only, demo dates
+// (product brief 12) plus the boundary date 2001-02-29. Every test waits for
+// the final state.
 import { render, screen, waitFor, within } from '@testing-library/react'
 import { delay, http, HttpResponse, type JsonBodyType } from 'msw'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -23,19 +24,19 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-const NOTICE = '이 날짜에 기록된 큰 사건을 찾지 못했습니다.'
-const ERROR = '이 섹션을 불러오지 못했습니다.'
+const NOTICE = 'No major events were found for this date.'
+const ERROR = "This section couldn't be loaded."
 
 const answer = (body: JsonBodyType) =>
   server.use(http.get('/api/story/world', () => HttpResponse.json(body)))
 
-const region = () => screen.getByRole('region', { name: '그날의 세계' })
+const region = () => screen.getByRole('region', { name: 'The world that day' })
 
 // Accessible name with whitespace ignored (jsdom trims the hidden span's space).
 const named = (expected: string) => (name: string) =>
   name.replace(/\s/g, '') === expected.replace(/\s/g, '')
 
-const eventList = () => screen.findByRole('list', { name: '사건 목록' })
+const eventList = () => screen.findByRole('list', { name: 'Events' })
 
 const photo: Media = {
   ...olympicsOpeningPd,
@@ -46,14 +47,14 @@ const photo: Media = {
 const eventA: WorldEvent = {
   ...world1988.events[0],
   id: 'kowiki-1988-09-17-00000001',
-  title: '시험용 사건',
-  summary: '시험용 사건 문장 A',
+  title: 'Test event',
+  summary: 'Test event sentence A',
 }
 
 const tragicEvent: WorldEvent = {
   ...eventA,
   id: 'kowiki-1988-09-17-00000002',
-  summary: '시험용 비극 사건 문장',
+  summary: 'Test tragic event sentence',
   tone: 'tragic',
   tone_basis: 'rule:keyword',
   media: [{ ...photo, id: 'example-tragic-photo' }],
@@ -69,11 +70,11 @@ describe('WorldSection loading (T2 (1))', () => {
     render(<WorldSection date="1988-09-17" />)
 
     expect(region()).toHaveAttribute('aria-busy', 'true')
-    expect(region()).toHaveTextContent('불러오는 중…')
+    expect(region()).toHaveTextContent('Loading…')
 
     await eventList()
     expect(region()).not.toHaveAttribute('aria-busy')
-    expect(region()).not.toHaveTextContent('불러오는 중…')
+    expect(region()).not.toHaveTextContent('Loading…')
   })
 })
 
@@ -99,10 +100,10 @@ describe('WorldSection with media (default handler, T2 (2), (6))', () => {
 
     world1988WithMedia.events.forEach((event, i) => {
       const source = within(items[i]).getByRole('link', {
-        name: named(`「${event.source_title}」 (새 창에서 열림)`),
+        name: named(`“${event.source_title}” (opens in a new tab)`),
       })
       const license = within(items[i]).getByRole('link', {
-        name: named('CC BY-SA 4.0 (새 창에서 열림)'),
+        name: named('CC BY-SA 4.0 (opens in a new tab)'),
       })
       expect(source).toHaveAttribute('href', event.source_url)
       expect(license).toHaveAttribute('href', event.text_license_url)
@@ -111,7 +112,7 @@ describe('WorldSection with media (default handler, T2 (2), (6))', () => {
         expect(link).toHaveAttribute('rel', 'noopener noreferrer')
       }
       expect(source.closest('p')).toHaveTextContent(
-        `출처: 한국어 위키백과 「${event.source_title}」`,
+        `Source: 한국어 위키백과, “${event.source_title}”`,
       )
     })
   })
@@ -128,16 +129,18 @@ describe('WorldSection with media (default handler, T2 (2), (6))', () => {
     expect(within(items[0]).getAllByRole('img')).toHaveLength(2)
     const pdImg = within(pd).getByRole('img')
     expect(new URL(pdImg.getAttribute('src')!).host).toBe('thumb.wikimedia.org')
-    expect(within(pd).getByText('같은 날')).toBeInTheDocument()
-    expect(within(undated).getByText('촬영 시점 미상')).toBeInTheDocument()
-    expect(within(undated).queryByText('같은 날')).not.toBeInTheDocument()
+    expect(within(pd).getByText('Same day')).toBeInTheDocument()
+    expect(
+      within(undated).getByText('Capture time unknown'),
+    ).toBeInTheDocument()
+    expect(within(undated).queryByText('Same day')).not.toBeInTheDocument()
     // day_media (the unlicensed photo and the "-day" copy) is not in the list.
     for (const img of within(list).getAllByRole('img')) {
       expect(img.getAttribute('src')).not.toContain('example-photo-1988')
     }
     // The unlicensed day_media photo's caption says this (licenseLabel).
     expect(
-      within(list).queryByText('라이선스 확인 안 됨'),
+      within(list).queryByText('Licence not verified'),
     ).not.toBeInTheDocument()
   })
 })
@@ -184,9 +187,9 @@ describe('WorldSection keeps tragic events out of the event list (T2 (5))', () =
     const list = await eventList()
 
     expect(within(list).getAllByRole('listitem')).toHaveLength(1)
-    expect(screen.getByText('시험용 사건 문장 A')).toBeInTheDocument()
+    expect(screen.getByText('Test event sentence A')).toBeInTheDocument()
     expect(
-      within(list).queryByText('시험용 비극 사건 문장'),
+      within(list).queryByText('Test tragic event sentence'),
     ).not.toBeInTheDocument()
     expect(screen.queryAllByRole('img')).toHaveLength(0)
     expect(document.querySelector('iframe, video')).toBeNull()
@@ -199,7 +202,7 @@ describe('WorldSection keeps tragic events out of the event list (T2 (5))', () =
     await waitFor(() => expect(region()).not.toHaveAttribute('aria-busy'))
     expect(screen.queryByText(NOTICE)).not.toBeInTheDocument()
     expect(
-      screen.queryByRole('list', { name: '사건 목록' }),
+      screen.queryByRole('list', { name: 'Events' }),
     ).not.toBeInTheDocument()
     expect(screen.queryByText(ERROR)).not.toBeInTheDocument()
     expect(screen.queryAllByRole('img')).toHaveLength(0)
@@ -208,10 +211,10 @@ describe('WorldSection keeps tragic events out of the event list (T2 (5))', () =
 
 describe('WorldSection renders event text as text (T2 (7))', () => {
   it('shows tags as characters and creates no element', async () => {
-    answer(response([{ ...eventA, summary: '시험용 <b>문장</b>' }]))
+    answer(response([{ ...eventA, summary: 'Test <b>sentence</b>' }]))
     const { container } = render(<WorldSection date="1988-09-17" />)
 
-    expect(await screen.findByText('시험용 <b>문장</b>')).toBeInTheDocument()
+    expect(await screen.findByText('Test <b>sentence</b>')).toBeInTheDocument()
     expect(container.querySelector('b')).toBeNull()
   })
 })
@@ -220,7 +223,7 @@ describe('WorldSection errors (T2 (8))', () => {
   const expectOnlyTheErrorLine = async (dates: string[]) => {
     expect(await screen.findByText(ERROR)).toBeInTheDocument()
     const text = region().textContent ?? ''
-    expect(text).toBe(`그날의 세계${ERROR}`)
+    expect(text).toBe(`The world that day${ERROR}`)
     for (const value of [
       ...dates,
       'UPSTREAM_UNAVAILABLE',
@@ -379,16 +382,18 @@ describe('WorldSection fallbackAlt (T2 (10))', () => {
       .map((img) => img.getAttribute('alt'))
 
     expect(alts).toEqual([
-      '「1988년 하계 올림픽」 관련 자료',
-      '「1988년 하계 올림픽」 관련 자료',
+      'Material about “1988년 하계 올림픽”',
+      'Material about “1988년 하계 올림픽”',
     ])
     for (const alt of alts) {
       for (const word of [
         '그날',
-        '같은 날',
+        'Same day',
+        'that day',
         '당일',
         '1988-09-17',
         '1988년 9월 17일',
+        'September 17',
         '9월 17일',
       ]) {
         expect(alt).not.toContain(word)
@@ -402,7 +407,7 @@ describe('WorldSection fallbackAlt (T2 (10))', () => {
 
     expect(await screen.findByRole('img')).toHaveAttribute(
       'alt',
-      '사건 관련 자료',
+      'Material about this event',
     )
   })
 })
@@ -427,15 +432,17 @@ describe('WorldSection response shape check (M3b2b T0)', () => {
     expect(region()).not.toHaveAttribute('aria-busy')
     expect(screen.queryByText(ERROR)).not.toBeInTheDocument()
     expect(items.map((item) => item.querySelector('p')?.textContent)).toEqual([
-      '시험용 사건 문장 A',
-      '시험용 사건 문장 B',
-      '시험용 사건 문장 D',
+      'Test event sentence A',
+      'Test event sentence B',
+      'Test event sentence D',
     ])
     // B: text and source line, no media.
     expect(within(items[1]).queryAllByRole('img')).toHaveLength(0)
     expect(
       within(items[1]).getByRole('link', {
-        name: named(`「${world1988.events[0].source_title}」 (새 창에서 열림)`),
+        name: named(
+          `“${world1988.events[0].source_title}” (opens in a new tab)`,
+        ),
       }),
     ).toBeInTheDocument()
     // D: the null is skipped, the photo is shown.
@@ -478,7 +485,7 @@ describe('WorldSection response shape check (M3b2b T0)', () => {
     render(<WorldSection date="1988-09-17" />)
 
     expect(await screen.findByText(ERROR)).toBeInTheDocument()
-    expect(region().textContent).toBe(`그날의 세계${ERROR}`)
+    expect(region().textContent).toBe(`The world that day${ERROR}`)
     expectSilent(spies)
   })
 })

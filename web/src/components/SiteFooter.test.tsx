@@ -12,7 +12,7 @@ function expectFooter() {
   const links = within(footer).getAllByRole('link')
   expect(links).toHaveLength(1)
   const [link] = links
-  expect(link).toHaveAccessibleName(/^개인정보처리방침\s*\(새 창에서 열림\)$/)
+  expect(link).toHaveAccessibleName(/^Privacy policy\s*\(opens in a new tab\)$/)
   expect(link).toHaveAttribute('href', '/privacy.html')
   expect(link).toHaveAttribute('target', '_blank')
   expect(link).toHaveAttribute('rel', 'noopener noreferrer')
@@ -28,7 +28,7 @@ describe('SiteFooter', () => {
     await user.click(
       screen.getByRole('button', { name: '1988년 9월 17일로 보기' }),
     )
-    await screen.findByRole('list', { name: '사건 목록' })
+    await screen.findByRole('list', { name: 'Events' })
     expectFooter()
   })
 })

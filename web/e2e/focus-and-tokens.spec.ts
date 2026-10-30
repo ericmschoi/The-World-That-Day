@@ -38,7 +38,7 @@ const sourceLink = (page: Page) =>
   page
     .getByRole('figure')
     .first()
-    .getByRole('link', { name: /^원문 보기/ })
+    .getByRole('link', { name: /^View original/ })
 
 test.describe('1988-09-17 with media', () => {
   let outside: Awaited<ReturnType<typeof interceptNetwork>>
@@ -88,8 +88,8 @@ test.describe('1988-09-17 with media', () => {
     // global.css paints the page from :root, so the html element holds it.
     const root = page.locator('html')
     const eventSource = page
-      .getByRole('list', { name: '사건 목록' })
-      .getByRole('link', { name: /「9월 17일」/ })
+      .getByRole('list', { name: 'Events' })
+      .getByRole('link', { name: /“9월 17일”/ })
       .first()
 
     expect(await css(root, 'backgroundColor')).toBe(
@@ -126,7 +126,7 @@ test.describe('a day with a tragic event (synthetic)', () => {
   }) => {
     const heading = page.getByRole('heading', {
       level: 3,
-      name: '같은 날 있었던 아픈 일',
+      name: 'Difficult events on the same day',
     })
     const block = heading.locator('..')
     const links = block.getByRole('link')

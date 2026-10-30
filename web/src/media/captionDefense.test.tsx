@@ -39,9 +39,9 @@ describe.each([
     const [card, other] = screen.getAllByRole('figure')
     // The attribution names the license, so: date, attribution, links.
     expect(captionLines(card)).toEqual([
-      expect.stringContaining('같은 날'),
+      expect.stringContaining('Same day'),
       base.attribution,
-      expect.stringContaining('원문 보기'),
+      expect.stringContaining('View original'),
     ])
     expect(other).toHaveTextContent(neighbour.attribution)
     expect(error).not.toHaveBeenCalled()
@@ -50,17 +50,18 @@ describe.each([
   it.each([
     ['a number', 42],
     ['an object', {}],
-  ])('says 라이선스 확인 안 됨 when license is %s', (_c, value) => {
+  ])('says Licence not verified when license is %s', (_c, value) => {
     const error = vi.spyOn(console, 'error')
     renderWithNeighbour(
       patch(base, {
         license: value,
-        attribution: 'Example Author · 라이선스 확인 안 됨 · Wikimedia Commons',
+        attribution:
+          'Example Author · Licence not verified · Wikimedia Commons',
       }),
     )
     const [card, other] = screen.getAllByRole('figure')
     // Never hidden, even though the attribution says the same words.
-    expect(captionLines(card)).toContain('라이선스 확인 안 됨')
+    expect(captionLines(card)).toContain('Licence not verified')
     expect(other).toHaveTextContent(neighbour.attribution)
     expect(error).not.toHaveBeenCalled()
   })

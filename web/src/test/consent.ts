@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react'
 import type { UserEvent } from '@testing-library/user-event'
 
-export const CONSENT_LABEL = '개인정보처리방침에 동의합니다 (필수)'
+export const CONSENT_LABEL = 'I agree to the privacy policy (required)'
 
 export const consentBox = () =>
   screen.getByRole('checkbox', { name: CONSENT_LABEL })
