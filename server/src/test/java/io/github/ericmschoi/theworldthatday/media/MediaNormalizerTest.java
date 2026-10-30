@@ -73,7 +73,7 @@ class MediaNormalizerTest {
   @Test
   void missingLicensePassesAsUnknown() {
     Map<String, Object> m = with(with(image(), "license", null), "license_status", "unknown");
-    m.put("attribution", "작가 정보 없음 · 라이선스 확인 안 됨 · Wikimedia Commons");
+    m.put("attribution", "No author information · Licence not verified · Wikimedia Commons");
 
     MediaItem item = normalize(DEFAULT_NORMALIZER, m).orElseThrow();
 

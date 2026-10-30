@@ -270,7 +270,8 @@ class CommonsFileMapperTest {
 
     assertThat(r.license()).isNull();
     assertThat(r.licenseStatus()).isEqualTo(LicenseStatus.UNKNOWN);
-    assertThat(r.attribution()).isEqualTo("Synthetic Author · 라이선스 확인 안 됨 · Wikimedia Commons");
+    assertThat(r.attribution())
+        .isEqualTo("Synthetic Author · Licence not verified · Wikimedia Commons");
   }
 
   @Test
@@ -295,7 +296,7 @@ class CommonsFileMapperTest {
         .startsWith("Synthetic Credit · ");
     ObjectNode neither = meta(meta(page(), "Artist", null), "Credit", " ");
     assertThat(kept(neither).attribution())
-        .isEqualTo("작가 정보 없음 · Public domain · Wikimedia Commons");
+        .isEqualTo("No author information · Public domain · Wikimedia Commons");
   }
 
   @Test
