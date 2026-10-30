@@ -135,18 +135,18 @@ describe('world1988WithVideo on screen (T3 (3)·(5))', () => {
     const figure = first.querySelector('video')!.closest('figure')!
     const caption = figure.querySelector('figcaption')!
     expect(caption.querySelector('p')).toHaveTextContent(
-      /^같은 달\s+1988년 9월 촬영$/,
+      /^Same month\s+Taken September 1988$/,
     )
-    expect(caption).not.toHaveTextContent('같은 날')
+    expect(caption).not.toHaveTextContent('Same day')
     // The attribution names CC BY-SA 4.0, so there is no separate line.
     const lines = [...caption.querySelectorAll('p')].map((p) => p.textContent)
     expect(lines).toContain(exampleVideoFile.attribution)
     expect(lines.filter((line) => line === 'CC BY-SA 4.0')).toEqual([])
     expect(
-      within(figure).getByRole('link', { name: /^라이선스/ }),
+      within(figure).getByRole('link', { name: /^Licence/ }),
     ).toBeInTheDocument()
     expect(
-      within(figure).getByRole('link', { name: /^원문 보기/ }),
+      within(figure).getByRole('link', { name: /^View original/ }),
     ).toBeInTheDocument()
     const sources = [...figure.querySelectorAll('source')]
     expect(sources.map((s) => s.getAttribute('src'))).toEqual(
@@ -164,8 +164,8 @@ describe('world1988WithVideo on screen (T3 (3)·(5))', () => {
     const undated = block(UNDATED)
     const video = within(undated).getByLabelText('기록 영상')
     expect(video.tagName).toBe('VIDEO')
-    expect(video.closest('figure')).toHaveTextContent('촬영 시점 미상')
-    expect(video.closest('figure')).not.toHaveTextContent('같은 날')
+    expect(video.closest('figure')).toHaveTextContent('Capture time unknown')
+    expect(video.closest('figure')).not.toHaveTextContent('Same day')
     // Photos in day_media still read "기록 사진".
     for (const img of within(world()).getAllByRole('img')) {
       if (!img.closest('li')) expect(img).toHaveAccessibleName('기록 사진')

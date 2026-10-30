@@ -55,7 +55,7 @@ async function openDemo(date: DemoDate) {
 }
 
 // "출처: {source_name} 「{source_title}」 · {text_license}" with the hidden
-// "(새 창에서 열림)" texts removed, whitespace collapsed. The media cards'
+// "(opens in a new tab)" texts removed, whitespace collapsed. The media cards'
 // own caption links live inside their figure and are skipped.
 const sourceLinks = (item: HTMLElement) =>
   within(item)
@@ -111,12 +111,14 @@ describe('demo 1988-09-17 (데모 표 1행)', () => {
     const pdSrc = within(pd).getByRole('img').getAttribute('src')!
     expect(new URL(pdSrc).host).toBe('thumb.wikimedia.org')
     expect(pdSrc).toBe(olympicsOpeningPd.thumbnail_url)
-    expect(within(pd).getByText('같은 날')).toBeInTheDocument()
-    expect(within(undated).getByText('촬영 시점 미상')).toBeInTheDocument()
-    expect(within(undated).queryByText('같은 날')).not.toBeInTheDocument()
-    // The unlicensed day_media photo says "라이선스 확인 안 됨", outside.
+    expect(within(pd).getByText('Same day')).toBeInTheDocument()
     expect(
-      within(list).queryByText('라이선스 확인 안 됨'),
+      within(undated).getByText('Capture time unknown'),
+    ).toBeInTheDocument()
+    expect(within(undated).queryByText('Same day')).not.toBeInTheDocument()
+    // The unlicensed day_media photo says "Licence not verified", outside.
+    expect(
+      within(list).queryByText('Licence not verified'),
     ).not.toBeInTheDocument()
     expect(document.querySelector('iframe, video')).toBeNull()
   })
@@ -156,7 +158,7 @@ describe('demo 2002-06-22 (데모 표 2행)', () => {
     // The attribution names KOGL Type 1, so there is no separate line.
     expect(figure).toHaveTextContent('KOGL Type 1')
     expect(within(figure).queryByText('KOGL Type 1')).not.toBeInTheDocument()
-    expect(within(figure).getByText('같은 날')).toBeInTheDocument()
+    expect(within(figure).getByText('Same day')).toBeInTheDocument()
     expect(
       new URL(within(figure).getByRole('img').getAttribute('src')!).host,
     ).toBe('thumb.wikimedia.org')
@@ -312,15 +314,15 @@ describe('event media and source links (CLAUDE.md 7.1)', () => {
     const [item] = within(await eventList()).getAllByRole('listitem')
 
     expect(within(item).getAllByRole('figure')).toHaveLength(1)
-    expect(within(item).getByText('촬영 시점 미상')).toBeInTheDocument()
+    expect(within(item).getByText('Capture time unknown')).toBeInTheDocument()
     expect(
       within(item)
         .getAllByRole('img')
         .map((img) => img.getAttribute('src')),
     ).not.toContain(base.media[0].thumbnail_url)
-    // Only the remaining card's "원문 보기" plus the two source line links.
+    // Only the remaining card's "View original" plus the two source line links.
     expect(
-      within(item).getAllByRole('link', { name: /^원문 보기/ }),
+      within(item).getAllByRole('link', { name: /^View original/ }),
     ).toHaveLength(1)
   })
 

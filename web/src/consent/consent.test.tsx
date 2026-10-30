@@ -123,19 +123,19 @@ describe('the notice text (T2 (5))', () => {
     render(<App />)
     const notice = consentBox().closest('div')!
     const policy = within(notice).getByRole('link', {
-      name: /^개인정보처리방침 보기\s*\(새 창에서 열림\)$/,
+      name: /^개인정보처리방침 보기\s*\(opens in a new tab\)$/,
     })
     expect(policy).toHaveAttribute('href', '/privacy.html')
     expect(policy).toHaveAttribute('target', '_blank')
     const terms = within(notice).getByRole('link', {
-      name: /^YouTube 이용약관\s*\(새 창에서 열림\)$/,
+      name: /^YouTube 이용약관\s*\(opens in a new tab\)$/,
     })
     expect(terms).toHaveAttribute('href', YOUTUBE_TERMS_URL)
     expect(terms).toHaveAttribute('target', '_blank')
     expect(terms).toHaveAttribute('rel', 'noopener noreferrer')
 
     const text = (notice.textContent ?? '')
-      .replaceAll('(새 창에서 열림)', '')
+      .replaceAll('(opens in a new tab)', '')
       .replace(/\s+/g, ' ')
     expect(text).toContain('이 서비스는 YouTube API 서비스를 사용합니다.')
     expect(text).toContain(

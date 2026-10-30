@@ -117,10 +117,10 @@ test.describe('before agreeing', () => {
     }
     expect(order).toEqual([
       `input:${CONSENT_LABEL}`,
-      'a:개인정보처리방침 보기 (새 창에서 열림)',
-      'a:YouTube 이용약관 (새 창에서 열림)',
+      'a:개인정보처리방침 보기 (opens in a new tab)',
+      'a:YouTube 이용약관 (opens in a new tab)',
       ...BUTTONS.map((label) => `button:${label}`),
-      'a:개인정보처리방침 (새 창에서 열림)',
+      'a:개인정보처리방침 (opens in a new tab)',
     ])
   })
 })

@@ -25,7 +25,14 @@ const firstLine = (figure: HTMLElement) =>
   figure.querySelector('figcaption > p') as HTMLElement
 
 // Words and dates that would make a photo look like it is from that day.
-const THAT_DAY_HINTS = ['같은 날', '같은 달', '같은 해', '그날', '무렵']
+const THAT_DAY_HINTS = [
+  'Same day',
+  'Same month',
+  'Same year',
+  'that day',
+  'Around',
+  'About',
+]
 
 describe('honest date boundaries on the card (demo 1988-09-17)', () => {
   it.each([
@@ -36,8 +43,8 @@ describe('honest date boundaries on the card (demo 1988-09-17)', () => {
       0,
       'day',
       '1988-09-17',
-      '같은 날',
-      '같은 날 1988년 9월 17일 촬영',
+      'Same day',
+      'Same day Taken September 17, 1988',
     ],
     [
       'same month, other day',
@@ -45,8 +52,8 @@ describe('honest date boundaries on the card (demo 1988-09-17)', () => {
       0,
       'day',
       '1988-09-02',
-      '같은 달',
-      '같은 달 1988년 9월 2일 촬영',
+      'Same month',
+      'Same month Taken September 2, 1988',
     ],
     [
       'same month, month precision',
@@ -54,8 +61,8 @@ describe('honest date boundaries on the card (demo 1988-09-17)', () => {
       0,
       'month',
       '1988-09',
-      '같은 달',
-      '같은 달 1988년 9월 촬영',
+      'Same month',
+      'Same month Taken September 1988',
     ],
     [
       'same year, other month',
@@ -63,8 +70,8 @@ describe('honest date boundaries on the card (demo 1988-09-17)', () => {
       0,
       'month',
       '1988-03',
-      '같은 해',
-      '같은 해 1988년 3월 촬영',
+      'Same year',
+      'Same year Taken March 1988',
     ],
     [
       'same year, year precision',
@@ -72,8 +79,8 @@ describe('honest date boundaries on the card (demo 1988-09-17)', () => {
       0,
       'year',
       '1988',
-      '같은 해',
-      '같은 해 1988년 촬영',
+      'Same year',
+      'Same year Taken 1988',
     ],
     [
       'same year, leap day',
@@ -81,8 +88,8 @@ describe('honest date boundaries on the card (demo 1988-09-17)', () => {
       0,
       'day',
       '1988-02-29',
-      '같은 해',
-      '같은 해 1988년 2월 29일 촬영',
+      'Same year',
+      'Same year Taken February 29, 1988',
     ],
     [
       'different year, before',
@@ -90,8 +97,8 @@ describe('honest date boundaries on the card (demo 1988-09-17)', () => {
       -1,
       'year',
       '1987',
-      '1년 전',
-      '1년 전 1987년 촬영',
+      '1 year earlier',
+      '1 year earlier Taken 1987',
     ],
     [
       'different year, after',
@@ -99,8 +106,8 @@ describe('honest date boundaries on the card (demo 1988-09-17)', () => {
       2,
       'day',
       '1990-09-17',
-      '2년 뒤',
-      '2년 뒤 1990년 9월 17일 촬영',
+      '2 years later',
+      '2 years later Taken September 17, 1990',
     ],
     [
       'approximate, same year',
@@ -108,8 +115,8 @@ describe('honest date boundaries on the card (demo 1988-09-17)', () => {
       0,
       'approx',
       '1988',
-      '같은 해 무렵',
-      '같은 해 무렵 1988년 무렵 촬영(추정)',
+      'Around the same year',
+      'Around the same year Taken around 1988 (estimated)',
     ],
     [
       'approximate, after',
@@ -117,8 +124,8 @@ describe('honest date boundaries on the card (demo 1988-09-17)', () => {
       3,
       'approx',
       '1991',
-      '3년 뒤 무렵',
-      '3년 뒤 무렵 1991년 무렵 촬영(추정)',
+      'About 3 years later',
+      'About 3 years later Taken around 1991 (estimated)',
     ],
   ])(
     '%s: badge and capture time match',
@@ -167,7 +174,7 @@ describe('honest date boundaries on the card (demo 1988-09-17)', () => {
       '1987',
     ],
   ])(
-    '%s: shown, labeled only 촬영 시점 미상',
+    '%s: shown, labeled only Capture time unknown',
     (_case, kind, years, date_precision, captured_at) => {
       renderItem(
         patch(sameDayPhoto, {
@@ -178,7 +185,7 @@ describe('honest date boundaries on the card (demo 1988-09-17)', () => {
       )
       const figure = screen.getByRole('figure')
       expect(within(figure).getByRole('img')).toBeInTheDocument()
-      expect(firstLine(figure)).toHaveTextContent(/^촬영 시점 미상$/)
+      expect(firstLine(figure)).toHaveTextContent(/^Capture time unknown$/)
       expect(firstLine(figure).querySelector('span')).toBeNull()
       expect(figure.textContent).not.toContain('1988년 9월 17일')
       for (const hint of THAT_DAY_HINTS) {
@@ -208,7 +215,7 @@ describe('unknown capture time is never presented as that day', () => {
       'src',
       media.thumbnail_url,
     )
-    expect(firstLine(figure)).toHaveTextContent(/^촬영 시점 미상$/)
+    expect(firstLine(figure)).toHaveTextContent(/^Capture time unknown$/)
     expect(
       figure.querySelector(
         'figcaption span:not([aria-hidden]):not(.visually-hidden)',
@@ -223,7 +230,7 @@ describe('unknown capture time is never presented as that day', () => {
   it('ignores a leftover captured_at when the precision is unknown', () => {
     renderItem(patch(undatedPhoto, { captured_at: '1988-09-17' }))
     const figure = screen.getByRole('figure')
-    expect(firstLine(figure)).toHaveTextContent(/^촬영 시점 미상$/)
+    expect(firstLine(figure)).toHaveTextContent(/^Capture time unknown$/)
     expect(figure.textContent).not.toContain('1988년 9월 17일')
   })
 
@@ -255,11 +262,11 @@ describe('inline display, never a link card or a rehosted file', () => {
       const img = within(figure).getByRole('img')
       expect(img.getAttribute('src')).toBe(media.thumbnail_url)
       expect(img.closest('a')).toBeNull()
-      // The only links are the caption's 원문 보기 and 라이선스.
+      // The only links are the caption's View original and Licence.
       for (const link of within(figure).getAllByRole('link')) {
         expect(link.closest('figcaption')).not.toBeNull()
         expect(link).toHaveAccessibleName(
-          /^(원문 보기|라이선스)\s*\(새 창에서 열림\)$/,
+          /^(View original|Licence)\s*\(opens in a new tab\)$/,
         )
       }
     },
@@ -268,13 +275,13 @@ describe('inline display, never a link card or a rehosted file', () => {
 
 describe('source, license and capture time are always on the card', () => {
   it.each([sameDayPhoto, undatedPhoto, koglPhoto, unlicensedPhoto])(
-    '$id: caption shows the source text and the 원문 보기 link',
+    '$id: caption shows the source text and the View original link',
     (media) => {
       renderItem(media)
       const figure = screen.getByRole('figure')
       expect(figure).toHaveTextContent(media.attribution)
       expect(
-        within(figure).getByRole('link', { name: /^원문 보기/ }),
+        within(figure).getByRole('link', { name: /^View original/ }),
       ).toHaveAttribute('href', media.source_url)
       expect(firstLine(figure).textContent).not.toBe('')
     },
@@ -284,11 +291,11 @@ describe('source, license and capture time are always on the card', () => {
     ['license_status unknown with a name', { license_status: 'unknown' }],
     ['license null', { license: null }],
     ['license blank', { license: '   ' }],
-  ])('%s: 라이선스 확인 안 됨, image still shown', (_case, fields) => {
+  ])('%s: Licence not verified, image still shown', (_case, fields) => {
     renderItem(patch(sameDayPhoto, fields))
     const figure = screen.getByRole('figure')
     expect(within(figure).getByRole('img')).toBeInTheDocument()
-    expect(within(figure).getByText('라이선스 확인 안 됨')).toBeInTheDocument()
+    expect(within(figure).getByText('Licence not verified')).toBeInTheDocument()
   })
 
   it.each([

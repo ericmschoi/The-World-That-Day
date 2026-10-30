@@ -25,9 +25,9 @@ const LICENSE_STATUSES: readonly unknown[] = ['free', 'other', 'unknown']
 
 // Checks the server's normalization once more (M3a3 rule R1 and the required
 // fields of each display mode). A record that fails is hidden, never turned
-// into a link. `license` may be null: the caption says "라이선스 확인 안 됨".
+// into a link. `license` may be null: the caption says "Licence not verified".
 // Capture time may be unknown (PM decision 2026-10-11): the caption then says
-// "촬영 시점 미상" with no badge, so it is never shown as that day's.
+// "Capture time unknown" with no badge, so it is never shown as that day's.
 export function isDisplayable(media: Media): boolean {
   if (typeof media !== 'object' || media === null) return false
   const hasCaption =
@@ -42,7 +42,7 @@ export function isDisplayable(media: Media): boolean {
     isHttpUrl(media.source_url) &&
     LICENSE_STATUSES.includes(media.license_status)
   // M3a3 R9. `license_url` is left out on purpose: a bad one only drops the
-  // "라이선스" link in the caption, the card itself is still shown.
+  // "Licence" link in the caption, the card itself is still shown.
   const urlsSafe = [media.url, media.thumbnail_url, media.embed_url].every(
     (value) => value == null || isHttpUrl(value),
   )

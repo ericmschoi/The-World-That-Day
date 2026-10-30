@@ -281,17 +281,17 @@ describe('captions (T2 (9))', () => {
     await settle()
     return screen.getByRole('figure').querySelector('figcaption')!
   }
-  const SOURCE_LINK = /^원문 보기\s*\(새 창에서 열림\)$/
-  const TERMS_LINK = /^이용약관\s*\(새 창에서 열림\)$/
+  const SOURCE_LINK = /^View original\s*\(opens in a new tab\)$/
+  const TERMS_LINK = /^Terms\s*\(opens in a new tab\)$/
 
   it('1986 sample: 같은 해, the attribution, provider terms and links', async () => {
     const figcaption = await caption(exampleYoutubeEmbed)
     expect(figcaption.firstElementChild).toHaveTextContent(
-      /^같은 해 1986년 촬영$/,
+      /^Same year Taken 1986$/,
     )
     expect(figcaption).toHaveTextContent('시험용 개막식 영상 설명')
     expect(screen.getByText('KTV 아카이브 · YouTube')).toBeInTheDocument()
-    expect(screen.getByText('제공사 이용약관에 따름')).toBeInTheDocument()
+    expect(screen.getByText("Provider's terms apply")).toBeInTheDocument()
     expect(figcaption).not.toHaveTextContent('provider-terms')
     expect(screen.getByRole('link', { name: SOURCE_LINK })).toHaveAttribute(
       'href',
@@ -306,7 +306,7 @@ describe('captions (T2 (9))', () => {
   it('1988 Daehan News: the whole attribution and 같은 해 무렵', async () => {
     const figcaption = await caption(exampleDaehanNews)
     expect(figcaption.firstElementChild).toHaveTextContent(
-      /^같은 해 무렵 1988년 무렵 촬영\(추정\)$/,
+      /^Around the same year Taken around 1988 \(estimated\)$/,
     )
     expect(screen.getByText(exampleDaehanNews.attribution)).toHaveTextContent(
       /^대한뉴스 제1715호 \(1988년 9월 17일 자\) · 대한뉴스\(정부 제작 뉴스영화\) · KTV 아카이브 · YouTube$/,
@@ -315,7 +315,9 @@ describe('captions (T2 (9))', () => {
 
   it('unknown capture time: 촬영 시점 미상, never 같은 날', async () => {
     const figcaption = await caption(exampleYoutubeUndated)
-    expect(figcaption.firstElementChild).toHaveTextContent(/^촬영 시점 미상$/)
-    expect(figcaption).not.toHaveTextContent('같은 날')
+    expect(figcaption.firstElementChild).toHaveTextContent(
+      /^Capture time unknown$/,
+    )
+    expect(figcaption).not.toHaveTextContent('Same day')
   })
 })

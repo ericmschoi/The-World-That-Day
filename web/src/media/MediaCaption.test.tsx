@@ -6,9 +6,9 @@ import { sameDayPhoto, undatedPhoto } from '../mocks/fixtures/media/photos'
 import { MediaCaption } from './MediaCaption'
 import type { Media } from './types'
 
-// Caption links carry the hidden "(새 창에서 열림)" (M3b2b T2).
-const SOURCE_LINK = /^원문 보기\s*\(새 창에서 열림\)$/
-const LICENSE_LINK = /^라이선스\s*\(새 창에서 열림\)$/
+// Caption links carry the hidden "(opens in a new tab)" (M3b2b T2).
+const SOURCE_LINK = /^View original\s*\(opens in a new tab\)$/
+const LICENSE_LINK = /^Licence\s*\(opens in a new tab\)$/
 
 const renderCaption = (media: Media) =>
   render(
@@ -21,7 +21,7 @@ describe('MediaCaption', () => {
   it('puts the date line first', () => {
     const { container } = renderCaption(sameDayPhoto)
     const first = container.querySelector('figcaption > p')
-    expect(first).toHaveTextContent('같은 날 1988년 9월 17일 촬영')
+    expect(first).toHaveTextContent('Same day Taken September 17, 1988')
   })
 
   it('opens external links in a new tab without opener or referrer', () => {
@@ -59,7 +59,7 @@ describe('MediaCaption', () => {
   })
 
   describe('provider-terms (M3b3c T1 (5))', () => {
-    const TERMS_LINK = /^이용약관\s*\(새 창에서 열림\)$/
+    const TERMS_LINK = /^Terms\s*\(opens in a new tab\)$/
     const youtube: Media = {
       ...sameDayPhoto,
       license: 'provider-terms',
@@ -71,7 +71,7 @@ describe('MediaCaption', () => {
     it('says 제공사 이용약관에 따름 and links 이용약관 in a new tab', () => {
       renderCaption(youtube)
       const figure = screen.getByRole('figure')
-      expect(figure).toHaveTextContent('제공사 이용약관에 따름')
+      expect(figure).toHaveTextContent("Provider's terms apply")
       expect(figure).not.toHaveTextContent('provider-terms')
       const link = screen.getByRole('link', { name: TERMS_LINK })
       expect(link).toHaveAttribute('href', 'https://www.youtube.com/t/terms')
@@ -80,7 +80,7 @@ describe('MediaCaption', () => {
         expect.arrayContaining(['noopener', 'noreferrer']),
       )
       expect(link.querySelector('.visually-hidden')).toHaveTextContent(
-        '(새 창에서 열림)',
+        '(opens in a new tab)',
       )
       expect(
         screen.queryByRole('link', { name: LICENSE_LINK }),
@@ -112,7 +112,7 @@ describe('MediaCaption', () => {
   it('shows no badge for an unknown capture time', () => {
     const { container } = renderCaption(undatedPhoto)
     const first = container.querySelector('figcaption > p')
-    expect(first).toHaveTextContent(/^촬영 시점 미상$/)
+    expect(first).toHaveTextContent(/^Capture time unknown$/)
     expect(first?.querySelector('span')).toBeNull()
   })
 

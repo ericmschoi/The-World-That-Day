@@ -83,7 +83,8 @@ export const unlicensedPhoto: Media = {
   license: null,
   license_status: 'unknown',
   license_url: null,
-  attribution: '작가 정보 없음 · 라이선스 확인 안 됨 · Wikimedia Commons',
+  attribution:
+    'No author information · Licence not verified · Wikimedia Commons',
   description: null,
 }
 

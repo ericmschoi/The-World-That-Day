@@ -38,7 +38,7 @@ const sourceLink = (page: Page) =>
   page
     .getByRole('figure')
     .first()
-    .getByRole('link', { name: /^원문 보기/ })
+    .getByRole('link', { name: /^View original/ })
 
 test.describe('1988-09-17 with media', () => {
   let outside: Awaited<ReturnType<typeof interceptNetwork>>

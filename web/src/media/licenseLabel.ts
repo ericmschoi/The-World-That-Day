@@ -1,7 +1,9 @@
 import type { Media } from './types'
 
-export const LICENSE_UNKNOWN = '라이선스 확인 안 됨'
-export const PROVIDER_TERMS = '제공사 이용약관에 따름'
+// Same text as the server's `CommonsFileMapper.NO_LICENSE`; change both
+// together (plan C1 S1, risk 3).
+export const LICENSE_UNKNOWN = 'Licence not verified'
+export const PROVIDER_TERMS = "Provider's terms apply"
 
 const licenseName = (media: Media) =>
   typeof media.license === 'string' ? media.license.trim() : ''
@@ -27,7 +29,7 @@ const escape = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
 // M3b1b review (b): no separate license line when the attribution already
 // names the license as a whole token ("CC BY" is not in "CC BY-SA 4.0").
-// "라이선스 확인 안 됨" is never hidden: the honest label comes first.
+// "Licence not verified" is never hidden: the honest label comes first.
 export function licenseInAttribution(media: Media): boolean {
   const label = licenseLabel(media)
   if (label === LICENSE_UNKNOWN) return false

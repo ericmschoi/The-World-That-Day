@@ -114,16 +114,16 @@ describe('world1988WithYoutube on screen (T2 (9))', () => {
       '「1988년 하계 올림픽」 관련 자료',
     )
     expect(daehan.querySelector('figcaption > p')).toHaveTextContent(
-      /^같은 해 무렵 1988년 무렵 촬영\(추정\)$/,
+      /^Around the same year Taken around 1988 \(estimated\)$/,
     )
     expect(daehan).toHaveTextContent('대한뉴스 제1715호 (1988년 9월 17일 자)')
     expect(daehan).toHaveTextContent('대한뉴스(정부 제작 뉴스영화)')
 
     const undated = second.querySelector('iframe')!.closest('figure')!
     expect(undated.querySelector('figcaption > p')).toHaveTextContent(
-      /^촬영 시점 미상$/,
+      /^Capture time unknown$/,
     )
-    expect(undated).not.toHaveTextContent('같은 날')
+    expect(undated).not.toHaveTextContent('Same day')
     expect(world().querySelectorAll('video')).toHaveLength(2)
     expect(world().querySelectorAll('iframe')).toHaveLength(2)
     expect(fake!.players).toHaveLength(2)

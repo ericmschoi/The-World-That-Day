@@ -36,7 +36,7 @@ describe('license line (T2 (1))', () => {
 
     expect(lines(figure)).not.toContain('KOGL Type 1')
     expect(
-      within(figure).getByRole('link', { name: /라이선스.*새 창에서 열림/ }),
+      within(figure).getByRole('link', { name: /Licence.*opens in a new tab/ }),
     ).toHaveAttribute('href', koglPhoto.license_url)
   })
 
@@ -54,15 +54,15 @@ describe('license line (T2 (1))', () => {
     ['license null', { license: null }],
     ['license blank', { license: '  ' }],
   ])(
-    '%s: "라이선스 확인 안 됨" is always shown, even in the attribution',
+    '%s: "Licence not verified" is always shown, even in the attribution',
     (_c, fields) => {
       const figure = renderCard({
         ...sameDayPhoto,
-        attribution: 'Example Author · 라이선스 확인 안 됨 · CC BY-SA 4.0',
+        attribution: 'Example Author · Licence not verified · CC BY-SA 4.0',
         ...fields,
       } as Media)
 
-      expect(lines(figure)).toContain('라이선스 확인 안 됨')
+      expect(lines(figure)).toContain('Licence not verified')
     },
   )
 
@@ -74,7 +74,7 @@ describe('license line (T2 (1))', () => {
 
     expect(lines(figure)).not.toContain('Public domain')
     expect(figure).toHaveTextContent(olympicsOpeningPd.attribution)
-    expect(within(figure).queryByRole('link', { name: /라이선스/ })).toBeNull()
+    expect(within(figure).queryByRole('link', { name: /Licence/ })).toBeNull()
   })
 })
 
@@ -83,8 +83,8 @@ describe('caption links say they open a new tab (T2 (2))', () => {
     const figure = renderCard(sameDayPhoto)
 
     for (const name of [
-      /원문 보기.*새 창에서 열림/,
-      /라이선스.*새 창에서 열림/,
+      /View original.*opens in a new tab/,
+      /Licence.*opens in a new tab/,
     ]) {
       const link = within(figure).getByRole('link', { name })
       expect(link).toHaveAttribute('target', '_blank')

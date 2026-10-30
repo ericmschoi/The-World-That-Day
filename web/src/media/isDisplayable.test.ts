@@ -70,7 +70,8 @@ describe('isDisplayable', () => {
     expect(isDisplayable(without(sameDayPhoto, { [field]: '' }))).toBe(false)
   })
 
-  // PM decision 2026-10-11: shown, labeled "촬영 시점 미상" (see dateLabel).
+  // PM decision 2026-10-11: shown, labeled "Capture time unknown" (see
+  // dateLabel).
   it('accepts a photo whose capture time is unknown', () => {
     expect(undatedPhoto.date_precision).toBeNull()
     expect(isDisplayable(undatedPhoto)).toBe(true)

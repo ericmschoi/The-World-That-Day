@@ -28,7 +28,7 @@ const DEMO = {
   '2002-06-22': '2002년 6월 22일로 보기',
 } as const
 
-const NEW_TAB = /\(새 창에서 열림\)/
+const NEW_TAB = /\(opens in a new tab\)/
 
 const world = () => screen.getByRole('region', { name: '그날의 세계' })
 
@@ -77,9 +77,11 @@ describe('demo 1988-09-17 captions on the screen (데모 표 1행)', () => {
     )
     expect(lines(pd)).toContain(olympicsOpeningPd.attribution)
     expect(lines(pd)).not.toContain('Public domain')
-    expect(within(pd).queryByRole('link', { name: /라이선스/ })).toBeNull()
+    expect(within(pd).queryByRole('link', { name: /Licence/ })).toBeNull()
     expect(
-      within(pd).getByRole('link', { name: /^원문 보기.*새 창에서 열림/ }),
+      within(pd).getByRole('link', {
+        name: /^View original.*opens in a new tab/,
+      }),
     ).toHaveAttribute('href', olympicsOpeningPd.source_url)
   })
 
@@ -92,16 +94,16 @@ describe('demo 1988-09-17 captions on the screen (데모 표 1행)', () => {
       'src',
       licenseUnknown.thumbnail_url,
     )
-    expect(lines(figure)).toContain('라이선스 확인 안 됨')
+    expect(lines(figure)).toContain('Licence not verified')
   })
 
   it('every new-tab link, caption 원문 보기 included, says "새 창에서 열림"', async () => {
     await openDemo('1988-09-17')
 
-    // Four cards, one 원문 보기 each.
+    // Four cards, one View original each.
     expect(
       within(world()).getAllByRole('link', {
-        name: /^원문 보기.*새 창에서 열림/,
+        name: /^View original.*opens in a new tab/,
       }),
     ).toHaveLength(4)
     expectNewTabNotices()
@@ -163,7 +165,9 @@ describe('demo 2002-06-22 caption on the screen (데모 표 2행)', () => {
     expect(lines(figure)).toContain(worldCupKogl1.attribution)
     expect(lines(figure)).not.toContain('KOGL Type 1')
     expect(
-      within(figure).getByRole('link', { name: /^라이선스.*새 창에서 열림/ }),
+      within(figure).getByRole('link', {
+        name: /^Licence.*opens in a new tab/,
+      }),
     ).toHaveAttribute('href', worldCupKogl1.license_url)
     expectNewTabNotices()
   })

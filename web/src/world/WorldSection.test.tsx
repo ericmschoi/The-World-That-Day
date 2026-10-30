@@ -99,10 +99,10 @@ describe('WorldSection with media (default handler, T2 (2), (6))', () => {
 
     world1988WithMedia.events.forEach((event, i) => {
       const source = within(items[i]).getByRole('link', {
-        name: named(`「${event.source_title}」 (새 창에서 열림)`),
+        name: named(`「${event.source_title}」 (opens in a new tab)`),
       })
       const license = within(items[i]).getByRole('link', {
-        name: named('CC BY-SA 4.0 (새 창에서 열림)'),
+        name: named('CC BY-SA 4.0 (opens in a new tab)'),
       })
       expect(source).toHaveAttribute('href', event.source_url)
       expect(license).toHaveAttribute('href', event.text_license_url)
@@ -128,16 +128,18 @@ describe('WorldSection with media (default handler, T2 (2), (6))', () => {
     expect(within(items[0]).getAllByRole('img')).toHaveLength(2)
     const pdImg = within(pd).getByRole('img')
     expect(new URL(pdImg.getAttribute('src')!).host).toBe('thumb.wikimedia.org')
-    expect(within(pd).getByText('같은 날')).toBeInTheDocument()
-    expect(within(undated).getByText('촬영 시점 미상')).toBeInTheDocument()
-    expect(within(undated).queryByText('같은 날')).not.toBeInTheDocument()
+    expect(within(pd).getByText('Same day')).toBeInTheDocument()
+    expect(
+      within(undated).getByText('Capture time unknown'),
+    ).toBeInTheDocument()
+    expect(within(undated).queryByText('Same day')).not.toBeInTheDocument()
     // day_media (the unlicensed photo and the "-day" copy) is not in the list.
     for (const img of within(list).getAllByRole('img')) {
       expect(img.getAttribute('src')).not.toContain('example-photo-1988')
     }
     // The unlicensed day_media photo's caption says this (licenseLabel).
     expect(
-      within(list).queryByText('라이선스 확인 안 됨'),
+      within(list).queryByText('Licence not verified'),
     ).not.toBeInTheDocument()
   })
 })
@@ -385,7 +387,7 @@ describe('WorldSection fallbackAlt (T2 (10))', () => {
     for (const alt of alts) {
       for (const word of [
         '그날',
-        '같은 날',
+        'Same day',
         '당일',
         '1988-09-17',
         '1988년 9월 17일',
@@ -435,7 +437,9 @@ describe('WorldSection response shape check (M3b2b T0)', () => {
     expect(within(items[1]).queryAllByRole('img')).toHaveLength(0)
     expect(
       within(items[1]).getByRole('link', {
-        name: named(`「${world1988.events[0].source_title}」 (새 창에서 열림)`),
+        name: named(
+          `「${world1988.events[0].source_title}」 (opens in a new tab)`,
+        ),
       }),
     ).toBeInTheDocument()
     // D: the null is skipped, the photo is shown.

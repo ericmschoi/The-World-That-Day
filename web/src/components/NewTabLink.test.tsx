@@ -8,7 +8,7 @@ describe('NewTabLink', () => {
   it('links /privacy.html in a new tab, with the hidden notice', () => {
     render(<NewTabLink href="/privacy.html">개인정보처리방침</NewTabLink>)
     const link = screen.getByRole('link', {
-      name: /^개인정보처리방침\s*\(새 창에서 열림\)$/,
+      name: /^개인정보처리방침\s*\(opens in a new tab\)$/,
     })
     expect(link).toHaveAttribute('href', '/privacy.html')
     expect(link).toHaveAttribute('target', '_blank')
