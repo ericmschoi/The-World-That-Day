@@ -1,0 +1,421 @@
+# Generic English Wikipedia links for event deduplication (plan M3a1c rule D3, plan C1 S3a): countries,
+# states, provinces and cities that are linked from many unrelated event lines. A line whose main link
+# is listed here never merges through that link alone. List: every country, state, province and city
+# link of the 10 recorded Events sections of the demo pages (fixtures/wikimedia/enwiki), picked from the
+# 2309 distinct link titles by hand, plus the canonical titles their recorded link lookups redirect to
+# (Timor-Leste). One title per line, canonical form (spaces, first letter upper case).
+# Countries and states, current and historical
+Afghanistan
+Algeria
+Angola
+Argentina
+Aruba
+Australia
+Austria-Hungary
+Ba'athist Iraq
+Bangladesh
+Belgium
+Biafra
+Brazil
+British Raj
+Burma
+Chile
+China
+Colombia
+Cuba
+Curaçao
+Cyprus
+Czechoslovakia
+Democratic Kampuchea
+Denmark
+Dominica
+East Germany
+East Timor
+Ecuador
+Egypt
+El Salvador
+England
+Eritrea
+Estonia
+Estonian SSR
+Ethiopia
+Finland
+France
+Germany
+Gibraltar
+Greece
+Guatemala
+Haiti
+Honduras
+Iceland
+India
+Indonesia
+Iran
+Iraq
+Israel
+Jamaica
+Joseon
+Kingdom of England
+Kingdom of Nepal
+Kingdom of Scotland
+Kingdom of Spain
+Kingdom of Yugoslavia
+Kuwait
+Kyrgyzstan
+Lebanon
+Liberia
+Libya
+Madagascar
+Malaysia
+Maldives
+Malta
+Mauritius
+Mexico
+Morocco
+Mozambique
+Namibia
+Nazi Germany
+Nepal
+Netherlands Antilles
+New Zealand
+Nigeria
+North Korea
+North Vietnam
+Northern Ireland
+Norway
+Ottoman Empire
+Pakistan
+Papua New Guinea
+Philippines
+Polish People's Republic
+Portugal
+Puerto Rico
+Republic of China
+Republic of Finland
+Republic of Ireland
+Republic of Venice
+Rhodesia
+Russia
+Russian Empire
+Samoa
+Saudi Arabia
+Senegal
+Serbia and Montenegro
+Seychelles
+Slovakia
+Slovenia
+Socialist Federal Republic of Yugoslavia
+Somalia
+South Africa
+South Korea
+South Sudan
+South Vietnam
+Soviet Union
+Spain
+State of Palestine
+Sudan
+Suriname
+Sweden
+Syria
+Taiwan
+Thailand
+Tibet
+Timor-Leste
+Togoland
+Transkei
+Trinidad and Tobago
+Tunisia
+Turkey
+USSR
+Uganda
+Ukraine
+United Arab Emirates
+United Kingdom
+United States
+Uruguay
+Vanuatu
+Venezuela
+Vietnam
+West Germany
+Western Sahara
+Zaire
+Zimbabwe
+# Provinces, states and other regions
+Alabama
+Alaska
+Alberta
+Arauca department
+Australian Capital Territory
+Azores Islands
+Banat
+Biscay
+Black Country
+British Columbia
+Bukovina
+Cabinda Province
+California
+Central Java
+Diyala Governorate
+Florida
+Galápagos Islands
+Gascony
+Georgia (U.S. state)
+Gran Canaria
+Hawaii
+Hokkaidō
+Idaho
+Iowa
+Iraqi Kurdistan
+Java
+Kentucky
+Khyber Pakhtunkhwa
+Long Island
+Madeira
+Maharashtra
+Massachusetts
+Mindanao
+Mississippi
+Missouri
+Nagorno-Karabakh Autonomous Oblast
+Nebraska
+Nevada
+New Hampshire
+New Jersey
+New Mexico
+Oahu
+Ohio
+Okinawa Prefecture
+Oregon
+Orkney
+Quebec
+Sabah
+Santa Barbara County
+Sicily
+Sindh
+South Carolina
+South Tyrol
+Southern California
+Soviet Armenia
+Sumatra
+Tafea
+Tenerife
+Tennessee
+Texas
+Transylvania
+Tripura
+Washington (state)
+Wisconsin
+Định Tường province
+# Cities, towns and other localities
+Abingdon-on-Thames
+Afabet
+Afrin, Syria
+Airolo
+Algiers
+Amsterdam
+Amuda
+Annapolis, Maryland
+Antioch
+Atlanta
+Atlantic City
+Aurora, Colorado
+Ayacucho
+Baghdad
+Bahawalpur
+Balad, Somalia
+Baltimore
+Bandung
+Bangkok
+Barletta
+Beacon, New York
+Beijing
+Beirut
+Belfast
+Berlin
+Bilston
+Bishkek
+Bogotá
+Boston
+Bridgetown
+Brighton
+Brisbane
+Bristol
+Brownwood, Texas
+Brussels
+Budapest
+Burao
+Butterworth, Penang
+Cairo
+Calgary
+Cancún
+Cassino
+Cavalese
+Chalatenango, El Salvador
+Charleston, South Carolina
+Chicago
+Christchurch
+Chuschi
+Clarence Center, New York
+Concepción, Chile
+Constantinople
+Cái Bè
+Córdoba, Argentina
+Delhi
+Denguin
+Destrehan, Louisiana
+Detroit
+Dresden
+Dubai
+East Berlin
+Entebbe
+Everett, Washington
+Fairland, Indiana
+Flemington, New Jersey
+Florianópolis
+Fort Pillow, Tennessee
+Fort Worth, Texas
+Fortaleza
+Frankfurt
+Gdańsk
+Glenbrook, New South Wales
+Grand Island, Nebraska
+Gwangju
+Göschenen
+Hakodate
+Halle, Belgium
+Hargeisa
+Helsinki
+Hollywood Beach, Florida
+Huliaipole
+Innsbruck
+Inverness
+Islamabad
+Istanbul
+Jerusalem
+Johannesburg
+Jordan, Iowa
+Kansas City, Missouri
+Kennesaw, Georgia
+Khorramabad
+Kidal
+Kolkata
+Kota Kinabalu
+Kourou, French Guiana
+Kuala Lumpur
+Lahore
+Lake Placid, New York
+Lapua
+Las Vegas
+Letcher County, Kentucky
+Lillehammer
+Lisbon
+Lockerbie
+Longhope, Orkney
+Los Alamos, New Mexico
+Los Angeles
+Louisville, Kentucky
+Lublin
+Luling, Louisiana
+Magdeburg
+Manchester
+Maracaibo
+Mecca
+Melbourne
+Merauke
+Miami
+Milan
+Minneapolis
+Mobile, Alabama
+Montreal
+Montreux
+Moscow
+Munich
+Muradiye
+Murara
+Nashville, Tennessee
+Nauplia
+New Delhi
+New York City
+Nice
+Nzara
+Olancha, California
+Omaha
+Oshakati
+Oslo
+Oulu
+Owerri
+Palermo
+Palmdale, California
+Paris
+Patna
+Philadelphia
+Port Chicago, California
+Port-au-Prince
+Portland, Oregon
+Potsdam
+Princeton, New Jersey
+Pune
+Pyongyang
+Płock
+Rabat
+Radom
+Rawalpindi
+Rieti
+Riyadh
+Rocksprings, Texas
+Rome
+Rosario
+Rugby, Warwickshire
+San Francisco
+Santa Barbara, California
+Santiago
+Savannah, Georgia
+Scillium
+Seattle
+Segovia
+Seneca Falls (hamlet), New York
+Seoul
+Shanghai
+Shenzhen, China
+Silivri
+Sincelejo
+Smethwick
+Smolensk
+Southfield, Michigan
+St Kilda, Victoria
+St. John's, Newfoundland
+St. John's, Newfoundland and Labrador
+St. Louis
+Stockholm, Sweden
+Sumqayit
+Suruç
+São Paulo
+Taipei
+Tangermünde
+Tangshan
+Tehran
+Thunder Bay, Ontario
+Toulouse
+Turin
+Umuahia
+Valparaíso
+Van, Turkey
+Vancouver
+Vienna
+Warsaw
+Washington, D.C.
+Webb, Saskatchewan
+West Berlin
+Whistler, British Columbia
+White Lake, Sullivan County, New York
+Wichita, Kansas
+Yambuku
+Yangjiang
+Yekaterinburg
+Yerevan
+York
+Zagreb
+Zagreb, Croatia
+Zürich
+Écône
+Čakovec
