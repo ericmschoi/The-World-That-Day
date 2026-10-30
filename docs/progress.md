@@ -356,3 +356,5 @@
 | 2026-10-29 | planner | S1 영어 화면·S2 M2b 고쳐 쓰기 계획 (c1-english-ui, c1-input-and-opening-ca, PR 2개) | 완료, PM 결정 필요 S1-P1~P4, S2-P1~P2 | - |
 | 2026-10-29 | data-researcher | Canada T6 지역 지표 (날씨·집값·인구) | 완료, ECCC 일별 기후·StatCan 인구 추계·NHPI 확인됨, 도시 인구 2001~·도시권 1976~, 집값은 1981~ 지수 비율만, CREA 부적합, 결정 후보 D1~D7 (T9) | 9e1cbcb (병합) |
 | 2026-10-29 | data-researcher | Canada T4 기록 사진·영상과 공식 채널 | 완료, 카드 16개 (Commons 기록보관소 사본·Radio-Canada Archives·Olympic 채널 부분 확인, 날짜·장소 검색 API 가진 기록보관소 없음), 결정 후보 D1~D7 (T9), PM 명령 C1~C4 | 90ee455 (병합) |
+| 2026-10-29 | data-researcher | Canada T9 요약과 판정 | 완료, 11개 항목 판정(지금 구현 1·2·3·6·11, PM 확인 뒤 4·5·7·9·10, 빼기 8), 결정 47개(막는 것 A1·A2·T1 D1~D5·T8 D4), PM 명령 50개 | 04e3492 |
+| 2026-10-29 | PM | S1·S2·S3 계획 승인 ("모두 추천대로"): S1-P1~P4·S2-P1~P2·S3 D1~D9 추천안, ★ S3b T2 (a) 기록 후 S3b 전에 재확인 | 결정 | - |
