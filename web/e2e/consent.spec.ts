@@ -157,10 +157,10 @@ async function openPolicyFrom(page: Page) {
 async function expectPolicy(policy: Page, opener: Page) {
   expect(new URL(policy.url()).pathname).toBe('/privacy.html')
   await expect(policy.getByRole('heading', { level: 1 })).toHaveText(
-    '개인정보처리방침',
+    'Privacy policy',
   )
   await expect(policy.getByRole('main')).toContainText(
-    'The World That Day 운영자',
+    'Operator: The World That Day operator',
   )
   // Checked by href only, never clicked.
   await expect(
