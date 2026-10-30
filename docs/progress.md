@@ -358,3 +358,6 @@
 | 2026-10-29 | data-researcher | Canada T4 기록 사진·영상과 공식 채널 | 완료, 카드 16개 (Commons 기록보관소 사본·Radio-Canada Archives·Olympic 채널 부분 확인, 날짜·장소 검색 API 가진 기록보관소 없음), 결정 후보 D1~D7 (T9), PM 명령 C1~C4 | 90ee455 (병합) |
 | 2026-10-29 | data-researcher | Canada T9 요약과 판정 | 완료, 11개 항목 판정(지금 구현 1·2·3·6·11, PM 확인 뒤 4·5·7·9·10, 빼기 8), 결정 47개(막는 것 A1·A2·T1 D1~D5·T8 D4), PM 명령 50개 | 04e3492 |
 | 2026-10-29 | PM | S1·S2·S3 계획 승인 ("모두 추천대로"): S1-P1~P4·S2-P1~P2·S3 D1~D9 추천안, ★ S3b T2 (a) 기록 후 S3b 전에 재확인 | 결정 | - |
+| 2026-10-29 | code-reviewer | Canada 리서치 브랜치 리뷰 | 수정 요청 (필수 1: summary 2.1 GeoNames CC BY 4.0 누락, 권장 4), 핵심 근거 직접 확인 모두 일치 | - |
+| 2026-10-29 | data-researcher | Canada T9 리뷰 수정 | 완료, GeoNames CC BY 4.0 행 분리 + 권장 3건 | 0df7f69 |
+| 2026-10-29 | code-reviewer | Canada 리서치 브랜치 재리뷰 | 승인 | - |
