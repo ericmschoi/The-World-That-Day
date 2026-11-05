@@ -13,7 +13,7 @@ import { ConsentNotice } from '../consent/ConsentNotice'
 import { ConsentProvider } from '../consent/ConsentProvider'
 import type { DatePrecision, DateRelation, Media } from '../media/types'
 import { olympicsOpeningPd } from '../mocks/fixtures/world/media'
-import { world1995 } from '../mocks/fixtures/world/responses'
+import { world1950 } from '../mocks/fixtures/world/responses'
 import { server } from '../mocks/server'
 import { StoryScreen } from '../screens/StoryScreen'
 import type { WorldEvent, WorldResponse } from './types'
@@ -182,7 +182,7 @@ describe('screen text is English (plan C1 S1 T6 (2))', () => {
     answer(englishWorld)
     render(
       <>
-        <StoryScreen date="1988-09-17" onRestart={() => {}} />
+        <StoryScreen date="1988-09-17" place="Calgary" onRestart={() => {}} />
         <SiteFooter />
       </>,
     )
@@ -197,7 +197,8 @@ describe('screen text is English (plan C1 S1 T6 (2))', () => {
     expectEnglishOnly(text)
     expectEnglishOnly(everythingRead())
 
-    // Section titles, the other four sections' status, the button, the footer.
+    // Section titles, the other three sections' status (M2b fills the
+    // opening), the button, the footer.
     for (const title of [
       'Opening',
       'The neighbourhood that day',
@@ -207,7 +208,7 @@ describe('screen text is English (plan C1 S1 T6 (2))', () => {
     ]) {
       expect(screen.getByRole('region', { name: title })).toBeInTheDocument()
     }
-    expect(text.match(/This section is coming soon\./g)).toHaveLength(4)
+    expect(text.match(/This section is coming soon\./g)).toHaveLength(3)
     expect(screen.getByRole('button', { name: 'Start over' })).toBeVisible()
     expect(text).toContain('Privacy policy')
 
@@ -282,14 +283,16 @@ describe('screen text is English (plan C1 S1 T6 (2))', () => {
   })
 
   it('draws the "no major events" notice and the coming-soon sections', async () => {
-    answer(world1995)
-    render(<StoryScreen date="1995-03-15" onRestart={() => {}} />)
+    answer(world1950)
+    render(
+      <StoryScreen date="1950-01-01" place="Calgary" onRestart={() => {}} />,
+    )
     await screen.findByText('No major events were found for this date.')
 
     const text = document.body.textContent ?? ''
     expectEnglishOnly(text)
     expectEnglishOnly(everythingRead())
-    expect(text.match(/This section is coming soon\./g)).toHaveLength(4)
+    expect(text.match(/This section is coming soon\./g)).toHaveLength(3)
   })
 
   it('draws the loading state', async () => {

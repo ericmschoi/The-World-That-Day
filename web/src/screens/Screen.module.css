@@ -4,9 +4,11 @@
   line-height: var(--line-height-heading);
 }
 
-.lead {
-  margin: 0 0 var(--space-5);
-  font-size: var(--font-size-lead);
+.opening {
+  margin: 0;
+  font-size: var(--font-size-display);
+  font-weight: 700;
+  line-height: var(--line-height-heading);
 }
 
 .button {
@@ -23,13 +25,6 @@
 .button:focus-visible {
   outline: var(--focus-ring-width) solid var(--color-focus);
   outline-offset: var(--focus-ring-offset);
-}
-
-.buttons {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-3);
 }
 
 /* Not agreed yet: plain, still focusable, no opacity (contrast stays AA). */

@@ -9,6 +9,7 @@ import { http, HttpResponse } from 'msw'
 import { describe, expect, it } from 'vitest'
 import App from '../App'
 import { agree } from '../test/consent'
+import { openStory } from '../test/storyInput'
 import {
   captureTimeUnknown,
   licenseUnknown,
@@ -23,20 +24,21 @@ import {
 import { server } from '../mocks/server'
 import type { WorldResponse } from './types'
 
+// The demo dates with their places, entered through the form (M2b T3 (4)).
 const DEMO = {
-  '1988-09-17': '1988년 9월 17일로 보기',
-  '2002-06-22': '2002년 6월 22일로 보기',
+  '1988-09-17': 'Calgary',
+  '2002-06-22': 'Calgary',
 } as const
 
 const NEW_TAB = /\(opens in a new tab\)/
 
 const world = () => screen.getByRole('region', { name: 'The world that day' })
 
-async function openDemo(date: keyof typeof DEMO) {
+async function showDemo(date: keyof typeof DEMO) {
   const user = userEvent.setup()
   render(<App />)
   await agree(user)
-  await user.click(screen.getByRole('button', { name: DEMO[date] }))
+  await openStory(user, { date, place: DEMO[date] })
   await waitFor(() => expect(world()).not.toHaveAttribute('aria-busy'))
   expect(screen.queryByText("This section couldn't be loaded.")).toBeNull()
 }
@@ -66,7 +68,7 @@ function expectNewTabNotices() {
 
 describe('demo 1988-09-17 captions on the screen (데모 표 1행)', () => {
   it('event ①’s PD photo: no separate license line and no 라이선스 link', async () => {
-    await openDemo('1988-09-17')
+    await showDemo('1988-09-17')
 
     const list = screen.getByRole('list', { name: 'Events' })
     const [pd] = within(list).getAllByRole('figure')
@@ -86,7 +88,7 @@ describe('demo 1988-09-17 captions on the screen (데모 표 1행)', () => {
   })
 
   it('the unlicensed day photo keeps its honest "라이선스 확인 안 됨" line', async () => {
-    await openDemo('1988-09-17')
+    await showDemo('1988-09-17')
 
     const [figure] = within(block('Photos taken that day')).getAllByRole(
       'figure',
@@ -100,7 +102,7 @@ describe('demo 1988-09-17 captions on the screen (데모 표 1행)', () => {
   })
 
   it('every new-tab link, caption 원문 보기 included, says "새 창에서 열림"', async () => {
-    await openDemo('1988-09-17')
+    await showDemo('1988-09-17')
 
     // Four cards, one View original each.
     expect(
@@ -112,7 +114,7 @@ describe('demo 1988-09-17 captions on the screen (데모 표 1행)', () => {
   })
 
   it('photos with a description: alt is the short fallback, the caption has the text', async () => {
-    await openDemo('1988-09-17')
+    await showDemo('1988-09-17')
 
     const list = screen.getByRole('list', { name: 'Events' })
     const eventAlts = within(list)
@@ -149,7 +151,7 @@ describe('demo 1988-09-17 captions on the screen (데모 표 1행)', () => {
   })
 
   it('has no "다른 때 찍힌 사진" heading and no tragic block', async () => {
-    await openDemo('1988-09-17')
+    await showDemo('1988-09-17')
 
     expect(
       within(world())
@@ -162,7 +164,7 @@ describe('demo 1988-09-17 captions on the screen (데모 표 1행)', () => {
 
 describe('demo 2002-06-22 caption on the screen (데모 표 2행)', () => {
   it('KOGL photo: no separate license line, the 라이선스 link stays', async () => {
-    await openDemo('2002-06-22')
+    await showDemo('2002-06-22')
 
     const figure = within(world()).getByRole('figure')
 
@@ -188,7 +190,7 @@ describe('synthetic tragic days through the demo button', () => {
     '%s: every new-tab link says so, no media in the section',
     async (_, body) => {
       answer(body)
-      await openDemo('1988-09-17')
+      await showDemo('1988-09-17')
 
       expect(
         within(block('Difficult events on the same day')).getByText(

@@ -44,7 +44,7 @@ async function showStory() {
   server.use(
     http.get('/api/story/world', () => HttpResponse.json(world1988WithVideo)),
   )
-  render(<StoryScreen date="1988-09-17" onRestart={() => {}} />)
+  render(<StoryScreen date="1988-09-17" place="Calgary" onRestart={() => {}} />)
   await waitFor(() => expect(world()).not.toHaveAttribute('aria-busy'))
   const eventVideo = within(screen.getByRole('list', { name: 'Events' }))
     .getAllByRole('listitem')[0]

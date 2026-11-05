@@ -14,12 +14,13 @@ import { http, HttpResponse } from 'msw'
 import { describe, expect, it } from 'vitest'
 import App from '../App'
 import { agree } from '../test/consent'
+import { openStory } from '../test/storyInput'
 import { sdkRoadview, videoEmbed } from '../mocks/fixtures/media/modes'
 import { exampleVideoFile } from '../mocks/fixtures/world/media'
 import {
   world1988WithMedia,
   world1988WithVideo,
-  world1995,
+  world1950,
   world2002WithMedia,
   worldWithTragic,
 } from '../mocks/fixtures/world/responses'
@@ -192,7 +193,7 @@ describe('world1988WithVideo on screen (T3 (3)·(5))', () => {
 describe('no video where none was sent (T3 (5))', () => {
   it.each([
     ['world2002WithMedia', world2002WithMedia],
-    ['world1995', world1995],
+    ['world1950', world1950],
   ])('%s has no video or iframe and no error text', async (_name, body) => {
     await showWorld(body)
     expect(world().querySelectorAll('video, iframe')).toHaveLength(0)
@@ -227,20 +228,20 @@ describe('no video where none was sent (T3 (5))', () => {
 
 describe('sample date buttons (T3 (6))', () => {
   it.each([
-    ['표본: 1969년 7월 20일로 보기', '1969-07-20'],
-    ['표본: 1986년 9월 20일로 보기', '1986-09-20'],
-  ])('%s asks the world API for %s', async (label, date) => {
+    ['sample: July 20, 1969, Calgary', '1969-07-20'],
+    ['sample: September 20, 1986, Calgary', '1986-09-20'],
+  ])('%s asks the world API for %s', async (_label, date) => {
     const asked: (string | null)[] = []
     server.use(
       http.get('/api/story/world', ({ request }) => {
         asked.push(new URL(request.url).searchParams.get('date'))
-        return HttpResponse.json(world1995)
+        return HttpResponse.json(world1950)
       }),
     )
     const user = userEvent.setup()
     render(<App />)
     await agree(user)
-    await user.click(screen.getByRole('button', { name: label }))
+    await openStory(user, { date, place: 'Calgary' })
     await screen.findByText('No major events were found for this date.')
     expect(asked).toEqual([date])
     expect(screen.getAllByRole('region')).toHaveLength(5)

@@ -13,9 +13,9 @@ import {
 import { exampleVideoFile } from '../src/mocks/fixtures/world/media'
 import { world1988WithVideo } from '../src/mocks/fixtures/world/responses'
 import type { WorldResponse } from '../src/world/types'
-import { interceptNetwork, openDemo, type VideoRequests } from './network'
+import { interceptNetwork, openStory, type VideoRequests } from './network'
 
-const DEMO_1988 = '1988년 9월 17일로 보기'
+const DEMO_1988 = { date: '1988-09-17', place: 'Calgary' }
 const SAME_DAY = 'Photos taken that day'
 const UNDATED = 'Photos with an unknown capture time'
 const EVENT_VIDEO = 'Material about “1988년 하계 올림픽”'
@@ -130,7 +130,7 @@ async function open(
 ) {
   await page.addInitScript(recordMedia)
   const outside = await interceptNetwork(context, world, { videos })
-  await openDemo(page, DEMO_1988)
+  await openStory(page, DEMO_1988)
   return outside
 }
 

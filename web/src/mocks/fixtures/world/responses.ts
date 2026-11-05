@@ -105,8 +105,8 @@ export const world2002 = {
   partial: false,
 } satisfies WorldResponse
 
-export const world1995 = {
-  date: '1995-03-15',
+export const world1950 = {
+  date: '1950-01-01',
   events: [],
   day_media: [],
   notice: { code: 'NO_EVENTS_FOUND' },

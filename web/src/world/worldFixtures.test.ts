@@ -83,10 +83,10 @@ const demoFixtures = fixtures.filter(([name]) => !SYNTHETIC.includes(name))
 describe('world fixtures: key sets (T1b (5))', () => {
   it('has the five demo fixtures and the three synthetic ones', () => {
     expect(fixtures.map(([name]) => name).sort()).toEqual([
+      'world1950',
       'world1988',
       'world1988WithMedia',
       'world1988WithVideo',
-      'world1995',
       'world2002',
       'world2002WithMedia',
       'worldTragicOnly',
@@ -155,9 +155,9 @@ describe('world fixtures: demo values (T1b (6))', () => {
     expect(event.summary).toContain('스페인')
   })
 
-  it('world1995 has no events and the NO_EVENTS_FOUND notice', () => {
-    expect(responses.world1995).toEqual({
-      date: '1995-03-15',
+  it('world1950 has no events and the NO_EVENTS_FOUND notice', () => {
+    expect(responses.world1950).toEqual({
+      date: '1950-01-01',
       events: [],
       day_media: [],
       notice: { code: 'NO_EVENTS_FOUND' },

@@ -371,3 +371,9 @@
 | 2026-10-29 | orchestrator | C1 S1 PR | PR #31 열림 | dd3a9c2 |
 | 2026-10-29 | PM | Canada 리서치 | PR #30 머지 | bea33b1 |
 | 2026-11-04 | frontend-dev | C1 S1 T3 시행일 (머지 날) | 완료, November 4, 2026, 웹 751·e2e 118 통과 (직전 실행 e2e 2건 시간 초과는 흔들림으로 봄) | 3fe26a6 |
+| 2026-11-05 | frontend-dev | C1 S2 T0 main merge(S1 영어 화면) | 완료 | 38d82dd |
+| 2026-11-05 | frontend-dev | C1 S2 T8a 날짜 규칙·폼·오프닝 en-CA, St. John's 오늘, DATE_TOO_EARLY | 완료 | c3ba587 |
+| 2026-11-05 | frontend-dev | C1 S2 T8b 방침 S-1·S-7·YouTube 문장, S-9 요약, S1 리뷰 남은 일(793f943 단독 typecheck 실패, 277542e와 한 묶음) | 완료 | 277542e |
+| 2026-11-05 | test-engineer | C1 S2 T6 검증(입력 화면 영어, 날짜만 전송, 840·e2e 128 2회, 제품 코드 +450/−75) | 완료 | 8f35e36 |
+| 2026-11-05 | code-reviewer | C1 S2 리뷰 승인(필수 없음, 권장 4: 방침 "that day and place" 문장, IFrame 문장에 시각, flow.test 정규식 이스케이프, Intl ICU 판) | 승인 | 8f35e36 |
+| 2026-11-05 | frontend-dev | C1 S2 PR #33 리뷰 권장 3건(방침 "for that day", IFrame 문장에 시각, 오프닝 전체 문장 비교) | 완료 | 0e74cd2 |

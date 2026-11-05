@@ -53,6 +53,7 @@ type ExpectedProblemCode =
   | 'DATE_FORMAT'
   | 'DATE_NOT_EXIST'
   | 'DATE_IN_FUTURE'
+  | 'DATE_TOO_EARLY'
   | 'UPSTREAM_UNAVAILABLE'
 
 // Each fails `tsc -b` if a name, a type or null-ability differs.

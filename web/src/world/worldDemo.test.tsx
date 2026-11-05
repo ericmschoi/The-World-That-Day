@@ -9,6 +9,7 @@ import { http, HttpResponse } from 'msw'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from '../App'
 import { agree } from '../test/consent'
+import { openStory } from '../test/storyInput'
 import { olympicsOpeningPd } from '../mocks/fixtures/world/media'
 import {
   world1988,
@@ -26,19 +27,20 @@ afterEach(() => {
 const NOTICE = 'No major events were found for this date.'
 const ERROR = "This section couldn't be loaded."
 const PLACEHOLDER = 'This section is coming soon.'
+// The demo dates with their places, entered through the form (M2b T3 (4)).
 const DEMO = {
-  '1988-09-17': '1988년 9월 17일로 보기',
-  '2002-06-22': '2002년 6월 22일로 보기',
-  '1995-03-15': '1995년 3월 15일로 보기',
+  '1988-09-17': 'Calgary',
+  '2002-06-22': 'Calgary',
+  '1950-01-01': 'Calgary',
 } as const
 type DemoDate = keyof typeof DEMO
 const DATE_STRINGS = [
   '1988-09-17',
   '2002-06-22',
-  '1995-03-15',
+  '1950-01-01',
   '1988년 9월 17일',
   '2002년 6월 22일',
-  '1995년 3월 15일',
+  '1950년 1월 1일',
 ]
 
 const world = () => screen.getByRole('region', { name: 'The world that day' })
@@ -46,11 +48,11 @@ const eventList = () => screen.findByRole('list', { name: 'Events' })
 const answer = (body: WorldResponse) =>
   server.use(http.get('/api/story/world', () => HttpResponse.json(body)))
 
-async function openDemo(date: DemoDate) {
+async function showDemo(date: DemoDate) {
   const user = userEvent.setup()
   render(<App />)
   await agree(user)
-  await user.click(screen.getByRole('button', { name: DEMO[date] }))
+  await openStory(user, { date, place: DEMO[date] })
   return user
 }
 
@@ -84,7 +86,7 @@ function expectSourceLines(items: HTMLElement[], events: WorldEvent[]) {
 
 describe('demo 1988-09-17 (데모 표 1행)', () => {
   it('shows the three events in order, text exactly as written, with source lines', async () => {
-    await openDemo('1988-09-17')
+    await showDemo('1988-09-17')
 
     const items = within(await eventList()).getAllByRole('listitem')
 
@@ -98,7 +100,7 @@ describe('demo 1988-09-17 (데모 표 1행)', () => {
   })
 
   it('media fixture: event ① has two inline photos with honest date lines, day_media is outside the list', async () => {
-    await openDemo('1988-09-17')
+    await showDemo('1988-09-17')
 
     const list = await eventList()
     const items = within(list).getAllByRole('listitem')
@@ -125,7 +127,7 @@ describe('demo 1988-09-17 (데모 표 1행)', () => {
 
   it('today’s server shape: the same three events and no img', async () => {
     answer(world1988)
-    await openDemo('1988-09-17')
+    await showDemo('1988-09-17')
 
     const items = within(await eventList()).getAllByRole('listitem')
 
@@ -140,7 +142,7 @@ describe('demo 2002-06-22 (데모 표 2행)', () => {
   const [quarterFinal] = world2002.events
 
   it('media fixture: the "스페인" sentence once, source line 「6월 22일」, one KOGL Type 1 photo', async () => {
-    await openDemo('2002-06-22')
+    await showDemo('2002-06-22')
 
     const items = within(await eventList()).getAllByRole('listitem')
 
@@ -166,7 +168,7 @@ describe('demo 2002-06-22 (데모 표 2행)', () => {
 
   it('today’s server shape: sentence and source line, no img', async () => {
     answer(world2002)
-    await openDemo('2002-06-22')
+    await showDemo('2002-06-22')
 
     const items = within(await eventList()).getAllByRole('listitem')
 
@@ -177,9 +179,9 @@ describe('demo 2002-06-22 (데모 표 2행)', () => {
   })
 })
 
-describe('demo 1995-03-15 (데모 표 3행)', () => {
+describe('boundary date 1950-01-01 (no events, S2-P1 (a))', () => {
   it('shows the notice under "그날의 세계", no img and no list', async () => {
-    await openDemo('1995-03-15')
+    await showDemo('1950-01-01')
 
     expect(await screen.findByText(NOTICE)).toBeInTheDocument()
     expect(
@@ -201,7 +203,7 @@ describe('demo buttons send their own date only', () => {
       sent.push(request.url)
     })
     try {
-      await openDemo(date)
+      await showDemo(date)
       await waitFor(() => expect(world()).not.toHaveAttribute('aria-busy'))
     } finally {
       server.events.removeAllListeners('request:start')
@@ -231,7 +233,7 @@ describe('failure isolation: only the world section fails (product brief 8)', ()
     ['500 without a body', () => new HttpResponse(null, { status: 500 })],
   ])('%s', async (_name, respond) => {
     server.use(http.get('/api/story/world', respond))
-    const user = await openDemo('1988-09-17')
+    const user = await showDemo('1988-09-17')
 
     expect(await within(world()).findByText(ERROR)).toBeInTheDocument()
     const others = screen
@@ -243,8 +245,12 @@ describe('failure isolation: only the world section fails (product brief 8)', ()
       'city',
       'closing',
     ])
+    // M2b T4: the opening is filled now; the other three stay placeholders.
+    expect(others[0]).toHaveTextContent('Saturday, September 17, 1988, Calgary')
     for (const region of others) {
-      expect(region).toHaveTextContent(PLACEHOLDER)
+      if (region.id !== 'opening') {
+        expect(region).toHaveTextContent(PLACEHOLDER)
+      }
       expect(region).not.toHaveTextContent(ERROR)
     }
     expect(screen.getAllByText(ERROR)).toHaveLength(1)
@@ -255,7 +261,7 @@ describe('failure isolation: only the world section fails (product brief 8)', ()
     // The screen still works: back to the start, then a working demo date.
     server.resetHandlers()
     await user.click(screen.getByRole('button', { name: 'Start over' }))
-    await user.click(screen.getByRole('button', { name: DEMO['1995-03-15'] }))
+    await openStory(user, { date: '1950-01-01', place: DEMO['1950-01-01'] })
     expect(await screen.findByText(NOTICE)).toBeInTheDocument()
   })
 })
@@ -270,10 +276,10 @@ describe('privacy: the date stays in memory only (C4, C5)', () => {
     localStorage.clear()
     sessionStorage.clear()
 
-    const user = await openDemo('1988-09-17')
+    const user = await showDemo('1988-09-17')
     await eventList()
     await user.click(screen.getByRole('button', { name: 'Start over' }))
-    await user.click(screen.getByRole('button', { name: DEMO['2002-06-22'] }))
+    await openStory(user, { date: '2002-06-22', place: DEMO['2002-06-22'] })
     await eventList()
     await user.click(screen.getByRole('button', { name: 'Start over' }))
     // An error path too: errors must not log the date either.
@@ -283,7 +289,7 @@ describe('privacy: the date stays in memory only (C4, C5)', () => {
         () => new HttpResponse(null, { status: 503 }),
       ),
     )
-    await user.click(screen.getByRole('button', { name: DEMO['1995-03-15'] }))
+    await openStory(user, { date: '1950-01-01', place: DEMO['1950-01-01'] })
     await within(world()).findByText(ERROR)
 
     expect(window.location.href).toBe(startHref)
@@ -312,7 +318,7 @@ describe('event media and source links (CLAUDE.md 7.1)', () => {
         },
       ],
     })
-    await openDemo('1988-09-17')
+    await showDemo('1988-09-17')
 
     const [item] = within(await eventList()).getAllByRole('listitem')
 
@@ -340,7 +346,7 @@ describe('event media and source links (CLAUDE.md 7.1)', () => {
         },
       ],
     })
-    await openDemo('1988-09-17')
+    await showDemo('1988-09-17')
 
     const [item] = within(await eventList()).getAllByRole('listitem')
 
@@ -368,7 +374,7 @@ describe('event media and source links (CLAUDE.md 7.1)', () => {
         world1988.events[2],
       ],
     })
-    await openDemo('1988-09-17')
+    await showDemo('1988-09-17')
 
     const list = await eventList()
     const items = within(list).getAllByRole('listitem')

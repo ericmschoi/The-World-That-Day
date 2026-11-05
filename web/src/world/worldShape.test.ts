@@ -10,7 +10,7 @@ import {
 import {
   world1988,
   world1988WithMedia,
-  world1995,
+  world1950,
 } from '../mocks/fixtures/world/responses'
 import { toWorldResponse } from './worldShape'
 
@@ -26,7 +26,7 @@ describe('toWorldResponse top level', () => {
   )
 
   it('keeps the demo fixtures as they are', () => {
-    for (const body of [world1988, world1988WithMedia, world1995]) {
+    for (const body of [world1988, world1988WithMedia, world1950]) {
       expect(toWorldResponse(body)).toEqual(body)
     }
   })
@@ -87,6 +87,18 @@ describe('toWorldResponse events', () => {
     })
     expect(result?.events[0].title).toBeNull()
   })
+
+  // S1 review: never lang="" on the screen.
+  it.each([undefined, null, '', 42])(
+    'turns a summary_lang of %j into undefined',
+    (summary_lang) => {
+      const result = toWorldResponse({
+        ...world1988,
+        events: [{ ...shapeEventA, summary_lang }],
+      })
+      expect(result?.events[0].summary_lang).toBeUndefined()
+    },
+  )
 
   it.each([undefined, null, 'photo', {}])(
     'turns media of %j into []',

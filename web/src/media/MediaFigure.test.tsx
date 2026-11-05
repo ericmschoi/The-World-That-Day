@@ -11,7 +11,7 @@ import { videoEmbed } from '../mocks/fixtures/media/modes'
 import { MediaFigure } from './MediaFigure'
 import type { Media } from './types'
 
-const FALLBACK = '서울 사진'
+const FALLBACK = 'Calgary photo'
 
 // Caption links carry the hidden "(opens in a new tab)" (M3b2b T2).
 const SOURCE_LINK = /^View original\s*\(opens in a new tab\)$/

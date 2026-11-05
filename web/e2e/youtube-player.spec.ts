@@ -15,7 +15,7 @@ import {
 import { YOUTUBE_EMBED_ORIGIN } from '../src/external/urls'
 import type { Media } from '../src/media/types'
 import {
-  world1995,
+  world1950,
   world2002WithMedia,
 } from '../src/mocks/fixtures/world/responses'
 import type { WorldResponse } from '../src/world/types'
@@ -25,7 +25,7 @@ import {
   exampleYoutubeUndated,
   world1988WithYoutube,
 } from '../src/mocks/fixtures/world/youtube'
-import { interceptNetwork, openDemo } from './network'
+import { fillStory, interceptNetwork, openStory } from './network'
 import {
   installFakeYT,
   ytCount,
@@ -43,7 +43,7 @@ import {
   type FakeOptions,
 } from './youtubeFake'
 
-const DEMO_1988 = '1988년 9월 17일로 보기'
+const DEMO_1988 = { date: '1988-09-17', place: 'Calgary' }
 const CONSENT_LABEL = 'I agree to the privacy policy (required)'
 const EVENT_1 = 'Material about “1988년 하계 올림픽”'
 const EVENT_2 = 'Material about “KBS 1TV”'
@@ -58,7 +58,7 @@ const VIDEO_URLS = exampleVideoFile.video_sources.map((source) => source.url)
 const FIXTURE_MEDIA: Media[] = [
   world1988WithYoutube,
   world2002WithMedia,
-  world1995,
+  world1950,
 ].flatMap((story: WorldResponse): Media[] => [
   ...story.events.flatMap((event) => event.media),
   ...story.day_media,
@@ -209,7 +209,7 @@ async function open(
 ) {
   if (options) await page.addInitScript(installFakeYT, options)
   outside = await interceptNetwork(context, story, { videos: 'hold' })
-  await openDemo(page, DEMO_1988)
+  await openStory(page, DEMO_1988)
   await expect(page.locator('iframe')).toHaveCount(
     story === world1988WithYoutube ? 2 : 1,
   )
@@ -667,19 +667,28 @@ test.describe('without the fake (decision 1 (a))', () => {
   })
 })
 
-// Demo table rows 2002-06-22 and 1995-03-15, without the fake: a story with
+// The sample date 2002-06-22 and the boundary date 1950-01-01 (S2-P1 (a)),
+// without the fake: a story with
 // no YouTube record never loads the API script.
 test.describe('days without YouTube', () => {
-  for (const [label, story] of [
-    ['2002년 6월 22일로 보기', world2002WithMedia],
-    ['1995년 3월 15일로 보기', world1995],
+  for (const [label, story, input] of [
+    [
+      'June 22, 2002, Calgary',
+      world2002WithMedia,
+      { date: '2002-06-22', place: 'Calgary' },
+    ],
+    [
+      'January 1, 1950, Calgary',
+      world1950,
+      { date: '1950-01-01', place: 'Calgary' },
+    ],
   ] as const) {
     test(`${label}: no iframe, no API script, no YouTube request`, async ({
       context,
       page,
     }) => {
       outside = await interceptNetwork(context, story)
-      await openDemo(page, label)
+      await openStory(page, input)
       await page.waitForTimeout(300)
       await expect(page.locator('iframe')).toHaveCount(0)
       await expect(page.locator('script[src*="iframe_api"]')).toHaveCount(0)
@@ -702,7 +711,10 @@ test.describe('before consent (plan T4 (3), 10.1 #23)', () => {
     await expect(
       page.getByRole('checkbox', { name: CONSENT_LABEL }),
     ).not.toBeChecked()
-    await page.getByRole('button', { name: DEMO_1988 }).click({ force: true })
+    await fillStory(page, DEMO_1988)
+    await page
+      .getByRole('button', { name: 'See that day' })
+      .click({ force: true })
     await page.waitForTimeout(500)
     await expect(world(page)).toHaveCount(0)
     await expect(page.locator('iframe')).toHaveCount(0)

@@ -37,8 +37,13 @@ function toEvent(value: unknown): WorldEvent | null {
     return null
   }
   if (!TONES.includes(value.tone)) return null
+  const lang = value.summary_lang
   return {
     ...(value as WorldEvent),
+    // Anything but a non-empty string marks no language, so no lang="".
+    summary_lang: (typeof lang === 'string' && lang !== ''
+      ? lang
+      : undefined) as WorldEvent['summary_lang'],
     title: typeof value.title === 'string' ? value.title : null,
     media: toMediaList(value.media),
   }

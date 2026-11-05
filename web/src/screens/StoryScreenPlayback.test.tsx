@@ -21,17 +21,21 @@ describe('StoryScreen playback coordinator (M3b3 T1 (4))', () => {
     create.mockClear()
 
     const { rerender, unmount } = render(
-      <StoryScreen date="1995-03-15" onRestart={() => {}} />,
+      <StoryScreen date="1950-01-01" place="Calgary" onRestart={() => {}} />,
     )
     await screen.findByText(NO_EVENTS)
     expect(create).toHaveBeenCalledTimes(1)
-    rerender(<StoryScreen date="1995-03-15" onRestart={() => {}} />)
+    rerender(
+      <StoryScreen date="1950-01-01" place="Calgary" onRestart={() => {}} />,
+    )
     expect(create).toHaveBeenCalledTimes(1)
     unmount()
 
     // A new result (after "Start over") is a new screen with its own
     // coordinator.
-    render(<StoryScreen date="1995-03-15" onRestart={() => {}} />)
+    render(
+      <StoryScreen date="1950-01-01" place="Calgary" onRestart={() => {}} />,
+    )
     await screen.findByText(NO_EVENTS)
     expect(create).toHaveBeenCalledTimes(2)
     const [first, second] = create.mock.results.map((result) => result.value)

@@ -9,7 +9,7 @@ import { isDisplayable } from '../media/isDisplayable'
 import type { Media } from '../media/types'
 import {
   world1988WithMedia,
-  world1995,
+  world1950,
   world2002WithMedia,
 } from '../mocks/fixtures/world/responses'
 import {
@@ -142,7 +142,7 @@ describe('world1988WithYoutube on screen (T2 (9))', () => {
 describe('days without YouTube (demo table)', () => {
   it.each([
     ['world2002WithMedia', world2002WithMedia],
-    ['world1995', world1995],
+    ['world1950', world1950],
   ])('%s: no iframe, no script, no error text', async (_name, body) => {
     await showWorld(body, true)
     expect(world().querySelectorAll('iframe')).toHaveLength(0)

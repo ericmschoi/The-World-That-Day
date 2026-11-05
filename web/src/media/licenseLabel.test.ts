@@ -106,7 +106,7 @@ describe('licenseInAttribution (M3b2b T2 (1), decision (b))', () => {
     expect(licenseInAttribution(withNames(l, a))).toBe(false)
   })
 
-  it('is always false for "라이선스 확인 안 됨", even if the attribution says it', () => {
+  it('is always false for "Licence not verified", even if the attribution says it', () => {
     const attribution = 'Author · Licence not verified · CC BY 4.0'
     expect(
       licenseInAttribution({

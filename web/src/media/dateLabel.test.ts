@@ -140,14 +140,14 @@ describe('dateLabel', () => {
     ).toBe(SAME_DAY)
   })
 
-  it('current → 현재 모습, capture time not provided', () => {
+  it('current → Present day, capture time not provided', () => {
     expect(dateLabel(sdkRoadview)).toEqual({
       badge: 'Present day',
       text: 'Capture time not provided',
     })
   })
 
-  it('unknown → no badge, 촬영 시점 미상', () => {
+  it('unknown → no badge, Capture time unknown', () => {
     expect(dateLabel(undatedPhoto)).toEqual({
       badge: null,
       text: 'Capture time unknown',

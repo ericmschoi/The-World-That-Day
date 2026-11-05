@@ -12,7 +12,9 @@ afterEach(() => {
 
 describe('StoryScreen', () => {
   it('renders the five story sections in brief order with stable ids', async () => {
-    render(<StoryScreen date="1995-03-15" onRestart={() => {}} />)
+    render(
+      <StoryScreen date="1950-01-01" place="Calgary" onRestart={() => {}} />,
+    )
     // The world section loads its own content (MSW default handler).
     await screen.findByText('No major events were found for this date.')
     const regions = screen.getAllByRole('region')
@@ -37,7 +39,8 @@ describe('StoryScreen', () => {
           'Closing',
         ][index],
       )
-      if (region.id === 'world') {
+      // M2b T4: the opening is filled too.
+      if (region.id === 'world' || region.id === 'opening') {
         expect(region).not.toHaveTextContent('coming soon')
       } else {
         expect(region).toHaveTextContent('coming soon')
@@ -47,7 +50,9 @@ describe('StoryScreen', () => {
 
   it('calls onRestart when the restart button is pressed', async () => {
     const onRestart = vi.fn()
-    render(<StoryScreen date="1995-03-15" onRestart={onRestart} />)
+    render(
+      <StoryScreen date="1950-01-01" place="Calgary" onRestart={onRestart} />,
+    )
     await screen.findByText('No major events were found for this date.')
     await userEvent.click(screen.getByRole('button', { name: 'Start over' }))
     expect(onRestart).toHaveBeenCalledTimes(1)
@@ -62,7 +67,9 @@ describe('StoryScreen with a malformed world answer (M3b2b T0 (4))', () => {
         HttpResponse.json(worldMalformedEvents),
       ),
     )
-    render(<StoryScreen date="1988-09-17" onRestart={() => {}} />)
+    render(
+      <StoryScreen date="1988-09-17" place="Calgary" onRestart={() => {}} />,
+    )
 
     const list = await screen.findByRole('list', { name: 'Events' })
 
@@ -75,8 +82,9 @@ describe('StoryScreen with a malformed world answer (M3b2b T0 (4))', () => {
       'world',
       'closing',
     ])
+    // M2b T4: the opening is filled too.
     for (const region of regions) {
-      if (region.id !== 'world') {
+      if (region.id !== 'world' && region.id !== 'opening') {
         expect(region).toHaveTextContent('coming soon')
       }
     }

@@ -14,7 +14,7 @@ import { olympicsOpeningPd } from '../mocks/fixtures/world/media'
 import {
   world1988,
   world1988WithMedia,
-  world1995,
+  world1950,
 } from '../mocks/fixtures/world/responses'
 import { server } from '../mocks/server'
 import type { WorldEvent, WorldResponse } from './types'
@@ -169,13 +169,13 @@ describe('WorldSection with an answer without media (T2 (3))', () => {
 
 describe('WorldSection on a day without events (T2 (4))', () => {
   it('shows the notice and keeps the section', async () => {
-    render(<WorldSection date="1995-03-15" />)
+    render(<WorldSection date="1950-01-01" />)
 
     expect(await screen.findByText(NOTICE)).toBeInTheDocument()
     expect(region()).toBeInTheDocument()
     expect(screen.queryAllByRole('img')).toHaveLength(0)
     expect(screen.queryByRole('list')).not.toBeInTheDocument()
-    expect(world1995.notice.code).toBe('NO_EVENTS_FOUND')
+    expect(world1950.notice.code).toBe('NO_EVENTS_FOUND')
   })
 })
 
@@ -346,13 +346,13 @@ describe('WorldSection cancels requests (T2 (9))', () => {
           await oldReleased
           return HttpResponse.json(world1988)
         }
-        return HttpResponse.json(world1995)
+        return HttpResponse.json(world1950)
       }),
     )
     const { rerender } = render(<WorldSection date="1988-09-17" />)
     await waitFor(() => expect(oldSignal).not.toBeNull())
 
-    rerender(<WorldSection date="1995-03-15" />)
+    rerender(<WorldSection date="1950-01-01" />)
     expect(await screen.findByText(NOTICE)).toBeInTheDocument()
     expect(oldSignal!.aborted).toBe(true)
 
