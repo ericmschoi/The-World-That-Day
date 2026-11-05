@@ -13,7 +13,7 @@ import { MediaItem } from './MediaItem'
 import type { Media } from './types'
 
 const renderItem = (media: Media) =>
-  render(<MediaItem media={media} fallbackAlt="서울 사진" />)
+  render(<MediaItem media={media} fallbackAlt="Calgary photo" />)
 
 const patch = (media: Media, fields: Record<string, unknown>) =>
   ({ ...media, ...fields }) as Media
@@ -73,7 +73,7 @@ describe('MediaItem', () => {
   it('renders a video card for video_file', () => {
     renderItem(videoFile)
     const figure = screen.getByRole('figure')
-    expect(figure.querySelector('video')).toHaveAccessibleName('서울 사진')
+    expect(figure.querySelector('video')).toHaveAccessibleName('Calgary photo')
     expect(screen.queryByRole('img')).toBeNull()
   })
 })

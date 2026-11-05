@@ -16,6 +16,25 @@ const page = new DOMParser().parseFromString(privacyHtml, 'text/html')
 const text = (page.body.textContent ?? '').replace(/\s+/g, ' ')
 const links = [...page.querySelectorAll('a')]
 const linkTo = (href: string) => links.filter((a) => a.href === href)
+// A phrase as a whole: no letter or digit right before or after it, so
+// "place" does not match inside "replaced" and "ads" not inside "loads".
+const whole = (phrase: string) =>
+  new RegExp(
+    `(?<![\\p{L}\\p{N}])${phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\p{L}\\p{N}])`,
+    'u',
+  )
+// The text of the section under the h2 with this title, up to the next h2.
+function section(title: string): string {
+  const parts: string[] = []
+  let at = [...page.querySelectorAll('h2')].find(
+    (h2) => h2.textContent === title,
+  )!.nextElementSibling
+  while (at && at.tagName !== 'H2') {
+    parts.push(at.textContent ?? '')
+    at = at.nextElementSibling
+  }
+  return parts.join(' ').replace(/\s+/g, ' ').trim()
+}
 
 describe('outside URLs (T1 (8))', () => {
   it('keeps the three outside links the policy needs', () => {
@@ -53,9 +72,11 @@ describe('privacy policy page (T1 (1))', () => {
     expect(privacyHtml).not.toMatch(/[ᄀ-ᇿ㄰-㆏가-힯]/)
   })
 
+  // Plan C1 S2 "방침" (S-1, the facts of this PR): the place and time never
+  // leave the browser.
   it('says what it receives, as the plan words it', () => {
     expect(text).toContain(
-      'This service receives the date of birth (a date) and place of birth that you enter. It does not receive accounts, names or contact details. Right now only the date is sent to the server; the place will be received once place input is added.',
+      'You enter a date of birth, a place of birth and, optionally, a time of birth. Only the date is sent to our server. The place and time stay in your browser and are only shown on this screen. We do not receive accounts, names or contact details.',
     )
   })
 
@@ -82,7 +103,15 @@ describe('privacy policy page (T1 (1))', () => {
     'Effective date',
     'Questions',
   ])('says %s', (phrase) => {
-    expect(text).toContain(phrase)
+    expect(text).toMatch(whole(phrase))
+  })
+
+  // S1 review: the whole-phrase check itself.
+  it('matches a phrase only as a whole', () => {
+    expect('it loads').not.toMatch(whole('ads'))
+    expect('replaced').not.toMatch(whole('place'))
+    expect('place of birth').toMatch(whole('place'))
+    expect('no ads.').toMatch(whole('ads'))
   })
 
   // T1 (9): the sources match the merged server (application.yml, M3a5a,
@@ -166,19 +195,37 @@ describe('additions from the Canada privacy review (C1 S1 T3b)', () => {
     expect(text).not.toMatch(/\b(days|weeks|months)\b/)
   })
 
-  it('has no age sentence yet (D4 waits for the PM, S2 T8b)', () => {
-    expect(text).not.toMatch(/under 13|parent or guardian|general audience/)
+  // S-7, decision D4 (b), in the 10.1 draft wording.
+  it('has the age sentence (D4 (b))', () => {
+    expect(section('What we receive')).toContain(
+      'This service is for a general audience. If you are under 13 (14 in Quebec), please ask a parent or guardian first.',
+    )
   })
 
   // T3b (4): only the date goes to the server, nothing is stored on the
   // device, and there are no accounts.
   it('claims nothing beyond the current design', () => {
-    expect(text).toContain('Right now only the date is sent to the server')
+    expect(text).toContain('Only the date is sent to our server.')
     expect(text).toContain(
       'This service does not use cookies or browser storage.',
     )
     expect(text).toContain('We have no accounts')
     expect(text).not.toMatch(/sign in|log in|your account|newsletter/i)
+  })
+})
+
+// Plan C1 S2 T8b (4): M2b T5 (2), now in English.
+describe('the input on the same page as YouTube (C1 S2 T8b)', () => {
+  it('says the place and time stay in the browser', () => {
+    expect(section('What we receive')).toContain(
+      'The place and time stay in your browser',
+    )
+  })
+
+  it('says the YouTube IFrame API script can read the screen', () => {
+    expect(section('Content from elsewhere and ads')).toMatch(
+      /The YouTube IFrame API script on the same page can read what is shown on the screen, including the date and place you entered\.$/,
+    )
   })
 })
 

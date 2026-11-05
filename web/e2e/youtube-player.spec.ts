@@ -15,7 +15,7 @@ import {
 import { YOUTUBE_EMBED_ORIGIN } from '../src/external/urls'
 import type { Media } from '../src/media/types'
 import {
-  world1995,
+  world1950,
   world2002WithMedia,
 } from '../src/mocks/fixtures/world/responses'
 import type { WorldResponse } from '../src/world/types'
@@ -43,7 +43,7 @@ import {
   type FakeOptions,
 } from './youtubeFake'
 
-const DEMO_1988 = { date: '1988-09-17', place: '서울' }
+const DEMO_1988 = { date: '1988-09-17', place: 'Calgary' }
 const CONSENT_LABEL = 'I agree to the privacy policy (required)'
 const EVENT_1 = 'Material about “1988년 하계 올림픽”'
 const EVENT_2 = 'Material about “KBS 1TV”'
@@ -58,7 +58,7 @@ const VIDEO_URLS = exampleVideoFile.video_sources.map((source) => source.url)
 const FIXTURE_MEDIA: Media[] = [
   world1988WithYoutube,
   world2002WithMedia,
-  world1995,
+  world1950,
 ].flatMap((story: WorldResponse): Media[] => [
   ...story.events.flatMap((event) => event.media),
   ...story.day_media,
@@ -667,19 +667,20 @@ test.describe('without the fake (decision 1 (a))', () => {
   })
 })
 
-// Demo table rows 2002-06-22 and 1995-03-15, without the fake: a story with
+// The sample date 2002-06-22 and the boundary date 1950-01-01 (S2-P1 (a)),
+// without the fake: a story with
 // no YouTube record never loads the API script.
 test.describe('days without YouTube', () => {
   for (const [label, story, input] of [
     [
-      '2002년 6월 22일, 광주 서구 풍암동',
+      'June 22, 2002, Calgary',
       world2002WithMedia,
-      { date: '2002-06-22', place: '광주 서구 풍암동' },
+      { date: '2002-06-22', place: 'Calgary' },
     ],
     [
-      '1995년 3월 15일, 서울대학교병원',
-      world1995,
-      { date: '1995-03-15', place: '서울대학교병원' },
+      'January 1, 1950, Calgary',
+      world1950,
+      { date: '1950-01-01', place: 'Calgary' },
     ],
   ] as const) {
     test(`${label}: no iframe, no API script, no YouTube request`, async ({

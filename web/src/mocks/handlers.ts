@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw'
 import {
   world1988WithMedia,
-  world1995,
+  world1950,
   world2002WithMedia,
 } from './fixtures/world/responses'
 
@@ -12,8 +12,8 @@ function worldFor(date: string | null) {
       return world1988WithMedia
     case '2002-06-22':
       return world2002WithMedia
-    case '1995-03-15':
-      return world1995
+    case '1950-01-01':
+      return world1950
     default:
       return undefined
   }

@@ -8,7 +8,7 @@ import {
 } from '../src/mocks/fixtures/world/responses'
 import { interceptNetwork, openStory, tokenColor } from './network'
 
-const DEMO_1988 = { date: '1988-09-17', place: '서울' }
+const DEMO_1988 = { date: '1988-09-17', place: 'Calgary' }
 
 const outline = (link: Locator) =>
   link.evaluate((element) => {

@@ -1,7 +1,8 @@
 import { screen } from '@testing-library/react'
 import type { UserEvent } from '@testing-library/user-event'
 
-// Demo pairs (product brief 12); sample dates of public events use 서울.
+// Demo pairs (Canada research decision 1 (b)); sample dates of public events
+// and boundary dates use Calgary.
 export type StoryInputValues = { date: string; place: string; time?: string }
 
 export const PLACE_LABEL = 'Place of birth (required)'

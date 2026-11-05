@@ -26,8 +26,8 @@ import type { WorldResponse } from './types'
 
 // The demo dates with their places, entered through the form (M2b T3 (4)).
 const DEMO = {
-  '1988-09-17': '서울',
-  '2002-06-22': '광주 서구 풍암동',
+  '1988-09-17': 'Calgary',
+  '2002-06-22': 'Calgary',
 } as const
 
 const NEW_TAB = /\(opens in a new tab\)/

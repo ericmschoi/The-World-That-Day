@@ -135,8 +135,8 @@ describe('days without day_media (T1 (1))', () => {
     expect(h3s()).toEqual([])
   })
 
-  it('1995-03-15: the notice only, no group heading and no tragic block', async () => {
-    await renderReady('1995-03-15')
+  it('1950-01-01: the notice only, no group heading and no tragic block', async () => {
+    await renderReady('1950-01-01')
 
     expect(screen.getByText(NOTICE)).toBeInTheDocument()
     expect(h3s()).toEqual([])

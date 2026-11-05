@@ -7,17 +7,17 @@ import { CONTACT_ISSUES_URL } from '../src/external/urls'
 import { world1988 } from '../src/mocks/fixtures/world/responses'
 import { fillStory, interceptNetwork, openStory, tokenColor } from './network'
 
-const DEMO_1988 = { date: '1988-09-17', place: '서울' }
+const DEMO_1988 = { date: '1988-09-17', place: 'Calgary' }
 const CONSENT_LABEL = 'I agree to the privacy policy (required)'
 const CONSENT_HINT = 'Agree to the privacy policy to see the story.'
-// Demo pairs (product brief 12) and sample dates of public events with
-// 서울, entered through the form (M2b T3 (4)).
+// Sample dates of public events and the boundary date 1950-01-01, with
+// Calgary, entered through the form (M2b T3 (4), C1 S2-P1 (a)).
 const INPUTS = [
   DEMO_1988,
-  { date: '2002-06-22', place: '광주 서구 풍암동' },
-  { date: '1995-03-15', place: '서울대학교병원' },
-  { date: '1969-07-20', place: '서울' },
-  { date: '1986-09-20', place: '서울' },
+  { date: '2002-06-22', place: 'Calgary' },
+  { date: '1950-01-01', place: 'Calgary' },
+  { date: '1969-07-20', place: 'Calgary' },
+  { date: '1986-09-20', place: 'Calgary' },
 ]
 const SUBMIT = 'See that day'
 const LOCAL = new Set(['localhost', '127.0.0.1'])

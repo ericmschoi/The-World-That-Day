@@ -13,7 +13,7 @@ import { ConsentNotice } from '../consent/ConsentNotice'
 import { ConsentProvider } from '../consent/ConsentProvider'
 import type { DatePrecision, DateRelation, Media } from '../media/types'
 import { olympicsOpeningPd } from '../mocks/fixtures/world/media'
-import { world1995 } from '../mocks/fixtures/world/responses'
+import { world1950 } from '../mocks/fixtures/world/responses'
 import { server } from '../mocks/server'
 import { StoryScreen } from '../screens/StoryScreen'
 import type { WorldEvent, WorldResponse } from './types'
@@ -283,9 +283,9 @@ describe('screen text is English (plan C1 S1 T6 (2))', () => {
   })
 
   it('draws the "no major events" notice and the coming-soon sections', async () => {
-    answer(world1995)
+    answer(world1950)
     render(
-      <StoryScreen date="1995-03-15" place="Calgary" onRestart={() => {}} />,
+      <StoryScreen date="1950-01-01" place="Calgary" onRestart={() => {}} />,
     )
     await screen.findByText('No major events were found for this date.')
 

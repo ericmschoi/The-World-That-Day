@@ -13,7 +13,7 @@ test('the page shows --color-bg: html holds it, body paints nothing over it', as
   page,
 }) => {
   const outside = await interceptNetwork(context, world1988WithMedia)
-  await openStory(page, { date: '1988-09-17', place: '서울' })
+  await openStory(page, { date: '1988-09-17', place: 'Calgary' })
 
   const background = (selector: string) =>
     page

@@ -29,18 +29,18 @@ const ERROR = "This section couldn't be loaded."
 const PLACEHOLDER = 'This section is coming soon.'
 // The demo dates with their places, entered through the form (M2b T3 (4)).
 const DEMO = {
-  '1988-09-17': '서울',
-  '2002-06-22': '광주 서구 풍암동',
-  '1995-03-15': '서울대학교병원',
+  '1988-09-17': 'Calgary',
+  '2002-06-22': 'Calgary',
+  '1950-01-01': 'Calgary',
 } as const
 type DemoDate = keyof typeof DEMO
 const DATE_STRINGS = [
   '1988-09-17',
   '2002-06-22',
-  '1995-03-15',
+  '1950-01-01',
   '1988년 9월 17일',
   '2002년 6월 22일',
-  '1995년 3월 15일',
+  '1950년 1월 1일',
 ]
 
 const world = () => screen.getByRole('region', { name: 'The world that day' })
@@ -179,9 +179,9 @@ describe('demo 2002-06-22 (데모 표 2행)', () => {
   })
 })
 
-describe('demo 1995-03-15 (데모 표 3행)', () => {
+describe('boundary date 1950-01-01 (no events, S2-P1 (a))', () => {
   it('shows the notice under "그날의 세계", no img and no list', async () => {
-    await showDemo('1995-03-15')
+    await showDemo('1950-01-01')
 
     expect(await screen.findByText(NOTICE)).toBeInTheDocument()
     expect(
@@ -246,7 +246,7 @@ describe('failure isolation: only the world section fails (product brief 8)', ()
       'closing',
     ])
     // M2b T4: the opening is filled now; the other three stay placeholders.
-    expect(others[0]).toHaveTextContent('Saturday, September 17, 1988, 서울')
+    expect(others[0]).toHaveTextContent('Saturday, September 17, 1988, Calgary')
     for (const region of others) {
       if (region.id !== 'opening') {
         expect(region).toHaveTextContent(PLACEHOLDER)
@@ -261,7 +261,7 @@ describe('failure isolation: only the world section fails (product brief 8)', ()
     // The screen still works: back to the start, then a working demo date.
     server.resetHandlers()
     await user.click(screen.getByRole('button', { name: 'Start over' }))
-    await openStory(user, { date: '1995-03-15', place: DEMO['1995-03-15'] })
+    await openStory(user, { date: '1950-01-01', place: DEMO['1950-01-01'] })
     expect(await screen.findByText(NOTICE)).toBeInTheDocument()
   })
 })
@@ -289,7 +289,7 @@ describe('privacy: the date stays in memory only (C4, C5)', () => {
         () => new HttpResponse(null, { status: 503 }),
       ),
     )
-    await openStory(user, { date: '1995-03-15', place: DEMO['1995-03-15'] })
+    await openStory(user, { date: '1950-01-01', place: DEMO['1950-01-01'] })
     await within(world()).findByText(ERROR)
 
     expect(window.location.href).toBe(startHref)

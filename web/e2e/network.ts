@@ -50,8 +50,8 @@ export async function interceptNetwork(
   return outside
 }
 
-// The input form's values: a demo pair (product brief 12), or a sample date
-// of a public event with 서울.
+// The input form's values: a demo pair (Canada research decision 1 (b)), or
+// a sample date of a public event or a boundary date with Calgary.
 export type StoryInput = { date: string; place: string }
 
 // Fills the input form on the current page, without agreeing or submitting.

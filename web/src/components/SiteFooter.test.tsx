@@ -26,7 +26,7 @@ describe('SiteFooter', () => {
     expectFooter()
 
     await agree(user)
-    await openStory(user, { date: '1988-09-17', place: '서울' })
+    await openStory(user, { date: '1988-09-17', place: 'Calgary' })
     await screen.findByRole('list', { name: 'Events' })
     expectFooter()
   })

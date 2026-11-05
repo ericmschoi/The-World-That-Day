@@ -19,14 +19,14 @@ import consentCss from './Consent.module.css?raw'
 import { ConsentNotice } from './ConsentNotice'
 import { ConsentProvider } from './ConsentProvider'
 
-// Demo pairs (product brief 12) and the sample dates of public events with
-// 서울, entered through the form (M2b T3 (4)).
+// Sample dates of public events and the boundary date 1950-01-01, with
+// Calgary, entered through the form (M2b T3 (4), C1 S2-P1 (a)).
 const INPUTS = [
-  ['1988-09-17', '서울'],
-  ['2002-06-22', '광주 서구 풍암동'],
-  ['1995-03-15', '서울대학교병원'],
-  ['1969-07-20', '서울'],
-  ['1986-09-20', '서울'],
+  ['1988-09-17', 'Calgary'],
+  ['2002-06-22', 'Calgary'],
+  ['1950-01-01', 'Calgary'],
+  ['1969-07-20', 'Calgary'],
+  ['1986-09-20', 'Calgary'],
 ] as const
 
 // Every request the app starts, by path and date.
@@ -115,7 +115,7 @@ describe('after agreeing (T2 (3)·(4))', () => {
   it('goes back to the first state when unchecked', async () => {
     const user = userEvent.setup()
     render(<App />)
-    await openStory(user, { date: '1988-09-17', place: '서울' })
+    await openStory(user, { date: '1988-09-17', place: 'Calgary' })
     await agree(user)
     await user.click(consentBox())
     expectNotAgreed()
@@ -125,11 +125,11 @@ describe('after agreeing (T2 (3)·(4))', () => {
     const user = userEvent.setup()
     render(<App />)
     await agree(user)
-    await openStory(user, { date: '1988-09-17', place: '서울' })
+    await openStory(user, { date: '1988-09-17', place: 'Calgary' })
     await screen.findByRole('list', { name: 'Events' })
     await user.click(screen.getByRole('button', { name: 'Start over' }))
     expect(consentBox()).toBeChecked()
-    await openStory(user, { date: '1995-03-15', place: '서울대학교병원' })
+    await openStory(user, { date: '1950-01-01', place: 'Calgary' })
     expect(screen.getAllByRole('region')).toHaveLength(5)
   })
 })
@@ -159,6 +159,35 @@ describe('the notice text (T2 (5))', () => {
     )
     // Operator, contact and effective date live on the policy page only.
     expect(text).not.toMatch(/operator|contact|effective date/i)
+  })
+})
+
+// Plan C1 S2 T8b (4): the S-9 summary, two lines right before the checkbox.
+describe('the summary above the checkbox (C1 S2 S-9)', () => {
+  const SUMMARY = [
+    'Only your date of birth is sent to our server, to find events, photos and videos from that day.',
+    'Photos and videos load straight from Wikimedia and YouTube, which receive your IP address and may process it outside Canada.',
+  ]
+
+  it('says both lines before the checkbox, inside the notice', () => {
+    render(<App />)
+    const notice = consentBox().closest('div')!
+    const lines = SUMMARY.map((line) =>
+      within(notice).getByText((_, element) =>
+        element?.tagName === 'P'
+          ? (element.textContent ?? '').replace(/\s+/g, ' ').trim() === line
+          : false,
+      ),
+    )
+    expect(lines[0].compareDocumentPosition(lines[1])).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    )
+    expect(lines[1].nextElementSibling).toBe(consentBox().closest('p'))
+    for (const line of lines) {
+      expect(line.compareDocumentPosition(consentBox())).toBe(
+        Node.DOCUMENT_POSITION_FOLLOWING,
+      )
+    }
   })
 })
 
@@ -194,7 +223,7 @@ describe('nothing kept in the browser (T2 (7))', () => {
     const user = userEvent.setup()
     render(<App />)
     await agree(user)
-    await openStory(user, { date: '1988-09-17', place: '서울' })
+    await openStory(user, { date: '1988-09-17', place: 'Calgary' })
     await screen.findByRole('list', { name: 'Events' })
     expect(localStorage.length).toBe(0)
     expect(sessionStorage.length).toBe(0)

@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   world1988WithMedia,
-  world1995,
+  world1950,
   world2002WithMedia,
 } from './fixtures/world/responses'
 
@@ -14,7 +14,7 @@ describe('default world handler', () => {
   it.each([
     ['1988-09-17', world1988WithMedia],
     ['2002-06-22', world2002WithMedia],
-    ['1995-03-15', world1995],
+    ['1950-01-01', world1950],
   ])('answers %s with its fixture', async (date, fixture) => {
     const response = await fetch(worldUrl(`?date=${date}`))
 

@@ -13,7 +13,7 @@ import type { Media } from './types'
 // (`MediaItem`), so the rules hold for what the user actually sees, not only
 // for the helper functions. Requested dates are the demo inputs (brief 12).
 
-const FALLBACK = '서울 사진'
+const FALLBACK = 'Calgary photo'
 
 const patch = (media: Media, fields: Record<string, unknown>) =>
   ({ ...media, ...fields }) as Media

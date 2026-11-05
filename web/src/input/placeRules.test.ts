@@ -1,18 +1,21 @@
-// Plan M2b T3 (1): the place rules. Places are the demo places only.
+// Plans M2b T3 (1) and C1 S2 T8b: the place rules. Places are the demo
+// places (Canada research decision 1 (b)) only.
 import { describe, expect, it } from 'vitest'
 import { checkPlace } from './placeRules'
 
 describe('checkPlace', () => {
-  it.each(['서울', '광주 서구 풍암동', '서울대학교병원'])(
-    '%s passes',
-    (place) => {
-      expect(checkPlace(place)).toEqual({ place })
-    },
-  )
+  it.each([
+    'Calgary',
+    'Hochelaga-Maisonneuve, Montréal',
+    'Vancouver General Hospital',
+    "St. John's",
+  ])('%s passes', (place) => {
+    expect(checkPlace(place)).toEqual({ place })
+  })
 
   it('trims the ends only', () => {
-    expect(checkPlace('  광주 서구 풍암동 ')).toEqual({
-      place: '광주 서구 풍암동',
+    expect(checkPlace('  Hochelaga-Maisonneuve, Montréal ')).toEqual({
+      place: 'Hochelaga-Maisonneuve, Montréal',
     })
   })
 

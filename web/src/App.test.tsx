@@ -13,9 +13,10 @@ import {
   TIME_LABEL,
 } from './test/storyInput'
 
-// Demo pairs from product brief 12, entered through the form (M2b T3 (4)).
-const DEMO_1988 = { date: '1988-09-17', place: '서울' }
-const DEMO_1995 = { date: '1995-03-15', place: '서울대학교병원' }
+// A sample public-event date and the boundary date with Calgary, entered
+// through the form (M2b T3 (4), C1 S2-P1 (a)).
+const DEMO_1988 = { date: '1988-09-17', place: 'Calgary' }
+const EMPTY_1950 = { date: '1950-01-01', place: 'Calgary' }
 
 describe('App', () => {
   it('switches between the input placeholder and the story', async () => {
@@ -91,18 +92,18 @@ describe('App', () => {
       .filter((region) => region.id !== 'world')
     expect(others).toHaveLength(4)
     // M2b T4: the opening is filled now; the other three stay placeholders.
-    expect(others[0]).toHaveTextContent('Saturday, September 17, 1988, 서울')
+    expect(others[0]).toHaveTextContent('Saturday, September 17, 1988, Calgary')
     for (const region of others.slice(1)) {
       expect(region).toHaveTextContent('This section is coming soon.')
     }
   })
 
-  it('shows the empty-day notice for 1995-03-15', async () => {
+  it('shows the empty-day notice for 1950-01-01', async () => {
     const user = userEvent.setup()
     render(<App />)
 
     await agree(user)
-    await openStory(user, DEMO_1995)
+    await openStory(user, EMPTY_1950)
 
     expect(
       await screen.findByText('No major events were found for this date.'),

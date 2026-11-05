@@ -6,7 +6,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import {
   world1988,
-  world1995,
+  world1950,
   world2002,
 } from '../src/mocks/fixtures/world/responses'
 import { fillStory, interceptNetwork } from './network'
@@ -35,7 +35,7 @@ const DEMOS = [
       place: 'Vancouver General Hospital',
       time: '00:05',
     },
-    world: world1995,
+    world: world1950,
     words:
       'Friday, February 12, 2010 at 12:05 a.m., Vancouver General Hospital',
   },

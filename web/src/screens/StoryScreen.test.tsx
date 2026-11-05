@@ -13,11 +13,7 @@ afterEach(() => {
 describe('StoryScreen', () => {
   it('renders the five story sections in brief order with stable ids', async () => {
     render(
-      <StoryScreen
-        date="1995-03-15"
-        place="서울대학교병원"
-        onRestart={() => {}}
-      />,
+      <StoryScreen date="1950-01-01" place="Calgary" onRestart={() => {}} />,
     )
     // The world section loads its own content (MSW default handler).
     await screen.findByText('No major events were found for this date.')
@@ -55,11 +51,7 @@ describe('StoryScreen', () => {
   it('calls onRestart when the restart button is pressed', async () => {
     const onRestart = vi.fn()
     render(
-      <StoryScreen
-        date="1995-03-15"
-        place="서울대학교병원"
-        onRestart={onRestart}
-      />,
+      <StoryScreen date="1950-01-01" place="Calgary" onRestart={onRestart} />,
     )
     await screen.findByText('No major events were found for this date.')
     await userEvent.click(screen.getByRole('button', { name: 'Start over' }))
@@ -75,7 +67,9 @@ describe('StoryScreen with a malformed world answer (M3b2b T0 (4))', () => {
         HttpResponse.json(worldMalformedEvents),
       ),
     )
-    render(<StoryScreen date="1988-09-17" place="서울" onRestart={() => {}} />)
+    render(
+      <StoryScreen date="1988-09-17" place="Calgary" onRestart={() => {}} />,
+    )
 
     const list = await screen.findByRole('list', { name: 'Events' })
 
