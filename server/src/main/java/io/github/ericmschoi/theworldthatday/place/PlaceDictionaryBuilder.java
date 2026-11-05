@@ -8,7 +8,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -61,7 +60,6 @@ public final class PlaceDictionaryBuilder {
   private final Map<String, List<Name>> names = new HashMap<>();
   private final Map<String, Name> byId = new HashMap<>();
   private final Map<String, Name> points = new HashMap<>();
-  private final Set<Name> pointNames = new HashSet<>();
   private final Map<Name, TreeSet<String>> hits = new HashMap<>();
   private final Map<String, Integer> counts = new TreeMap<>();
 
@@ -186,7 +184,6 @@ public final class PlaceDictionaryBuilder {
       regions.add(row);
       if (point != null) {
         points.put(code, point);
-        pointNames.add(point);
       }
     }
     return regions;
@@ -210,7 +207,7 @@ public final class PlaceDictionaryBuilder {
                 .stream()
                 .filter(name -> distanceKm(centre, name) <= NEIGHBOURHOOD_RADIUS_KM)
                 .toList();
-    if (found.size() == 1 && !pointNames.contains(found.getFirst())) {
+    if (found.size() == 1 && !points.containsValue(found.getFirst())) {
       hits.computeIfAbsent(found.getFirst(), k -> new TreeSet<>()).add(code);
     }
   }
