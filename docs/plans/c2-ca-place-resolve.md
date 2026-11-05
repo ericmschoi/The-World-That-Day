@@ -211,3 +211,8 @@ CSV 읽기는 Jackson CSV 모듈(Spring Boot가 판을 관리하는 `tools.jacks
   - (a) PM이 한다.
   - (b) backend-dev가 한다.
   - **추천: (b)**. PM이 2026-11-04 자율 진행을 위임했고, 리서치 결정 10도 (b)였다.
+
+### PM 위임 결정 (2026-11-05, orchestrator) — C2a T1 보고 뒤
+
+- **빌더 규칙 3가지 (계획 문구에 없던 것)**: (a) 그대로 둔다. (가) 같은 주에 접은 이름이 같은 CSD가 둘 이상이면 B1 `unique` 를 주지 않는다. (나) CSD 자기 대표점과 같은 CGNDB 항목은 동네로 넣지 않는다. (다) 두 CSD에 함께 걸리는 동네는 뺀다. 같은 좌표를 여러 CSD에 추측해 붙이지 않기 위해서다.
+- **CSD 이름과 같은 동네 (예: Caledon의 `Victoria`, Montréal 안의 `Montréal`)**: (a) C2b T4 매처에 규칙을 더한다 — 입력 전체가 CSD 이름과 맞으면 같은 이름의 동네 후보는 뺀다. 데모 기대값 "Victoria → CSD 5건"은 그대로 둔다.
