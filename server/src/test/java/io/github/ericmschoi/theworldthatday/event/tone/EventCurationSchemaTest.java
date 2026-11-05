@@ -52,11 +52,11 @@ class EventCurationSchemaTest {
     JsonNode file = DataSchemas.read(FILE);
 
     assertThat(DataSchemas.errors(schema, file)).isEmpty();
-    assertThat(file.path("entries").size()).isEqualTo(4);
+    assertThat(file.path("entries").size()).isEqualTo(2);
     assertThat(file.path("entries"))
         .as("hide only for rights-holder requests or clearly wrong lines; none today")
         .noneSatisfy(entry -> assertThat(entry.path("hide").asBoolean(false)).isTrue());
-    assertThat(EventCuration.parse(file)).hasSize(4);
+    assertThat(EventCuration.parse(file)).hasSize(2);
   }
 
   static List<Arguments> brokenCopies() {

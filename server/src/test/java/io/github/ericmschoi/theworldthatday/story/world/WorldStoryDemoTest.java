@@ -39,8 +39,9 @@ import tools.jackson.databind.json.JsonMapper;
  * Plan M3a2 T2 (3), (4), (5), (6) and plan C1 S3a T4 (3)~(5): the whole path (controller, service,
  * the real English Wikipedia source with the wikitext cache, the tone rules) against the recorded
  * English demo days ({@code fixtures/wikimedia/enwiki/}, their link lookups and Wikidata signals)
- * and the synthetic pages, served by WireMock. No network. The repository curation still holds the
- * Korean entries only (removed by S3a T5), so every tone here comes from the rules.
+ * and the synthetic pages, served by WireMock. No network. The repository curation holds the two
+ * Canada entries of S3a T5 (1980-04-12: the Liberian coup tragic, Terry Fox normal and domestic);
+ * every other tone here comes from the rules.
  */
 class WorldStoryDemoTest extends WikimediaWireMockTest {
 
@@ -304,30 +305,30 @@ class WorldStoryDemoTest extends WikimediaWireMockTest {
   }
 
   @Test
-  void liberianCoupDayHasTheCoupOnceAndTheCrashTragicByKeyword() throws Exception {
+  void liberianCoupDayHasTheCoupOnceTragicByCurationAndTheCrashTragicByKeyword() throws Exception {
     stubDemoDay("1980-04-12", "April 12", "1980");
 
     JsonNode root = world("1980-04-12");
 
     assertThat(rows(root.path("events")))
-        .as("normal events first; the coup line's tone is left to T5 curation")
+        .as("normal events first; the coup and Terry Fox lines follow the T5 curation")
         .containsExactly(
-            List.of(
-                "April 12",
-                "Events",
-                1378081960L,
-                "1980 Liberian coup d'état",
-                "Q27628137",
-                "normal/rule:no-signal",
-                "world"),
             List.of(
                 "April 12",
                 "Events",
                 1378081960L,
                 "Terry Fox",
                 "Q295053",
-                "normal/rule:no-signal",
-                "unknown"),
+                "normal/curated",
+                "domestic"),
+            List.of(
+                "April 12",
+                "Events",
+                1378081960L,
+                "1980 Liberian coup d'état",
+                "Q27628137",
+                "tragic/curated",
+                "world"),
             List.of(
                 "April 12",
                 "Events",
@@ -425,7 +426,7 @@ class WorldStoryDemoTest extends WikimediaWireMockTest {
 
   @Test
   void defaultSettingsReadTheRepositoryCuration() {
-    assertThat(curation.entries()).hasSize(4);
+    assertThat(curation.entries()).hasSize(2);
   }
 
   @Test
