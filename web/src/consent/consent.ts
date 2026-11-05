@@ -4,7 +4,7 @@ import { createContext, useContext } from 'react'
 export const PRIVACY_PAGE = '/privacy.html'
 
 // Shown when a button is pressed before agreeing.
-export const CONSENT_HINT = '개인정보처리방침에 동의해야 볼 수 있습니다.'
+export const CONSENT_HINT = 'Agree to the privacy policy to see the story.'
 
 // Agreement to the privacy policy, in memory only: never in the URL, cookies
 // or browser storage, so a reload asks again (YouTube API policy III.A.2).

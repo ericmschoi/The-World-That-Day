@@ -31,9 +31,9 @@ describe('App', () => {
     await agree(user)
     await openStory(user, DEMO_1988)
     expect(screen.getAllByRole('region')).toHaveLength(5)
-    await screen.findByRole('list', { name: '사건 목록' })
+    await screen.findByRole('list', { name: 'Events' })
 
-    await user.click(screen.getByRole('button', { name: '처음으로' }))
+    await user.click(screen.getByRole('button', { name: 'Start over' }))
     expect(screen.queryAllByRole('region')).toHaveLength(0)
     expect(submitButton()).toBeInTheDocument()
   })
@@ -53,17 +53,17 @@ describe('App', () => {
     expect(consentBox()).toBeChecked()
     await user.tab()
     expect(
-      screen.getByRole('link', { name: /^개인정보처리방침 보기/ }),
+      screen.getByRole('link', { name: /^Read the privacy policy/ }),
     ).toHaveFocus()
     await user.tab()
     expect(
-      screen.getByRole('link', { name: /^YouTube 이용약관/ }),
+      screen.getByRole('link', { name: /^YouTube Terms of Service/ }),
     ).toHaveFocus()
     await user.tab()
     expect(submitButton()).toHaveFocus()
     await user.keyboard('{Enter}')
     expect(screen.getAllByRole('region')).toHaveLength(5)
-    await screen.findByRole('list', { name: '사건 목록' })
+    await screen.findByRole('list', { name: 'Events' })
   })
 
   it('offers only the submit button and no empty-story button', () => {
@@ -84,7 +84,7 @@ describe('App', () => {
     await agree(user)
     await openStory(user, DEMO_1988)
 
-    const list = await screen.findByRole('list', { name: '사건 목록' })
+    const list = await screen.findByRole('list', { name: 'Events' })
     expect(within(list).getAllByRole('listitem')).toHaveLength(3)
     const others = screen
       .getAllByRole('region')
@@ -93,7 +93,7 @@ describe('App', () => {
     // M2b T4: the opening is filled now; the other three stay placeholders.
     expect(others[0]).toHaveTextContent('1988년 9월 17일 토요일, 서울')
     for (const region of others.slice(1)) {
-      expect(region).toHaveTextContent('아직 준비 중인 섹션입니다.')
+      expect(region).toHaveTextContent('This section is coming soon.')
     }
   })
 
@@ -105,7 +105,7 @@ describe('App', () => {
     await openStory(user, DEMO_1995)
 
     expect(
-      await screen.findByText('이 날짜에 기록된 큰 사건을 찾지 못했습니다.'),
+      await screen.findByText('No major events were found for this date.'),
     ).toBeInTheDocument()
   })
 
@@ -124,7 +124,7 @@ describe('App', () => {
     await agree(user)
     await openStory(user, DEMO_1988)
     await waitFor(() => expect(signal).not.toBeNull())
-    await user.click(screen.getByRole('button', { name: '처음으로' }))
+    await user.click(screen.getByRole('button', { name: 'Start over' }))
 
     await waitFor(() => expect(signal!.aborted).toBe(true))
     expect(screen.queryAllByRole('region')).toHaveLength(0)

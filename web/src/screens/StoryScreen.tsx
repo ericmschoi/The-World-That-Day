@@ -15,9 +15,9 @@ type Props = {
   onRestart: () => void
 }
 
-// The story for one date. The opening and "그날의 세계" are filled; the other
-// sections stay placeholders until later milestones. Every video on one
-// result shares a playback coordinator, so only one plays at a time.
+// The story for one date. The opening and "The world that day" are filled;
+// the other sections stay placeholders until later milestones. Every video on
+// one result shares a playback coordinator, so only one plays at a time.
 export function StoryScreen({ date, place, time, onRestart }: Props) {
   const opening = useRef<HTMLParagraphElement>(null)
   // The screen changed: start reading at the opening sentence.
@@ -49,7 +49,7 @@ export function StoryScreen({ date, place, time, onRestart }: Props) {
         ),
       )}
       <button type="button" className={styles.button} onClick={onRestart}>
-        처음으로
+        Start over
       </button>
     </PlaybackProvider>
   )

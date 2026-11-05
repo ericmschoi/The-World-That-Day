@@ -29,7 +29,7 @@ const DEMOS: [StoryInputValues, string][] = [
 ]
 
 const opening = () =>
-  within(screen.getByRole('region', { name: '오프닝' })).getByText(/요일/)
+  within(screen.getByRole('region', { name: 'Opening' })).getByText(/요일/)
 
 // Every request URL the app starts.
 let asked: string[] = []
@@ -57,7 +57,7 @@ describe('opening (T4 (1))', () => {
     const user = await start()
     await openStory(user, input)
     expect(opening()).toHaveTextContent(new RegExp(`^${words}$`))
-    expect(screen.getAllByRole('region')[0]).toHaveAccessibleName('오프닝')
+    expect(screen.getAllByRole('region')[0]).toHaveAccessibleName('Opening')
   })
 
   it.each([
@@ -77,7 +77,7 @@ describe('focus and kept values (T4 (2))', () => {
     expect(document.activeElement).toBe(opening())
     expect(opening()).toHaveAttribute('tabindex', '-1')
 
-    await user.click(screen.getByRole('button', { name: '처음으로' }))
+    await user.click(screen.getByRole('button', { name: 'Start over' }))
     expect(
       screen.getByRole('heading', { level: 1, name: 'The World That Day' }),
     ).toHaveFocus()
@@ -108,9 +108,9 @@ describe('address and storage rules (T4 (3))', () => {
 
     for (const [input] of DEMOS) {
       await openStory(user, input)
-      await screen.findByRole('region', { name: '그날의 세계' })
+      await screen.findByRole('region', { name: 'The world that day' })
       expect(location.href).toBe(startHref)
-      await user.click(screen.getByRole('button', { name: '처음으로' }))
+      await user.click(screen.getByRole('button', { name: 'Start over' }))
       expect(location.href).toBe(startHref)
     }
 

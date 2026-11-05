@@ -37,9 +37,9 @@ describe('toWorldResponse events', () => {
     const result = toWorldResponse(worldMalformedEvents)
 
     expect(summaries(worldMalformedEvents)).toEqual([
-      '시험용 사건 문장 A',
-      '시험용 사건 문장 B',
-      '시험용 사건 문장 D',
+      'Test event sentence A',
+      'Test event sentence B',
+      'Test event sentence D',
     ])
     expect(result?.events.map((event) => event.media)).toEqual([
       [],
@@ -59,7 +59,7 @@ describe('toWorldResponse events', () => {
   ])('drops an event whose %s is not a string', (key) => {
     const bad = { ...shapeEventA, id: 'bad', [key]: null }
     expect(summaries({ ...world1988, events: [shapeEventA, bad] })).toEqual([
-      '시험용 사건 문장 A',
+      'Test event sentence A',
     ])
   })
 
@@ -68,7 +68,7 @@ describe('toWorldResponse events', () => {
     (tone) => {
       const bad = { ...shapeEventA, id: 'bad', tone }
       expect(summaries({ ...world1988, events: [shapeEventA, bad] })).toEqual([
-        '시험용 사건 문장 A',
+        'Test event sentence A',
       ])
     },
   )

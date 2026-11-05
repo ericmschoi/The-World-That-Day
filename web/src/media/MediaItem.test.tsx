@@ -52,9 +52,9 @@ describe('MediaItem', () => {
     renderItem(patch(sameDayPhoto, { license_url: 'javascript:alert(1)' }))
     expect(screen.getByRole('img')).toBeInTheDocument()
     expect(
-      screen.getByRole('link', { name: /^원문 보기.*새 창에서 열림/ }),
+      screen.getByRole('link', { name: /^View original.*opens in a new tab/ }),
     ).toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: /라이선스/ })).toBeNull()
+    expect(screen.queryByRole('link', { name: /Licence/ })).toBeNull()
   })
 
   // YouTube comes in M3b3c, map SDK media in M4; image_embed is left out.

@@ -25,13 +25,13 @@ export function StorySection({ id, title, status, children }: Props) {
       <h2 id={headingId} className={styles.title}>
         {title}
       </h2>
-      {status === 'loading' && <p className={styles.note}>불러오는 중…</p>}
+      {status === 'loading' && <p className={styles.note}>Loading…</p>}
       {status === 'empty' && (
-        <p className={styles.note}>아직 준비 중인 섹션입니다.</p>
+        <p className={styles.note}>This section is coming soon.</p>
       )}
       {status === 'error' && (
         <p role="status" className={styles.note}>
-          이 섹션을 불러오지 못했습니다.
+          {"This section couldn't be loaded."}
         </p>
       )}
       {status === 'ready' && children}

@@ -126,8 +126,8 @@ describe('after agreeing (T2 (3)·(4))', () => {
     render(<App />)
     await agree(user)
     await openStory(user, { date: '1988-09-17', place: '서울' })
-    await screen.findByRole('list', { name: '사건 목록' })
-    await user.click(screen.getByRole('button', { name: '처음으로' }))
+    await screen.findByRole('list', { name: 'Events' })
+    await user.click(screen.getByRole('button', { name: 'Start over' }))
     expect(consentBox()).toBeChecked()
     await openStory(user, { date: '1995-03-15', place: '서울대학교병원' })
     expect(screen.getAllByRole('region')).toHaveLength(5)
@@ -139,26 +139,26 @@ describe('the notice text (T2 (5))', () => {
     render(<App />)
     const notice = consentBox().closest('div')!
     const policy = within(notice).getByRole('link', {
-      name: /^개인정보처리방침 보기\s*\(새 창에서 열림\)$/,
+      name: /^Read the privacy policy\s*\(opens in a new tab\)$/,
     })
     expect(policy).toHaveAttribute('href', '/privacy.html')
     expect(policy).toHaveAttribute('target', '_blank')
     const terms = within(notice).getByRole('link', {
-      name: /^YouTube 이용약관\s*\(새 창에서 열림\)$/,
+      name: /^YouTube Terms of Service\s*\(opens in a new tab\)$/,
     })
     expect(terms).toHaveAttribute('href', YOUTUBE_TERMS_URL)
     expect(terms).toHaveAttribute('target', '_blank')
     expect(terms).toHaveAttribute('rel', 'noopener noreferrer')
 
     const text = (notice.textContent ?? '')
-      .replaceAll('(새 창에서 열림)', '')
+      .replaceAll('(opens in a new tab)', '')
       .replace(/\s+/g, ' ')
-    expect(text).toContain('이 서비스는 YouTube API 서비스를 사용합니다.')
+    expect(text).toContain('This service uses YouTube API Services.')
     expect(text).toContain(
-      '이 서비스를 이용하면 YouTube 이용약관 에 동의하게 됩니다.',
+      'By using it, you agree to be bound by the YouTube Terms of Service .',
     )
     // Operator, contact and effective date live on the policy page only.
-    expect(text).not.toMatch(/운영자|문의|시행일/)
+    expect(text).not.toMatch(/operator|contact|effective date/i)
   })
 })
 
@@ -195,7 +195,7 @@ describe('nothing kept in the browser (T2 (7))', () => {
     render(<App />)
     await agree(user)
     await openStory(user, { date: '1988-09-17', place: '서울' })
-    await screen.findByRole('list', { name: '사건 목록' })
+    await screen.findByRole('list', { name: 'Events' })
     expect(localStorage.length).toBe(0)
     expect(sessionStorage.length).toBe(0)
     expect(document.cookie).toBe('')

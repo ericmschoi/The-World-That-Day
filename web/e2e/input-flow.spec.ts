@@ -10,7 +10,7 @@ import {
 } from '../src/mocks/fixtures/world/responses'
 import { fillStory, interceptNetwork } from './network'
 
-const CONSENT_LABEL = '개인정보처리방침에 동의합니다 (필수)'
+const CONSENT_LABEL = 'I agree to the privacy policy (required)'
 
 const DEMOS = [
   {
@@ -31,8 +31,9 @@ const DEMOS = [
 ]
 
 const opening = (page: Page) =>
-  page.getByRole('region', { name: '오프닝' }).getByText(/요일/)
-const world = (page: Page) => page.getByRole('region', { name: '그날의 세계' })
+  page.getByRole('region', { name: 'Opening' }).getByText(/요일/)
+const world = (page: Page) =>
+  page.getByRole('region', { name: 'The world that day' })
 const isFocused = (locator: Locator) =>
   locator.evaluate((element) => element === document.activeElement)
 
@@ -63,10 +64,10 @@ for (const { input, world: answer, words } of DEMOS) {
     await expect(opening(page)).toBeFocused()
     await expect(world(page)).toBeVisible()
     await expect(world(page)).not.toHaveAttribute('aria-busy', 'true')
-    await expect(world(page)).not.toContainText('불러오지 못했습니다')
+    await expect(world(page)).not.toContainText("couldn't be loaded")
     expect(page.url()).toBe(start)
 
-    await page.getByRole('button', { name: '처음으로' }).click()
+    await page.getByRole('button', { name: 'Start over' }).click()
     expect(page.url()).toBe(start)
     expect(outside.answered).toEqual([])
   })
@@ -98,7 +99,7 @@ test('keyboard only: fill, agree, submit, and back to the title', async ({
   await expect(opening(page)).toHaveText('1988년 9월 17일 토요일, 서울')
   await expect(opening(page)).toBeFocused()
 
-  await tabTo(page, page.getByRole('button', { name: '처음으로' }))
+  await tabTo(page, page.getByRole('button', { name: 'Start over' }))
   await page.keyboard.press('Enter')
   await expect(
     page.getByRole('heading', { level: 1, name: 'The World That Day' }),

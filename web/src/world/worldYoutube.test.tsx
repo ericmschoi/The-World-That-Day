@@ -27,9 +27,9 @@ import {
 import type { WorldResponse } from './types'
 import { WorldSection } from './WorldSection'
 
-const SAME_DAY = '그날 찍힌 사진'
-const OTHER_TIME = '다른 때 찍힌 사진'
-const UNDATED = '촬영 시점을 확인하지 못한 사진'
+const SAME_DAY = 'Photos taken that day'
+const OTHER_TIME = 'Photos taken at other times'
+const UNDATED = 'Photos with an unknown capture time'
 
 let fake: YouTubeFake | null = null
 
@@ -38,7 +38,7 @@ afterEach(() => {
   fake = null
 })
 
-const world = () => screen.getByRole('region', { name: '그날의 세계' })
+const world = () => screen.getByRole('region', { name: 'The world that day' })
 
 async function showWorld(body: WorldResponse, consented: boolean) {
   fake = installYouTubeFake()
@@ -81,7 +81,7 @@ describe('day_media with YouTube (T2 (7))', () => {
     expect(headings()).toEqual([OTHER_TIME, UNDATED])
     for (const title of [OTHER_TIME, UNDATED]) {
       const iframe = block(title).querySelector('iframe')!
-      expect(iframe).toHaveAttribute('title', '기록 영상')
+      expect(iframe).toHaveAttribute('title', 'Archive video')
     }
   })
 
@@ -92,7 +92,9 @@ describe('day_media with YouTube (T2 (7))', () => {
     fake!.ready(player)
     fake!.error(player, 101)
     expect(headings()).toEqual([])
-    expect(world()).not.toHaveTextContent(/오류|실패|재생할 수 없/)
+    expect(world()).not.toHaveTextContent(
+      /오류|실패|재생할 수 없|error|fail|couldn't|can't play/i,
+    )
   })
 })
 
@@ -100,7 +102,7 @@ describe('world1988WithYoutube on screen (T2 (9))', () => {
   it('puts Daehan News after event ①’s video, captioned in full', async () => {
     await showWorld(world1988WithYoutube, true)
     const [first, second] = within(
-      screen.getByRole('list', { name: '사건 목록' }),
+      screen.getByRole('list', { name: 'Events' }),
     ).getAllByRole('listitem')
     const order = [...first.children].map((child) =>
       child.tagName === 'FIGURE'
@@ -111,19 +113,19 @@ describe('world1988WithYoutube on screen (T2 (9))', () => {
     const daehan = first.querySelector('iframe')!.closest('figure')!
     expect(daehan.querySelector('iframe')).toHaveAttribute(
       'title',
-      '「1988년 하계 올림픽」 관련 자료',
+      'Material about “1988년 하계 올림픽”',
     )
     expect(daehan.querySelector('figcaption > p')).toHaveTextContent(
-      /^같은 해 무렵 1988년 무렵 촬영\(추정\)$/,
+      /^Around the same year Taken around 1988 \(estimated\)$/,
     )
     expect(daehan).toHaveTextContent('대한뉴스 제1715호 (1988년 9월 17일 자)')
     expect(daehan).toHaveTextContent('대한뉴스(정부 제작 뉴스영화)')
 
     const undated = second.querySelector('iframe')!.closest('figure')!
     expect(undated.querySelector('figcaption > p')).toHaveTextContent(
-      /^촬영 시점 미상$/,
+      /^Capture time unknown$/,
     )
-    expect(undated).not.toHaveTextContent('같은 날')
+    expect(undated).not.toHaveTextContent('Same day')
     expect(world().querySelectorAll('video')).toHaveLength(2)
     expect(world().querySelectorAll('iframe')).toHaveLength(2)
     expect(fake!.players).toHaveLength(2)
@@ -146,7 +148,7 @@ describe('days without YouTube (demo table)', () => {
     expect(world().querySelectorAll('iframe')).toHaveLength(0)
     expect(youtubeScripts()).toHaveLength(0)
     expect(fake!.players).toHaveLength(0)
-    expect(world()).not.toHaveTextContent(/오류|실패/)
+    expect(world()).not.toHaveTextContent(/오류|실패|error|fail|couldn't/i)
   })
 })
 

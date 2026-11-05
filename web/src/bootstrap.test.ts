@@ -5,6 +5,7 @@
 import { describe, expect, it } from 'vitest'
 import indexHtml from '../index.html?raw'
 import nvmrc from '../.nvmrc?raw'
+import privacyHtml from '../privacy.html?raw'
 import packageJsonRaw from '../package.json?raw'
 import viteConfig from '../vite.config.ts?raw'
 
@@ -49,8 +50,11 @@ describe('T1 scaffold', () => {
     })
   })
 
-  it('declares Korean language, the service title and a viewport', () => {
-    expect(indexHtml.match(/<html lang="ko">/g)).toHaveLength(1)
+  // Canadian English since plan C1 S1 (decision 9 (a)), on both pages.
+  it('declares en-CA, the service title and a viewport', () => {
+    expect(indexHtml.match(/<html lang="en-CA">/g)).toHaveLength(1)
+    expect(privacyHtml.match(/<html lang="en-CA">/g)).toHaveLength(1)
+    expect(`${indexHtml}${privacyHtml}`).not.toMatch(/<html lang="ko"/)
     expect(indexHtml.match(/<title>The World That Day<\/title>/g)).toHaveLength(
       1,
     )
