@@ -62,14 +62,14 @@ export const exampleYoutubeUndated = {
 } satisfies Media
 
 // `world1988WithVideo` plus Daehan News after event ①'s video and the
-// undated record on event ② (KBS 1TV): two Commons videos and two YouTube
+// undated record on event ② (Test event B): two Commons videos and two YouTube
 // players on one screen.
-const [opening, kbs1, ...rest] = world1988WithVideo.events
+const [opening, eventB, ...rest] = world1988WithVideo.events
 export const world1988WithYoutube = {
   ...world1988WithVideo,
   events: [
     { ...opening, media: [...opening.media, exampleDaehanNews] },
-    { ...kbs1, media: [...kbs1.media, exampleYoutubeUndated] },
+    { ...eventB, media: [...eventB.media, exampleYoutubeUndated] },
     ...rest,
   ],
 } satisfies WorldResponse

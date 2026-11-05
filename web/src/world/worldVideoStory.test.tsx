@@ -88,7 +88,7 @@ describe('video names', () => {
     const { eventVideo, dayVideo } = await showStory()
     expect(dayVideo).toHaveAccessibleName('Archive video')
     expect(eventVideo).toHaveAccessibleName(
-      'Material about “1988년 하계 올림픽”',
+      'Material about “1988 Summer Olympics”',
     )
     for (const video of [eventVideo, dayVideo]) {
       const name = video.getAttribute('aria-label') ?? ''

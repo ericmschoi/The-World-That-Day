@@ -1,3 +1,4 @@
+import { RangeNote } from './RangeNote'
 import { SourceLine } from './SourceLine'
 import type { WorldEvent } from './types'
 import styles from './WorldSection.module.css'
@@ -7,7 +8,8 @@ type Props = { events: WorldEvent[] }
 const TITLE = 'Difficult events on the same day'
 
 // `tragic` events after the normal ones, in a calm grey block (product brief
-// 6.3, #22 (c)): text and source line only, never their media, no accent.
+// 6.3, #22 (c)): text, range note and source line only, never their media,
+// no accent.
 export function TragicEvents({ events }: Props) {
   if (events.length === 0) return null
   return (
@@ -19,6 +21,7 @@ export function TragicEvents({ events }: Props) {
             <p className={styles.summary} lang={event.summary_lang}>
               {event.summary}
             </p>
+            <RangeNote event={event} />
             <SourceLine event={event} />
           </li>
         ))}

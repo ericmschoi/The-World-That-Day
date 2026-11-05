@@ -9,8 +9,9 @@ export const SAME_DAY = 'Same day'
 const UNKNOWN: DateLabel = { badge: null, text: 'Capture time unknown' }
 
 // A table, not `Intl`: ICU builds differ in the spaces they put in dates.
-// The result matches the en-CA long date ("September 17, 1988").
-const MONTHS = [
+// The result matches the en-CA long date ("September 17, 1988"). Also used by
+// the world section's range note.
+export const MONTHS = [
   'January',
   'February',
   'March',
@@ -52,7 +53,11 @@ const daysInMonth = (year: number, month: number) =>
   month === 2 && isLeapYear(year) ? 29 : DAYS_IN_MONTH[month - 1]
 
 // Rejects calendar values that do not exist (1988-13, 1988-09-32, 2001-02-29).
-function isRealDate(year: string, month?: string, day?: string): boolean {
+export function isRealDate(
+  year: string,
+  month?: string,
+  day?: string,
+): boolean {
   if (month === undefined) return true
   const m = Number(month)
   if (m < 1 || m > 12) return false

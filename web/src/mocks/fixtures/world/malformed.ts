@@ -7,7 +7,9 @@ import { world1988 } from './responses'
 
 export const shapeEventA = {
   ...world1988.events[0],
-  id: 'kowiki-1988-09-17-0000000a',
+  id: 'enwiki-1988-09-17-0000000a',
+  date_kind: 'day',
+  range_end: null,
   title: 'Test event',
   summary: 'Test event sentence A',
   media: [],
@@ -23,21 +25,21 @@ const shapeEventB = {
   ...Object.fromEntries(
     Object.entries(shapeEventA).filter(([key]) => key !== 'media'),
   ),
-  id: 'kowiki-1988-09-17-0000000b',
+  id: 'enwiki-1988-09-17-0000000b',
   summary: 'Test event sentence B',
 }
 
 // `summary` is a number: the whole event is dropped.
 const shapeEventC = {
   ...shapeEventA,
-  id: 'kowiki-1988-09-17-0000000c',
+  id: 'enwiki-1988-09-17-0000000c',
   summary: 42,
 }
 
 // One `null` and one photo in `media`: only the photo stays.
 const shapeEventD = {
   ...shapeEventA,
-  id: 'kowiki-1988-09-17-0000000d',
+  id: 'enwiki-1988-09-17-0000000d',
   summary: 'Test event sentence D',
   media: [null, shapePhoto],
 }

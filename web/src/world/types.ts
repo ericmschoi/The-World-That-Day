@@ -17,22 +17,30 @@ export type ToneBasis =
 
 export type RelatedLink = { title: string; url: string }
 
+// How the line falls on `date` (plan C1 S3a, D2 (a)): on that day, or as the
+// first day of a range whose last day is `range_end`. Days inside a range are
+// never events of that day.
+export type DateKind = 'day' | 'range_start'
+
 export type WorldEvent = {
   id: string
   date: string
+  date_kind: DateKind
+  // `YYYY-MM-DD` when `date_kind` is `range_start`, otherwise null.
+  range_end: string | null
   scope: EventScope
   // Title of the main link, null if the line has none.
   title: string | null
   // Wikipedia text unchanged (M3-P16). Render as text only, never as HTML.
   summary: string
-  summary_lang: 'ko'
+  summary_lang: 'en'
   summary_modified: boolean
   text_license: string
   text_license_url: string
   source_name: string
   source_title: string
   source_url: string
-  source_section: '사건' | '문화'
+  source_section: 'Events' | 'Sport'
   source_revision: number
   wikidata_qid: string | null
   tone: EventTone

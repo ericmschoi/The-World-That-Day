@@ -113,7 +113,7 @@ describe('world1988WithYoutube on screen (T2 (9))', () => {
     const daehan = first.querySelector('iframe')!.closest('figure')!
     expect(daehan.querySelector('iframe')).toHaveAttribute(
       'title',
-      'Material about “1988년 하계 올림픽”',
+      'Material about “1988 Summer Olympics”',
     )
     expect(daehan.querySelector('figcaption > p')).toHaveTextContent(
       /^Around the same year Taken around 1988 \(estimated\)$/,

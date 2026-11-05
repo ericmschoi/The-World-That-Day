@@ -23,6 +23,13 @@
   font-size: var(--font-size-lead);
 }
 
+/* "Started that day — ran until …" under a range event's sentence. */
+.range {
+  margin: 0 0 var(--space-3);
+  color: var(--color-muted);
+  font-size: var(--font-size-caption);
+}
+
 .source {
   margin: 0;
   color: var(--color-muted);
@@ -54,6 +61,7 @@ h2 + .tragic {
   color: var(--color-tragic-text);
 }
 
+.tragic .range,
 .tragic .source,
 .tragic a {
   color: var(--color-tragic-text);

@@ -1,4 +1,5 @@
 import { MediaItem } from '../media/MediaItem'
+import { RangeNote } from './RangeNote'
 import { SourceLine } from './SourceLine'
 import type { WorldEvent } from './types'
 import styles from './WorldSection.module.css'
@@ -11,8 +12,8 @@ const fallbackAlt = (event: WorldEvent) =>
   event.title ? `Material about “${event.title}”` : 'Material about this event'
 
 // One event: the Wikipedia text exactly as written (text node only, never
-// HTML, M3-P16) in its own language, its media shown inline, then the text's
-// source line.
+// HTML, M3-P16) in its own language, the range note when the event only
+// started that day, its media shown inline, then the text's source line.
 export function WorldEventItem({ event }: Props) {
   const alt = fallbackAlt(event)
   return (
@@ -20,6 +21,7 @@ export function WorldEventItem({ event }: Props) {
       <p className={styles.summary} lang={event.summary_lang}>
         {event.summary}
       </p>
+      <RangeNote event={event} />
       {event.media.map((media) => (
         <MediaItem key={media.id} media={media} fallbackAlt={alt} />
       ))}

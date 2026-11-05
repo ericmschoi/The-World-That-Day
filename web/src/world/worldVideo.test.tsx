@@ -103,11 +103,15 @@ describe('a video that cannot play (T3 (2))', () => {
     ).getAllByRole('listitem')
     failLastSource(first.querySelector('video')!)
     expect(first.querySelector('video')).toBeNull()
-    expect(first).toHaveTextContent('제24회 서울 하계 올림픽 개막.')
+    expect(first).toHaveTextContent(
+      'The 1988 Summer Olympics open in Seoul, South Korea.',
+    )
     expect(within(first).getAllByRole('img')).toHaveLength(2)
-    expect(first.lastElementChild).toHaveTextContent('Source: 한국어 위키백과')
+    expect(first.lastElementChild).toHaveTextContent(
+      'Source: English Wikipedia',
+    )
     expect(
-      within(first).getByRole('link', { name: /“9월 17일”/ }),
+      within(first).getByRole('link', { name: /“September 17”/ }),
     ).toBeInTheDocument()
   })
 })
@@ -124,7 +128,7 @@ describe('world1988WithVideo on screen (T3 (3)·(5))', () => {
         : child.tagName.toLowerCase(),
     )
     expect(order).toEqual(['p', 'img', 'img', 'video', 'p'])
-    expect(first.lastElementChild).toHaveTextContent('한국어 위키백과')
+    expect(first.lastElementChild).toHaveTextContent('English Wikipedia')
   })
 
   it('captions the event video with 같은 달, its month and links', async () => {

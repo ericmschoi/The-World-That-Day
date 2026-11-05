@@ -2,6 +2,9 @@
 // the demo values, and their media are value-for-value copies of the M3a3
 // examples in data/schema/examples/media/valid/. Key lists are copied from
 // the plan (and the server's WorldStoryDemoTest), not built from types.ts.
+// Plan C1 S3a: the event values are synthetic English in the S3a contract
+// shape (English Wikipedia, `date_kind`, `range_end`), no longer copies of a
+// Korean server response.
 import { describe, expect, it } from 'vitest'
 import pdExample from '../../../data/schema/examples/media/valid/commons-1988-09-17-seoul-olympics-opening-pd.json'
 import koglExample from '../../../data/schema/examples/media/valid/commons-2002-06-22-gwangju-world-cup-kogl1.json'
@@ -19,6 +22,8 @@ const TOP_KEYS = ['date', 'events', 'day_media', 'notice', 'partial']
 const EVENT_KEYS = [
   'id',
   'date',
+  'date_kind',
+  'range_end',
   'scope',
   'title',
   'summary',
@@ -109,29 +114,46 @@ describe('world fixtures: key sets (T1b (5))', () => {
   })
 })
 
-describe('world fixtures: demo values (T1b (6))', () => {
-  it('world1988 has the three events in server order, without media', () => {
+describe('world fixtures: demo values (T1b (6), C1 S3a T6 (3))', () => {
+  it('world1988 has the three synthetic English events, without media', () => {
     const rows = responses.world1988.events.map((event) => [
       event.title,
+      event.summary,
       event.source_title,
       event.source_section,
-      event.source_revision,
-      event.wikidata_qid,
+      event.date_kind,
+      event.range_end,
       event.media,
     ])
 
-    expect(responses.world1988.events[0].id).toBe('kowiki-1988-09-17-875c69fa')
-    expect(responses.world1988.events[0].summary).toContain('서울 하계 올림픽')
-    expect(responses.world1988.events[1].summary).toBe(
-      'KBS 1TV의 채널에서 광고 24개를 때려갔다.',
-    )
-    expect(responses.world1988.events[2].summary).toBe(
-      'KBS 2TV의 채널에서 광고 37개를 때려갔다.',
-    )
     expect(rows).toEqual([
-      ['1988년 하계 올림픽', '9월 17일', '사건', 42604413, 'Q8470', []],
-      ['KBS 1TV', '1988년', '문화', 42640701, 'Q777278', []],
-      ['KBS 2TV', '1988년', '문화', 42640701, 'Q624509', []],
+      [
+        '1988 Summer Olympics',
+        'The 1988 Summer Olympics open in Seoul, South Korea.',
+        'September 17',
+        'Events',
+        'day',
+        null,
+        [],
+      ],
+      [
+        'Test event B',
+        'Test day event sentence B',
+        'September 17',
+        'Events',
+        'day',
+        null,
+        [],
+      ],
+      [
+        'Test event C',
+        'Test range event sentence C',
+        '1988',
+        'Events',
+        'range_start',
+        '1988-10-02',
+        [],
+      ],
     ])
     expect(responses.world1988.day_media).toEqual([])
     expect(responses.world1988.notice).toBeNull()
@@ -142,17 +164,16 @@ describe('world fixtures: demo values (T1b (6))', () => {
 
     expect(responses.world2002.events).toHaveLength(1)
     expect(event).toMatchObject({
-      id: 'kowiki-2002-06-22-04eaf6a6',
-      title: '2002년 FIFA 월드컵',
-      source_title: '6월 22일',
-      source_section: '문화',
-      source_revision: 42614972,
+      title: '2002 FIFA World Cup',
+      source_title: 'June 22',
+      source_url: 'https://en.wikipedia.org/wiki/June_22',
+      source_section: 'Events',
+      date_kind: 'day',
+      range_end: null,
       wikidata_qid: 'Q47735',
-      tone: 'normal',
-      tone_basis: 'curated',
       media: [],
     })
-    expect(event.summary).toContain('스페인')
+    expect(event.summary).toContain('Spain')
   })
 
   it('world1995 has no events and the NO_EVENTS_FOUND notice', () => {
@@ -165,14 +186,28 @@ describe('world fixtures: demo values (T1b (6))', () => {
     })
   })
 
-  it('every demo event is normal, curated and domestic', () => {
+  it('every demo event is a normal English Wikipedia event', () => {
     for (const [, fixture] of demoFixtures) {
       for (const event of fixture.events) {
-        expect([event.tone, event.tone_basis, event.scope]).toEqual([
+        expect([
+          event.tone,
+          event.tone_basis,
+          event.scope,
+          event.summary_lang,
+          event.source_name,
+          event.text_license_url,
+        ]).toEqual([
           'normal',
-          'curated',
-          'domestic',
+          'rule:no-signal',
+          'world',
+          'en',
+          'English Wikipedia',
+          'https://creativecommons.org/licenses/by-sa/4.0/deed.en',
         ])
+        expect(event.id).toMatch(/^enwiki-\d{4}-\d{2}-\d{2}-[0-9a-f]{8}$/)
+        expect(event.source_url).toMatch(
+          /^https:\/\/en\.wikipedia\.org\/wiki\//,
+        )
       }
     }
   })

@@ -45,8 +45,8 @@ import {
 
 const DEMO_1988 = '1988년 9월 17일로 보기'
 const CONSENT_LABEL = 'I agree to the privacy policy (required)'
-const EVENT_1 = 'Material about “1988년 하계 올림픽”'
-const EVENT_2 = 'Material about “KBS 1TV”'
+const EVENT_1 = 'Material about “1988 Summer Olympics”'
+const EVENT_2 = 'Material about “Test event B”'
 const IFRAME_API = 'https://www.youtube.com/iframe_api'
 const EMBED_URLS = [
   exampleDaehanNews.embed_url,
@@ -221,7 +221,7 @@ async function open(
 // video right above it enters as it moves down, and its takeover would pause
 // Daehan News too, hiding whether leaving did). The day_media video stays,
 // far below.
-const [opening, kbs1, ...restEvents] = world1988WithYoutube.events
+const [opening, eventB, ...restEvents] = world1988WithYoutube.events
 const daehanAlone: WorldResponse = {
   ...world1988WithYoutube,
   events: [
@@ -230,8 +230,8 @@ const daehanAlone: WorldResponse = {
       media: opening.media.filter((m) => m.display_mode !== 'video_file'),
     },
     {
-      ...kbs1,
-      media: kbs1.media.filter((m) => m.display_mode !== 'video_embed'),
+      ...eventB,
+      media: eventB.media.filter((m) => m.display_mode !== 'video_embed'),
     },
     ...restEvents,
   ],
@@ -355,11 +355,13 @@ test.describe('with the fake YT', () => {
       .getByRole('list', { name: 'Events' })
       .getByRole('listitem')
       .first()
-    await expect(first).toContainText('제24회 서울 하계 올림픽 개막.')
+    await expect(first).toContainText(
+      'The 1988 Summer Olympics open in Seoul, South Korea.',
+    )
     await expect(first.getByRole('img')).toHaveCount(2)
     await expect(first.locator('video')).toHaveCount(1)
     await expect(first.getByRole('figure')).toHaveCount(3)
-    await expect(first).toContainText('Source: 한국어 위키백과')
+    await expect(first).toContainText('Source: English Wikipedia')
     await expect(world(page)).not.toContainText(ERROR_TEXT)
   })
 

@@ -1,7 +1,8 @@
 // Plan M3b2 T1b (1): `WorldResponse`, `WorldEvent` and `ApiProblemCode` have
 // the names and types of the plan's contract ("응답 200", "에러"). `Expected*`
-// are written from the plan, not from types.ts. The assertions run under
-// `npm run typecheck` (tsc -b).
+// are written from the plan, not from types.ts. Plan C1 S3a (API contract,
+// T6 (1)) made the event text English and added `date_kind` and `range_end`.
+// The assertions run under `npm run typecheck` (tsc -b).
 import { describe, expect, it } from 'vitest'
 import type { Media } from '../media/types'
 import type { ApiProblemCode, WorldEvent, WorldResponse } from './types'
@@ -14,17 +15,19 @@ type Equal<A, B> =
 type ExpectedEvent = {
   id: string
   date: string
+  date_kind: 'day' | 'range_start'
+  range_end: string | null
   scope: 'domestic' | 'world' | 'unknown'
   title: string | null
   summary: string
-  summary_lang: 'ko'
+  summary_lang: 'en'
   summary_modified: boolean
   text_license: string
   text_license_url: string
   source_name: string
   source_title: string
   source_url: string
-  source_section: '사건' | '문화'
+  source_section: 'Events' | 'Sport'
   source_revision: number
   wikidata_qid: string | null
   tone: 'normal' | 'tragic'

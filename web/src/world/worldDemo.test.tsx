@@ -72,7 +72,7 @@ function expectSourceLines(items: HTMLElement[], events: WorldEvent[]) {
   expect(items).toHaveLength(events.length)
   events.forEach((event, i) => {
     expect(visibleSourceLine(items[i])).toBe(
-      `Source: 한국어 위키백과, “${event.source_title}” · CC BY-SA 4.0`,
+      `Source: English Wikipedia, “${event.source_title}” · CC BY-SA 4.0`,
     )
     const links = sourceLinks(items[i])
     expect(links).toHaveLength(2)
@@ -89,11 +89,19 @@ describe('demo 1988-09-17 (데모 표 1행)', () => {
     const items = within(await eventList()).getAllByRole('listitem')
 
     expect(items.map((item) => item.querySelector('p')?.textContent)).toEqual([
-      '제24회 서울 하계 올림픽 개막.',
-      'KBS 1TV의 채널에서 광고 24개를 때려갔다.',
-      'KBS 2TV의 채널에서 광고 37개를 때려갔다.',
+      'The 1988 Summer Olympics open in Seoul, South Korea.',
+      'Test day event sentence B',
+      'Test range event sentence C',
     ])
-    expect(screen.getAllByText(/서울 하계 올림픽/)).toHaveLength(1)
+    expect(screen.getAllByText(/Summer Olympics open in Seoul/)).toHaveLength(1)
+    // Only the range event ③ says it started that day (C1 S3a T6).
+    expect(
+      items.map((item) => /Started that day/.test(item.textContent ?? '')),
+    ).toEqual([false, false, true])
+    expect(
+      within(items[2]).getByText('Started that day — ran until October 2')
+        .tagName,
+    ).toBe('P')
     expectSourceLines(items, world1988WithMedia.events)
   })
 
@@ -139,18 +147,18 @@ describe('demo 1988-09-17 (데모 표 1행)', () => {
 describe('demo 2002-06-22 (데모 표 2행)', () => {
   const [quarterFinal] = world2002.events
 
-  it('media fixture: the "스페인" sentence once, source line 「6월 22일」, one KOGL Type 1 photo', async () => {
+  it('media fixture: the "Spain" sentence once, source line 「June 22」, one KOGL Type 1 photo', async () => {
     await openDemo('2002-06-22')
 
     const items = within(await eventList()).getAllByRole('listitem')
 
     expect(items).toHaveLength(1)
-    expect(quarterFinal.summary).toContain('스페인')
+    expect(quarterFinal.summary).toContain('Spain')
     expect(
       screen.getAllByText(quarterFinal.summary, { exact: true }),
     ).toHaveLength(1)
     expect(visibleSourceLine(items[0])).toBe(
-      'Source: 한국어 위키백과, “6월 22일” · CC BY-SA 4.0',
+      'Source: English Wikipedia, “June 22” · CC BY-SA 4.0',
     )
     expectSourceLines(items, world2002WithMedia.events)
     const figure = within(items[0]).getByRole('figure')
@@ -345,7 +353,7 @@ describe('event media and source links (CLAUDE.md 7.1)', () => {
     const [item] = within(await eventList()).getAllByRole('listitem')
 
     expect(within(item).queryAllByRole('link')).toHaveLength(0)
-    expect(item).toHaveTextContent('Source: 한국어 위키백과, “9월 17일”')
+    expect(item).toHaveTextContent('Source: English Wikipedia, “September 17”')
     expect(item).toHaveTextContent('CC BY-SA 4.0')
     expect(
       item.querySelector('[href^="javascript:"], [href^="data:"]'),
@@ -360,7 +368,7 @@ describe('event media and source links (CLAUDE.md 7.1)', () => {
         first,
         {
           ...second,
-          id: 'kowiki-1988-09-17-00000003',
+          id: 'enwiki-1988-09-17-00000003',
           summary: 'Test tragic event sentence',
           tone: 'tragic',
           tone_basis: 'rule:keyword',

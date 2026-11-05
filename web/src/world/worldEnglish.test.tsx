@@ -2,8 +2,8 @@
 // synthetic English world answer is drawn with every caption variant, and
 // the page text must hold no Hangul and no US "license" spelling. The input
 // screen is left out on purpose (S1-P1 (a): its temporary buttons stay Korean
-// until S2). Server-supplied Korean event text is out of scope until S3a, so
-// every event and media text below is plainly fake English. Dates are the
+// until S2). Every event and media text below is plainly fake English, so
+// anything Korean on the page would be ours. Dates are the
 // demo date 1988-09-17 (product brief 12) and nearby years.
 import { render, screen, waitFor } from '@testing-library/react'
 import { delay, http, HttpResponse, type JsonBodyType } from 'msw'
@@ -116,17 +116,19 @@ const eventPhotoUnknown = photo('unknown', 0, null, null, {
 const normalEvent: WorldEvent = {
   id: 'example-english-event-normal',
   date: '1988-09-17',
+  date_kind: 'day',
+  range_end: null,
   scope: 'world',
   title: 'Test event',
   summary: 'Test event sentence A',
-  summary_lang: 'ko', // The server contract; the fake text is English.
+  summary_lang: 'en',
   summary_modified: false,
   text_license: 'CC BY-SA 4.0',
   text_license_url: 'https://creativecommons.org/licenses/by-sa/4.0/',
   source_name: 'Example Encyclopedia',
   source_title: 'September 17',
   source_url: 'https://encyclopedia.example.org/wiki/September_17',
-  source_section: '사건',
+  source_section: 'Events',
   source_revision: 1,
   wikidata_qid: null,
   tone: 'normal',
@@ -148,6 +150,9 @@ const tragicEvent: WorldEvent = {
   ...normalEvent,
   id: 'example-english-event-tragic',
   summary: 'Test tragic event sentence',
+  // Its range note is our text too (plan C1 S3a T6).
+  date_kind: 'range_start',
+  range_end: '1988-09-30',
   tone: 'tragic',
   tone_basis: 'rule:keyword',
   media: [photo('same_day', 0, '1988-09-17', 'day')],

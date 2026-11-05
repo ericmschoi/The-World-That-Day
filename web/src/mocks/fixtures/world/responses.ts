@@ -10,88 +10,94 @@ import {
 // `GET /api/story/world` bodies for the demo dates (product brief 12, plan
 // M3b2 "MSW fixture"). Sources and synthetic values: README.md in this folder.
 
-const WIKI = 'https://ko.wikipedia.org/wiki/'
+const WIKI = 'https://en.wikipedia.org/wiki/'
 
-// Fields every Korean Wikipedia event shares.
-const kowiki = {
-  scope: 'domestic',
-  summary_lang: 'ko',
+// Fields every English Wikipedia event shares (plan C1 S3a API contract).
+// Synthetic English: written for these fixtures, not copied from a response.
+const enwiki = {
+  scope: 'world',
+  summary_lang: 'en',
   summary_modified: false,
   text_license: 'CC BY-SA 4.0',
-  text_license_url: 'https://creativecommons.org/licenses/by-sa/4.0/deed.ko',
-  source_name: '한국어 위키백과',
+  text_license_url: 'https://creativecommons.org/licenses/by-sa/4.0/deed.en',
+  source_name: 'English Wikipedia',
+  source_section: 'Events',
   tone: 'normal',
-  tone_basis: 'curated',
+  tone_basis: 'rule:no-signal',
   media: [],
-  retrieved_at: '2026-10-12T03:00:00Z',
+  retrieved_at: '2026-10-30T03:00:00Z',
 } satisfies Partial<WorldEvent>
 
+// A day page line.
 const olympicsOpening = {
-  ...kowiki,
-  id: 'kowiki-1988-09-17-875c69fa',
+  ...enwiki,
+  id: 'enwiki-1988-09-17-0000a001',
   date: '1988-09-17',
-  title: '1988년 하계 올림픽',
-  summary: '제24회 서울 하계 올림픽 개막.',
-  source_title: '9월 17일',
-  source_url: `${WIKI}9%EC%9B%94_17%EC%9D%BC`,
-  source_section: '사건',
-  source_revision: 42604413,
+  date_kind: 'day',
+  range_end: null,
+  title: '1988 Summer Olympics',
+  summary: 'The 1988 Summer Olympics open in Seoul, South Korea.',
+  source_title: 'September 17',
+  source_url: `${WIKI}September_17`,
+  source_revision: 1000000001,
   wikidata_qid: 'Q8470',
   related_links: [
     {
-      title: '1988년 하계 올림픽',
-      url: `${WIKI}1988%EB%85%84_%ED%95%98%EA%B3%84_%EC%98%AC%EB%A6%BC%ED%94%BD`,
+      title: '1988 Summer Olympics',
+      url: `${WIKI}1988_Summer_Olympics`,
     },
   ],
 } satisfies WorldEvent
 
-const kbs1 = {
-  ...kowiki,
-  id: 'kowiki-1988-09-17-f90369fc',
-  date: '1988-09-17',
-  title: 'KBS 1TV',
-  summary: 'KBS 1TV의 채널에서 광고 24개를 때려갔다.',
-  source_title: '1988년',
-  source_url: `${WIKI}1988%EB%85%84`,
-  source_section: '문화',
-  source_revision: 42640701,
-  wikidata_qid: 'Q777278',
-  related_links: [{ title: 'KBS 1TV', url: `${WIKI}KBS_1TV` }],
+const dayEventB = {
+  ...olympicsOpening,
+  id: 'enwiki-1988-09-17-0000a002',
+  title: 'Test event B',
+  summary: 'Test day event sentence B',
+  source_revision: 1000000001,
+  wikidata_qid: null,
+  related_links: [],
 } satisfies WorldEvent
 
-const kbs2 = {
-  ...kbs1,
-  id: 'kowiki-1988-09-17-5477d3e7',
-  title: 'KBS 2TV',
-  summary: 'KBS 2TV의 채널에서 광고 37개를 때려갔다.',
-  wikidata_qid: 'Q624509',
-  related_links: [{ title: 'KBS 2TV', url: `${WIKI}KBS_2TV` }],
+// A year page range line that starts on the requested date (D2 (a)): the
+// screen adds "Started that day — ran until October 2".
+const rangeEventC = {
+  ...dayEventB,
+  id: 'enwiki-1988-09-17-0000a003',
+  date_kind: 'range_start',
+  range_end: '1988-10-02',
+  title: 'Test event C',
+  summary: 'Test range event sentence C',
+  source_title: '1988',
+  source_url: `${WIKI}1988`,
+  source_revision: 1000000002,
 } satisfies WorldEvent
 
 const quarterFinal = {
-  ...kowiki,
-  id: 'kowiki-2002-06-22-04eaf6a6',
+  ...enwiki,
+  id: 'enwiki-2002-06-22-0000b001',
   date: '2002-06-22',
-  title: '2002년 FIFA 월드컵',
+  date_kind: 'day',
+  range_end: null,
+  title: '2002 FIFA World Cup',
   summary:
-    '2002 FIFA 월드컵에서 대한민국이 스페인에 승부차기 끝에 PK 결과 5-3으로 승리하여 아시아 최초로 4강에 진출한다. (터키도 일한 만시즈의 결승골로 세네갈을 1:0으로 꺾고 4강에 진출함.)',
-  source_title: '6월 22일',
-  source_url: `${WIKI}6%EC%9B%94_22%EC%9D%BC`,
-  source_section: '문화',
-  source_revision: 42614972,
+    'South Korea beat Spain on penalties in a 2002 FIFA World Cup quarter-final.',
+  source_title: 'June 22',
+  source_url: `${WIKI}June_22`,
+  source_revision: 1000000003,
   wikidata_qid: 'Q47735',
   related_links: [
     {
-      title: '2002년 FIFA 월드컵',
-      url: `${WIKI}2002%EB%85%84_FIFA_%EC%9B%94%EB%93%9C%EC%BB%B5`,
+      title: '2002 FIFA World Cup',
+      url: `${WIKI}2002_FIFA_World_Cup`,
     },
   ],
 } satisfies WorldEvent
 
-// Same shape as the server today: no media yet (until M3a3b).
+// Without media.
 export const world1988 = {
   date: '1988-09-17',
-  events: [olympicsOpening, kbs1, kbs2],
+  events: [olympicsOpening, dayEventB, rangeEventC],
   day_media: [],
   notice: null,
   partial: false,
@@ -124,8 +130,8 @@ export const world1988WithMedia = {
         { ...captureTimeUnknown, date_relation: { kind: 'unknown', years: 0 } },
       ],
     },
-    kbs1,
-    kbs2,
+    dayEventB,
+    rangeEventC,
   ],
   day_media: [
     { ...licenseUnknown, date_relation: { kind: 'same_day', years: 0 } },
@@ -152,8 +158,8 @@ export const world2002WithMedia = {
 // Synthetic, plainly fake text (plan M3b2b "fixture 추가"). Not used by the
 // default handler; tests swap them in with `server.use(...)`.
 const testEventA = {
-  ...olympicsOpening,
-  id: 'kowiki-1988-09-17-0000000a',
+  ...dayEventB,
+  id: 'enwiki-1988-09-17-0000000a',
   title: 'Test event',
   summary: 'Test event sentence A',
   wikidata_qid: null,
@@ -163,7 +169,7 @@ const testEventA = {
 // Its photo must never be drawn (product brief 6.3, #22 (c)).
 const testTragic = {
   ...testEventA,
-  id: 'kowiki-1988-09-17-0000000e',
+  id: 'enwiki-1988-09-17-0000000e',
   title: null,
   summary: 'Test tragic event sentence',
   tone: 'tragic',
