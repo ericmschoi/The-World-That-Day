@@ -374,3 +374,7 @@
 | 2026-11-04 | PM | C1 S1 영어 화면 | PR #31 머지 | cc9af18 |
 | 2026-11-04 | PM | 운영 방식: PR마다 보고하지 않고 배포 직전까지 자율 진행. 유료 호출·배포 금지(직전에 보고), 막히면 가장 타당한 안으로 진행, 5시간 한도 뒤 자동 재개, README 갱신 | 결정 | - |
 | 2026-11-04 | orchestrator | PM 위임 (추천안): T9 A1 (a) 1차 항목 1·2·3·6·11, 4·5·7·9·10은 결정 뒤 2차, 8 뺌 · A2 시작 1950-01-01 확정 · T1 D1~D5 (a) · T8 D4 (b) 나이 문장(13세 미만, 퀘벡 14세 미만, S2 T8b) · T6 D4 ECCC 라이선스 서비스 단위로 읽음 | 결정 | - |
+| 2026-11-05 | planner | C2 계획(장소 사전·resolve 계약, 서버 PR 3) · C3 계획(그때 vs 지금 항목 2·3, 서버 5 + 웹 1) | 완료 | c5d4653 |
+| 2026-11-05 | orchestrator | PM 위임 (추천안): C2-P1 (a) 데이터→매처→API 3 PR · C2-P2 (a) 파생 CSV만 커밋, 4 MB 상한 · C2-P3 (a) SGC Place name + CGNDB 25 km 정확히 1건 · C2-P4 (a) 좌표 null, 데모만 overrides · C2-P5 (a) PARTIAL · C3-P1 (a) 서버 5 + 웹 1 · C3-P2 (a) 메모리 캐시 · C3-P3 (a) province 코드 · C3-P4 (a) 빵·우유, 1995~ · C3-P5 (b) 근거 URL 고르기 파일 · C3-P6 (a) then-and-now 섹션 · C2-P6/C3-P7 (b) backend-dev | 결정 | - |
+| 2026-11-05 | planner | 로드맵 캐나다 C0~C8 다시 씀 · 정의서·CLAUDE.md·.claude/ 문구 제안서 1차·2차(brief-changes-canada.md) | 완료 | fbab8e0 |
+| 2026-11-05 | orchestrator | PM 위임 (추천안): C6·C7은 MVP 밖(C8은 머지된 만큼) · ★ S3b T2 backend-dev · S2 T9는 PR 연 뒤 머지 전 · 정의서 1차는 PM 검토 후 명시 위임 · "그때와 지금" 위치는 세계 앞(C3-P6도 맞춤) | 결정 | - |
