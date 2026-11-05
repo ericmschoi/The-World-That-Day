@@ -30,6 +30,10 @@ final class PlaceCsv {
           .readerForArrayOf(String.class)
           .with(CsvReadFeature.WRAP_AS_ARRAY)
           .with(CsvReadFeature.SKIP_EMPTY_LINES);
+
+  /** The SGC files: Latin-1 plus {@code ’} and {@code œ} in the bytes 0x80 to 0x9F. */
+  static final Charset WINDOWS_1252 = Charset.forName("windows-1252");
+
   private static final int BOM = 0xFEFF;
   private static final Pattern NEEDS_QUOTES = Pattern.compile("[,\"\r\n]");
 

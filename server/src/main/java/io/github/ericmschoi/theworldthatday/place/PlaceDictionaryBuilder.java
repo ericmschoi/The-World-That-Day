@@ -1,6 +1,5 @@
 package io.github.ericmschoi.theworldthatday.place;
 
-import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import io.github.ericmschoi.theworldthatday.place.PlaceCsv.Row;
@@ -9,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,11 +18,10 @@ import java.util.regex.Pattern;
 
 /**
  * Builds {@code regions.csv} and {@code neighbourhoods.csv} of {@code data/places/} (plan C2, B1 to
- * B3) from the SGC 2021 structure and element CSVs (ISO-8859-1), the CGNDB CSV (UTF-8 with a byte
- * order mark) and the curated {@code overrides.csv} of the output folder. Reads local files only.
- * Two guards go beyond the plan's wording, both against guessing: a CSD whose folded name another
- * CSD of its province shares gets no {@code unique} point, and a CGNDB name that would be a
- * neighbourhood of two CSDs, or is its CSD's own point, is left out.
+ * B3) from the SGC 2021 CSVs (Windows-1252), the CGNDB CSV (UTF-8 with a byte order mark) and the
+ * curated {@code overrides.csv} of the output folder, reading local files only. Against guessing, a
+ * CSD sharing its folded name with another CSD of its province gets no {@code unique} point, and no
+ * CSD's point nor a name near two CSDs becomes a neighbourhood.
  */
 public final class PlaceDictionaryBuilder {
 
@@ -62,6 +61,7 @@ public final class PlaceDictionaryBuilder {
   private final Map<String, List<Name>> names = new HashMap<>();
   private final Map<String, Name> byId = new HashMap<>();
   private final Map<String, Name> points = new HashMap<>();
+  private final Set<Name> pointNames = new HashSet<>();
   private final Map<Name, TreeSet<String>> hits = new HashMap<>();
   private final Map<String, Integer> counts = new TreeMap<>();
 
@@ -89,14 +89,14 @@ public final class PlaceDictionaryBuilder {
   public static Map<String, Integer> build(Path structure, Path elements, Path cgndb, Path out)
       throws IOException {
     PlaceDictionaryBuilder builder = new PlaceDictionaryBuilder();
-    PlaceCsv.read(structure, ISO_8859_1, STRUCTURE, builder::structure);
+    PlaceCsv.read(structure, PlaceCsv.WINDOWS_1252, STRUCTURE, builder::structure);
     Path overrideFile = out.resolve("overrides.csv");
     if (Files.isRegularFile(overrideFile)) {
       PlaceCsv.read(overrideFile, UTF_8, OVERRIDES, builder::override);
     }
     PlaceCsv.read(cgndb, UTF_8, CGNDB, builder::cgndb);
     List<List<String>> regions = builder.regions(overrideFile);
-    PlaceCsv.read(elements, ISO_8859_1, ELEMENTS, builder::element);
+    PlaceCsv.read(elements, PlaceCsv.WINDOWS_1252, ELEMENTS, builder::element);
     Map<String, List<String>> neighbourhoods = new TreeMap<>();
     for (Map.Entry<Name, TreeSet<String>> hit : builder.hits.entrySet()) {
       if (hit.getValue().size() == 1) {
@@ -186,6 +186,7 @@ public final class PlaceDictionaryBuilder {
       regions.add(row);
       if (point != null) {
         points.put(code, point);
+        pointNames.add(point);
       }
     }
     return regions;
@@ -209,7 +210,7 @@ public final class PlaceDictionaryBuilder {
                 .stream()
                 .filter(name -> distanceKm(centre, name) <= NEIGHBOURHOOD_RADIUS_KM)
                 .toList();
-    if (found.size() == 1 && !found.getFirst().id().equals(centre.id())) {
+    if (found.size() == 1 && !pointNames.contains(found.getFirst())) {
       hits.computeIfAbsent(found.getFirst(), k -> new TreeSet<>()).add(code);
     }
   }

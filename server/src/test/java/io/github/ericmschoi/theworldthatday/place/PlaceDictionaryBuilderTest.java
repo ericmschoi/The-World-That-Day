@@ -1,6 +1,5 @@
 package io.github.ericmschoi.theworldthatday.place;
 
-import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -29,6 +28,7 @@ import org.junit.jupiter.api.io.TempDir;
 class PlaceDictionaryBuilderTest {
 
   static final Path FIXTURES = Path.of("src/test/resources/places");
+  static final Charset SGC = PlaceCsv.WINDOWS_1252;
 
   /** Point of the Montréal override (CGNDB EHHUN). */
   static final double MONTREAL_LAT = 45.5088220;
@@ -106,7 +106,7 @@ class PlaceDictionaryBuilderTest {
         .isEqualTo(Files.readAllBytes(FIXTURES.resolve("expected-neighbourhoods.csv")));
     assertThat(counts)
         .containsExactlyInAnyOrderEntriesOf(
-            Map.of("unique", 10, "override", 1, "none", 2, "neighbourhoods", 4, "shared", 0));
+            Map.of("unique", 10, "override", 1, "none", 3, "neighbourhoods", 4, "shared", 0));
   }
 
   @Test
@@ -148,7 +148,7 @@ class PlaceDictionaryBuilderTest {
     assertThat(Files.readAllBytes(out.resolve("neighbourhoods.csv"))).isEqualTo(neighbourhoods);
 
     for (Path file : List.of(structure, elements, cgndb)) {
-      Charset charset = file.equals(cgndb) ? UTF_8 : ISO_8859_1;
+      Charset charset = file.equals(cgndb) ? UTF_8 : SGC;
       List<String> lines = new ArrayList<>(Files.readAllLines(file, charset));
       List<String> body = new ArrayList<>(lines.subList(1, lines.size()));
       Collections.reverse(body);
@@ -165,21 +165,41 @@ class PlaceDictionaryBuilderTest {
   }
 
   @Test
-  void latin1SgcAndBomCgndbBecomeUtf8WithoutBomAndCarriageReturns() throws IOException {
+  void windows1252SgcAndBomCgndbBecomeUtf8WithoutBomAndCarriageReturns() throws IOException {
     byte[] sgc = Files.readAllBytes(structure);
-    byte[] montrealLatin1 = "Montréal".getBytes(ISO_8859_1);
-    assertThat(indexOf(sgc, montrealLatin1)).as("fixture is ISO-8859-1").isPositive();
+    byte[] montrealSgc = "Montréal".getBytes(SGC);
+    assertThat(indexOf(sgc, montrealSgc)).as("é is the byte E9").isPositive();
+    assertThat(indexOf(sgc, new byte[] {'K', (byte) 0x92, 'e'}))
+        .as("’ is the byte 92")
+        .isPositive();
     assertThat(Files.readAllBytes(cgndb)).startsWith(0xEF, 0xBB, 0xBF);
 
     build();
 
+    assertThat(regions()).contains("6104006,Sambaa K’e,61,Region 4,,,,none");
     for (String file : List.of("regions.csv", "neighbourhoods.csv")) {
       byte[] bytes = Files.readAllBytes(out.resolve(file));
       assertThat(bytes[0]).isNotEqualTo((byte) 0xEF);
       assertThat(bytes).doesNotContain((byte) '\r');
-      assertThat(indexOf(bytes, "Montréal".getBytes(UTF_8))).isPositive();
-      assertThat(indexOf(bytes, montrealLatin1)).isNegative();
+      assertThat(indexOf(bytes, montrealSgc)).isNegative();
+      assertThat(Files.readString(out.resolve(file), UTF_8))
+          .contains("Montréal")
+          .doesNotContainPattern("[\\p{Cc}&&[^\\n]]")
+          .doesNotContain("\u0092");
     }
+  }
+
+  @Test
+  void windows1252DecodesCurlyApostropheAndOeLigature() throws IOException {
+    Path file =
+        Files.write(
+            temp.resolve("w.csv"),
+            new byte[] {'n', '\r', '\n', 'K', (byte) 0x92, 'e', ' ', 'S', (byte) 0x9C, 'u', 'r'});
+    List<String> names = new ArrayList<>();
+
+    PlaceCsv.read(file, SGC, List.of("n"), row -> names.add(row.get("n")));
+
+    assertThat(names).containsExactly("K\u2019e S\u0153ur");
   }
 
   @Test
@@ -205,7 +225,7 @@ class PlaceDictionaryBuilderTest {
         .containsExactly(
             "cgndb_id,name,csd_code,province_code,lat,lng",
             "FCZWN,Victoria,3521024,35,43.7727778,-79.8777777");
-    assertThat(counts).containsEntry("none", 3).containsEntry("unique", 10);
+    assertThat(counts).containsEntry("none", 4).containsEntry("unique", 10);
   }
 
   @Test
@@ -215,12 +235,12 @@ class PlaceDictionaryBuilderTest {
     assertThat(regions())
         .contains("1102032,Victoria,11,Queens,,,,none", "1103068,Victoria,11,Prince,,,,none");
 
-    List<String> lines = Files.readAllLines(structure, ISO_8859_1);
+    List<String> lines = Files.readAllLines(structure, SGC);
     lines.removeIf(line -> line.contains(",1103068,"));
-    Files.write(structure, lines, ISO_8859_1);
-    lines = Files.readAllLines(elements, ISO_8859_1);
+    Files.write(structure, lines, SGC);
+    lines = Files.readAllLines(elements, SGC);
     lines.removeIf(line -> line.contains(",1103068,"));
-    Files.write(elements, lines, ISO_8859_1);
+    Files.write(elements, lines, SGC);
     build();
 
     assertThat(regions())
@@ -296,14 +316,35 @@ class PlaceDictionaryBuilderTest {
 
   @Test
   void nameNearTwoCsdsIsLeftOutAndCounted() throws IOException {
-    append(structure, ISO_8859_1, "4,Census subdivision,2466007,Montréal-Est");
+    append(structure, SGC, "4,Census subdivision,2466007,Montréal-Est");
     append(cgndb, UTF_8, cgndbRow("ZZAAF", "Montréal-Est", "CITY", 45.632, -73.507, "Quebec"));
-    append(elements, ISO_8859_1, "4,2466007,Montréal-Est,Place name(s),Maisonneuve");
+    append(elements, SGC, "4,2466007,Montréal-Est,Place name(s),Maisonneuve");
 
     Map<String, Integer> counts = build();
 
     assertThat(neighbourhoods()).noneMatch(row -> row.startsWith("EIXQF,"));
     assertThat(counts).containsEntry("shared", 1).containsEntry("neighbourhoods", 3);
+  }
+
+  @Test
+  void anyCsdPointIsNeverANeighbourhood() throws IOException {
+    // Synthetic: a village that is the unique point of CSD Montréal-Est, listed as a place name of
+    // Montréal 3 km away. Without the rule it would be a Montréal neighbourhood.
+    append(structure, SGC, "4,Census subdivision,2466007,Montréal-Est");
+    append(
+        cgndb,
+        UTF_8,
+        cgndbRow("ZZAAJ", "Montréal-Est", "VILG", northOfMontreal(3), MONTREAL_LNG, "Quebec"));
+    append(elements, SGC, "4,2466023,Montréal,Place name(s),Montréal-Est");
+
+    build();
+
+    assertThat(regions())
+        .anyMatch(
+            row ->
+                row.startsWith("2466007,Montréal-Est,24,Montréal,")
+                    && row.endsWith(",ZZAAJ,unique"));
+    assertThat(neighbourhoods()).noneMatch(row -> row.startsWith("ZZAAJ,"));
   }
 
   @Test
@@ -371,15 +412,15 @@ class PlaceDictionaryBuilderTest {
 
   @Test
   void structureAndElementRowsMustFit() throws IOException {
-    append(elements, ISO_8859_1, "4,9999999,London,Place name(s),London");
-    assertThatThrownBy(this::build).hasMessageStartingWith(elements + ":20:");
+    append(elements, SGC, "4,9999999,London,Place name(s),London");
+    assertThatThrownBy(this::build).hasMessageStartingWith(elements + ":21:");
 
     Files.copy(
         FIXTURES.resolve("sgc-elements-excerpt.csv"),
         elements,
         java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-    append(structure, ISO_8859_1, "4,Census subdivision,353903,London");
-    assertThatThrownBy(this::build).hasMessageStartingWith(structure + ":41:");
+    append(structure, SGC, "4,Census subdivision,353903,London");
+    assertThatThrownBy(this::build).hasMessageStartingWith(structure + ":43:");
 
     assertThatThrownBy(
             () -> PlaceDictionaryBuilder.build(temp.resolve("missing.csv"), elements, cgndb, out))

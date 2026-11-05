@@ -12,3 +12,4 @@ csd_code,name,province_code,cd_name,lat,lng,cgndb_id,coord_rule
 5915022,Vancouver,59,Greater Vancouver,49.2611110,-123.1138890,JBRIK,unique
 5917034,Victoria,59,Capital,48.4283330,-123.3647220,JBOBQ,unique
 5955034,Fort St. John,59,Peace River,56.2525000,-120.8466670,JAGPB,unique
+6104006,Sambaa K’e,61,Region 4,,,,none
