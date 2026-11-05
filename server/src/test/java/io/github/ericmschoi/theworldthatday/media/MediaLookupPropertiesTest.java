@@ -25,19 +25,20 @@ class MediaLookupPropertiesTest {
       new ApplicationContextRunner().withUserConfiguration(PropertiesOnly.class);
 
   @Test
-  void defaultsAndApplicationYmlAreSixAndThreeSeconds() {
-    runner.run(context -> assertDefaults(context.getBean(MediaLookupProperties.class)));
+  void defaultsAreSixAndThreeSecondsAndApplicationYmlTurnsDayPhotosOff() {
+    runner.run(context -> assertDefaults(context.getBean(MediaLookupProperties.class), 6));
     runner
         .withInitializer(new ConfigDataApplicationContextInitializer())
         .run(
             context -> {
-              assertDefaults(context.getBean(MediaLookupProperties.class));
+              // plan C1 S3a D7 (a): off in application.yml until S3c brings Canadian sources
+              assertDefaults(context.getBean(MediaLookupProperties.class), 0);
               assertThat(context.getBean(MediaProperties.class).blocklist()).isEmpty();
             });
   }
 
-  private static void assertDefaults(MediaLookupProperties properties) {
-    assertThat(properties.dayMediaLimit()).isEqualTo(6);
+  private static void assertDefaults(MediaLookupProperties properties, int dayMediaLimit) {
+    assertThat(properties.dayMediaLimit()).isEqualTo(dayMediaLimit);
     assertThat(properties.lookupDeadline()).isEqualTo(Duration.ofSeconds(3));
   }
 

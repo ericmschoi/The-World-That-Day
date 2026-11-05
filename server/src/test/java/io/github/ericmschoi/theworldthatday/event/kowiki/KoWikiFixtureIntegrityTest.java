@@ -1,6 +1,6 @@
 package io.github.ericmschoi.theworldthatday.event.kowiki;
 
-import static io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiFixtures.wikitext;
+import static io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiFixtureReadme.wikitext;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiFixtureReadme.Row;
@@ -173,7 +173,10 @@ class KoWikiFixtureIntegrityTest {
               .contains("ppprop=wikibase_item&redirects=1")
               .contains("titles=" + encoded + "&");
           assertThat(
-                  KoWikiFixtures.JSON.readTree(KoWikiFixtures.read(file)).path("query").isObject())
+                  KoWikiFixtures.JSON
+                      .readTree(KoWikiFixtureReadme.read(file))
+                      .path("query")
+                      .isObject())
               .as(file)
               .isTrue();
         });
@@ -213,7 +216,10 @@ class KoWikiFixtureIntegrityTest {
               .contains("titles=" + encoded + "&")
               .doesNotContain("iiextmetadatalanguage");
           assertThat(
-                  KoWikiFixtures.JSON.readTree(KoWikiFixtures.read(file)).path("query").isObject())
+                  KoWikiFixtures.JSON
+                      .readTree(KoWikiFixtureReadme.read(file))
+                      .path("query")
+                      .isObject())
               .as(file)
               .isTrue();
         });

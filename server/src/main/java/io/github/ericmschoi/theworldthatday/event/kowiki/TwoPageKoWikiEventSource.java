@@ -88,16 +88,12 @@ public class TwoPageKoWikiEventSource implements KoWikiEventSource {
     int skipped = 0;
     for (KoWikiPageKind kind : KoWikiPageKind.values()) {
       KoWikiPage page = pages.get(kind.ordinal());
-      for (String section : List.of(ActionApiKoWikiClient.EVENTS, ActionApiKoWikiClient.CULTURE)) {
-        String wikitext =
-            section.equals(ActionApiKoWikiClient.EVENTS)
-                ? page.eventsWikitext()
-                : page.cultureWikitext();
-        WikitextEventParser.Result parsed = parser.parse(wikitext, kind, date);
-        skipped += parsed.skippedLines();
-        int order = kind.ordinal() * 2 + (section.equals(ActionApiKoWikiClient.EVENTS) ? 0 : 1);
-        parsed.events().forEach(event -> lines.add(new Line(page, section, order, event)));
-      }
+      WikitextEventParser.Result parsed = parser.parse(page.eventsWikitext(), kind, date);
+      skipped += parsed.skippedLines();
+      int order = kind.ordinal(); // one Events section per page
+      parsed
+          .events()
+          .forEach(event -> lines.add(new Line(page, ActionApiKoWikiClient.EVENTS, order, event)));
     }
 
     List<String> titles =
@@ -138,7 +134,9 @@ public class TwoPageKoWikiEventSource implements KoWikiEventSource {
             line.event().text(),
             resolved.stream().map(Link::title).toList(),
             resolved.isEmpty() ? null : resolved.getFirst().wikidataQid(),
-            page.fetchedAt());
+            page.fetchedAt(),
+            line.event().dateKind(),
+            line.event().rangeEnd());
     return new KoWikiEventDeduplicator.Candidate(event, line.order(), resolved);
   }
 
@@ -150,13 +148,13 @@ public class TwoPageKoWikiEventSource implements KoWikiEventSource {
         .toList();
   }
 
-  /** {@code kowiki-<date>-<first 8 hex digits of SHA-256(page title + "\n" + text)>}. */
+  /** {@code enwiki-<date>-<first 8 hex digits of SHA-256(page title + "\n" + text)>}. */
   static String id(LocalDate date, String pageTitle, String text) {
     try {
       byte[] hash =
           MessageDigest.getInstance("SHA-256")
               .digest((pageTitle + "\n" + text).getBytes(StandardCharsets.UTF_8));
-      return "kowiki-" + date + "-" + HexFormat.of().formatHex(hash, 0, 4);
+      return ActionApiKoWikiClient.SOURCE + "-" + date + "-" + HexFormat.of().formatHex(hash, 0, 4);
     } catch (NoSuchAlgorithmException e) {
       throw new IllegalStateException("SHA-256 is required by every Java platform", e);
     }
@@ -173,12 +171,16 @@ public class TwoPageKoWikiEventSource implements KoWikiEventSource {
     try {
       return future.get(Math.max(0, deadline - System.nanoTime()), TimeUnit.NANOSECONDS);
     } catch (TimeoutException e) {
-      log.warn("Wikimedia call failed: source=kowiki title={} cause=day deadline", label);
+      log.warn(
+          "Wikimedia call failed: source={} title={} cause=day deadline",
+          ActionApiKoWikiClient.SOURCE,
+          label);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     } catch (ExecutionException e) {
       log.warn(
-          "Wikimedia call failed: source=kowiki title={} cause={}",
+          "Wikimedia call failed: source={} title={} cause={}",
+          ActionApiKoWikiClient.SOURCE,
           label,
           e.getCause().getClass().getSimpleName());
     } finally {

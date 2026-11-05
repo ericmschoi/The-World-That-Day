@@ -53,7 +53,7 @@ class WorldStoryCuratedHideTest {
   private static final String ENTRY =
       """
       {"date": "2000-02-29", "primary_link": "%s", "summary_contains": null, %s
-       "reason": "시험 항목", "reviewed_at": "2026-10-13",
+       "reason": "Test entry", "reviewed_at": "2026-10-13",
        "evidence_url": "https://ko.wikipedia.org/w/index.php?title=2000%%EB%%85%%84&oldid=200"}""";
 
   private void curation(String... entries) throws IOException {
@@ -67,7 +67,15 @@ class WorldStoryCuratedHideTest {
 
   private static KoWikiEvent event(String hash, String text, String link, String qid) {
     return new KoWikiEvent(
-        "kowiki-2000-02-29-" + hash, LEAP_DAY, "2000년", "사건", 200L, text, List.of(link), qid, READ);
+        "enwiki-2000-02-29-" + hash,
+        LEAP_DAY,
+        "2000",
+        "Events",
+        200L,
+        text,
+        List.of(link),
+        qid,
+        READ);
   }
 
   private WorldStoryResponse respond(List<KoWikiEvent> events) {
@@ -90,8 +98,8 @@ class WorldStoryCuratedHideTest {
             LEAP_DAY,
             events,
             List.of(
-                new KoWikiDocStatus("2월 29일", 100L, READ, State.FRESH),
-                new KoWikiDocStatus("2000년", 200L, READ, State.FRESH)),
+                new KoWikiDocStatus("February 29", 100L, READ, State.FRESH),
+                new KoWikiDocStatus("2000", 200L, READ, State.FRESH)),
             0,
             0,
             false);
@@ -103,8 +111,8 @@ class WorldStoryCuratedHideTest {
   void takedownEntryWithoutToneRemovesOnlyItsEventAndLogsOnlyTheHash(CapturedOutput output)
       throws IOException {
     curation(
-        ENTRY.formatted("시험 문서 가", "\"hide\": true,"),
-        ENTRY.formatted("시험 문서 나", "\"tone\": \"normal\", \"scope\": \"world\","));
+        ENTRY.formatted("Test page A", "\"hide\": true,"),
+        ENTRY.formatted("Test page B", "\"tone\": \"normal\", \"scope\": \"world\","));
     ch.qos.logback.classic.Logger app =
         (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("io.github.ericmschoi");
     Level before = app.getLevel();
@@ -114,16 +122,16 @@ class WorldStoryCuratedHideTest {
       response =
           respond(
               List.of(
-                  event("0000000a", "시험 사건 가.", "시험 문서 가", "Q1"),
-                  event("0000000b", "시험 사건 나.", "시험 문서 나", "Q2"),
-                  event("0000000c", "시험 사건 다.", "시험 문서 다", "Q3")));
+                  event("0000000a", "Test event A.", "Test page A", "Q1"),
+                  event("0000000b", "Test event B.", "Test page B", "Q2"),
+                  event("0000000c", "Test event C.", "Test page C", "Q3")));
     } finally {
       app.setLevel(before);
     }
 
     assertThat(response.events())
         .extracting(Event::summary)
-        .containsExactly("시험 사건 나.", "시험 사건 다.");
+        .containsExactly("Test event B.", "Test event C.");
     assertThat(response.events().getFirst().toneBasis()).isEqualTo("curated");
     assertThat(response.events().getFirst().scope()).isEqualTo("world");
     assertThat(response.notice()).isNull();
@@ -136,14 +144,15 @@ class WorldStoryCuratedHideTest {
         .doesNotContain("0000000b")
         .doesNotContain("kowiki-")
         .doesNotContain("2000-02-29")
-        .doesNotContain("시험 사건");
+        .doesNotContain("Test event");
   }
 
   @Test
   void takedownOfEveryEventIsNoEventsFoundAndNotPartial() throws IOException {
-    curation(ENTRY.formatted("시험 문서 가", "\"hide\": true,"));
+    curation(ENTRY.formatted("Test page A", "\"hide\": true,"));
 
-    WorldStoryResponse response = respond(List.of(event("0000000a", "시험 사건 가.", "시험 문서 가", "Q1")));
+    WorldStoryResponse response =
+        respond(List.of(event("0000000a", "Test event A.", "Test page A", "Q1")));
 
     assertThat(response.events()).isEmpty();
     assertThat(response.notice()).isEqualTo(WorldStoryResponse.Notice.NO_EVENTS_FOUND);

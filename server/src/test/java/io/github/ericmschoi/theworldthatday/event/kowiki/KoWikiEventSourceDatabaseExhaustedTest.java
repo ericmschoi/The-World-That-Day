@@ -1,10 +1,5 @@
 package io.github.ericmschoi.theworldthatday.event.kowiki;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiFixtures.read;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.zaxxer.hikari.HikariDataSource;
@@ -78,10 +73,10 @@ class KoWikiEventSourceDatabaseExhaustedTest extends WikimediaWireMockTest {
     List<Connection> held = exhaustPool();
     try {
       long start = System.nanoTime();
-      KoWikiPage page = client.cached("9월 17일");
+      KoWikiPage page = client.cached("September 17");
       Duration elapsed = Duration.ofNanos(System.nanoTime() - start);
 
-      assertThat(page).isEqualTo(KoWikiPage.unavailable("9월 17일"));
+      assertThat(page).isEqualTo(KoWikiPage.unavailable("September 17"));
       assertThat(elapsed)
           .isGreaterThanOrEqualTo(Duration.ofMillis(900))
           .isLessThan(Duration.ofMillis(1500));
@@ -93,12 +88,7 @@ class KoWikiEventSourceDatabaseExhaustedTest extends WikimediaWireMockTest {
   @Test
   void dayStillReturnsBothWikipediaPagesInsideTheDeadline(CapturedOutput output)
       throws SQLException {
-    KoWikiEventSourceContextTest.stubRecorded("9월 17일");
-    KoWikiEventSourceContextTest.stubRecorded("1988년");
-    wikimedia.stubFor(
-        get(urlPathEqualTo(KOWIKI_PATH))
-            .withQueryParam("action", equalTo("query"))
-            .willReturn(okJson(read("pageprops-1988-09-17.json"))));
+    KoWikiEventSourceContextTest.stubOpeningDay();
 
     List<Connection> held = exhaustPool();
     KoWikiDayResult result;
@@ -120,8 +110,8 @@ class KoWikiEventSourceDatabaseExhaustedTest extends WikimediaWireMockTest {
     assertThat(result.events().getFirst().wikidataQid()).isEqualTo("Q8470");
     assertThat(result.degraded()).isFalse();
     assertThat(output.getAll())
-        .contains("Wiki section cache read failed: title=9월 17일")
-        .contains("Wiki section cache read failed: title=1988년")
+        .contains("Wiki section cache read failed: title=September 17")
+        .contains("Wiki section cache read failed: title=1988")
         .as("T4: no write after a failed read")
         .doesNotContain("Wiki section cache write failed");
     assertThat(jdbc.queryForObject("SELECT count(*) FROM wiki_section_cache", Long.class))

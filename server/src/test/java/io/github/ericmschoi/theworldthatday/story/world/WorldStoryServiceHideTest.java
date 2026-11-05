@@ -41,7 +41,7 @@ class WorldStoryServiceHideTest {
     return new KoWikiEvent(
         "kowiki-2000-02-29-" + hash,
         LEAP_DAY,
-        "2000년",
+        "2000",
         "문화",
         200L,
         text,
@@ -57,8 +57,8 @@ class WorldStoryServiceHideTest {
             LEAP_DAY,
             events,
             List.of(
-                new KoWikiDocStatus("2월 29일", null, null, State.ABSENT),
-                new KoWikiDocStatus("2000년", 200L, READ, yearPage)),
+                new KoWikiDocStatus("February 29", null, null, State.ABSENT),
+                new KoWikiDocStatus("2000", 200L, READ, yearPage)),
             0,
             0,
             false);

@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import ch.qos.logback.classic.Level;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import io.github.ericmschoi.theworldthatday.event.wikidata.SparqlWikidataSignalSourceTest;
+import io.github.ericmschoi.theworldthatday.wikimedia.WikiPageStubs;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaWireMockTest;
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,7 +48,7 @@ import tools.jackson.databind.json.JsonMapper;
 class WorldStoryAcceptanceTest extends WikimediaWireMockTest {
 
   private static final JsonMapper JSON = JsonMapper.builder().build();
-  private static final String KOWIKI = "fixtures/wikimedia/kowiki/";
+  private static final String KOWIKI = "fixtures/wikimedia/enwiki/";
 
   @Autowired private WebApplicationContext context;
   @Autowired private JdbcTemplate jdbc;
@@ -71,25 +72,8 @@ class WorldStoryAcceptanceTest extends WikimediaWireMockTest {
     }
   }
 
-  /** Section list by title, then the level-2 사건 and 문화 sections by revid and index. */
   private static void stubPage(String title, String prefix) {
-    JsonNode parse = JSON.readTree(read(prefix + "-sections.json")).path("parse");
-    String revid = Long.toString(parse.path("revid").asLong());
-    wikimedia.stubFor(
-        WireMock.get(urlPathEqualTo(KOWIKI_PATH))
-            .withQueryParam("page", equalTo(title))
-            .willReturn(okJson(read(prefix + "-sections.json"))));
-    for (JsonNode section : parse.path("sections")) {
-      String line = section.path("line").asString("");
-      String kind = line.equals("사건") ? "events" : line.equals("문화") ? "culture" : null;
-      if (kind != null && "2".equals(section.path("level").asString(""))) {
-        wikimedia.stubFor(
-            WireMock.get(urlPathEqualTo(KOWIKI_PATH))
-                .withQueryParam("oldid", equalTo(revid))
-                .withQueryParam("section", equalTo(section.path("index").asString()))
-                .willReturn(okJson(read(prefix + "-" + kind + ".json"))));
-      }
-    }
+    WikiPageStubs.stubPage(wikimedia, title, prefix);
   }
 
   private static void stubPageprops(String body) {
@@ -100,15 +84,16 @@ class WorldStoryAcceptanceTest extends WikimediaWireMockTest {
   }
 
   /**
-   * The synthetic leap-day pages: "시험 사건 가가 열렸다." links 시험 문서 가 (date page 사건), "시험 사건 나." (date
-   * page 문화) and "시험 사건 다." (year page 사건) have no link. 시험 문서 가 resolves to {@code qid}.
+   * The synthetic leap-day pages: "Test event A opens." links Test page A (date page), "Test event
+   * B." (date page) and "Test event C." (year page) have no link. Test page A resolves to {@code
+   * qid}.
    */
   private static void stubLeapDay(String qid) {
-    stubPage("2월 29일", "synthetic/synthetic-02-29");
-    stubPage("2000년", "synthetic/synthetic-2000");
+    stubPage("February 29", "synthetic/synthetic-02-29");
+    stubPage("2000", "synthetic/synthetic-2000");
     stubPageprops(
         """
-        {"batchcomplete":true,"query":{"pages":[{"pageid":1,"ns":0,"title":"시험 문서 가",
+        {"batchcomplete":true,"query":{"pages":[{"pageid":1,"ns":0,"title":"Test page A",
          "pageprops":{"wikibase_item":"%s"}}]}}"""
             .formatted(qid));
   }
@@ -118,7 +103,9 @@ class WorldStoryAcceptanceTest extends WikimediaWireMockTest {
         WireMock.get(urlPathEqualTo(SPARQL_PATH))
             .willReturn(
                 okJson(
-                    SparqlWikidataSignalSourceTest.fixture("synthetic/synthetic-signals.json"))));
+                    // the domestic country is Canada (plan C1 S3a T4 (5)): Q4 is in Q16 and Q17
+                    SparqlWikidataSignalSourceTest.fixture("synthetic/synthetic-signals.json")
+                        .replace("entity/Q884", "entity/Q16"))));
   }
 
   private MockHttpServletResponse call(String date) throws Exception {
@@ -156,7 +143,7 @@ class WorldStoryAcceptanceTest extends WikimediaWireMockTest {
 
     JsonNode linked = null;
     for (JsonNode event : root.path("events")) {
-      if ("시험 문서 가".equals(event.path("title").asString(null))) {
+      if ("Test page A".equals(event.path("title").asString(null))) {
         linked = event;
       }
     }
@@ -250,8 +237,8 @@ class WorldStoryAcceptanceTest extends WikimediaWireMockTest {
 
     assertThat(response.getStatus()).isEqualTo(503);
     assertThat(JSON.readTree(body).path("code").asString()).isEqualTo("UPSTREAM_UNAVAILABLE");
-    assertThat(body).doesNotContain("1988").doesNotContain("09-17").doesNotContain("9월");
-    assertThat(output.getAll()).doesNotContain("1988-09-17").doesNotContain("kowiki-1988");
+    assertThat(body).doesNotContain("1988").doesNotContain("09-17").doesNotContain("September");
+    assertThat(output.getAll()).doesNotContain("1988-09-17").doesNotContain("enwiki-1988");
   }
 
   @Test
@@ -259,9 +246,9 @@ class WorldStoryAcceptanceTest extends WikimediaWireMockTest {
       throws Exception {
     atDebug(
         () -> {
-          stubPage("9월 17일", "09-17");
-          stubPage("1988년", "1988");
-          stubPageprops(read("pageprops-1988-09-17.json"));
+          stubPage("September 17", "synthetic/synthetic-09-17");
+          stubPage("1988", "synthetic/synthetic-1988");
+          stubPageprops(read("synthetic/synthetic-pageprops-1988-09-17.json"));
           wikimedia.stubFor(
               WireMock.get(urlPathEqualTo(SPARQL_PATH))
                   .willReturn(
@@ -270,9 +257,9 @@ class WorldStoryAcceptanceTest extends WikimediaWireMockTest {
           assertThat(opening.path("events").size()).isEqualTo(3);
 
           wikimedia.resetAll();
-          stubPage("6월 22일", "06-22");
-          stubPage("2002년", "2002");
-          stubPageprops(read("pageprops-2002-06-22.json"));
+          stubPage("June 22", "synthetic/synthetic-06-22");
+          stubPage("2002", "synthetic/synthetic-2002");
+          stubPageprops(read("synthetic/synthetic-pageprops-2002-06-22.json"));
           wikimedia.stubFor(
               WireMock.get(urlPathEqualTo(SPARQL_PATH)).willReturn(aResponse().withStatus(503)));
           JsonNode match = ok("2002-06-22");
@@ -285,12 +272,12 @@ class WorldStoryAcceptanceTest extends WikimediaWireMockTest {
     assertThat(logs)
         .doesNotContain("1988-09-17")
         .doesNotContain("2002-06-22")
-        .doesNotContain("kowiki-19")
-        .doesNotContain("kowiki-20")
-        .doesNotContain("올림픽 개막")
-        .doesNotContain("광고")
-        .doesNotContain("스페인")
-        .doesNotContain("승부차기");
+        .doesNotContain("enwiki-19")
+        .doesNotContain("enwiki-20")
+        .doesNotContain("Olympiad")
+        .doesNotContain("test broadcast")
+        .doesNotContain("quarter-final")
+        .doesNotContain("penalties");
   }
 
   private static <T> T atDebug(ThrowingSupplier<T> body) throws Exception {

@@ -15,11 +15,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 /**
- * Plan M3a1c T5 (6): the revised rule D3 (T4) through the whole source, on 2000-02-29 pages made of
- * synthetic culture sections ({@code synthetic/dedup/}), with the real link lookup against
- * WireMock. The T3 repro (a one-link line no longer absorbs a different line of the same
- * tournament) and the different-country-pair case each keep two events; a control with a shared
- * country still merges.
+ * Plan M3a1c T5 (6) and plan C1 S3a T4 (D3m): the merge rules through the whole source, on
+ * 2000-02-29 pages made of synthetic English Events sections ({@code synthetic/dedup/}), with the
+ * real link lookup against WireMock. Under D3m the one-link line of the T3 repro merges the year
+ * page line with the same main link (approved expectation change) but never a line of its own page;
+ * the different-country-pair case keeps two events (D3 (iii) place conflict); a control with a
+ * shared country still merges.
  */
 class KoWikiEventSourceD3RegressionTest {
 
@@ -33,14 +34,14 @@ class KoWikiEventSourceD3RegressionTest {
   private final KoWikiSourceFixture parts =
       new KoWikiSourceFixture(wikimedia, Duration.ofSeconds(2), Duration.ofSeconds(5));
 
-  /** Date page 문화 and year page 문화 only (sections 1 and 3), both FRESH. */
-  private KoWikiDayResult find(String dateCulture, String yearCulture) {
+  /** The Events sections of the date page and the year page, both FRESH. */
+  private KoWikiDayResult find(String dateEvents, String yearEvents) {
     stubPageprops(wikimedia, EMPTY_PAGEPROPS);
     KoWikiClient pages =
         title ->
-            title.equals("2월 29일")
-                ? new KoWikiPage(title, State.FRESH, 100L, null, dateCulture, READ)
-                : new KoWikiPage(title, State.FRESH, 200L, null, yearCulture, READ);
+            title.equals("February 29")
+                ? new KoWikiPage(title, State.FRESH, 100L, dateEvents, null, READ)
+                : new KoWikiPage(title, State.FRESH, 200L, yearEvents, null, READ);
     return parts.source(pages).find(LEAP_DAY);
   }
 
@@ -49,31 +50,44 @@ class KoWikiEventSourceD3RegressionTest {
   }
 
   @Test
-  void oneLinkLineNoLongerAbsorbsAnotherLineOfTheSameTournament() {
-    KoWikiDayResult result =
-        find(fixture("one-link-date-culture"), fixture("one-link-year-culture"));
+  void oneLinkLineMergesTheYearLineWithTheSameMainLink() {
+    KoWikiDayResult result = find(fixture("one-link-date"), fixture("one-link-year"));
 
     assertThat(result.events())
         .extracting(KoWikiEvent::sourceTitle, KoWikiEvent::sourceSection, KoWikiEvent::linkTitles)
         .containsExactly(
-            org.assertj.core.groups.Tuple.tuple("2월 29일", "문화", java.util.List.of("2002 시험 대회")),
             org.assertj.core.groups.Tuple.tuple(
-                "2000년", "문화", java.util.List.of("2002년 시험 대회", "시험 팀 다", "시험 팀 라")));
-    assertThat(result.mergedCount()).isZero();
+                "February 29", "Events", java.util.List.of("2002 Test Cup")));
+    assertThat(result.events().getFirst().text()).isEqualTo("2002 Test Cup test match A is held.");
+    assertThat(result.mergedCount()).isEqualTo(1);
     assertThat(result.linkResolutionFailed()).isFalse();
     assertThat(pagepropsRequests(wikimedia)).hasSize(1);
   }
 
   @Test
-  void differentCountryPairsOfTheSameTournamentStayTwoEvents() {
+  void oneLinkLineNeverAbsorbsALineOfItsOwnPage() {
+    String yearLine =
+        fixture("one-link-year").replace("* [[February 29]] –", "*[[2000]] &ndash;").strip();
     KoWikiDayResult result =
-        find(fixture("country-pair-date-culture"), fixture("country-pair-year-culture"));
+        find(fixture("one-link-date") + yearLine.replace("==Events==", ""), "==Events==\n");
 
     assertThat(result.events())
         .extracting(KoWikiEvent::linkTitles)
         .containsExactly(
-            java.util.List.of("2002 시험 대회", "대한민국", "스페인"),
-            java.util.List.of("2002년 시험 대회", "독일", "미국"));
+            java.util.List.of("2002 Test Cup"),
+            java.util.List.of("2002 Test Cup", "Test team C", "Test team D"));
+    assertThat(result.mergedCount()).isZero();
+  }
+
+  @Test
+  void differentCountryPairsOfTheSameTournamentStayTwoEvents() {
+    KoWikiDayResult result = find(fixture("country-pair-date"), fixture("country-pair-year"));
+
+    assertThat(result.events())
+        .extracting(KoWikiEvent::linkTitles)
+        .containsExactly(
+            java.util.List.of("2002 Test Cup", "South Korea", "Spain"),
+            java.util.List.of("2002 Test Cup", "Germany", "United States"));
     assertThat(result.mergedCount()).isZero();
   }
 
@@ -81,15 +95,16 @@ class KoWikiEventSourceD3RegressionTest {
   void controlWithASharedCountryStillMergesThroughTheSource() {
     KoWikiDayResult result =
         find(
-            fixture("country-pair-date-culture"),
-            "== 문화 ==\n* [[2월 29일]] - [[2002년 시험 대회]] 시험 경기 다 ([[스페인]]).\n");
+            fixture("country-pair-date"),
+            "==Events==\n* [[February 29]] – [[2002 Test Cup]] test match E ([[Spain]]).\n");
 
     assertThat(result.events())
         .singleElement()
         .satisfies(
             event -> {
-              assertThat(event.sourceTitle()).isEqualTo("2월 29일");
-              assertThat(event.text()).isEqualTo("2002 시험 대회 시험 경기 다 (대한민국, 스페인).");
+              assertThat(event.sourceTitle()).isEqualTo("February 29");
+              assertThat(event.text())
+                  .isEqualTo("2002 Test Cup test match C (South Korea, Spain).");
             });
     assertThat(result.mergedCount()).isEqualTo(1);
   }

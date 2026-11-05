@@ -60,12 +60,13 @@ class CachingKoWikiClientDatabaseFailureTest {
   @Test
   void freshPageIsReturnedWhenTheDatabaseFails(CapturedOutput output) {
     databaseDown();
-    KoWikiPage fresh = new KoWikiPage("9월 17일", State.FRESH, 1L, "== 사건 ==", null, clock.instant());
-    when(delegate.fetch("9월 17일")).thenReturn(fresh);
+    KoWikiPage fresh =
+        new KoWikiPage("September 17", State.FRESH, 1L, "==Events==", null, clock.instant());
+    when(delegate.fetch("September 17")).thenReturn(fresh);
 
-    assertThat(client.fetch("9월 17일")).isEqualTo(fresh);
+    assertThat(client.fetch("September 17")).isEqualTo(fresh);
     assertThat(output.getAll())
-        .contains("Wiki section cache read failed: title=9월 17일")
+        .contains("Wiki section cache read failed: title=September 17")
         .as("T4: no write after a failed read")
         .doesNotContain("Wiki section cache write failed");
     verify(repository, never())
@@ -75,18 +76,18 @@ class CachingKoWikiClientDatabaseFailureTest {
   @Test
   void failedReadWithoutAWorkingDatabaseIsUnavailable() {
     databaseDown();
-    when(delegate.fetch("9월 17일")).thenReturn(KoWikiPage.unavailable("9월 17일"));
+    when(delegate.fetch("September 17")).thenReturn(KoWikiPage.unavailable("September 17"));
 
-    assertThat(client.fetch("9월 17일").state()).isEqualTo(State.UNAVAILABLE);
+    assertThat(client.fetch("September 17").state()).isEqualTo(State.UNAVAILABLE);
   }
 
   @Test
   void freshPageTimeIsCutToWhatTheDatabaseKeeps() {
     Instant precise = Instant.parse("2026-01-01T00:00:00.123456789Z");
-    when(delegate.fetch("9월 17일"))
-        .thenReturn(new KoWikiPage("9월 17일", State.FRESH, 1L, null, null, precise));
+    when(delegate.fetch("September 17"))
+        .thenReturn(new KoWikiPage("September 17", State.FRESH, 1L, null, null, precise));
 
-    assertThat(client.fetch("9월 17일").fetchedAt())
+    assertThat(client.fetch("September 17").fetchedAt())
         .isEqualTo(Instant.parse("2026-01-01T00:00:00.123456Z"));
   }
 
@@ -97,32 +98,33 @@ class CachingKoWikiClientDatabaseFailureTest {
     doThrow(down)
         .when(repository)
         .upsert(anyString(), anyString(), anyLong(), any(), any(), any(Instant.class));
-    KoWikiPage fresh = new KoWikiPage("9월 17일", State.FRESH, 1L, null, null, clock.instant());
-    when(delegate.fetch("9월 17일")).thenReturn(fresh);
+    KoWikiPage fresh = new KoWikiPage("September 17", State.FRESH, 1L, null, null, clock.instant());
+    when(delegate.fetch("September 17")).thenReturn(fresh);
 
-    assertThat(client.fetch("9월 17일")).isEqualTo(fresh);
+    assertThat(client.fetch("September 17")).isEqualTo(fresh);
   }
 
   @Test
   void failedDeleteOfAMissingPageStillReturnsAbsent(CapturedOutput output) {
     WikiSectionCache row = mock(WikiSectionCache.class);
     when(row.fetchedAt()).thenReturn(clock.instant().minus(Duration.ofDays(8)));
-    when(repository.findBySiteAndPageTitle("localhost", "2월 29일")).thenReturn(Optional.of(row));
+    when(repository.findBySiteAndPageTitle("localhost", "February 29"))
+        .thenReturn(Optional.of(row));
     doThrow(new CannotCreateTransactionException("no connection"))
         .when(repository)
-        .deleteBySiteAndPageTitle("localhost", "2월 29일");
-    when(delegate.fetch("2월 29일")).thenReturn(KoWikiPage.absent("2월 29일"));
+        .deleteBySiteAndPageTitle("localhost", "February 29");
+    when(delegate.fetch("February 29")).thenReturn(KoWikiPage.absent("February 29"));
 
-    assertThat(client.fetch("2월 29일")).isEqualTo(KoWikiPage.absent("2월 29일"));
-    assertThat(output.getAll()).contains("Wiki section cache delete failed: title=2월 29일");
+    assertThat(client.fetch("February 29")).isEqualTo(KoWikiPage.absent("February 29"));
+    assertThat(output.getAll()).contains("Wiki section cache delete failed: title=February 29");
   }
 
   @Test
   void missingPageWithoutARowDeletesNothing() {
     when(repository.findBySiteAndPageTitle(anyString(), anyString())).thenReturn(Optional.empty());
-    when(delegate.fetch("2월 29일")).thenReturn(KoWikiPage.absent("2월 29일"));
+    when(delegate.fetch("February 29")).thenReturn(KoWikiPage.absent("February 29"));
 
-    assertThat(client.fetch("2월 29일").state()).isEqualTo(State.ABSENT);
+    assertThat(client.fetch("February 29").state()).isEqualTo(State.ABSENT);
     verify(repository, never()).deleteBySiteAndPageTitle(anyString(), anyString());
   }
 }

@@ -1,10 +1,5 @@
 package io.github.ericmschoi.theworldthatday.event.kowiki;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiFixtures.read;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiPage.State;
@@ -30,24 +25,15 @@ class KoWikiClientContextTest extends WikimediaWireMockTest {
 
   @Test
   void clientBeanReadsTheRecordedYearPage() {
-    wikimedia.stubFor(
-        get(urlPathEqualTo(KOWIKI_PATH))
-            .withQueryParam("page", equalTo("1988년"))
-            .willReturn(okJson(read("1988-sections.json"))));
-    wikimedia.stubFor(
-        get(urlPathEqualTo(KOWIKI_PATH))
-            .withQueryParam("section", equalTo("1"))
-            .willReturn(okJson(read("1988-events.json"))));
-    wikimedia.stubFor(
-        get(urlPathEqualTo(KOWIKI_PATH))
-            .withQueryParam("section", equalTo("2"))
-            .willReturn(okJson(read("1988-culture.json"))));
+    KoWikiSourceFixture.stubRecorded(wikimedia, "1988");
 
-    KoWikiPage page = client.fetch("1988년");
+    KoWikiPage page = client.fetch("1988");
 
     assertThat(client).isInstanceOf(CachingKoWikiClient.class);
     assertThat(page.state()).isEqualTo(State.FRESH);
-    assertThat(page.revision()).isEqualTo(42640701L);
-    assertThat(requestCount()).isEqualTo(3);
+    assertThat(page.revision()).isEqualTo(1382686554L);
+    assertThat(requestCount()).as("section list + Events section").isEqualTo(2);
+    assertThat(page.eventsWikitext()).isEqualTo(KoWikiFixtures.wikitext("1988-events.json"));
+    assertThat(page.cultureWikitext()).isNull();
   }
 }

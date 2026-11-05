@@ -38,7 +38,7 @@ class CachingKoWikiClientWriteSkipTest {
   static final WireMockExtension wikimedia =
       WireMockExtension.newInstance().options(wireMockConfig().dynamicPort()).build();
 
-  private static final String TITLE = "9월 17일";
+  private static final String TITLE = "July 17";
   private static final Instant PRECISE = Instant.parse("2026-01-01T00:00:00.123456789Z");
 
   private final KoWikiSourceFixture parts =
@@ -67,7 +67,7 @@ class CachingKoWikiClientWriteSkipTest {
   void freshPageAfterAFailedReadIsNotWritten(CapturedOutput output) {
     databaseUnreachable();
     when(delegate.fetch(TITLE))
-        .thenReturn(new KoWikiPage(TITLE, State.FRESH, 1L, "== 사건 ==", null, PRECISE));
+        .thenReturn(new KoWikiPage(TITLE, State.FRESH, 1L, "==Events==", null, PRECISE));
 
     KoWikiPage page = client(delegate).fetch(TITLE);
 
@@ -77,7 +77,7 @@ class CachingKoWikiClientWriteSkipTest {
                 TITLE,
                 State.FRESH,
                 1L,
-                "== 사건 ==",
+                "==Events==",
                 null,
                 Instant.parse("2026-01-01T00:00:00.123456Z")));
     verify(repository, times(1)).findBySiteAndPageTitle("localhost", TITLE);
@@ -90,10 +90,10 @@ class CachingKoWikiClientWriteSkipTest {
   void unavailableOrAbsentPageAfterAFailedReadMakesNoOtherDatabaseCall() {
     databaseUnreachable();
     when(delegate.fetch(TITLE)).thenReturn(KoWikiPage.unavailable(TITLE));
-    when(delegate.fetch("2월 30일")).thenReturn(KoWikiPage.absent("2월 30일"));
+    when(delegate.fetch("February 30")).thenReturn(KoWikiPage.absent("February 30"));
 
     assertThat(client(delegate).fetch(TITLE)).isEqualTo(KoWikiPage.unavailable(TITLE));
-    assertThat(client(delegate).fetch("2월 30일")).isEqualTo(KoWikiPage.absent("2월 30일"));
+    assertThat(client(delegate).fetch("February 30")).isEqualTo(KoWikiPage.absent("February 30"));
     verify(repository, times(2)).findBySiteAndPageTitle(anyString(), anyString());
     verifyNoMoreInteractions(repository);
   }
@@ -122,7 +122,7 @@ class CachingKoWikiClientWriteSkipTest {
     assertThat(client(delegate).fetch(TITLE).state()).isEqualTo(State.FRESH);
     verify(repository, times(1))
         .upsert(anyString(), anyString(), anyLong(), any(), any(), any(Instant.class));
-    assertThat(lines(output, "Wiki section cache write failed: title=9월 17일")).isEqualTo(1);
+    assertThat(lines(output, "Wiki section cache write failed: title=July 17")).isEqualTo(1);
   }
 
   @Test
@@ -141,10 +141,11 @@ class CachingKoWikiClientWriteSkipTest {
   @Test
   void dayWithAnUnreachableDatabaseCallsItOncePerPage() {
     KoWikiSourceFixture.stubRecorded(wikimedia, TITLE);
-    KoWikiSourceFixture.stubRecorded(wikimedia, "1988년");
-    KoWikiSourceFixture.stubPageprops(wikimedia, read("pageprops-1988-09-17.json"));
-    LocalDate opening = LocalDate.of(1988, 9, 17);
+    KoWikiSourceFixture.stubRecorded(wikimedia, "1976");
+    KoWikiSourceFixture.stubPageprops(wikimedia, read("pageprops-1976-07-17.json"));
+    LocalDate opening = LocalDate.of(1976, 7, 17);
     KoWikiDayResult healthy = parts.source(parts.pages).find(opening);
+    assertThat(healthy.events()).as("the demo day has events").isNotEmpty();
     databaseUnreachable();
 
     KoWikiDayResult result = parts.source(client(parts.pages)).find(opening);

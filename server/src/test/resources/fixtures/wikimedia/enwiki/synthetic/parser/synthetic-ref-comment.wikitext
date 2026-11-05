@@ -1,0 +1,4 @@
+==Events==
+*[[2000]] &ndash; Test event C<ref name="a">{{Cite web|url=https://example.org|title=Test}}</ref> is held.<ref name="a" /><!-- test comment -->
+<!-- several lines
+*[[2000]] &ndash; A line inside a comment -->

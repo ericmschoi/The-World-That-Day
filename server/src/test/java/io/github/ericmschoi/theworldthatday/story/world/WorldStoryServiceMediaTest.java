@@ -50,13 +50,13 @@ class WorldStoryServiceMediaTest {
 
   private static KoWikiEvent event(String hash) {
     return new KoWikiEvent(
-        "kowiki-2000-02-29-" + hash,
+        "enwiki-2000-02-29-" + hash,
         LEAP_DAY,
-        "2000년",
-        "사건",
+        "2000",
+        "Events",
         200L,
-        "시험 사건 " + hash + ".",
-        List.of("시험 문서"),
+        "Test event " + hash + ".",
+        List.of("Test page"),
         null,
         READ);
   }
@@ -71,8 +71,8 @@ class WorldStoryServiceMediaTest {
             LEAP_DAY,
             events,
             List.of(
-                new KoWikiDocStatus("2월 29일", 100L, READ, State.FRESH),
-                new KoWikiDocStatus("2000년", 200L, READ, State.FRESH)),
+                new KoWikiDocStatus("February 29", 100L, READ, State.FRESH),
+                new KoWikiDocStatus("2000", 200L, READ, State.FRESH)),
             0,
             0,
             false);

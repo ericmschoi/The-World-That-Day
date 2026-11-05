@@ -13,12 +13,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 /**
  * The tone table of plan M3a2 (decision #22 (c)), first match wins: curation, a tragic keyword in
  * the summary, then the Wikidata signals of the main link (class, deaths, none), and {@code
- * tragic}/{@code default} when nothing could be evaluated. Scope: curation, then P17 (Korea Q884 →
+ * tragic}/{@code default} when nothing could be evaluated. Scope: curation, then P17 (Canada Q16 →
  * domestic, other countries only → world), else unknown. One Wikidata request per call, for every
  * QID of the events that are not hidden. A matching takedown entry hides the event even when
  * another entry gives it a tone.
@@ -26,12 +28,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class CuratedEventToneJudge implements EventToneJudge {
 
-  static final String KOREA = "Q884";
-  private static final String KEYWORDS = "tone-keywords.txt";
+  static final String CANADA = "Q16";
+  private static final String KEYWORDS = "tone-keywords-en.txt";
 
   private final EventCuration curation;
   private final WikidataSignalSource wikidata;
-  private final List<String> keywords;
+  private final Pattern keywords;
 
   public CuratedEventToneJudge(EventCuration curation, WikidataSignalSource wikidata) {
     this.curation = curation;
@@ -74,13 +76,13 @@ public class CuratedEventToneJudge implements EventToneJudge {
                 () ->
                     signals
                         .filter(s -> !s.countries().isEmpty())
-                        .map(s -> s.countries().contains(KOREA) ? Scope.DOMESTIC : Scope.WORLD)
+                        .map(s -> s.countries().contains(CANADA) ? Scope.DOMESTIC : Scope.WORLD)
                         .orElse(Scope.UNKNOWN));
     Optional<Tone> curated = entry.flatMap(Entry::tone);
     if (curated.isPresent()) {
       return new Verdict(curated.get(), Basis.CURATED, scope, hidden);
     }
-    if (keywords.stream().anyMatch(event.text()::contains)) {
+    if (keywords.matcher(event.text()).find()) {
       return new Verdict(Tone.TRAGIC, Basis.RULE_KEYWORD, scope, hidden);
     }
     if (signals.isEmpty()) {
@@ -95,7 +97,11 @@ public class CuratedEventToneJudge implements EventToneJudge {
     return new Verdict(Tone.NORMAL, Basis.RULE_NO_SIGNAL, scope, hidden);
   }
 
-  private static List<String> loadKeywords() {
+  /**
+   * One pattern for every keyword, matched as a whole word in any letter case (plan C1 S3a): {@code
+   * Killed} matches {@code killed}, {@code skilled} does not match {@code kill}.
+   */
+  private static Pattern loadKeywords() {
     try (InputStream in =
         CuratedEventToneJudge.class.getClassLoader().getResourceAsStream(KEYWORDS)) {
       if (in == null) {
@@ -105,7 +111,12 @@ public class CuratedEventToneJudge implements EventToneJudge {
           .lines()
           .map(String::strip)
           .filter(line -> !line.isEmpty() && !line.startsWith("#"))
-          .toList();
+          .map(Pattern::quote)
+          .collect(
+              Collectors.collectingAndThen(
+                  Collectors.joining("|", "(?<![\\p{L}\\p{N}])(?:", ")(?![\\p{L}\\p{N}])"),
+                  words ->
+                      Pattern.compile(words, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE)));
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }

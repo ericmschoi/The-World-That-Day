@@ -1,0 +1,9 @@
+==Events==
+*[[2000]] &ndash; Test event L<br>second line.
+*[[2000]] &ndash; Test event M <small>(small print)</small>.
+*[[2000]] &ndash; Test event N<sup>1</sup>.
+*[[2000]] &ndash; <span style="color:red">Test event O</span>.
+*[[2000]]
+**Test event P<br />second line.
+*[[2000]] &ndash; Test event Q: 1 < 2 > 0.
+*[[2001]] &ndash; Test event of another year<br/>.

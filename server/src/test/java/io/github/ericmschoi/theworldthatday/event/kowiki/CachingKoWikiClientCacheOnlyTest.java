@@ -47,10 +47,10 @@ class CachingKoWikiClientCacheOnlyTest {
   private void cacheRow() {
     WikiSectionCache row = mock(WikiSectionCache.class);
     when(row.revid()).thenReturn(200L);
-    when(row.eventsWikitext()).thenReturn("== 사건 ==");
+    when(row.eventsWikitext()).thenReturn("==Events==");
     when(row.cultureWikitext()).thenReturn(null);
     when(row.fetchedAt()).thenReturn(FETCHED);
-    when(repository.findBySiteAndPageTitle("localhost", "2000년")).thenReturn(Optional.of(row));
+    when(repository.findBySiteAndPageTitle("localhost", "2000")).thenReturn(Optional.of(row));
   }
 
   @Test
@@ -58,8 +58,8 @@ class CachingKoWikiClientCacheOnlyTest {
     cacheRow();
     clock.advance(Duration.ofDays(7).minusSeconds(1));
 
-    assertThat(client.cached("2000년"))
-        .isEqualTo(new KoWikiPage("2000년", State.CACHED, 200L, "== 사건 ==", null, FETCHED));
+    assertThat(client.cached("2000"))
+        .isEqualTo(new KoWikiPage("2000", State.CACHED, 200L, "==Events==", null, FETCHED));
     verifyNoInteractions(delegate);
   }
 
@@ -68,18 +68,18 @@ class CachingKoWikiClientCacheOnlyTest {
     cacheRow();
     clock.advance(Duration.ofDays(7));
 
-    assertThat(client.cached("2000년").state()).isEqualTo(State.STALE);
-    assertThat(client.cached("2000년").fetchedAt()).isEqualTo(FETCHED);
+    assertThat(client.cached("2000").state()).isEqualTo(State.STALE);
+    assertThat(client.cached("2000").fetchedAt()).isEqualTo(FETCHED);
     verifyNoInteractions(delegate);
   }
 
   @Test
   void noRowOrADatabaseErrorIsUnavailable() {
-    assertThat(client.cached("2000년")).isEqualTo(KoWikiPage.unavailable("2000년"));
+    assertThat(client.cached("2000")).isEqualTo(KoWikiPage.unavailable("2000"));
 
     when(repository.findBySiteAndPageTitle(anyString(), anyString()))
         .thenThrow(new DataAccessResourceFailureException("down"));
-    assertThat(client.cached("2000년")).isEqualTo(KoWikiPage.unavailable("2000년"));
+    assertThat(client.cached("2000")).isEqualTo(KoWikiPage.unavailable("2000"));
     verifyNoInteractions(delegate);
   }
 
@@ -87,6 +87,6 @@ class CachingKoWikiClientCacheOnlyTest {
   void clientWithoutACacheHasNoCopy() {
     KoWikiClient plain = title -> KoWikiPage.absent(title);
 
-    assertThat(plain.cached("2000년")).isEqualTo(KoWikiPage.unavailable("2000년"));
+    assertThat(plain.cached("2000")).isEqualTo(KoWikiPage.unavailable("2000"));
   }
 }

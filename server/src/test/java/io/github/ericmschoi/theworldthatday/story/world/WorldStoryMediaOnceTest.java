@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import com.github.tomakehurst.wiremock.client.WireMock;
 import io.github.ericmschoi.theworldthatday.event.wikidata.SparqlWikidataSignalSourceTest;
 import io.github.ericmschoi.theworldthatday.media.MediaLookupProperties;
+import io.github.ericmschoi.theworldthatday.wikimedia.WikiPageStubs;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaWireMockTest;
 import java.io.IOException;
 import java.io.InputStream;
@@ -70,35 +71,18 @@ class WorldStoryMediaOnceTest extends WikimediaWireMockTest {
     }
   }
 
-  /** Section list by title, then the level-2 사건 and 문화 sections by revid and index. */
   private static void stubPage(String title, String prefix) {
-    String kowiki = "wikimedia/kowiki/";
-    JsonNode parse = JSON.readTree(read(kowiki + prefix + "-sections.json")).path("parse");
-    String revid = Long.toString(parse.path("revid").asLong());
-    wikimedia.stubFor(
-        WireMock.get(urlPathEqualTo(KOWIKI_PATH))
-            .withQueryParam("page", equalTo(title))
-            .willReturn(okJson(read(kowiki + prefix + "-sections.json"))));
-    for (JsonNode section : parse.path("sections")) {
-      String line = section.path("line").asString("");
-      String kind = line.equals("사건") ? "events" : line.equals("문화") ? "culture" : null;
-      if (kind != null && "2".equals(section.path("level").asString(""))) {
-        wikimedia.stubFor(
-            WireMock.get(urlPathEqualTo(KOWIKI_PATH))
-                .withQueryParam("oldid", equalTo(revid))
-                .withQueryParam("section", equalTo(section.path("index").asString()))
-                .willReturn(okJson(read(kowiki + prefix + "-" + kind + ".json"))));
-      }
-    }
+    WikiPageStubs.stubPage(wikimedia, title, prefix);
   }
 
   private static void stubOpeningDayEvents() {
-    stubPage("9월 17일", "09-17");
-    stubPage("1988년", "1988");
+    stubPage("September 17", "synthetic/synthetic-09-17");
+    stubPage("1988", "synthetic/synthetic-1988");
     wikimedia.stubFor(
         WireMock.get(urlPathEqualTo(KOWIKI_PATH))
             .withQueryParam("action", equalTo("query"))
-            .willReturn(okJson(read("wikimedia/kowiki/pageprops-1988-09-17.json"))));
+            .willReturn(
+                okJson(read("wikimedia/enwiki/synthetic/synthetic-pageprops-1988-09-17.json"))));
     wikimedia.stubFor(
         WireMock.get(urlPathEqualTo(SPARQL_PATH))
             .willReturn(okJson(SparqlWikidataSignalSourceTest.fixture("sparql-1988-09-17.json"))));

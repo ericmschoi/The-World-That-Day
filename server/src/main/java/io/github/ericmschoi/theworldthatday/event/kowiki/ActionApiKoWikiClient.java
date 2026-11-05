@@ -16,18 +16,19 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * MediaWiki Action API ({@code action=parse}): one request for the section list and revision, then
- * one request per "사건"/"문화" section, pinned to that revision with {@code oldid}. Requests are
- * serial. Any failure makes the whole page unavailable so both sections come from one revision. An
- * API error {@code ratelimited} (sent with HTTP 200) is handled like a 429: no retry, and the host
- * is blocked through {@link WikimediaHttpClient#blockHost}.
+ * MediaWiki Action API ({@code action=parse}) on English Wikipedia (plan C1 S3a): one request for
+ * the section list ({@code prop=tocdata|revid}) and revision, then one request for the level-2
+ * {@code Events} section, pinned to that revision with {@code oldid}. A page without that section
+ * is read with the first request only and has no events. Requests are serial. Any failure makes the
+ * page unavailable. An API error {@code ratelimited} (sent with HTTP 200) is handled like a 429: no
+ * retry, and the host is blocked through {@link WikimediaHttpClient#blockHost}. Failure logs name
+ * the source and the page title, never wikitext.
  */
 @Component
 public class ActionApiKoWikiClient implements KoWikiClient {
 
-  static final String SOURCE = "kowiki";
-  static final String EVENTS = "사건";
-  static final String CULTURE = "문화";
+  static final String SOURCE = "enwiki";
+  static final String EVENTS = "Events";
 
   private static final Logger log = LoggerFactory.getLogger(ActionApiKoWikiClient.class);
 
@@ -47,7 +48,7 @@ public class ActionApiKoWikiClient implements KoWikiClient {
   @Override
   public KoWikiPage fetch(String title) {
     JsonNode toc =
-        call(title, api().queryParam("page", title).queryParam("prop", "sections|revid"), true);
+        call(title, api().queryParam("page", title).queryParam("prop", "tocdata|revid"), true);
     if (toc == null) {
       return KoWikiPage.unavailable(title);
     }
@@ -60,27 +61,18 @@ public class ActionApiKoWikiClient implements KoWikiClient {
       return failed(title, error.orElse("no revision"));
     }
     String eventsIndex = null;
-    String cultureIndex = null;
-    for (JsonNode section : toc.path("parse").path("sections")) {
-      if (!"2".equals(section.path("level").asString(null))) {
-        continue;
-      }
-      String line = section.path("line").asString("");
-      if (EVENTS.equals(line) && eventsIndex == null) {
+    for (JsonNode section : toc.path("parse").path("tocdata").path("sections")) {
+      if (section.path("hLevel").asInt(0) == 2
+          && EVENTS.equals(section.path("line").asString(""))) {
         eventsIndex = section.path("index").asString(null);
-      } else if (CULTURE.equals(line) && cultureIndex == null) {
-        cultureIndex = section.path("index").asString(null);
+        break;
       }
     }
     String events = eventsIndex == null ? null : section(title, revid, eventsIndex);
     if (eventsIndex != null && events == null) {
-      return KoWikiPage.unavailable(title); // stop: the culture section alone would mislead
-    }
-    String culture = cultureIndex == null ? null : section(title, revid, cultureIndex);
-    if (cultureIndex != null && culture == null) {
       return KoWikiPage.unavailable(title);
     }
-    return new KoWikiPage(title, KoWikiPage.State.FRESH, revid, events, culture, clock.instant());
+    return new KoWikiPage(title, KoWikiPage.State.FRESH, revid, events, null, clock.instant());
   }
 
   /** The section's wikitext, or {@code null} when the request fails. */

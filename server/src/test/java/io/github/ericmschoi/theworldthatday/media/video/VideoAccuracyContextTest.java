@@ -27,7 +27,7 @@ class VideoAccuracyContextTest extends WikimediaWireMockTest {
   @Test
   void theApplicationContextHoldsThePlanSettings() {
     assertThat(settings.minScore()).isEqualTo(60);
-    assertThat(settings.maxEvents()).isEqualTo(3);
+    assertThat(settings.maxEvents()).isEqualTo(3); // the base test turns videos on (D7 (a))
     assertThat(settings.maxDurationSeconds()).isEqualTo(600);
     assertThat(settings.commemorationWords())
         .containsExactlyElementsOf(VideoAccuracyTest.COMMEMORATION);

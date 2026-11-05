@@ -6,15 +6,15 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import tools.jackson.databind.json.JsonMapper;
 
-/** Reads fixtures under {@code fixtures/wikimedia/kowiki/} (README.md lists their origin). */
+/** Reads fixtures under {@code fixtures/wikimedia/enwiki/} (README.md lists their origin). */
 final class KoWikiFixtures {
 
   static final JsonMapper JSON = JsonMapper.builder().build();
-  private static final String ROOT = "fixtures/wikimedia/kowiki/";
+  private static final String ROOT = "fixtures/wikimedia/enwiki/";
 
   private KoWikiFixtures() {}
 
-  /** Raw file content, e.g. {@code 09-17-events.json}. */
+  /** Raw file content, e.g. {@code 07-17-events.json}. */
   static String read(String path) {
     try (InputStream in = KoWikiFixtures.class.getClassLoader().getResourceAsStream(ROOT + path)) {
       if (in == null) {

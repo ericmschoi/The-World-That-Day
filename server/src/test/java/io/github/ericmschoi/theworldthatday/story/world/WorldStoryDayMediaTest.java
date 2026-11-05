@@ -16,6 +16,7 @@ import io.github.ericmschoi.theworldthatday.media.MediaRecord;
 import io.github.ericmschoi.theworldthatday.media.MediaRecord.DisplayMode;
 import io.github.ericmschoi.theworldthatday.media.MediaRecord.LicenseStatus;
 import io.github.ericmschoi.theworldthatday.media.MediaRecord.Type;
+import io.github.ericmschoi.theworldthatday.wikimedia.WikiPageStubs;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaWireMockTest;
 import java.io.IOException;
 import java.io.InputStream;
@@ -123,26 +124,8 @@ class WorldStoryDayMediaTest extends WikimediaWireMockTest {
     }
   }
 
-  /** Section list by title, then the level-2 사건 and 문화 sections by revid and index. */
   private static void stubPage(String title, String prefix) {
-    String kowiki = "wikimedia/kowiki/";
-    JsonNode parse = JSON.readTree(read(kowiki + prefix + "-sections.json")).path("parse");
-    String revid = Long.toString(parse.path("revid").asLong());
-    wikimedia.stubFor(
-        WireMock.get(urlPathEqualTo(KOWIKI_PATH))
-            .withQueryParam("page", equalTo(title))
-            .willReturn(okJson(read(kowiki + prefix + "-sections.json"))));
-    for (JsonNode section : parse.path("sections")) {
-      String line = section.path("line").asString("");
-      String kind = line.equals("사건") ? "events" : line.equals("문화") ? "culture" : null;
-      if (kind != null && "2".equals(section.path("level").asString(""))) {
-        wikimedia.stubFor(
-            WireMock.get(urlPathEqualTo(KOWIKI_PATH))
-                .withQueryParam("oldid", equalTo(revid))
-                .withQueryParam("section", equalTo(section.path("index").asString()))
-                .willReturn(okJson(read(kowiki + prefix + "-" + kind + ".json"))));
-      }
-    }
+    WikiPageStubs.stubPage(wikimedia, title, prefix);
   }
 
   private static void stubPageprops(String body) {
@@ -165,9 +148,9 @@ class WorldStoryDayMediaTest extends WikimediaWireMockTest {
   }
 
   private static void stubOpeningDayEvents() {
-    stubPage("9월 17일", "09-17");
-    stubPage("1988년", "1988");
-    stubPageprops(read("wikimedia/kowiki/pageprops-1988-09-17.json"));
+    stubPage("September 17", "synthetic/synthetic-09-17");
+    stubPage("1988", "synthetic/synthetic-1988");
+    stubPageprops(read("wikimedia/enwiki/synthetic/synthetic-pageprops-1988-09-17.json"));
     stubSparql("sparql-1988-09-17.json");
   }
 
@@ -247,9 +230,9 @@ class WorldStoryDayMediaTest extends WikimediaWireMockTest {
 
   @Test
   void quarterFinalDayShowsTheKoglPhoto() throws Exception {
-    stubPage("6월 22일", "06-22");
-    stubPage("2002년", "2002");
-    stubPageprops(read("wikimedia/kowiki/pageprops-2002-06-22.json"));
+    stubPage("June 22", "synthetic/synthetic-06-22");
+    stubPage("2002", "synthetic/synthetic-2002");
+    stubPageprops(read("wikimedia/enwiki/synthetic/synthetic-pageprops-2002-06-22.json"));
     stubSparql("sparql-2002-06-22.json");
     stubCommons("2002-06-22");
 
@@ -268,8 +251,8 @@ class WorldStoryDayMediaTest extends WikimediaWireMockTest {
 
   @Test
   void dayWithoutEventsAsksCommonsOnceAndHasNoPhotos() throws Exception {
-    stubPage("3월 15일", "03-15");
-    stubPage("1995년", "1995");
+    stubPage("March 15", "synthetic/synthetic-03-15");
+    stubPage("1995", "synthetic/synthetic-1995");
     stubCommons("1995-03-15");
 
     JsonNode root = ok("1995-03-15");
@@ -285,8 +268,8 @@ class WorldStoryDayMediaTest extends WikimediaWireMockTest {
   /** An uncurated event with Wikidata down is {@code tragic} by {@code default}. */
   @Test
   void tragicDayHasNoPhotosAndNoCommonsRequest() throws Exception {
-    stubPage("2월 29일", "synthetic/synthetic-02-29");
-    stubPage("2000년", "synthetic/synthetic-2000");
+    stubPage("February 29", "synthetic/synthetic-02-29");
+    stubPage("2000", "synthetic/synthetic-2000");
     stubPageprops(
         """
         {"batchcomplete":true,"query":{"pages":[{"pageid":1,"ns":0,"title":"시험 문서 가",

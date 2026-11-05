@@ -4,12 +4,13 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiFixtures.read;
 
+import com.github.tomakehurst.wiremock.junit.Stubbing;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import io.github.ericmschoi.theworldthatday.MutableClock;
 import io.github.ericmschoi.theworldthatday.config.ClockConfig;
+import io.github.ericmschoi.theworldthatday.wikimedia.WikiPageStubs;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaHttpClient;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaProperties;
 import java.net.URI;
@@ -20,7 +21,8 @@ import java.util.function.Function;
 
 /**
  * Builds the real event source parts (HTTP client, Action API page client, link resolver, parser)
- * against a WireMock server, and stubs pages from fixtures (plan M3a1c tests, no network).
+ * against a WireMock server, and stubs English pages from fixtures (plan M3a1c tests, plan C1 S3a,
+ * no network).
  */
 final class KoWikiSourceFixture {
 
@@ -64,29 +66,15 @@ final class KoWikiSourceFixture {
     return new TwoPageKoWikiEventSource(client, resolver, parser, http, properties, deduplicator);
   }
 
-  /** Section list by title, sections by revid and index, from {@code <prefix>-*.json}. */
-  static void stubPage(WireMockExtension server, String title, String prefix) {
-    long revid = KoWikiFixtureReadme.revid(prefix + "-sections.json");
-    server.stubFor(
-        get(urlPathEqualTo(PATH))
-            .withQueryParam("page", equalTo(title))
-            .withQueryParam("prop", equalTo("sections|revid"))
-            .willReturn(okJson(read(prefix + "-sections.json"))));
-    for (String[] kind : List.of(new String[] {"사건", "events"}, new String[] {"문화", "culture"})) {
-      String index = KoWikiFixtureReadme.sectionIndex(prefix, kind[0]);
-      if (index != null) {
-        server.stubFor(
-            get(urlPathEqualTo(PATH))
-                .withQueryParam("oldid", equalTo(Long.toString(revid)))
-                .withQueryParam("section", equalTo(index))
-                .willReturn(okJson(read(prefix + "-" + kind[1] + ".json"))));
-      }
-    }
+  /** Section list by title, then the {@code Events} section, from {@code <prefix>-*.json}. */
+  static void stubPage(Stubbing server, String title, String prefix) {
+    WikiPageStubs.stubPage(server, title, prefix);
   }
 
-  /** A recorded demo page ({@link KoWikiFixtureReadme#DEMO_PAGES}). */
-  static void stubRecorded(WireMockExtension server, String title) {
-    stubPage(server, title, KoWikiFixtureReadme.DEMO_PAGES.get(title));
+  /** A recorded or synthetic page of {@link EnWikiPages} by title. */
+  static void stubRecorded(Stubbing server, String title) {
+    String prefix = EnWikiPages.RECORDED.getOrDefault(title, EnWikiPages.SYNTHETIC.get(title));
+    stubPage(server, title, prefix);
   }
 
   static void stubPageprops(WireMockExtension server, String body) {

@@ -134,7 +134,7 @@ class SearchCachePropertiesTest {
             context -> {
               assertThat(context).hasNotFailed();
               MediaLookupProperties lookup = context.getBean(MediaLookupProperties.class);
-              assertThat(lookup.dayMediaLimit()).isEqualTo(6);
+              assertThat(lookup.dayMediaLimit()).isZero(); // plan C1 S3a D7 (a), was 6
               assertThat(lookup.lookupDeadline()).isEqualTo(Duration.ofSeconds(3));
               assertThat(lookup.maxYearsApart()).isEqualTo(5);
               MediaProperties media = context.getBean(MediaProperties.class);
@@ -143,7 +143,7 @@ class SearchCachePropertiesTest {
               assertThat(media.excludedCredits()).contains("Yonhap", "AP");
               VideoSearchProperties video = context.getBean(VideoSearchProperties.class);
               assertThat(video.minScore()).isEqualTo(60);
-              assertThat(video.maxEvents()).isEqualTo(3);
+              assertThat(video.maxEvents()).isZero(); // plan C1 S3a D7 (a), was 3
             });
   }
 }

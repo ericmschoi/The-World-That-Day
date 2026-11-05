@@ -19,8 +19,8 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 /**
- * Plan M3a1c T1 (2): events come in input order (date page 사건 → 문화 → year page 사건 → 문화), with
- * synthetic pages served by an in-memory client and resolver (no HTTP at all).
+ * Plan M3a1c T1 (2) and plan C1 S3a T2: events come in input order (date page Events → year page
+ * Events), with synthetic English pages served by an in-memory client and resolver (no HTTP).
  */
 class KoWikiEventSourceOrderTest {
 
@@ -46,22 +46,25 @@ class KoWikiEventSourceOrderTest {
   private final KoWikiClient pages =
       title ->
           switch (title) {
-            case "2월 29일" ->
+            case "February 29" ->
                 new KoWikiPage(
                     title,
                     State.FRESH,
                     100L,
-                    "== 사건 ==\n* [[2000년]] - 시험 사건 가1 [[시험_문서 가]].\n"
-                        + "* [[1999년]] - 다른 해.\n* [[2000년]] - 시험 사건 가2.",
-                    "== 문화 ==\n* [[2000년]] - 시험 사건 나 [[시험 문서 나|별칭]] [[시험 문서 마]].\n" + "* {{틀}} 건너뜀",
+                    "==Events==\n*[[2000]] &ndash; Test event A1 [[Test_page A]].\n"
+                        + "*[[1999]] &ndash; Another year.\n*[[2000]] &ndash; Test event A2.\n"
+                        + "*[[2000]] &ndash; Test event B [[Test page B|alias]] [[Test page E]].\n"
+                        + "* {{Template}} skipped",
+                    null,
                     DATE_READ);
-            case "2000년" ->
+            case "2000" ->
                 new KoWikiPage(
                     title,
                     State.CACHED,
                     200L,
-                    "== 사건 ==\n* [[2월 29일]] - 시험 사건 다 [[시험 문서 다]].",
-                    "== 문화 ==\n* [[2월 29일]]\n** 시험 사건 라.\n** [http://example.test 외부]",
+                    "==Events==\n* [[February 29]] – Test event C [[Test page C]].\n"
+                        + "* [[February 29]]\n** Test event D.\n** [http://example.test external]",
+                    null,
                     YEAR_READ);
             default -> throw new AssertionError("unexpected page " + title);
           };
@@ -71,10 +74,10 @@ class KoWikiEventSourceOrderTest {
         lookups.add(titles);
         return Optional.of(
             Map.of(
-                "시험 문서 가", new Link("시험 문서 가", "Q1"),
-                "시험 문서 나", new Link("시험 문서 마", "Q2"),
-                "시험 문서 마", new Link("시험 문서 마", "Q2"),
-                "시험 문서 다", new Link("시험 문서 다", null)));
+                "Test page A", new Link("Test page A", "Q1"),
+                "Test page B", new Link("Test page E", "Q2"),
+                "Test page E", new Link("Test page E", "Q2"),
+                "Test page C", new Link("Test page C", null)));
       };
 
   @Test
@@ -92,19 +95,19 @@ class KoWikiEventSourceOrderTest {
     assertThat(result.events())
         .extracting(KoWikiEvent::text)
         .containsExactly(
-            "시험 사건 가1 시험 문서 가.",
-            "시험 사건 가2.",
-            "시험 사건 나 별칭 시험 문서 마.",
-            "시험 사건 다 시험 문서 다.",
-            "시험 사건 라.");
+            "Test event A1 Test page A.",
+            "Test event A2.",
+            "Test event B alias Test page E.",
+            "Test event C Test page C.",
+            "Test event D.");
     assertThat(result.events())
         .extracting(KoWikiEvent::sourceTitle, KoWikiEvent::sourceSection)
         .containsExactly(
-            org.assertj.core.groups.Tuple.tuple("2월 29일", "사건"),
-            org.assertj.core.groups.Tuple.tuple("2월 29일", "사건"),
-            org.assertj.core.groups.Tuple.tuple("2월 29일", "문화"),
-            org.assertj.core.groups.Tuple.tuple("2000년", "사건"),
-            org.assertj.core.groups.Tuple.tuple("2000년", "문화"));
+            org.assertj.core.groups.Tuple.tuple("February 29", "Events"),
+            org.assertj.core.groups.Tuple.tuple("February 29", "Events"),
+            org.assertj.core.groups.Tuple.tuple("February 29", "Events"),
+            org.assertj.core.groups.Tuple.tuple("2000", "Events"),
+            org.assertj.core.groups.Tuple.tuple("2000", "Events"));
     assertThat(result.events())
         .extracting(KoWikiEvent::revision, KoWikiEvent::retrievedAt)
         .containsExactly(
@@ -115,8 +118,8 @@ class KoWikiEventSourceOrderTest {
             org.assertj.core.groups.Tuple.tuple(200L, YEAR_READ));
     assertThat(result.docs())
         .containsExactly(
-            new KoWikiDocStatus("2월 29일", 100L, DATE_READ, State.FRESH),
-            new KoWikiDocStatus("2000년", 200L, YEAR_READ, State.CACHED));
+            new KoWikiDocStatus("February 29", 100L, DATE_READ, State.FRESH),
+            new KoWikiDocStatus("2000", 200L, YEAR_READ, State.CACHED));
     assertThat(result.skippedLines()).as("one template line + one external link line").isEqualTo(2);
     assertThat(result.degraded()).as("CACHED is not degraded").isFalse();
   }
@@ -133,11 +136,12 @@ class KoWikiEventSourceOrderTest {
                 new KoWikiEventDeduplicator(new KoWikiDedupProperties(0.6)))
             .find(LEAP_DAY);
 
-    assertThat(lookups).containsExactly(List.of("시험 문서 가", "시험 문서 나", "시험 문서 마", "시험 문서 다"));
-    assertThat(result.events().get(0).linkTitles()).containsExactly("시험 문서 가");
+    assertThat(lookups)
+        .containsExactly(List.of("Test page A", "Test page B", "Test page E", "Test page C"));
+    assertThat(result.events().get(0).linkTitles()).containsExactly("Test page A");
     assertThat(result.events().get(2).linkTitles())
-        .as("시험 문서 나 resolves to the same page as 시험 문서 마")
-        .containsExactly("시험 문서 마");
+        .as("Test page B resolves to the same page as Test page E")
+        .containsExactly("Test page E");
     assertThat(result.events().get(2).wikidataQid()).isEqualTo("Q2");
     assertThat(result.events().get(3).wikidataQid()).isNull();
     assertThat(result.events().get(4).linkTitles()).isEmpty();

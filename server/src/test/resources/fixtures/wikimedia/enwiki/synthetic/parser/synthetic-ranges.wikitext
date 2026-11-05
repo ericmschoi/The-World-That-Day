@@ -1,0 +1,12 @@
+==Events==
+===February===
+* [[February 29]]–[[March 3|3]] – Test range A across a month.
+* [[February 28]]–[[February 29|29]] – Test range of the day before.
+* February 29–March 2 – Test range B without links.
+* [[February 29]] – [[March 5]] – Test range C with spaces.
+* [[February 29]]–[[February 31|31]] – Test range with an end that cannot be read.
+* [[February 29]]–[[March 4|4]]
+** Test range D sub-line one.
+** Test range D sub-line two.
+* February – Test event of a month only.
+* [[February 29]] – Test event of the day.

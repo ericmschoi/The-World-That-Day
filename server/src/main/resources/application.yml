@@ -65,7 +65,7 @@ wikimedia:
   # How long a cached Wikipedia section (table wiki_section_cache) is used without asking again.
   # After that it is read again; if that fails, the old copy is used (state STALE).
   cache-ttl: 7d
-  # Upper bound for one date of Korean Wikipedia events (plan M3a1c): both pages plus the link
+  # Upper bound for one date of English Wikipedia events (plan M3a1c): both pages plus the link
   # lookup. A date page that timed out skips the year page request (its cached copy is still used).
   kowiki-day-deadline: 5s
   dedup:
@@ -74,7 +74,8 @@ wikimedia:
     # / specific links of the larger set. Above 0.5 so lines sharing only the tournament stay
     # apart. Lines that both link countries or cities, none in common, never merge by D3.
     min-link-overlap: 0.6
-  kowiki-api-url: https://ko.wikipedia.org/w/api.php
+  # English Wikipedia (plan C1 S3a). The key keeps its Korean name until S3c T4.
+  kowiki-api-url: https://en.wikipedia.org/w/api.php
   # Wikimedia Commons Action API (plan M3a3b): the day's photos, through the same client (User-Agent,
   # limits, request slots). Copied files are never stored: the API's addresses are shown as they are.
   commons-api-url: https://commons.wikimedia.org/w/api.php
@@ -102,7 +103,8 @@ media:
   # lookup ends within lookup-deadline, then is cancelled with up to 1s of grace; a failure only
   # marks the answer partial. lookup-deadline is also the fixed read timeout of each media request,
   # which is sent once without a retry (plan M3a3c decision 1 (a)).
-  day-media-limit: 6
+  # D7 (a) of plan C1 S3a: off until S3c brings Canadian sources (it was 6). Event photos stay on.
+  day-media-limit: 0
   lookup-deadline: 3s
   # Event photos (plan M3a3d): the free lead image of a shown normal event's article, kept only when
   # its capture year is at most this many years from the requested year (unknown capture times are
@@ -122,7 +124,8 @@ media:
   # Commons videos empty and marks the answer partial. Tragic events are never asked.
   video:
     min-score: 60
-    max-events: 3
+    # D7 (a) of plan C1 S3a: off until S3c brings Canadian sources (it was 3).
+    max-events: 0
     max-duration-seconds: 600
     # Retrospective edits (−30). "restored" is left out on purpose: restored footage is the event.
     commemoration-words:

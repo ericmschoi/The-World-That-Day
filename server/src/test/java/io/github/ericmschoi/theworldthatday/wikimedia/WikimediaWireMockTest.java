@@ -35,8 +35,16 @@ import org.springframework.test.context.TestPropertySource;
 @SpringBootTest
 @Import({TestcontainersConfiguration.class, WikimediaWireMockTest.TestClock.class})
 // The video search result cache is off, so no test meets a row of another (plan M3a4c T3 (8)). A
-// property source, not a dynamic one, so a cache test can turn it on with its own.
-@TestPropertySource(properties = "media.search-cache.ttl.commons=0")
+// property source, not a dynamic one, so a cache test can turn it on with its own. Day photos and
+// videos are on with their former values: application.yml turns them off until S3c (plan C1 S3a
+// D7 (a), "tests turn them on with their own settings"); WorldStoryDayMediaOffTest checks the
+// application.yml values.
+@TestPropertySource(
+    properties = {
+      "media.search-cache.ttl.commons=0",
+      "media.day-media-limit=6",
+      "media.video.max-events=3"
+    })
 public abstract class WikimediaWireMockTest {
 
   public static final String TEST_USER_AGENT =

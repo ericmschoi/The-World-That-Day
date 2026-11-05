@@ -1,5 +1,9 @@
 package io.github.ericmschoi.theworldthatday.event.kowiki;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -8,6 +12,27 @@ import tools.jackson.databind.JsonNode;
 
 /** Reads the recorded-fixture table of {@code fixtures/wikimedia/kowiki/README.md}. */
 final class KoWikiFixtureReadme {
+
+  /** The Korean fixtures stay under {@code fixtures/wikimedia/kowiki/} until plan C1 S3c. */
+  private static final String ROOT = "fixtures/wikimedia/kowiki/";
+
+  /** Raw content of a Korean fixture. */
+  static String read(String path) {
+    try (InputStream in =
+        KoWikiFixtureReadme.class.getClassLoader().getResourceAsStream(ROOT + path)) {
+      if (in == null) {
+        throw new IllegalArgumentException("no fixture " + path);
+      }
+      return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
+  /** The {@code parse.wikitext} field of a Korean section response. */
+  static String wikitext(String path) {
+    return KoWikiFixtures.JSON.readTree(read(path)).path("parse").path("wikitext").stringValue();
+  }
 
   /** One table row: file, page title, revid and original URL. */
   record Row(String file, String title, long revid, String url) {}
@@ -28,7 +53,7 @@ final class KoWikiFixtureReadme {
   private KoWikiFixtureReadme() {}
 
   static String text() {
-    return KoWikiFixtures.read("README.md");
+    return read("README.md");
   }
 
   static Map<String, Row> rows() {
@@ -48,7 +73,7 @@ final class KoWikiFixtureReadme {
   static String sectionIndex(String prefix, String line) {
     JsonNode sections =
         KoWikiFixtures.JSON
-            .readTree(KoWikiFixtures.read(prefix + "-sections.json"))
+            .readTree(read(prefix + "-sections.json"))
             .path("parse")
             .path("sections");
     for (JsonNode section : sections) {
@@ -61,10 +86,6 @@ final class KoWikiFixtureReadme {
   }
 
   static long revid(String file) {
-    return KoWikiFixtures.JSON
-        .readTree(KoWikiFixtures.read(file))
-        .path("parse")
-        .path("revid")
-        .asLong(0);
+    return KoWikiFixtures.JSON.readTree(read(file)).path("parse").path("revid").asLong(0);
   }
 }

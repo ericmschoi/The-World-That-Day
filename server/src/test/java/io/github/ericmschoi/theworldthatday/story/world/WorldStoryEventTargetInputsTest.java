@@ -36,13 +36,13 @@ class WorldStoryEventTargetInputsTest {
 
   private static KoWikiEvent event(String id, String text, String link, String qid) {
     return new KoWikiEvent(
-        "kowiki-2000-02-29-" + id,
+        "enwiki-2000-02-29-" + id,
         LEAP_DAY,
-        "2000년",
-        "사건",
+        "2000",
+        "Events",
         200L,
         text,
-        link == null ? List.of() : List.of(link, "시험 문서 기타"),
+        link == null ? List.of() : List.of(link, "Test page other"),
         qid,
         READ);
   }
@@ -67,12 +67,12 @@ class WorldStoryEventTargetInputsTest {
         new KoWikiDayResult(
             LEAP_DAY,
             List.of(
-                event("00000001", "시험 사건 가가 열렸다.", "시험 문서 가", "Q999999901"),
-                event("00000002", "시험 사건 나가 열렸다.", "시험 문서 나", null),
-                event("00000003", "시험 사건 다가 열렸다.", null, "Q999999903")),
+                event("00000001", "Test event A opens.", "Test page A", "Q999999901"),
+                event("00000002", "Test event B opens.", "Test page B", null),
+                event("00000003", "Test event C opens.", null, "Q999999903")),
             List.of(
-                new KoWikiDocStatus("2월 29일", 100L, READ, State.FRESH),
-                new KoWikiDocStatus("2000년", 200L, READ, State.FRESH)),
+                new KoWikiDocStatus("February 29", 100L, READ, State.FRESH),
+                new KoWikiDocStatus("2000", 200L, READ, State.FRESH)),
             0,
             0,
             false);
@@ -91,28 +91,32 @@ class WorldStoryEventTargetInputsTest {
             EventTarget::wikidataQid)
         .containsExactly(
             tuple(
-                "kowiki-2000-02-29-00000001",
-                "시험 문서 가",
-                "country:KR",
-                "시험 사건 가가 열렸다.",
+                "enwiki-2000-02-29-00000001",
+                "Test page A",
+                "country:CA",
+                "Test event A opens.",
                 "Q999999901"),
-            tuple("kowiki-2000-02-29-00000002", "시험 문서 나", "world", "시험 사건 나가 열렸다.", null));
+            tuple(
+                "enwiki-2000-02-29-00000002", "Test page B", "world", "Test event B opens.", null));
   }
 
   @Test
   void targetsWithOtherTextOrWikidataIdAreEqualButTheirFieldsDiffer() {
-    EventTarget a = new EventTarget("e", "시험 문서", "country:KR", "문장 가", "Q999999901");
-    EventTarget b = new EventTarget("e", "시험 문서", "country:KR", "문장 나", "Q999999902");
+    EventTarget a = new EventTarget("e", "Test page", "country:CA", "Sentence A", "Q999999901");
+    EventTarget b = new EventTarget("e", "Test page", "country:CA", "Sentence B", "Q999999902");
 
     // The documented behaviour: equality ignores the two search inputs ...
     assertThat(a).isEqualTo(b).hasSameHashCodeAs(b);
-    assertThat(a).isEqualTo(new EventTarget("e", "시험 문서", "country:KR"));
+    assertThat(a).isEqualTo(new EventTarget("e", "Test page", "country:CA"));
     // ... so every check that has to see them reads the fields, as the test above does.
     assertThat(a.summary()).isNotEqualTo(b.summary());
     assertThat(a.wikidataQid()).isNotEqualTo(b.wikidataQid());
     // The three fields that do count still tell targets apart.
-    assertThat(a).isNotEqualTo(new EventTarget("f", "시험 문서", "country:KR", "문장 가", "Q999999901"));
-    assertThat(a).isNotEqualTo(new EventTarget("e", "다른 문서", "country:KR", "문장 가", "Q999999901"));
-    assertThat(a).isNotEqualTo(new EventTarget("e", "시험 문서", "world", "문장 가", "Q999999901"));
+    assertThat(a)
+        .isNotEqualTo(new EventTarget("f", "Test page", "country:CA", "Sentence A", "Q999999901"));
+    assertThat(a)
+        .isNotEqualTo(new EventTarget("e", "Other page", "country:CA", "Sentence A", "Q999999901"));
+    assertThat(a)
+        .isNotEqualTo(new EventTarget("e", "Test page", "world", "Sentence A", "Q999999901"));
   }
 }

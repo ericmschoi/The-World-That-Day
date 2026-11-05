@@ -16,6 +16,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import io.github.ericmschoi.theworldthatday.data.DataSchemas;
 import io.github.ericmschoi.theworldthatday.event.wikidata.SparqlWikidataSignalSourceTest;
+import io.github.ericmschoi.theworldthatday.wikimedia.WikiPageStubs;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaWireMockTest;
 import java.io.IOException;
 import java.io.InputStream;
@@ -89,26 +90,11 @@ class WorldStoryCommonsVideoTest extends WikimediaWireMockTest {
 
   // ---- stubs ----
 
-  /** Section list by title, then the level-2 사건 and 문화 sections by revid and index. */
+  /**
+   * Section list by title, then the level-2 Events section by revid and index (enwiki fixtures).
+   */
   static void stubPage(String title, String prefix) {
-    String kowiki = "fixtures/wikimedia/kowiki/";
-    JsonNode parse = JSON.readTree(read(kowiki + prefix + "-sections.json")).path("parse");
-    String revid = Long.toString(parse.path("revid").asLong());
-    wikimedia.stubFor(
-        WireMock.get(urlPathEqualTo(KOWIKI_PATH))
-            .withQueryParam("page", equalTo(title))
-            .willReturn(okJson(read(kowiki + prefix + "-sections.json"))));
-    for (JsonNode section : parse.path("sections")) {
-      String line = section.path("line").asString("");
-      String kind = line.equals("사건") ? "events" : line.equals("문화") ? "culture" : null;
-      if (kind != null && "2".equals(section.path("level").asString(""))) {
-        wikimedia.stubFor(
-            WireMock.get(urlPathEqualTo(KOWIKI_PATH))
-                .withQueryParam("oldid", equalTo(revid))
-                .withQueryParam("section", equalTo(section.path("index").asString()))
-                .willReturn(okJson(read(kowiki + prefix + "-" + kind + ".json"))));
-      }
-    }
+    WikiPageStubs.stubPage(wikimedia, title, prefix);
   }
 
   static void stubPageprops(String body) {
@@ -144,39 +130,40 @@ class WorldStoryCommonsVideoTest extends WikimediaWireMockTest {
   static final String NO_PAGES = "{\"batchcomplete\":true}";
 
   /**
-   * The leap day: 시험 문서 가 (Q1, in Korea) and, when {@code withTragic}, 시험 문서 나 (Q2, a disaster by
-   * its Wikidata class) in the 2000 lines of the 2월 29일 page. The untitled lines (2000년 page, 문화)
-   * have no signal and show as tragic, so the day paths (date categories) are off.
+   * The leap day: Test page A (Q1, in Canada) and, when {@code withTragic}, Test page B (Q2, a
+   * disaster by its Wikidata class) in the 2000 lines of the February 29 page (its level-2 Events
+   * section, index 3). The untitled line of the 2000 page has no signal and shows as tragic, so the
+   * day paths (date categories) are off.
    */
   static void stubLeapDay(boolean withTragic) {
-    stubPage("2월 29일", "synthetic/synthetic-02-29");
-    stubPage("2000년", "synthetic/synthetic-2000");
-    String second = withTragic ? "\\n* [[2000년]] - [[시험 문서 나|시험 사건 나]]가 일어났다." : "";
+    stubPage("February 29", "synthetic/synthetic-02-29");
+    stubPage("2000", "synthetic/synthetic-2000");
+    String second = withTragic ? "\\n*[[2000]] &ndash; [[Test page B|Test event B]] happens." : "";
     wikimedia.stubFor(
         WireMock.get(urlPathEqualTo(KOWIKI_PATH))
             .withQueryParam("oldid", equalTo("100"))
-            .withQueryParam("section", equalTo("2"))
+            .withQueryParam("section", equalTo("3"))
             .atPriority(1)
             .willReturn(
                 okJson(
-                    "{\"parse\":{\"title\":\"2월 29일\",\"pageid\":1,\"revid\":100,\"wikitext\":"
-                        + "\"== 사건 ==\\n* [[2000년]] - [[시험 문서 가|시험 사건 가]]가 열렸다."
+                    "{\"parse\":{\"title\":\"February 29\",\"pageid\":1,\"revid\":100,\"wikitext\":"
+                        + "\"==Events==\\n*[[2000]] &ndash; [[Test page A|Test event A]] opens."
                         + second
                         + "\"}}")));
     stubPageprops(
         """
         {"batchcomplete":true,"query":{"pages":[
-         {"pageid":1,"ns":0,"title":"시험 문서 가","pageprops":{"wikibase_item":"Q1"}},
-         {"pageid":2,"ns":0,"title":"시험 문서 나","pageprops":{"wikibase_item":"Q2"}}]}}""");
+         {"pageid":1,"ns":0,"title":"Test page A","pageprops":{"wikibase_item":"Q1"}},
+         {"pageid":2,"ns":0,"title":"Test page B","pageprops":{"wikibase_item":"Q2"}}]}}""");
     stubSignals(
         """
         {"head":{"vars":["item","tragicClass","deaths","country"]},"results":{"bindings":[
          {"item":{"type":"uri","value":"http://www.wikidata.org/entity/Q1"},
-          "country":{"type":"uri","value":"http://www.wikidata.org/entity/Q884"}},
+          "country":{"type":"uri","value":"http://www.wikidata.org/entity/Q16"}},
          {"item":{"type":"uri","value":"http://www.wikidata.org/entity/Q2"},
           "tragicClass":{"type":"uri","value":"http://www.wikidata.org/entity/Q3839081"},
-          "country":{"type":"uri","value":"http://www.wikidata.org/entity/Q884"}}]}}""");
-    // the lead image of 시험 문서 가 and its file (the photo path: prop=imageinfo)
+          "country":{"type":"uri","value":"http://www.wikidata.org/entity/Q16"}}]}}""");
+    // the lead image of Test page A and its file (the photo path: prop=imageinfo)
     wikimedia.stubFor(
         WireMock.get(urlPathEqualTo(KOWIKI_PATH))
             .withQueryParam("prop", equalTo("pageimages"))
@@ -184,7 +171,7 @@ class WorldStoryCommonsVideoTest extends WikimediaWireMockTest {
             .willReturn(
                 okJson(
                     "{\"batchcomplete\":true,\"query\":{\"pages\":[{\"pageid\":1,\"ns\":0,"
-                        + "\"title\":\"시험 문서 가\",\"pageimage\":\"Synthetic_test_photo.jpg\"}]}}")));
+                        + "\"title\":\"Test page A\",\"pageimage\":\"Synthetic_test_photo.jpg\"}]}}")));
     wikimedia.stubFor(
         WireMock.get(urlPathEqualTo(COMMONS_PATH))
             .withQueryParam("prop", equalTo("imageinfo"))
@@ -295,9 +282,9 @@ class WorldStoryCommonsVideoTest extends WikimediaWireMockTest {
 
   @Test
   void theQuarterFinalDayFindsNoCommonsVideo(CapturedOutput output) throws Exception {
-    stubPage("6월 22일", "06-22");
-    stubPage("2002년", "2002");
-    stubPageprops(read("fixtures/wikimedia/kowiki/pageprops-2002-06-22.json"));
+    stubPage("June 22", "synthetic/synthetic-06-22");
+    stubPage("2002", "synthetic/synthetic-2002");
+    stubPageprops(read("fixtures/wikimedia/enwiki/synthetic/synthetic-pageprops-2002-06-22.json"));
     stubSignals(SparqlWikidataSignalSourceTest.fixture("sparql-2002-06-22.json"));
     stubVideoLinks(okJson(SparqlWikidataSignalSourceTest.fixture("video-links-2002-06-22.json")));
     stubVideos("gcmtitle", okJson(read(VIDEO + "date-category-2002-06-22.json")));
@@ -318,8 +305,8 @@ class WorldStoryCommonsVideoTest extends WikimediaWireMockTest {
 
   @Test
   void theDayWithoutEventsAsksNoVideo() throws Exception {
-    stubPage("3월 15일", "03-15");
-    stubPage("1995년", "1995");
+    stubPage("March 15", "synthetic/synthetic-03-15");
+    stubPage("1995", "synthetic/synthetic-1995");
 
     JsonNode root = ok("1995-03-15");
 
@@ -338,14 +325,14 @@ class WorldStoryCommonsVideoTest extends WikimediaWireMockTest {
 
     JsonNode root = ok("2000-02-29");
 
-    JsonNode media = event(root, "시험 문서 가").path("media");
+    JsonNode media = event(root, "Test page A").path("media");
     assertThat(media.findValuesAsString("type")).containsExactly("photo", "video");
     JsonNode video = media.get(1);
     assertThat(video.path("id").asString()).isEqualTo("commons-900002");
     assertThat(video.path("display_mode").asString()).isEqualTo("video_file");
     assertThat(video.path("captured_at").asString()).isEqualTo("2000-02-29");
     assertThat(video.path("date_precision").asString()).isEqualTo("day");
-    assertThat(video.path("place_ref").asString()).isEqualTo("country:KR");
+    assertThat(video.path("place_ref").asString()).isEqualTo("country:CA");
     assertThat(video.path("date_relation").path("kind").asString()).isEqualTo("same_day");
     assertThat(video.path("selection").path("basis").asString()).isEqualTo("commons_p10");
     assertThat(video.path("selection").path("score").asInt()).isEqualTo(130);
@@ -366,11 +353,11 @@ class WorldStoryCommonsVideoTest extends WikimediaWireMockTest {
 
     JsonNode root = ok("2000-02-29");
 
-    JsonNode tragic = event(root, "시험 문서 나");
+    JsonNode tragic = event(root, "Test page B");
     assertThat(tragic.path("tone").asString()).isEqualTo("tragic");
     assertThat(tragic.path("media").isArray()).isTrue();
     assertThat(tragic.path("media").isEmpty()).isTrue();
-    assertThat(event(root, "시험 문서 가").path("media").findValuesAsString("type"))
+    assertThat(event(root, "Test page A").path("media").findValuesAsString("type"))
         .containsExactly("photo", "video");
     assertThat(videoRequests("query"))
         .singleElement()
@@ -395,7 +382,7 @@ class WorldStoryCommonsVideoTest extends WikimediaWireMockTest {
 
     JsonNode root = ok("2000-02-29");
 
-    assertThat(event(root, "시험 문서 가").path("media").findValuesAsString("type"))
+    assertThat(event(root, "Test page A").path("media").findValuesAsString("type"))
         .containsExactly("photo");
     assertThat(root.findValues("selection")).isEmpty();
     assertThat(root.path("partial").asBoolean()).isTrue();
@@ -416,7 +403,7 @@ class WorldStoryCommonsVideoTest extends WikimediaWireMockTest {
 
     JsonNode root = ok("2000-02-29");
 
-    assertThat(event(root, "시험 문서 가").path("media").findValuesAsString("type"))
+    assertThat(event(root, "Test page A").path("media").findValuesAsString("type"))
         .containsExactly("photo");
     assertThat(root.findValues("selection")).isEmpty();
     assertThat(root.path("partial").asBoolean()).isTrue();

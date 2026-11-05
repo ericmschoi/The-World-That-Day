@@ -72,19 +72,19 @@ class WorldStoryServiceEventPhotoTest {
 
   private static KoWikiEvent event(int i, List<String> links) {
     return new KoWikiEvent(
-        "kowiki-2000-02-29-0000000" + i,
+        "enwiki-2000-02-29-0000000" + i,
         LEAP_DAY,
-        "2000년",
-        "사건",
+        "2000",
+        "Events",
         200L,
-        "시험 사건 " + i + ".",
+        "Test event " + i + ".",
         links,
         null,
         READ);
   }
 
   private static KoWikiEvent event(int i) {
-    return event(i, List.of("시험 문서 " + i, "시험 문서 기타"));
+    return event(i, List.of("Test page " + i, "Test page other"));
   }
 
   private WorldStoryResponse respond(List<KoWikiEvent> events, List<Verdict> verdicts) {
@@ -98,8 +98,8 @@ class WorldStoryServiceEventPhotoTest {
             LEAP_DAY,
             events,
             List.of(
-                new KoWikiDocStatus("2월 29일", 100L, READ, datePage),
-                new KoWikiDocStatus("2000년", 200L, READ, yearPage)),
+                new KoWikiDocStatus("February 29", 100L, READ, datePage),
+                new KoWikiDocStatus("2000", 200L, READ, yearPage)),
             0,
             0,
             false);
@@ -134,7 +134,7 @@ class WorldStoryServiceEventPhotoTest {
             MediaRecord.DatePrecision.YEAR,
             null,
             null,
-            "country:KR",
+            "country:CA",
             "2026-01-01T00:00:00Z");
     return new MediaItem(record, new DateRelation(DateRelation.Kind.YEARS_APART, -2));
   }
@@ -150,9 +150,11 @@ class WorldStoryServiceEventPhotoTest {
     assertThat(media.targets)
         .containsExactly(
             List.of(
-                new MediaLookup.EventTarget("kowiki-2000-02-29-00000001", "시험 문서 1", "country:KR"),
-                new MediaLookup.EventTarget("kowiki-2000-02-29-00000002", "시험 문서 2", "world"),
-                new MediaLookup.EventTarget("kowiki-2000-02-29-00000003", "시험 문서 3", "unknown")));
+                new MediaLookup.EventTarget(
+                    "enwiki-2000-02-29-00000001", "Test page 1", "country:CA"),
+                new MediaLookup.EventTarget("enwiki-2000-02-29-00000002", "Test page 2", "world"),
+                new MediaLookup.EventTarget(
+                    "enwiki-2000-02-29-00000003", "Test page 3", "unknown")));
   }
 
   @Test
@@ -163,7 +165,7 @@ class WorldStoryServiceEventPhotoTest {
 
     assertThat(media.targets.getFirst())
         .extracting(MediaLookup.EventTarget::title)
-        .containsExactly("시험 문서 2");
+        .containsExactly("Test page 2");
     assertThat(media.tragicDays).containsExactly(true);
   }
 
@@ -186,7 +188,7 @@ class WorldStoryServiceEventPhotoTest {
     assertThat(media.tragicDays).containsExactly(off);
     assertThat(media.targets.getFirst())
         .extracting(MediaLookup.EventTarget::title)
-        .containsExactly("시험 문서 1");
+        .containsExactly("Test page 1");
   }
 
   // ---- where the photos land, partial ----
@@ -195,7 +197,7 @@ class WorldStoryServiceEventPhotoTest {
   void photosLandOnTheirEventsAndTragicEventsStayEmpty() {
     media.answer =
         new MediaLookup.WorldMedia(
-            Map.of("kowiki-2000-02-29-00000002", List.of(photo(7))), List.of(photo(8)), false);
+            Map.of("enwiki-2000-02-29-00000002", List.of(photo(7))), List.of(photo(8)), false);
 
     WorldStoryResponse response =
         respond(List.of(event(1), event(2), event(3)), List.of(TRAGIC, DOMESTIC, DOMESTIC));
@@ -203,9 +205,9 @@ class WorldStoryServiceEventPhotoTest {
     assertThat(response.events())
         .extracting(Event::id)
         .containsExactly(
-            "kowiki-2000-02-29-00000002",
-            "kowiki-2000-02-29-00000003",
-            "kowiki-2000-02-29-00000001");
+            "enwiki-2000-02-29-00000002",
+            "enwiki-2000-02-29-00000003",
+            "enwiki-2000-02-29-00000001");
     assertThat(response.events().get(0).media()).containsExactly(photo(7));
     assertThat(response.events().get(1).media()).isEmpty();
     assertThat(response.events().get(2).media()).isEmpty();
@@ -231,9 +233,9 @@ class WorldStoryServiceEventPhotoTest {
     media.answer =
         new MediaLookup.WorldMedia(
             Map.of(
-                "kowiki-2000-02-29-00000001", List.of(photo(11)),
-                "kowiki-2000-02-29-00000002", List.of(photo(12)),
-                "kowiki-2000-02-29-00000003", List.of(photo(13))),
+                "enwiki-2000-02-29-00000001", List.of(photo(11)),
+                "enwiki-2000-02-29-00000002", List.of(photo(12)),
+                "enwiki-2000-02-29-00000003", List.of(photo(13))),
             List.of(photo(14)),
             true);
 
@@ -245,9 +247,9 @@ class WorldStoryServiceEventPhotoTest {
     assertThat(response.events())
         .extracting(Event::id)
         .containsExactly(
-            "kowiki-2000-02-29-00000003",
-            "kowiki-2000-02-29-00000001",
-            "kowiki-2000-02-29-00000002");
+            "enwiki-2000-02-29-00000003",
+            "enwiki-2000-02-29-00000001",
+            "enwiki-2000-02-29-00000002");
     assertThat(response.events().get(0).media()).containsExactly(photo(13));
     assertThat(response.events().get(1).media()).isEmpty();
     assertThat(response.events().get(2).media()).isEmpty();
@@ -268,7 +270,7 @@ class WorldStoryServiceEventPhotoTest {
 
     MediaLookup.WorldMedia world =
         dayOnly.lookup(
-            LEAP_DAY, List.of(new MediaLookup.EventTarget("e", "시험 문서", "country:KR")), true);
+            LEAP_DAY, List.of(new MediaLookup.EventTarget("e", "Test page", "country:CA")), true);
 
     assertThat(asked).containsExactly(true);
     assertThat(world.eventMedia()).isEmpty();

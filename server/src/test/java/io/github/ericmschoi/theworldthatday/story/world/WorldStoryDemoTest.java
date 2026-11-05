@@ -14,6 +14,7 @@ import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiEvent;
 import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiEventSource;
 import io.github.ericmschoi.theworldthatday.event.tone.EventCuration;
 import io.github.ericmschoi.theworldthatday.event.wikidata.SparqlWikidataSignalSourceTest;
+import io.github.ericmschoi.theworldthatday.wikimedia.WikiPageStubs;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaWireMockTest;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,14 +36,16 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * Plan M3a2 T2 (3), (4), (5), (6): the whole path (controller, service, the real Korean Wikipedia
- * source with the wikitext cache) against the recorded M3a1/M3a1c fixtures and the synthetic
- * leap-day pages, served by WireMock. No network.
+ * Plan M3a2 T2 (3), (4), (5), (6) and plan C1 S3a T4 (3)~(5): the whole path (controller, service,
+ * the real English Wikipedia source with the wikitext cache, the tone rules) against the recorded
+ * English demo days ({@code fixtures/wikimedia/enwiki/}, their link lookups and Wikidata signals)
+ * and the synthetic pages, served by WireMock. No network. The repository curation still holds the
+ * Korean entries only (removed by S3a T5), so every tone here comes from the rules.
  */
 class WorldStoryDemoTest extends WikimediaWireMockTest {
 
   private static final JsonMapper JSON = JsonMapper.builder().build();
-  private static final String FIXTURES = "fixtures/wikimedia/kowiki/";
+  private static final String FIXTURES = "fixtures/wikimedia/enwiki/";
 
   private static final Set<String> TOP_KEYS =
       Set.of("date", "events", "day_media", "notice", "partial");
@@ -50,6 +53,8 @@ class WorldStoryDemoTest extends WikimediaWireMockTest {
       Set.of(
           "id",
           "date",
+          "date_kind",
+          "range_end",
           "scope",
           "title",
           "summary",
@@ -104,25 +109,8 @@ class WorldStoryDemoTest extends WikimediaWireMockTest {
     return SparqlWikidataSignalSourceTest.fixture(file);
   }
 
-  /** Section list by title, then the 사건 and 문화 sections by revid and index, if present. */
   private static void stubPage(String title, String prefix) {
-    JsonNode parse = JSON.readTree(read(prefix + "-sections.json")).path("parse");
-    String revid = Long.toString(parse.path("revid").asLong());
-    wikimedia.stubFor(
-        WireMock.get(urlPathEqualTo(KOWIKI_PATH))
-            .withQueryParam("page", equalTo(title))
-            .willReturn(okJson(read(prefix + "-sections.json"))));
-    for (JsonNode section : parse.path("sections")) {
-      String line = section.path("line").asString("");
-      String kind = line.equals("사건") ? "events" : line.equals("문화") ? "culture" : null;
-      if (kind != null && "2".equals(section.path("level").asString(""))) {
-        wikimedia.stubFor(
-            WireMock.get(urlPathEqualTo(KOWIKI_PATH))
-                .withQueryParam("oldid", equalTo(revid))
-                .withQueryParam("section", equalTo(section.path("index").asString()))
-                .willReturn(okJson(read(prefix + "-" + kind + ".json"))));
-      }
-    }
+    WikiPageStubs.stubPage(wikimedia, title, prefix);
   }
 
   private static void stubPageprops(String body) {
@@ -132,11 +120,27 @@ class WorldStoryDemoTest extends WikimediaWireMockTest {
             .willReturn(okJson(body)));
   }
 
-  private static void stubOpeningDay() {
-    stubPage("9월 17일", "09-17");
-    stubPage("1988년", "1988");
-    stubPageprops(read("pageprops-1988-09-17.json"));
-    stubSparql(sparqlFixture("sparql-1988-09-17.json"));
+  /** A recorded demo day: both pages, the link lookup and the Wikidata signals. */
+  private static void stubDemoDay(String date, String dateTitle, String yearTitle) {
+    stubPage(dateTitle, EN_PREFIX.get(dateTitle));
+    stubPage(yearTitle, EN_PREFIX.get(yearTitle));
+    stubPageprops(read("pageprops-" + date + ".json"));
+    stubSparql(read("wikidata-signals-" + date + ".json"));
+  }
+
+  private static final java.util.Map<String, String> EN_PREFIX =
+      java.util.Map.of(
+          "July 17", "07-17",
+          "1976", "1976",
+          "February 13", "02-13",
+          "1988", "1988",
+          "April 12", "04-12",
+          "1980", "1980",
+          "July 20", "07-20",
+          "1969", "1969");
+
+  private static void stubMontrealDay() {
+    stubDemoDay("1976-07-17", "July 17", "1976");
   }
 
   private static void stubSparql(String body) {
@@ -185,21 +189,7 @@ class WorldStoryDemoTest extends WikimediaWireMockTest {
     return Set.copyOf(node.propertyNames());
   }
 
-  @Test
-  void openingDayReturnsTheThreeEventsAsWritten() throws Exception {
-    stubOpeningDay();
-
-    JsonNode root = world("1988-09-17");
-    List<KoWikiEvent> expected = source.find(LocalDate.of(1988, 9, 17)).events();
-
-    assertThat(root.path("date").asString()).isEqualTo("1988-09-17");
-    assertThat(root.path("day_media").isArray()).isTrue();
-    assertThat(root.path("day_media").isEmpty()).isTrue();
-    assertThat(root.path("notice").isNull()).isTrue();
-    assertThat(root.path("partial").asBoolean()).isFalse();
-    JsonNode events = root.path("events");
-    assertThat(events.size()).isEqualTo(3).isEqualTo(expected.size());
-
+  private static List<List<Object>> rows(JsonNode events) {
     List<List<Object>> rows = new ArrayList<>();
     for (JsonNode event : events) {
       rows.add(
@@ -208,47 +198,184 @@ class WorldStoryDemoTest extends WikimediaWireMockTest {
               event.path("source_section").asString(),
               event.path("source_revision").asLong(),
               event.path("title").asString(),
-              event.path("wikidata_qid").asString()));
+              event.path("wikidata_qid").asString(),
+              event.path("tone").asString() + "/" + event.path("tone_basis").asString(),
+              event.path("scope").asString()));
     }
-    assertThat(rows)
+    return rows;
+  }
+
+  @Test
+  void montrealDayReturnsTheThreeEventsAsWritten() throws Exception {
+    stubMontrealDay();
+
+    JsonNode root = world("1976-07-17");
+    List<KoWikiEvent> expected = source.find(LocalDate.of(1976, 7, 17)).events();
+
+    assertThat(root.path("date").asString()).isEqualTo("1976-07-17");
+    assertThat(root.path("day_media").isArray()).isTrue();
+    assertThat(root.path("day_media").isEmpty()).as("D7: no day photos in S3a").isTrue();
+    assertThat(root.path("notice").isNull()).isTrue();
+    assertThat(root.path("partial").asBoolean()).isFalse();
+    JsonNode events = root.path("events");
+    assertThat(events.size()).isEqualTo(3).isEqualTo(expected.size());
+    assertThat(rows(events))
+        .as("the opening once (D3m), East Timor twice")
         .containsExactly(
-            List.of("9월 17일", "사건", 42604413L, "1988년 하계 올림픽", "Q8470"),
-            List.of("1988년", "문화", 42640701L, "KBS 1TV", "Q777278"),
-            List.of("1988년", "문화", 42640701L, "KBS 2TV", "Q624509"));
-    assertThat(events.get(0).path("id").asString()).isEqualTo("kowiki-1988-09-17-875c69fa");
-    assertThat(events.get(0).path("summary").asString()).contains("서울 하계 올림픽");
-    assertThat(events.get(1).path("summary").asString()).isEqualTo("KBS 1TV의 채널에서 광고 24개를 때려갔다.");
-    assertThat(events.get(2).path("summary").asString()).isEqualTo("KBS 2TV의 채널에서 광고 37개를 때려갔다.");
+            List.of(
+                "July 17",
+                "Events",
+                1375524665L,
+                "Timor-Leste",
+                "Q574",
+                "normal/rule:no-signal",
+                "world"),
+            List.of(
+                "July 17",
+                "Events",
+                1375524665L,
+                "1976 Summer Olympics",
+                "Q8444",
+                "normal/rule:no-signal",
+                "domestic"),
+            List.of(
+                "1976",
+                "Events",
+                1382023488L,
+                "Timor-Leste",
+                "Q574",
+                "normal/rule:no-signal",
+                "world"));
+    assertThat(events.get(1).path("summary").asString())
+        .startsWith("The opening of the Summer Olympics in Montreal");
     assertThat(events.get(0).path("source_url").asString())
-        .isEqualTo("https://ko.wikipedia.org/wiki/9%EC%9B%94_17%EC%9D%BC");
-    assertThat(events.get(1).path("source_url").asString())
-        .isEqualTo("https://ko.wikipedia.org/wiki/1988%EB%85%84");
+        .isEqualTo("https://en.wikipedia.org/wiki/July_17");
+    assertThat(events.get(2).path("source_url").asString())
+        .isEqualTo("https://en.wikipedia.org/wiki/1976");
     assertThat(events.get(1).path("related_links").get(0).path("url").asString())
-        .isEqualTo("https://ko.wikipedia.org/wiki/KBS_1TV");
+        .isEqualTo("https://en.wikipedia.org/wiki/1976_Summer_Olympics");
 
     for (int i = 0; i < 3; i++) {
       JsonNode event = events.get(i);
       KoWikiEvent source = expected.get(i);
-      assertThat(event.path("id").asString()).isEqualTo(source.id());
+      assertThat(event.path("id").asString())
+          .isEqualTo(source.id())
+          .startsWith("enwiki-1976-07-17-");
       assertThat(event.path("summary").asString()).as("text unchanged").isEqualTo(source.text());
+      assertThat(event.path("summary_lang").asString()).isEqualTo("en");
       assertThat(event.path("summary_modified").asBoolean()).isFalse();
       assertThat(event.path("text_license").asString()).isEqualTo("CC BY-SA 4.0");
+      assertThat(event.path("source_name").asString()).isEqualTo("English Wikipedia");
+      assertThat(event.path("date_kind").asString()).isEqualTo("day");
+      assertThat(event.path("range_end").isNull()).isTrue();
       assertThat(event.path("media").isArray()).isTrue();
-      assertThat(event.path("media").isEmpty()).isTrue();
       assertThat(event.path("retrieved_at").asString())
           .matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z")
           .isEqualTo(
               source.retrievedAt().truncatedTo(java.time.temporal.ChronoUnit.SECONDS).toString());
-      assertThat(event.path("tone").asString()).isEqualTo("normal");
-      assertThat(event.path("tone_basis").asString()).isEqualTo("curated");
-      assertThat(event.path("scope").asString()).isEqualTo("domestic");
     }
   }
 
   @Test
+  void calgaryDayIsTheOlympicsRangeStartInCanada() throws Exception {
+    stubDemoDay("1988-02-13", "February 13", "1988");
+
+    JsonNode root = world("1988-02-13");
+
+    assertThat(root.path("events").size()).isEqualTo(1);
+    JsonNode event = root.path("events").get(0);
+    assertThat(event.path("id").asString()).isEqualTo("enwiki-1988-02-13-d716c4f7");
+    assertThat(event.path("date").asString()).isEqualTo("1988-02-13");
+    assertThat(event.path("date_kind").asString()).isEqualTo("range_start");
+    assertThat(event.path("range_end").asString()).isEqualTo("1988-02-28");
+    assertThat(event.path("summary").asString())
+        .isEqualTo("The 1988 Winter Olympics are held in Calgary, Alberta, Canada.");
+    assertThat(rows(root.path("events")))
+        .containsExactly(
+            List.of(
+                "1988",
+                "Events",
+                1382686554L,
+                "1988 Winter Olympics",
+                "Q9658",
+                "normal/rule:no-signal",
+                "domestic"));
+    assertThat(root.path("partial").asBoolean()).isFalse();
+  }
+
+  @Test
+  void liberianCoupDayHasTheCoupOnceAndTheCrashTragicByKeyword() throws Exception {
+    stubDemoDay("1980-04-12", "April 12", "1980");
+
+    JsonNode root = world("1980-04-12");
+
+    assertThat(rows(root.path("events")))
+        .as("normal events first; the coup line's tone is left to T5 curation")
+        .containsExactly(
+            List.of(
+                "April 12",
+                "Events",
+                1378081960L,
+                "1980 Liberian coup d'état",
+                "Q27628137",
+                "normal/rule:no-signal",
+                "world"),
+            List.of(
+                "April 12",
+                "Events",
+                1378081960L,
+                "Terry Fox",
+                "Q295053",
+                "normal/rule:no-signal",
+                "unknown"),
+            List.of(
+                "April 12",
+                "Events",
+                1378081960L,
+                "Transbrasil Flight 303",
+                "Q7833816",
+                "tragic/rule:keyword",
+                "world"));
+  }
+
+  @Test
+  void moonLandingDayHasTheLandingOnce() throws Exception {
+    stubDemoDay("1969-07-20", "July 20", "1969");
+
+    JsonNode root = world("1969-07-20");
+
+    assertThat(rows(root.path("events")))
+        .containsExactly(
+            List.of(
+                "July 20",
+                "Events",
+                1373354079L,
+                "Apollo program",
+                "Q46611",
+                "normal/rule:no-signal",
+                "world"),
+            List.of(
+                "1969",
+                "Events",
+                1380604178L,
+                "1969 Tour de France",
+                "Q836884",
+                "normal/rule:no-signal",
+                "world"),
+            List.of(
+                "July 20",
+                "Events",
+                1373354079L,
+                "Honduras",
+                "Q783",
+                "tragic/rule:keyword",
+                "world"));
+  }
+
+  @Test
   void dayWithoutEventsIsNoEventsFoundWithoutALinkLookup() throws Exception {
-    stubPage("3월 15일", "03-15");
-    stubPage("1995년", "1995");
+    stubPage("March 15", "synthetic/synthetic-03-15");
+    stubPage("1995", "synthetic/synthetic-1995");
 
     JsonNode root = world("1995-03-15");
 
@@ -264,8 +391,8 @@ class WorldStoryDemoTest extends WikimediaWireMockTest {
 
   @Test
   void leapDayReadsTheLeapDayPages() throws Exception {
-    stubPage("2월 29일", "synthetic/synthetic-02-29");
-    stubPage("2000년", "synthetic/synthetic-2000");
+    stubPage("February 29", "synthetic/synthetic-02-29");
+    stubPage("2000", "synthetic/synthetic-2000");
     stubPageprops("{\"batchcomplete\":true,\"query\":{\"pages\":[]}}");
 
     JsonNode root = world("2000-02-29");
@@ -274,21 +401,21 @@ class WorldStoryDemoTest extends WikimediaWireMockTest {
     assertThat(root.path("partial").asBoolean()).isFalse();
     List<String> summaries = new ArrayList<>();
     root.path("events").forEach(event -> summaries.add(event.path("summary").asString()));
-    assertThat(summaries).containsExactly("시험 사건 가가 열렸다.", "시험 사건 나.", "시험 사건 다.");
+    assertThat(summaries).containsExactly("Test event A opens.", "Test event B.", "Test event C.");
     assertThat(root.path("events"))
         .allSatisfy(event -> assertThat(event.path("date").asString()).isEqualTo("2000-02-29"));
   }
 
   @Test
   void failedLinkLookupIsPartialWithoutQids() throws Exception {
-    stubPage("9월 17일", "09-17");
-    stubPage("1988년", "1988");
+    stubPage("July 17", "07-17");
+    stubPage("1976", "1976");
     wikimedia.stubFor(
         WireMock.get(urlPathEqualTo(KOWIKI_PATH))
             .withQueryParam("action", equalTo("query"))
             .willReturn(aResponse().withStatus(503)));
 
-    JsonNode root = world("1988-09-17");
+    JsonNode root = world("1976-07-17");
 
     assertThat(root.path("partial").asBoolean()).isTrue();
     assertThat(root.path("events").isEmpty()).isFalse();
@@ -302,52 +429,50 @@ class WorldStoryDemoTest extends WikimediaWireMockTest {
   }
 
   @Test
-  void openingDayAsksWikidataOnceAndWikipediaNoMoreThanTheSourceDoes() throws Exception {
-    stubOpeningDay();
+  void montrealDayAsksWikidataOnceAndWikipediaNoMoreThanTheSourceDoes() throws Exception {
+    stubMontrealDay();
 
-    JsonNode root = world("1988-09-17");
+    JsonNode root = world("1976-07-17");
     long apiWikipedia = wikipediaRequests();
     List<ServeEvent> sparql = sparqlRequests();
     wikimedia.resetRequests();
     jdbc.execute("TRUNCATE wiki_section_cache");
-    source.find(LocalDate.of(1988, 9, 17));
+    source.find(LocalDate.of(1976, 7, 17));
 
     assertThat(sparql).hasSize(1);
     assertThat(sparql.getFirst().getRequest().getHeader("User-Agent")).isEqualTo(TEST_USER_AGENT);
     assertThat(sparql.getFirst().getRequest().queryParameter("query").firstValue())
-        .contains("VALUES ?item { wd:Q8470 wd:Q777278 wd:Q624509 }");
+        .contains("VALUES ?item { wd:Q574 wd:Q8444 }");
     assertThat(apiWikipedia)
         .as("pages and one pageprops lookup, as KoWikiEventSource.find alone")
         .isEqualTo(wikipediaRequests())
-        .isEqualTo(7);
+        .as("2 per page + 1 lookup")
+        .isEqualTo(5);
     assertThat(root.path("partial").asBoolean()).isFalse();
   }
 
   @Test
-  void quarterFinalDayReturnsTheCuratedMatch() throws Exception {
-    stubPage("6월 22일", "06-22");
-    stubPage("2002년", "2002");
-    stubPageprops(read("pageprops-2002-06-22.json"));
+  void quarterFinalDayReturnsTheMatchOnce() throws Exception {
+    stubPage("June 22", "synthetic/synthetic-06-22");
+    stubPage("2002", "synthetic/synthetic-2002");
+    stubPageprops(read("synthetic/synthetic-pageprops-2002-06-22.json"));
     stubSparql(sparqlFixture("sparql-2002-06-22.json"));
 
     JsonNode root = world("2002-06-22");
 
     JsonNode events = root.path("events");
-    assertThat(events.size()).isEqualTo(1);
+    assertThat(events.size())
+        .as("date and year lines merged (D3m through the redirect)")
+        .isEqualTo(1);
     JsonNode event = events.get(0);
-    assertThat(event.path("id").asString()).isEqualTo("kowiki-2002-06-22-04eaf6a6");
-    assertThat(event.path("source_title").asString()).isEqualTo("6월 22일");
-    assertThat(event.path("source_section").asString()).isEqualTo("문화");
-    assertThat(event.path("source_revision").asLong()).isEqualTo(42614972L);
-    assertThat(event.path("title").asString()).isEqualTo("2002년 FIFA 월드컵");
+    assertThat(event.path("id").asString()).startsWith("enwiki-2002-06-22-");
+    assertThat(event.path("source_title").asString()).isEqualTo("June 22");
+    assertThat(event.path("source_section").asString()).isEqualTo("Events");
+    assertThat(event.path("source_revision").asLong()).isEqualTo(622L);
+    assertThat(event.path("title").asString()).isEqualTo("2002 FIFA World Cup");
     assertThat(event.path("wikidata_qid").asString()).isEqualTo("Q47735");
-    assertThat(event.path("summary").asString()).contains("스페인");
-    assertThat(event.path("tone").asString()).isEqualTo("normal");
-    assertThat(event.path("tone_basis").asString()).isEqualTo("curated");
-    assertThat(event.path("scope").asString()).isEqualTo("domestic");
-    // Plan M3a3 demo table: no photos are attached yet, so both media slots are empty arrays.
+    assertThat(event.path("summary").asString()).contains("quarter-final A");
     assertThat(event.path("media").isArray()).isTrue();
-    assertThat(event.path("media").isEmpty()).isTrue();
     assertThat(root.path("day_media").isArray()).isTrue();
     assertThat(root.path("day_media").isEmpty()).isTrue();
     assertThat(root.path("notice").isNull()).isTrue();
@@ -356,18 +481,22 @@ class WorldStoryDemoTest extends WikimediaWireMockTest {
   }
 
   @Test
-  void wikidataDownKeepsCuratedTonesAndMarksThePagePartial() throws Exception {
-    stubPage("9월 17일", "09-17");
-    stubPage("1988년", "1988");
-    stubPageprops(read("pageprops-1988-09-17.json"));
+  void wikidataDownMakesUncuratedTonesConservativeAndThePagePartial() throws Exception {
+    stubPage("July 17", "07-17");
+    stubPage("1976", "1976");
+    stubPageprops(read("pageprops-1976-07-17.json"));
     wikimedia.stubFor(
         WireMock.get(urlPathEqualTo(SPARQL_PATH)).willReturn(aResponse().withStatus(503)));
 
-    JsonNode root = world("1988-09-17");
+    JsonNode root = world("1976-07-17");
 
     assertThat(root.path("partial").asBoolean()).isTrue();
     assertThat(root.path("events").size()).isEqualTo(3);
     assertThat(root.path("events"))
-        .allSatisfy(event -> assertThat(event.path("tone_basis").asString()).isEqualTo("curated"));
+        .allSatisfy(
+            event -> {
+              assertThat(event.path("tone").asString()).isEqualTo("tragic");
+              assertThat(event.path("tone_basis").asString()).isEqualTo("default");
+            });
   }
 }

@@ -8,6 +8,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiFixtures.read;
 import static io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiFixtures.wikitext;
 import static io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiSourceFixture.PATH;
+import static io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiSourceFixture.stubPage;
 import static io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiSourceFixture.stubPageprops;
 import static io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiSourceFixture.stubRecorded;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,11 +33,12 @@ import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 
 /**
- * Plan M3a1c T3: acceptance checks of T1/T2 that the backend tests left open. The demo-date rows
- * through the whole source (which lines were merged, nothing else lost), the second clause of the
- * 2002-06-22 row ("another match of the same day stays") as a neutral synthetic case, rule D3 in
- * the direction where the later line holds the specific main link, and the log rule (T2 (5)) for a
- * whole day at DEBUG, not only for the deduplicator on its own.
+ * Plan M3a1c T3 on English pages (plan C1 S3a): acceptance checks of T1/T2 that the backend tests
+ * left open. The demo day 1976-07-17 through the whole source (which lines were merged, nothing
+ * else lost), the second clause of the 2002-06-22 row ("another match of the same day stays") as a
+ * neutral synthetic case, rule D3 in the direction where the later line holds the specific main
+ * link, and the log rule (T2 (5)) for a whole day at DEBUG, not only for the deduplicator on its
+ * own.
  */
 @ExtendWith(OutputCaptureExtension.class)
 class KoWikiEventMergeAcceptanceTest {
@@ -45,7 +47,7 @@ class KoWikiEventMergeAcceptanceTest {
   static final WireMockExtension wikimedia =
       WireMockExtension.newInstance().options(wireMockConfig().dynamicPort()).build();
 
-  private static final LocalDate OPENING = LocalDate.of(1988, 9, 17);
+  private static final LocalDate OPENING = LocalDate.of(1976, 7, 17);
   private static final LocalDate QUARTER_FINAL = LocalDate.of(2002, 6, 22);
   private static final LocalDate LEAP_DAY = LocalDate.of(2000, 2, 29);
   private static final Instant READ = Instant.parse("2026-01-01T00:00:00Z");
@@ -57,26 +59,28 @@ class KoWikiEventMergeAcceptanceTest {
       new KoWikiEventDeduplicator(new KoWikiDedupProperties(0.6));
 
   private static void stubOpeningDay() {
-    stubRecorded(wikimedia, "9월 17일");
-    stubRecorded(wikimedia, "1988년");
-    stubPageprops(wikimedia, read("pageprops-1988-09-17.json"));
+    stubRecorded(wikimedia, "July 17");
+    stubRecorded(wikimedia, "1976");
+    stubPageprops(wikimedia, read("pageprops-1976-07-17.json"));
+  }
+
+  private static void stubQuarterFinalPages() {
+    stubPage(wikimedia, "June 22", "synthetic/synthetic-06-22");
+    stubPage(wikimedia, "2002", "synthetic/synthetic-2002");
   }
 
   private static void stubQuarterFinalDay() {
-    stubRecorded(wikimedia, "6월 22일");
-    stubRecorded(wikimedia, "2002년");
-    stubPageprops(wikimedia, read("pageprops-2002-06-22.json"));
+    stubQuarterFinalPages();
+    stubPageprops(wikimedia, read("synthetic/synthetic-pageprops-2002-06-22.json"));
   }
 
-  /** Parser output of the four recorded sections, in input order. */
+  /** Parser output of the two Events sections, in input order. */
   private List<String> parsedTexts(LocalDate date, String datePrefix, String yearPrefix) {
     List<String> texts = new ArrayList<>();
     for (String[] section :
         List.of(
             new String[] {datePrefix + "-events.json", "DATE"},
-            new String[] {datePrefix + "-culture.json", "DATE"},
-            new String[] {yearPrefix + "-events.json", "YEAR"},
-            new String[] {yearPrefix + "-culture.json", "YEAR"})) {
+            new String[] {yearPrefix + "-events.json", "YEAR"})) {
       parts
           .parser
           .parse(wikitext(section[0]), KoWikiPageKind.valueOf(section[1]), date)
@@ -88,17 +92,17 @@ class KoWikiEventMergeAcceptanceTest {
     return texts;
   }
 
-  /** A line of {@code section} (0 date 사건, 1 문화, 2 year 사건, 3 문화) on the leap-day pages. */
+  /** A line of {@code section} (0 date page Events, 1 year page Events) on the leap-day pages. */
   private static Candidate line(int section, String text, String... links) {
     List<Link> parsed = Arrays.stream(links).map(title -> new Link(title, null)).toList();
-    String page = section < 2 ? "2월 29일" : "2000년";
+    String page = section == 0 ? "February 29" : "2000";
     KoWikiEvent event =
         new KoWikiEvent(
             TwoPageKoWikiEventSource.id(LEAP_DAY, page, text),
             LEAP_DAY,
             page,
-            section % 2 == 0 ? "사건" : "문화",
-            section < 2 ? 100L : 200L,
+            "Events",
+            section == 0 ? 100L : 200L,
             text,
             parsed.stream().map(Link::title).toList(),
             null,
@@ -111,21 +115,22 @@ class KoWikiEventMergeAcceptanceTest {
     stubOpeningDay();
 
     KoWikiDayResult result = parts.source().find(OPENING);
-    List<String> parsed = parsedTexts(OPENING, "09-17", "1988");
+    List<String> parsed = parsedTexts(OPENING, "07-17", "1976");
     List<String> kept = result.events().stream().map(KoWikiEvent::text).toList();
     List<String> removed = new ArrayList<>(parsed);
     kept.forEach(removed::remove);
 
     assertThat(removed)
-        .as("every removed line is about the opening of the 1988 games")
+        .as("every removed line is about the opening of the 1976 games")
         .hasSize(result.mergedCount())
         .isNotEmpty()
-        .allSatisfy(text -> assertThat(text).contains("올림픽"));
+        .allSatisfy(text -> assertThat(text).contains("Olympics"));
     assertThat(result.events())
         .as("lines without the games link are never merged into the opening")
-        .filteredOn(event -> !event.linkTitles().contains("1988년 하계 올림픽"))
+        .filteredOn(event -> !event.linkTitles().contains("1976 Summer Olympics"))
         .extracting(KoWikiEvent::text)
-        .containsExactlyElementsOf(parsed.stream().filter(text -> !text.contains("올림픽")).toList());
+        .containsExactlyElementsOf(
+            parsed.stream().filter(text -> !text.contains("Olympics")).toList());
     assertThat(result.events()).extracting(KoWikiEvent::id).doesNotHaveDuplicates();
   }
 
@@ -137,18 +142,24 @@ class KoWikiEventMergeAcceptanceTest {
 
     assertThat(result.events())
         .as("the kept line is unchanged (D5), so the other match it mentions is not lost")
-        .filteredOn(event -> event.text().contains("스페인"))
+        .filteredOn(event -> event.text().contains("quarter-final A"))
         .singleElement()
-        .satisfies(event -> assertThat(event.text()).contains("세네갈"));
+        .satisfies(event -> assertThat(event.text()).contains("quarter-final C"));
+    assertThat(result.mergedCount()).isEqualTo(1);
     assertThat(result.events().size() + result.mergedCount())
-        .isEqualTo(parsedTexts(QUARTER_FINAL, "06-22", "2002").size());
+        .isEqualTo(
+            parsedTexts(QUARTER_FINAL, "synthetic/synthetic-06-22", "synthetic/synthetic-2002")
+                .size());
   }
 
   @Test
   void anotherMatchOfTheSameDayStaysWhileTheDuplicateMerges() {
-    Candidate matchA = line(1, "시험 대회 8강 경기 가에서 시험 팀 가가 이겼다.", "2002 시험 대회", "시험 팀 가");
-    Candidate matchB = line(1, "시험 대회 8강 경기 나에서 시험 팀 나가 이겼다.", "2002 시험 대회", "시험 팀 나");
-    Candidate againA = line(3, "시험 팀 가가 2002년 시험 대회 8강에서 이겼다.", "2002년 시험 대회", "시험 팀 가");
+    Candidate matchA =
+        line(0, "Test Cup quarter-final A is won by Test team A.", "2002 Test Cup", "Test team A");
+    Candidate matchB =
+        line(0, "Test Cup quarter-final B is won by Test team B.", "2002 Test Cup", "Test team B");
+    Candidate againA =
+        line(1, "Test team A wins a 2002 Test Cup quarter-final.", "Test team A", "2002 Test Cup");
 
     Result result = deduplicator.dedup(List.of(matchA, matchB, againA));
 
@@ -156,10 +167,30 @@ class KoWikiEventMergeAcceptanceTest {
     assertThat(result.mergedCount()).isEqualTo(1);
   }
 
+  /**
+   * D3m: when the year page line also has the cup as its main link, it has the same main link as
+   * both matches of the date page, so it matches two events and stays apart (D4): shown twice
+   * rather than merged into the wrong match.
+   */
+  @Test
+  void yearLineWithTheCupAsMainLinkMatchingTwoMatchesStaysApart() {
+    Candidate matchA =
+        line(0, "Test Cup quarter-final A is won by Test team A.", "2002 Test Cup", "Test team A");
+    Candidate matchB =
+        line(0, "Test Cup quarter-final B is won by Test team B.", "2002 Test Cup", "Test team B");
+    Candidate againA =
+        line(1, "2002 Test Cup quarter-final: Test team A wins.", "2002 Test Cup", "Test team A");
+
+    Result result = deduplicator.dedup(List.of(matchA, matchB, againA));
+
+    assertThat(result.events()).containsExactly(matchA.event(), matchB.event(), againA.event());
+    assertThat(result.mergedCount()).isZero();
+  }
+
   @Test
   void d3MergesWhenOnlyTheLaterLineHasTheSpecificMainLink() {
-    Candidate earlier = line(1, "대한민국에서 시험 대회가 열렸다.", "대한민국", "시험 대회");
-    Candidate later = line(2, "시험 대회 개막.", "시험 대회");
+    Candidate earlier = line(0, "Test Cup is held in South Korea.", "South Korea", "Test Cup");
+    Candidate later = line(1, "Test Cup opens.", "Test Cup");
 
     Result result = deduplicator.dedup(List.of(earlier, later));
 
@@ -169,8 +200,8 @@ class KoWikiEventMergeAcceptanceTest {
 
   @Test
   void d3BothMainLinksGenericAndOnlyAPageLinkSharedStayApart() {
-    Candidate earlier = line(0, "대한민국에서 시험 사건 가.", "대한민국", "2000년");
-    Candidate later = line(3, "서울에서 시험 사건 나.", "서울", "2000년", "대한민국");
+    Candidate earlier = line(0, "Test event A in South Korea.", "South Korea", "2000");
+    Candidate later = line(1, "Test event B in Seoul.", "Seoul", "2000", "South Korea");
 
     assertThat(deduplicator.dedup(List.of(earlier, later)).mergedCount()).isZero();
   }
@@ -186,8 +217,7 @@ class KoWikiEventMergeAcceptanceTest {
       parts.source().find(OPENING);
 
       wikimedia.resetAll();
-      stubRecorded(wikimedia, "6월 22일");
-      stubRecorded(wikimedia, "2002년");
+      stubQuarterFinalPages();
       wikimedia.stubFor(
           get(urlPathEqualTo(PATH))
               .withQueryParam("action", equalTo("query"))
@@ -200,13 +230,14 @@ class KoWikiEventMergeAcceptanceTest {
     String logs = output.getAll();
     assertThat(logs).as("the dedup ran at DEBUG").contains("rule=D3");
     assertThat(logs)
-        .doesNotContain("1988-09-17")
+        .doesNotContain("1976-07-17")
         .doesNotContain("2002-06-22")
-        .doesNotContain("kowiki-19")
-        .doesNotContain("kowiki-20")
-        .doesNotContain("올림픽")
-        .doesNotContain("KBS")
-        .doesNotContain("스페인")
-        .doesNotContain("승부차기");
+        .doesNotContain("enwiki-19")
+        .doesNotContain("enwiki-20")
+        .doesNotContain("Olympics")
+        .doesNotContain("Montreal")
+        .doesNotContain("East Timor")
+        .doesNotContain("quarter-final")
+        .doesNotContain("penalties");
   }
 }

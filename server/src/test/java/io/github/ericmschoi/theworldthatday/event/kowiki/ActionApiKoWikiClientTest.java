@@ -32,7 +32,8 @@ import org.springframework.boot.test.system.OutputCaptureExtension;
 
 /**
  * Plan M3a1 T2 (4)~(5): requests per page, pinned revision, missing pages, failures. Plan M3a1b T1
- * (2): the API error {@code ratelimited} blocks the host.
+ * (2): the API error {@code ratelimited} blocks the host. Plan C1 S3a T2 (2)~(4), (6): English
+ * Wikipedia, {@code prop=tocdata|revid}, one level-2 {@code Events} section.
  */
 @ExtendWith(OutputCaptureExtension.class)
 class ActionApiKoWikiClientTest {
@@ -69,21 +70,17 @@ class ActionApiKoWikiClientTest {
         new WikimediaHttpClient(properties, clock), properties, KoWikiFixtures.JSON, clock);
   }
 
-  /** Stubs the section list of {@code title} and the given sections, all from fixtures. */
-  static void stubPage(String title, String prefix, String... sections) {
+  /** Stubs the section list of {@code title} and its Events section, from fixtures. */
+  static void stubPage(String title, String prefix) {
     wikimedia.stubFor(
         get(urlPathEqualTo(PATH))
             .withQueryParam("page", equalTo(title))
-            .withQueryParam("prop", equalTo("sections|revid"))
-            .willReturn(okJson(read(prefix + "-sections.json"))));
-    for (String section : sections) {
-      String[] indexAndName = section.split(":");
-      wikimedia.stubFor(
-          get(urlPathEqualTo(PATH))
-              .withQueryParam("prop", equalTo("wikitext"))
-              .withQueryParam("section", equalTo(indexAndName[0]))
-              .willReturn(okJson(read(prefix + "-" + indexAndName[1] + ".json"))));
-    }
+            .withQueryParam("prop", equalTo("tocdata|revid"))
+            .willReturn(okJson(read(prefix + "-tocdata.json"))));
+    wikimedia.stubFor(
+        get(urlPathEqualTo(PATH))
+            .withQueryParam("prop", equalTo("wikitext"))
+            .willReturn(okJson(read(prefix + "-events.json"))));
   }
 
   private static List<ServeEvent> requests() {
@@ -96,69 +93,68 @@ class ActionApiKoWikiClientTest {
   }
 
   @Test
-  void datePageReadsOnlyTheEventsAndCultureSectionsOfOneRevision() {
-    stubPage("9월 17일", "09-17", "1:events", "2:culture");
+  void datePageReadsOnlyTheEventsSectionOfOneRevision() {
+    stubPage("July 17", "07-17");
 
-    KoWikiPage page = client.fetch("9월 17일");
+    KoWikiPage page = client.fetch("July 17");
 
     assertThat(page.state()).isEqualTo(State.FRESH);
-    assertThat(page.revision()).isEqualTo(42604413L);
+    assertThat(page.revision()).isEqualTo(1375524665L);
     assertThat(page.fetchedAt()).isEqualTo(clock.instant());
-    assertThat(page.eventsWikitext()).isEqualTo(wikitext("09-17-events.json"));
-    assertThat(page.cultureWikitext()).isEqualTo(wikitext("09-17-culture.json"));
+    assertThat(page.eventsWikitext()).isEqualTo(wikitext("07-17-events.json"));
+    assertThat(page.cultureWikitext()).isNull();
     List<ServeEvent> requests = requests();
-    assertThat(requests).hasSize(3);
-    assertThat(param(requests.getFirst(), "page")).isEqualTo("9월 17일");
+    assertThat(requests).hasSize(2);
+    assertThat(param(requests.getFirst(), "page")).isEqualTo("July 17");
+    assertThat(param(requests.getFirst(), "prop")).isEqualTo("tocdata|revid");
     assertThat(param(requests.getFirst(), "redirects")).isEqualTo("1");
-    assertThat(requests.subList(1, 3))
-        .extracting(event -> param(event, "section"))
-        .containsExactly("1", "2");
-    assertThat(requests.subList(1, 3))
-        .extracting(event -> param(event, "oldid"))
-        .containsOnly("42604413");
+    assertThat(param(requests.get(1), "section")).isEqualTo("1");
+    assertThat(param(requests.get(1), "oldid")).isEqualTo("1375524665");
+    assertThat(param(requests.get(1), "prop")).isEqualTo("wikitext");
+    assertThat(requests).extracting(event -> param(event, "prop")).doesNotContain("sections|revid");
+    assertThat(requests)
+        .extracting(event -> event.getRequest().getUrl())
+        .allSatisfy(url -> assertThat(url).doesNotContain("prop=sections"));
   }
 
   @Test
-  void yearPageNeverRequestsBirthOrDeathSections() {
-    stubPage("1988년", "1988", "1:events", "2:culture");
+  void yearPageWithPronunciationFirstReadsEventsAtIndexTwo() {
+    stubPage("2010", "2010");
 
-    KoWikiPage page = client.fetch("1988년");
+    KoWikiPage page = client.fetch("2010");
 
-    assertThat(page.revision()).isEqualTo(42640701L);
-    assertThat(param(requests().getFirst(), "page")).isEqualTo("1988년");
-    assertThat(requests())
-        .extracting(event -> param(event, "section"))
-        .containsOnly(null, "1", "2");
-    assertThat(requests()).hasSize(3);
+    assertThat(page.revision()).isEqualTo(1382559665L);
+    assertThat(param(requests().getFirst(), "page")).isEqualTo("2010");
+    assertThat(requests()).extracting(event -> param(event, "section")).containsExactly(null, "2");
+    assertThat(page.eventsWikitext()).isEqualTo(wikitext("2010-events.json"));
   }
 
   @Test
-  void leapDayPageUsesTheSectionIndexesFromTheList() {
-    stubPage("2월 29일", "synthetic/synthetic-02-29", "2:events", "3:culture");
+  void leapDayPageSkipsALevel3EventsHeadingAndPronunciation() {
+    stubPage("February 29", "synthetic/synthetic-02-29");
 
-    KoWikiPage page = client.fetch("2월 29일");
+    KoWikiPage page = client.fetch("February 29");
 
     assertThat(page.revision()).isEqualTo(100L);
-    assertThat(page.eventsWikitext()).contains("시험 사건 가");
-    assertThat(page.cultureWikitext()).contains("시험 사건 나");
-    assertThat(requests())
-        .extracting(event -> param(event, "section"))
-        .containsExactly(null, "2", "3");
-    assertThat(requests().subList(1, 3))
-        .extracting(event -> param(event, "oldid"))
-        .containsOnly("100");
+    assertThat(page.eventsWikitext()).contains("Test event A");
+    assertThat(page.cultureWikitext()).isNull();
+    assertThat(requests()).extracting(event -> param(event, "section")).containsExactly(null, "3");
+    assertThat(param(requests().get(1), "oldid")).isEqualTo("100");
   }
 
   @Test
-  void missingSectionIsNotRequestedAndNestedCultureIsIgnored() {
-    stubPage("2000년", "synthetic/synthetic-2000", "1:events");
+  void pageWithoutALevel2EventsSectionIsOneRequestWithoutEvents() {
+    wikimedia.stubFor(
+        get(urlPathEqualTo(PATH))
+            .willReturn(okJson(read("synthetic/synthetic-no-events-tocdata.json"))));
 
-    KoWikiPage page = client.fetch("2000년");
+    KoWikiPage page = client.fetch("February 29");
 
     assertThat(page.state()).isEqualTo(State.FRESH);
-    assertThat(page.eventsWikitext()).contains("시험 사건 다");
+    assertThat(page.revision()).isEqualTo(102L);
+    assertThat(page.eventsWikitext()).isNull();
     assertThat(page.cultureWikitext()).isNull();
-    assertThat(requests()).extracting(event -> param(event, "section")).containsExactly(null, "1");
+    assertThat(requests()).hasSize(1);
   }
 
   @Test
@@ -167,35 +163,42 @@ class ActionApiKoWikiClientTest {
         get(urlPathEqualTo(PATH))
             .willReturn(okJson(read("synthetic/synthetic-missingtitle.json"))));
 
-    KoWikiPage page = client.fetch("2월 29일");
+    KoWikiPage page = client.fetch("February 29");
 
-    assertThat(page).isEqualTo(new KoWikiPage("2월 29일", State.ABSENT, null, null, null, null));
+    assertThat(page).isEqualTo(new KoWikiPage("February 29", State.ABSENT, null, null, null, null));
     assertThat(requests()).hasSize(1);
   }
 
   @Test
-  void failedSectionRequestMakesThePageUnavailable() {
-    stubPage("9월 17일", "09-17", "1:events");
+  void failedEventsSectionRequestMakesThePageUnavailable() {
     wikimedia.stubFor(
         get(urlPathEqualTo(PATH))
-            .withQueryParam("section", equalTo("2"))
+            .withQueryParam("page", equalTo("July 17"))
+            .willReturn(okJson(read("07-17-tocdata.json"))));
+    wikimedia.stubFor(
+        get(urlPathEqualTo(PATH))
+            .withQueryParam("section", equalTo("1"))
             .willReturn(aResponse().withStatus(503)));
 
-    KoWikiPage page = client.fetch("9월 17일");
+    KoWikiPage page = client.fetch("July 17");
 
-    assertThat(page).isEqualTo(new KoWikiPage("9월 17일", State.UNAVAILABLE, null, null, null, null));
-    assertThat(requests()).hasSize(4); // list, events, culture + one retry
+    assertThat(page)
+        .isEqualTo(new KoWikiPage("July 17", State.UNAVAILABLE, null, null, null, null));
+    assertThat(requests()).hasSize(3); // list, Events + one retry
   }
 
   @Test
-  void failedEventsSectionStopsBeforeTheCultureSection() {
-    stubPage("9월 17일", "09-17", "2:culture");
+  void missingEventsSectionAnswerStopsThePage() {
+    wikimedia.stubFor(
+        get(urlPathEqualTo(PATH))
+            .withQueryParam("page", equalTo("July 17"))
+            .willReturn(okJson(read("07-17-tocdata.json"))));
     wikimedia.stubFor(
         get(urlPathEqualTo(PATH))
             .withQueryParam("section", equalTo("1"))
             .willReturn(aResponse().withStatus(404)));
 
-    assertThat(client.fetch("9월 17일").state()).isEqualTo(State.UNAVAILABLE);
+    assertThat(client.fetch("July 17").state()).isEqualTo(State.UNAVAILABLE);
     assertThat(requests()).extracting(event -> param(event, "section")).containsExactly(null, "1");
   }
 
@@ -205,7 +208,7 @@ class ActionApiKoWikiClientTest {
         get(urlPathEqualTo(PATH))
             .willReturn(aResponse().withStatus(429).withHeader("Retry-After", "5")));
 
-    assertThat(client.fetch("1988년").state()).isEqualTo(State.UNAVAILABLE);
+    assertThat(client.fetch("1976").state()).isEqualTo(State.UNAVAILABLE);
     assertThat(requests()).hasSize(1);
   }
 
@@ -213,15 +216,15 @@ class ActionApiKoWikiClientTest {
   void otherApiErrorsAndBrokenJsonAreUnavailable() {
     wikimedia.stubFor(
         get(urlPathEqualTo(PATH))
-            .withQueryParam("page", equalTo("9월 17일"))
+            .withQueryParam("page", equalTo("July 17"))
             .willReturn(okJson("{\"error\":{\"code\":\"internal_api_error\"}}")));
     wikimedia.stubFor(
         get(urlPathEqualTo(PATH))
-            .withQueryParam("page", equalTo("1988년"))
+            .withQueryParam("page", equalTo("1976"))
             .willReturn(okJson("{\"parse\":")));
 
-    assertThat(client.fetch("9월 17일").state()).isEqualTo(State.UNAVAILABLE);
-    assertThat(client.fetch("1988년").state()).isEqualTo(State.UNAVAILABLE);
+    assertThat(client.fetch("July 17").state()).isEqualTo(State.UNAVAILABLE);
+    assertThat(client.fetch("1976").state()).isEqualTo(State.UNAVAILABLE);
     assertThat(requests()).hasSize(2);
   }
 
@@ -230,31 +233,35 @@ class ActionApiKoWikiClientTest {
     wikimedia.stubFor(
         get(urlPathEqualTo(PATH)).willReturn(okJson(read("synthetic/synthetic-ratelimited.json"))));
 
-    assertThat(client.fetch("9월 17일").state()).isEqualTo(State.UNAVAILABLE);
+    assertThat(client.fetch("July 17").state()).isEqualTo(State.UNAVAILABLE);
     assertThat(requests()).as("HTTP 200 + ratelimited is not retried").hasSize(1);
-    assertThat(output.getAll()).contains("title=9월 17일 cause=api error ratelimited");
+    assertThat(output.getAll())
+        .contains("Wikimedia call failed: source=enwiki title=July 17 cause=api error ratelimited");
 
     clock.advance(Duration.ofSeconds(29));
-    assertThat(client.fetch("9월 17일").state()).isEqualTo(State.UNAVAILABLE);
+    assertThat(client.fetch("July 17").state()).isEqualTo(State.UNAVAILABLE);
     assertThat(requests()).as("host still blocked at 29s").hasSize(1);
 
     clock.advance(Duration.ofSeconds(2));
     wikimedia.resetAll();
-    stubPage("9월 17일", "09-17", "1:events", "2:culture");
-    assertThat(client.fetch("9월 17일").state()).isEqualTo(State.FRESH);
-    assertThat(requests()).as("sent again at 31s").hasSize(3);
+    stubPage("July 17", "07-17");
+    assertThat(client.fetch("July 17").state()).isEqualTo(State.FRESH);
+    assertThat(requests()).as("sent again at 31s").hasSize(2);
   }
 
   @Test
   void ratelimitedSectionRequestStopsThePageAndBlocksOtherPagesOfTheHost() {
-    stubPage("9월 17일", "09-17", "2:culture");
+    wikimedia.stubFor(
+        get(urlPathEqualTo(PATH))
+            .withQueryParam("page", equalTo("July 17"))
+            .willReturn(okJson(read("07-17-tocdata.json"))));
     wikimedia.stubFor(
         get(urlPathEqualTo(PATH))
             .withQueryParam("section", equalTo("1"))
             .willReturn(okJson(read("synthetic/synthetic-ratelimited.json"))));
 
-    assertThat(client.fetch("9월 17일").state()).isEqualTo(State.UNAVAILABLE);
-    assertThat(client.fetch("1988년").state()).isEqualTo(State.UNAVAILABLE);
+    assertThat(client.fetch("July 17").state()).isEqualTo(State.UNAVAILABLE);
+    assertThat(client.fetch("1976").state()).isEqualTo(State.UNAVAILABLE);
     assertThat(requests()).extracting(event -> param(event, "section")).containsExactly(null, "1");
   }
 
@@ -265,8 +272,8 @@ class ActionApiKoWikiClientTest {
         get(urlPathEqualTo(PATH))
             .willReturn(okJson(ActionApiErrorsTest.errorWithCode(code).toString())));
 
-    assertThat(client.fetch("9월 17일").state()).isEqualTo(State.UNAVAILABLE);
-    assertThat(output.getAll()).contains("title=9월 17일 cause=api error\n");
+    assertThat(client.fetch("July 17").state()).isEqualTo(State.UNAVAILABLE);
+    assertThat(output.getAll()).contains("title=July 17 cause=api error\n");
     if (!code.isEmpty()) {
       assertThat(output.getAll()).doesNotContain(code);
     }
@@ -279,9 +286,28 @@ class ActionApiKoWikiClientTest {
         get(urlPathEqualTo(PATH))
             .willReturn(okJson("{\"error\":{\"info\":\"x\"},\"parse\":{\"revid\":5}}")));
 
-    assertThat(client.fetch("9월 17일").state()).isEqualTo(State.UNAVAILABLE);
-    assertThat(output.getAll()).contains("title=9월 17일 cause=api error\n");
+    assertThat(client.fetch("July 17").state()).isEqualTo(State.UNAVAILABLE);
+    assertThat(output.getAll()).contains("title=July 17 cause=api error\n");
     assertThat(requests()).hasSize(1);
+  }
+
+  /** Plan C1 S3a T2 (6): a failure names the source and the page, never a date or wikitext. */
+  @Test
+  void failureLogNamesEnwikiAndThePageOnly(CapturedOutput output) {
+    wikimedia.stubFor(
+        get(urlPathEqualTo(PATH))
+            .withQueryParam("page", equalTo("July 17"))
+            .willReturn(okJson(read("07-17-tocdata.json"))));
+    wikimedia.stubFor(
+        get(urlPathEqualTo(PATH))
+            .withQueryParam("section", equalTo("1"))
+            .willReturn(okJson("{\"parse\":{\"title\":\"July 17\",\"revid\":1375524665}}")));
+
+    assertThat(client.fetch("July 17").state()).isEqualTo(State.UNAVAILABLE);
+    String log = output.getAll();
+    assertThat(log)
+        .contains("Wikimedia call failed: source=enwiki title=July 17 cause=no wikitext");
+    assertThat(log).doesNotContain("source=kowiki").doesNotContain("1976-07-17");
   }
 
   @Test
@@ -290,7 +316,7 @@ class ActionApiKoWikiClientTest {
         get(urlPathEqualTo(PATH))
             .willReturn(okJson(read("synthetic/synthetic-missingtitle.json"))));
 
-    assertThat(client.fetch("9월 17일").state()).isEqualTo(State.ABSENT);
+    assertThat(client.fetch("July 17").state()).isEqualTo(State.ABSENT);
     assertThat(output.getAll()).doesNotContain("Wikimedia call failed");
   }
 }
