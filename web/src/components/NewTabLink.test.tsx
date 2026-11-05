@@ -15,6 +15,23 @@ describe('NewTabLink', () => {
     expect(link).toHaveAttribute('rel', 'noopener noreferrer')
   })
 
+  // S1 review: an empty language puts no lang attribute anywhere.
+  it('renders no lang attribute for an empty lang', () => {
+    const { container } = render(
+      <>
+        <NewTabLink href="https://example.org/a" lang="">
+          Title
+        </NewTabLink>
+        <NewTabLink href="/other.html" lang="">
+          Plain
+        </NewTabLink>
+      </>,
+    )
+    expect(screen.getByRole('link')).not.toHaveAttribute('lang')
+    expect(container.querySelectorAll('[lang]')).toHaveLength(0)
+    expect(container).toHaveTextContent('Plain')
+  })
+
   it.each([
     '/other.html',
     '/api/story/world',

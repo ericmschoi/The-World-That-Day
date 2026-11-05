@@ -13,7 +13,9 @@ const PAGE_LANG = 'en-CA'
 // except our own privacy page (that one path only, never other relative
 // paths). `lang` marks text in another language (a Korean page title); the
 // hidden hint stays in the page language.
-export function NewTabLink({ href, lang, children }: Props) {
+export function NewTabLink({ href, lang: given, children }: Props) {
+  // An empty language marks nothing (never lang="").
+  const lang = given || undefined
   if (!isHttpUrl(href) && href !== PRIVACY_PAGE) {
     return lang ? <span lang={lang}>{children}</span> : <>{children}</>
   }
