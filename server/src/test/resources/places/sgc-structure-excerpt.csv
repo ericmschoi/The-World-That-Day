@@ -1,0 +1,40 @@
+Level,Hierarchical structure,Code,Class title
+1,Geographical region of Canada,1,Atlantic
+2,Province and territory,10,Newfoundland and Labrador
+3,Census division,1001,Division No. 1
+4,Census subdivision,1001365,Victoria
+4,Census subdivision,1001519,St. John's
+2,Province and territory,11,Prince Edward Island
+3,Census division,1102,Queens
+4,Census subdivision,1102032,Victoria
+3,Census division,1103,Prince
+4,Census subdivision,1103068,Victoria
+2,Province and territory,12,Nova Scotia
+2,Province and territory,13,New Brunswick
+3,Census division,1301,Saint John
+4,Census subdivision,1301006,Saint John
+2,Province and territory,24,Quebec
+3,Census division,2466,Montréal
+4,Census subdivision,2466023,Montréal
+2,Province and territory,35,Ontario
+3,Census division,3521,Peel
+4,Census subdivision,3521024,Caledon
+3,Census division,3539,Middlesex
+4,Census subdivision,3539036,London
+2,Province and territory,46,Manitoba
+3,Census division,4608,Division No. 8
+4,Census subdivision,4608042,Victoria
+2,Province and territory,47,Saskatchewan
+2,Province and territory,48,Alberta
+3,Census division,4806,Division No. 6
+4,Census subdivision,4806016,Calgary
+2,Province and territory,59,British Columbia
+3,Census division,5915,Greater Vancouver
+4,Census subdivision,5915022,Vancouver
+3,Census division,5917,Capital
+4,Census subdivision,5917034,Victoria
+3,Census division,5955,Peace River
+4,Census subdivision,5955034,Fort St. John
+2,Province and territory,60,Yukon
+2,Province and territory,61,Northwest Territories
+2,Province and territory,62,Nunavut
