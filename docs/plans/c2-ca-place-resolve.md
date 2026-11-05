@@ -222,3 +222,12 @@ CSV 읽기는 Jackson CSV 모듈(Spring Boot가 판을 관리하는 `tools.jacks
 - **T2 위임 판단 3개 승인**: PEI Victoria(Queens) 1102032 → BACOS 대체 유지, 주 별칭은 StatCan Table B 약어만, N.L.·NL처럼 코드와 같은 키로 접히는 별칭은 C2b 매처가 허용한다(같은 주 하나로 본다).
 - **SGC 표시 문구 날짜**: StatCan 오픈 라이선스 문구가 요구하는 "reference date"로 바꾼다(SGC 2021 → `2021`). 기록 수정일 2023-04-21은 README의 내려받은 판 정보로 남긴다.
 - **T2b 추가 (리스크 1 후속)**: content-curator가 2021년 인구조사 인구 10만 이상 CSD 가운데 좌표가 없는 곳(보고: Québec, Hamilton, Mississauga, Laval, Gatineau, Longueuil, Sherbrooke, Trois-Rivières, Saguenay, Lévis, Moncton 등)을 근거 URL과 함께 `overrides.csv` 로 채운다. 인구 근거는 StatCan 공식 표 주소를 README에 적는다. 다시 빌드한 결과만 `data/places/` 에 커밋한다.
+
+### PM 위임 결정 (2026-11-05, orchestrator) — C2a 리뷰(수정 요청 1회) 뒤
+
+- **필수 1 (SGC 인코딩)**: SGC 두 파일을 Windows-1252로 읽는다. backend-dev가 빌더·녹화 행 시험을 고치고, content-curator가 다시 빌드하고 README 인코딩 설명·수를 고치며, test-engineer가 이름 열의 제어 문자(`\p{Cc}`) 검사를 더한다.
+- **권장 1 (대표점 겸 동네 18건)**: (a) 규칙 (나)를 "어떤 CSD의 대표점이든 동네에서 뺀다"로 넓힌다. 규칙 (다)와 같은 목적(같은 좌표를 두 CSD에 붙이지 않음)이다.
+- **권장 2 (실제 파일의 B3 정렬 시험)**: test-engineer가 더한다.
+- **권장 3 (리서치 문서 인코딩 정정)**: data-researcher가 `canada-place-search.md` 의 "ISO-8859-1"을 "Windows-1252(Latin-1 상위 집합)"로 고친다.
+- **권장 4·5 (README 근거 인용, 시험 README 표시 날짜)**: content-curator가 고친다.
+- **권장 6**: 그대로 둔다.
