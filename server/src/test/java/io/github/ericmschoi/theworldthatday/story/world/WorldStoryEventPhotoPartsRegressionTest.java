@@ -12,6 +12,7 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import io.github.ericmschoi.theworldthatday.event.wikidata.SparqlWikidataSignalSourceTest;
 import io.github.ericmschoi.theworldthatday.media.MediaLookupProperties;
 import io.github.ericmschoi.theworldthatday.wikimedia.Deadline;
+import io.github.ericmschoi.theworldthatday.wikimedia.WikiPageStubs;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikidataProperties;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaWireMockTest;
 import java.io.IOException;
@@ -32,6 +33,7 @@ import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -50,6 +52,11 @@ import tools.jackson.databind.json.JsonMapper;
  * Deadline#CANCEL_GRACE} + 0.5s), never two. The measured times are printed for the report.
  * Recorded fixtures and WireMock only; no network: no request is left unmatched.
  */
+// The worst time tests keep Wikidata silent, so every event without a curated tone is tragic by
+// default and the day photos are not looked up. A synthetic curation keeps the 1988-09-17 lines
+// normal, as the Korean repository curation did before S3a (T5 rewrites that file).
+@TestPropertySource(
+    properties = "app.data-dir=src/test/resources/fixtures/curation/synthetic-1988-09-17")
 @ExtendWith(OutputCaptureExtension.class)
 class WorldStoryEventPhotoPartsRegressionTest extends WikimediaWireMockTest {
 
@@ -93,34 +100,16 @@ class WorldStoryEventPhotoPartsRegressionTest extends WikimediaWireMockTest {
     }
   }
 
-  /** Section list by title, then the level-2 사건 and 문화 sections, each after {@code delayMs}. */
+  /** Parse by title, then the Events section by revid and index, each after {@code delayMs}. */
   private static void stubPage(String title, String prefix, int delayMs) {
-    String kowiki = "wikimedia/kowiki/";
-    JsonNode parse = JSON.readTree(read(kowiki + prefix + "-sections.json")).path("parse");
-    String revid = Long.toString(parse.path("revid").asLong());
-    wikimedia.stubFor(
-        WireMock.get(urlPathEqualTo(KOWIKI_PATH))
-            .withQueryParam("page", equalTo(title))
-            .willReturn(okJson(read(kowiki + prefix + "-sections.json")).withFixedDelay(delayMs)));
-    for (JsonNode section : parse.path("sections")) {
-      String line = section.path("line").asString("");
-      String kind = line.equals("사건") ? "events" : line.equals("문화") ? "culture" : null;
-      if (kind != null && "2".equals(section.path("level").asString(""))) {
-        wikimedia.stubFor(
-            WireMock.get(urlPathEqualTo(KOWIKI_PATH))
-                .withQueryParam("oldid", equalTo(revid))
-                .withQueryParam("section", equalTo(section.path("index").asString()))
-                .willReturn(
-                    okJson(read(kowiki + prefix + "-" + kind + ".json")).withFixedDelay(delayMs)));
-      }
-    }
+    WikiPageStubs.stubPage(wikimedia, title, prefix, delayMs);
   }
 
   private static void stubPageprops(String file) {
     wikimedia.stubFor(
         WireMock.get(urlPathEqualTo(KOWIKI_PATH))
             .withQueryParam("action", equalTo("query"))
-            .willReturn(okJson(read("wikimedia/kowiki/" + file))));
+            .willReturn(okJson(read("wikimedia/enwiki/synthetic/synthetic-" + file))));
   }
 
   private static void stubSparql(String file, int delayMs) {
@@ -247,8 +236,8 @@ class WorldStoryEventPhotoPartsRegressionTest extends WikimediaWireMockTest {
 
   @Test
   void openingDayAnswersAsInM3a3b() throws Exception {
-    stubPage("9월 17일", "09-17", 0);
-    stubPage("1988년", "1988", 0);
+    stubPage("September 17", "synthetic/synthetic-09-17", 0);
+    stubPage("1988", "synthetic/synthetic-1988", 0);
     stubPageprops("pageprops-1988-09-17.json");
     stubSparql("sparql-1988-09-17.json", 0);
     stubCommons("day-category-1988-09-17.json", 0);
@@ -272,8 +261,8 @@ class WorldStoryEventPhotoPartsRegressionTest extends WikimediaWireMockTest {
 
   @Test
   void quarterFinalDayAnswersAsInM3a3b() throws Exception {
-    stubPage("6월 22일", "06-22", 0);
-    stubPage("2002년", "2002", 0);
+    stubPage("June 22", "synthetic/synthetic-06-22", 0);
+    stubPage("2002", "synthetic/synthetic-2002", 0);
     stubPageprops("pageprops-2002-06-22.json");
     stubSparql("sparql-2002-06-22.json", 0);
     stubCommons("day-category-2002-06-22.json", 0);
@@ -291,8 +280,8 @@ class WorldStoryEventPhotoPartsRegressionTest extends WikimediaWireMockTest {
 
   @Test
   void dayWithoutEventsStillAsksTheDayCategoryOnce() throws Exception {
-    stubPage("3월 15일", "03-15", 0);
-    stubPage("1995년", "1995", 0);
+    stubPage("March 15", "synthetic/synthetic-03-15", 0);
+    stubPage("1995", "synthetic/synthetic-1995", 0);
     stubCommons("day-category-1995-03-15.json", 0);
 
     JsonNode root = ok("1995-03-15");
@@ -309,8 +298,8 @@ class WorldStoryEventPhotoPartsRegressionTest extends WikimediaWireMockTest {
 
   @Test
   void demoRequestsLogNoEventPhotoLookup(CapturedOutput output) throws Exception {
-    stubPage("9월 17일", "09-17", 0);
-    stubPage("1988년", "1988", 0);
+    stubPage("September 17", "synthetic/synthetic-09-17", 0);
+    stubPage("1988", "synthetic/synthetic-1988", 0);
     stubPageprops("pageprops-1988-09-17.json");
     stubSparql("sparql-1988-09-17.json", 0);
     stubCommons("day-category-1988-09-17.json", 0);
@@ -334,8 +323,8 @@ class WorldStoryEventPhotoPartsRegressionTest extends WikimediaWireMockTest {
   @Test
   void worstTimeWithEverySourceSlowStaysWithinTheSettingsBoundAndCommonsIsAskedOnce()
       throws Exception {
-    stubPage("9월 17일", "09-17", 0);
-    stubPage("1988년", "1988", 1_200);
+    stubPage("September 17", "synthetic/synthetic-09-17", 0);
+    stubPage("1988", "synthetic/synthetic-1988", 1_200);
     stubPageprops("pageprops-1988-09-17.json");
     stubSparql("sparql-1988-09-17.json", SILENT_MS);
     stubCommons("day-category-1988-09-17.json", SILENT_MS);
@@ -377,8 +366,8 @@ class WorldStoryEventPhotoPartsRegressionTest extends WikimediaWireMockTest {
   @Test
   void mediaSegmentAloneTakesOneWindowWhenBothPathsAreSilent(CapturedOutput output)
       throws Exception {
-    stubPage("9월 17일", "09-17", 0);
-    stubPage("1988년", "1988", 0);
+    stubPage("September 17", "synthetic/synthetic-09-17", 0);
+    stubPage("1988", "synthetic/synthetic-1988", 0);
     stubPageprops("pageprops-1988-09-17.json");
     stubSparql("sparql-1988-09-17.json", 0);
     stubCommons("day-category-1988-09-17.json", SILENT_MS);

@@ -1,7 +1,6 @@
 package io.github.ericmschoi.theworldthatday.event.kowiki;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
@@ -13,6 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiPage.State;
 import io.github.ericmschoi.theworldthatday.event.kowiki.WikitextEventParser.ParsedEvent;
+import io.github.ericmschoi.theworldthatday.wikimedia.WikiPageStubs;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaWireMockTest;
 import java.time.Duration;
 import java.time.Instant;
@@ -26,9 +26,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
- * Plan M3a1b T2 (2)~(9): the wikitext cache in front of the Action API client, against WireMock and
- * the Testcontainers database (V2 table {@code wiki_section_cache}). Time moves with the test
- * clock; the TTL is {@code wikimedia.cache-ttl} from application.yml (7 days).
+ * Plan M3a1b T2 (2)~(9) and plan C1 S3a T2 (5): the wikitext cache in front of the Action API
+ * client, against WireMock and the Testcontainers database (V2 table {@code wiki_section_cache}),
+ * on English Wikipedia pages. Time moves with the test clock; the TTL is {@code
+ * wikimedia.cache-ttl} from application.yml (7 days).
  */
 class CachingKoWikiClientTest extends WikimediaWireMockTest {
 
@@ -46,28 +47,13 @@ class CachingKoWikiClientTest extends WikimediaWireMockTest {
     jdbc.execute("TRUNCATE wiki_section_cache");
   }
 
-  /** Stubs a page from fixtures: section list by title, sections by revid and index. */
+  /** Stubs a page from fixtures: section list by title, the Events section by revid and index. */
   private static void stubPage(String title, String prefix) {
-    long revid = KoWikiFixtureReadme.revid(prefix + "-sections.json");
-    wikimedia.stubFor(
-        get(urlPathEqualTo(KOWIKI_PATH))
-            .withQueryParam("page", equalTo(title))
-            .withQueryParam("prop", equalTo("sections|revid"))
-            .willReturn(okJson(read(prefix + "-sections.json"))));
-    for (String[] kind : List.of(new String[] {"사건", "events"}, new String[] {"문화", "culture"})) {
-      String index = KoWikiFixtureReadme.sectionIndex(prefix, kind[0]);
-      if (index != null) {
-        wikimedia.stubFor(
-            get(urlPathEqualTo(KOWIKI_PATH))
-                .withQueryParam("oldid", equalTo(Long.toString(revid)))
-                .withQueryParam("section", equalTo(index))
-                .willReturn(okJson(read(prefix + "-" + kind[1] + ".json"))));
-      }
-    }
+    WikiPageStubs.stubPage(wikimedia, title, prefix);
   }
 
   private static void stubRecorded(String title) {
-    stubPage(title, KoWikiFixtureReadme.DEMO_PAGES.get(title));
+    KoWikiSourceFixture.stubRecorded(wikimedia, title);
   }
 
   private List<Map<String, Object>> rows(String title) {
@@ -88,58 +74,61 @@ class CachingKoWikiClientTest extends WikimediaWireMockTest {
 
   @Test
   void firstReadIsFreshAndStoredThenCachedWithoutRequests() {
-    stubRecorded("9월 17일");
+    stubRecorded("July 17");
 
-    KoWikiPage first = client.fetch("9월 17일");
+    KoWikiPage first = client.fetch("July 17");
 
     assertThat(first.state()).isEqualTo(State.FRESH);
-    assertThat(first.revision()).isEqualTo(42604413L);
-    assertThat(requestCount()).isEqualTo(3);
-    assertThat(rows("9월 17일"))
+    assertThat(first.revision()).isEqualTo(1375524665L);
+    assertThat(requestCount()).as("section list + Events section").isEqualTo(2);
+    assertThat(rows("July 17"))
         .singleElement()
         .satisfies(
             row -> {
-              assertThat(row).containsEntry("revid", 42604413L);
-              assertThat(row).containsEntry("events_wikitext", wikitext("09-17-events.json"));
-              assertThat(row).containsEntry("culture_wikitext", wikitext("09-17-culture.json"));
+              assertThat(row).containsEntry("site", SITE);
+              assertThat(row).containsEntry("revid", 1375524665L);
+              assertThat(row).containsEntry("events_wikitext", wikitext("07-17-events.json"));
+              assertThat(row.get("culture_wikitext"))
+                  .as("English Wikipedia has no culture section (plan C1 S3a T2 (5))")
+                  .isNull();
               assertThat(fetchedAt(row)).isEqualTo(first.fetchedAt()).isEqualTo(clock.instant());
             });
 
     clock.advance(properties.cacheTtl().minusSeconds(1));
-    KoWikiPage second = client.fetch("9월 17일");
+    KoWikiPage second = client.fetch("July 17");
 
     assertThat(second.state()).isEqualTo(State.CACHED);
-    assertThat(requestCount()).as("no request inside the TTL").isEqualTo(3);
+    assertThat(requestCount()).as("no request inside the TTL").isEqualTo(2);
     assertThat(second).usingRecursiveComparison().ignoringFields("state").isEqualTo(first);
   }
 
   @Test
   void expiredCacheIsReadAgainAndAFailureServesTheOldCopyAsStale() {
-    stubRecorded("9월 17일");
-    KoWikiPage first = client.fetch("9월 17일");
+    stubRecorded("July 17");
+    KoWikiPage first = client.fetch("July 17");
     expireCache();
     wikimedia.resetAll();
     wikimedia.stubFor(get(urlPathEqualTo(KOWIKI_PATH)).willReturn(aResponse().withStatus(503)));
 
-    KoWikiPage stale = client.fetch("9월 17일");
+    KoWikiPage stale = client.fetch("July 17");
 
     assertThat(requestCount()).as("asked again: first try + one retry").isEqualTo(2);
     assertThat(stale.state()).isEqualTo(State.STALE);
     assertThat(stale).usingRecursiveComparison().ignoringFields("state").isEqualTo(first);
-    assertThat(fetchedAt(rows("9월 17일").getFirst())).isEqualTo(first.fetchedAt());
+    assertThat(fetchedAt(rows("July 17").getFirst())).isEqualTo(first.fetchedAt());
   }
 
   @Test
   void ratelimitedAfterTheTtlAlsoServesTheOldCopyAsStale() {
-    stubRecorded("1988년");
-    KoWikiPage first = client.fetch("1988년");
+    stubRecorded("1976");
+    KoWikiPage first = client.fetch("1976");
     expireCache();
     wikimedia.resetAll();
     wikimedia.stubFor(
         get(urlPathEqualTo(KOWIKI_PATH))
             .willReturn(okJson(read("synthetic/synthetic-ratelimited.json"))));
 
-    KoWikiPage stale = client.fetch("1988년");
+    KoWikiPage stale = client.fetch("1976");
 
     assertThat(requestCount()).isEqualTo(1);
     assertThat(stale.state()).isEqualTo(State.STALE);
@@ -149,19 +138,19 @@ class CachingKoWikiClientTest extends WikimediaWireMockTest {
 
   @Test
   void expiredCacheWithANewRevisionIsReplaced() {
-    stubPage("2월 29일", LEAP_PREFIX);
-    KoWikiPage first = client.fetch("2월 29일");
+    stubPage("February 29", LEAP_PREFIX);
+    KoWikiPage first = client.fetch("February 29");
     expireCache();
     wikimedia.resetAll();
-    stubPage("2월 29일", NEXT_PREFIX);
+    stubPage("February 29", NEXT_PREFIX);
 
-    KoWikiPage next = client.fetch("2월 29일");
+    KoWikiPage next = client.fetch("February 29");
 
     assertThat(first.revision()).isEqualTo(100L);
     assertThat(next.state()).isEqualTo(State.FRESH);
     assertThat(next.revision()).isEqualTo(101L);
     assertThat(next.fetchedAt()).isEqualTo(clock.instant()).isAfter(first.fetchedAt());
-    assertThat(rows("2월 29일"))
+    assertThat(rows("February 29"))
         .singleElement()
         .satisfies(
             row -> {
@@ -169,7 +158,7 @@ class CachingKoWikiClientTest extends WikimediaWireMockTest {
               assertThat(row)
                   .containsEntry("events_wikitext", wikitext(NEXT_PREFIX + "-events.json"));
               assertThat(row.get("culture_wikitext"))
-                  .as("section gone in the new revision")
+                  .as("no culture section on English Wikipedia")
                   .isNull();
               assertThat(fetchedAt(row)).isEqualTo(next.fetchedAt());
             });
@@ -179,15 +168,15 @@ class CachingKoWikiClientTest extends WikimediaWireMockTest {
   void failureWithoutACacheIsUnavailableAndStoresNothing() {
     wikimedia.stubFor(get(urlPathEqualTo(KOWIKI_PATH)).willReturn(aResponse().withStatus(503)));
 
-    KoWikiPage page = client.fetch("9월 17일");
+    KoWikiPage page = client.fetch("July 17");
 
-    assertThat(page).isEqualTo(KoWikiPage.unavailable("9월 17일"));
-    assertThat(rows("9월 17일")).isEmpty();
+    assertThat(page).isEqualTo(KoWikiPage.unavailable("July 17"));
+    assertThat(rows("July 17")).isEmpty();
   }
 
   @Test
   void tableHoldsOnlyTheEventsAndCultureSectionsAndNothingAboutTheRequester() {
-    for (String title : KoWikiFixtureReadme.DEMO_PAGES.keySet()) {
+    for (String title : EnWikiPages.RECORDED.keySet()) {
       stubRecorded(title);
       client.fetch(title);
     }
@@ -207,17 +196,16 @@ class CachingKoWikiClientTest extends WikimediaWireMockTest {
             "culture_wikitext",
             "fetched_at");
     List<Map<String, Object>> rows = jdbc.queryForList("SELECT * FROM wiki_section_cache");
-    assertThat(rows).hasSize(6);
+    assertThat(rows).hasSize(EnWikiPages.RECORDED.size()).hasSize(10);
     for (Map<String, Object> row : rows) {
-      String prefix = KoWikiFixtureReadme.DEMO_PAGES.get((String) row.get("page_title"));
+      String prefix = EnWikiPages.RECORDED.get((String) row.get("page_title"));
+      assertThat(row).containsEntry("site", SITE);
       assertThat(row).containsEntry("events_wikitext", wikitext(prefix + "-events.json"));
-      assertThat(row).containsEntry("culture_wikitext", wikitext(prefix + "-culture.json"));
+      assertThat(row.get("culture_wikitext")).isNull();
       assertThat((String) row.get("events_wikitext"))
-          .startsWith("== 사건 ==")
-          .doesNotContainPattern("==\\s*(탄생|사망|기념일)\\s*==");
-      assertThat((String) row.get("culture_wikitext"))
-          .startsWith("== 문화 ==")
-          .doesNotContainPattern("==\\s*(탄생|사망|기념일)\\s*==");
+          .startsWith("==Events==")
+          .doesNotContainPattern("(?m)^==[^=].*==\\s*$(?s).*^==[^=]")
+          .doesNotContainPattern("==\\s*(Births|Deaths|Holidays and observances)\\s*==");
     }
   }
 
@@ -225,15 +213,16 @@ class CachingKoWikiClientTest extends WikimediaWireMockTest {
   void savingTheSameTitleTwiceKeepsOneRow() {
     Instant now = clock.instant();
 
-    repository.upsert(SITE, "9월 17일", 1L, "== 사건 ==", null, now);
-    repository.upsert(SITE, "9월 17일", 2L, "== 사건 ==\n* 시험", "== 문화 ==", now.plusSeconds(1));
+    repository.upsert(SITE, "July 17", 1L, "==Events==", "==Culture==", now);
+    repository.upsert(SITE, "July 17", 2L, "==Events==\n* Test event A", null, now.plusSeconds(1));
 
-    assertThat(rows("9월 17일"))
+    assertThat(rows("July 17"))
         .singleElement()
         .satisfies(
             row -> {
               assertThat(row).containsEntry("revid", 2L);
-              assertThat(row).containsEntry("culture_wikitext", "== 문화 ==");
+              assertThat(row).containsEntry("events_wikitext", "==Events==\n* Test event A");
+              assertThat(row.get("culture_wikitext")).as("overwritten with null").isNull();
               assertThat(fetchedAt(row)).isEqualTo(now.plusSeconds(1));
             });
   }
@@ -242,8 +231,8 @@ class CachingKoWikiClientTest extends WikimediaWireMockTest {
   void sameTitleOnAnotherSiteIsAnotherRow() {
     Instant now = clock.instant();
 
-    repository.upsert(SITE, "9월 17일", 1L, null, null, now);
-    repository.upsert("other.example.test", "9월 17일", 1L, null, null, now);
+    repository.upsert(SITE, "July 17", 1L, null, null, now);
+    repository.upsert("other.example.test", "July 17", 1L, null, null, now);
 
     assertThat(jdbc.queryForObject("SELECT count(*) FROM wiki_section_cache", Long.class))
         .isEqualTo(2L);
@@ -255,65 +244,74 @@ class CachingKoWikiClientTest extends WikimediaWireMockTest {
         get(urlPathEqualTo(KOWIKI_PATH))
             .willReturn(okJson(read("synthetic/synthetic-missingtitle.json"))));
 
-    assertThat(client.fetch("2월 30일").state()).isEqualTo(State.ABSENT);
-    assertThat(rows("2월 30일")).isEmpty();
-    assertThat(client.fetch("2월 30일").state()).isEqualTo(State.ABSENT);
+    assertThat(client.fetch("February 30").state()).isEqualTo(State.ABSENT);
+    assertThat(rows("February 30")).isEmpty();
+    assertThat(client.fetch("February 30").state()).isEqualTo(State.ABSENT);
     assertThat(requestCount()).as("asked again on the next read").isEqualTo(2);
   }
 
   @Test
-  void demoSeoulOlympicsPagesAreCachedAndStillParseToTheOpening() {
-    LocalDate day = LocalDate.of(1988, 9, 17);
-    stubRecorded("9월 17일");
-    stubRecorded("1988년");
+  void demoMontrealOlympicsPagesAreCachedAndStillParseToTheOpening() {
+    LocalDate day = LocalDate.of(1976, 7, 17);
+    stubRecorded("July 17");
+    stubRecorded("1976");
 
-    assertThat(client.fetch("9월 17일").state()).isEqualTo(State.FRESH);
-    assertThat(client.fetch("1988년").state()).isEqualTo(State.FRESH);
+    assertThat(client.fetch("July 17").state()).isEqualTo(State.FRESH);
+    assertThat(client.fetch("1976").state()).isEqualTo(State.FRESH);
     int requests = requestCount();
-    KoWikiPage datePage = client.fetch("9월 17일");
-    KoWikiPage yearPage = client.fetch("1988년");
+    KoWikiPage datePage = client.fetch("July 17");
+    KoWikiPage yearPage = client.fetch("1976");
 
     assertThat(datePage.state()).isEqualTo(State.CACHED);
     assertThat(yearPage.state()).isEqualTo(State.CACHED);
-    assertThat(requestCount()).isEqualTo(requests).isEqualTo(6);
+    assertThat(requestCount()).isEqualTo(requests).isEqualTo(4);
     assertThat(parser.parse(datePage.eventsWikitext(), DATE, day).events())
         .extracting(ParsedEvent::text)
-        .containsExactly("제24회 서울 하계 올림픽 개막.");
+        .containsExactly(
+            "East Timor is annexed and becomes the 27th province of Indonesia.",
+            "The opening of the Summer Olympics in Montreal is marred by 25 African teams"
+                + " boycotting the games because of New Zealand's participation. Contrary to"
+                + " rulings by other international sports organizations, the IOC had declined to"
+                + " exclude New Zealand because of their participation in South African sporting"
+                + " events during apartheid.");
     assertThat(parser.parse(yearPage.eventsWikitext(), YEAR, day).events())
         .extracting(ParsedEvent::text)
-        .containsExactly("1988 제24회 서울 올림픽이 개막하였다.");
+        .containsExactly(
+            "The 1976 Summer Olympics begin in Montreal, Quebec, Canada.",
+            "East Timor is declared the 27th province of Indonesia.");
   }
 
   @Test
   void demoQuarterFinalLineSurvivesTheCacheAndTheHtmlRule() {
-    stubRecorded("6월 22일");
-    client.fetch("6월 22일");
+    stubRecorded("June 22");
+    client.fetch("June 22");
 
-    KoWikiPage cached = client.fetch("6월 22일");
+    KoWikiPage cached = client.fetch("June 22");
 
     assertThat(cached.state()).isEqualTo(State.CACHED);
-    assertThat(parser.parse(cached.cultureWikitext(), DATE, LocalDate.of(2002, 6, 22)).events())
+    assertThat(cached.cultureWikitext()).isNull();
+    assertThat(parser.parse(cached.eventsWikitext(), DATE, LocalDate.of(2002, 6, 22)).events())
         .singleElement()
-        .satisfies(event -> assertThat(event.text()).contains("스페인"));
+        .satisfies(event -> assertThat(event.text()).contains("quarter-final A"));
   }
 
   @Test
   void demoEmptyDayPagesAreStoredAndGiveNoEvents() {
     LocalDate day = LocalDate.of(1995, 3, 15);
-    stubRecorded("3월 15일");
-    stubRecorded("1995년");
+    stubRecorded("March 15");
+    stubPage("1995", "synthetic/synthetic-1995");
 
-    KoWikiPage datePage = client.fetch("3월 15일");
-    KoWikiPage yearPage = client.fetch("1995년");
+    KoWikiPage datePage = client.fetch("March 15");
+    KoWikiPage yearPage = client.fetch("1995");
 
-    assertThat(rows("3월 15일")).hasSize(1);
-    assertThat(rows("1995년")).hasSize(1);
+    assertThat(rows("March 15")).hasSize(1);
+    assertThat(rows("1995")).hasSize(1);
     assertThat(datePage.state()).isEqualTo(State.FRESH);
     assertThat(yearPage.state()).isEqualTo(State.FRESH);
     assertThat(parser.parse(datePage.eventsWikitext(), DATE, day).events()).isEmpty();
-    assertThat(parser.parse(datePage.cultureWikitext(), DATE, day).events()).isEmpty();
+    assertThat(datePage.cultureWikitext()).isNull();
     assertThat(parser.parse(yearPage.eventsWikitext(), YEAR, day).events()).isEmpty();
-    assertThat(parser.parse(yearPage.cultureWikitext(), YEAR, day).events()).isEmpty();
+    assertThat(yearPage.cultureWikitext()).isNull();
   }
 
   @Test
@@ -323,51 +321,51 @@ class CachingKoWikiClientTest extends WikimediaWireMockTest {
 
   @Test
   void ttlBoundaryIsExclusive() {
-    stubRecorded("9월 17일");
-    client.fetch("9월 17일");
+    stubRecorded("July 17");
+    client.fetch("July 17");
 
     clock.advance(properties.cacheTtl().minusNanos(1));
-    assertThat(client.fetch("9월 17일").state()).as("TTL - 1 ns").isEqualTo(State.CACHED);
-    assertThat(requestCount()).isEqualTo(3);
+    assertThat(client.fetch("July 17").state()).as("TTL - 1 ns").isEqualTo(State.CACHED);
+    assertThat(requestCount()).isEqualTo(2);
 
     clock.advance(Duration.ofNanos(1));
-    assertThat(client.fetch("9월 17일").state()).as("exactly TTL").isEqualTo(State.FRESH);
-    assertThat(requestCount()).isEqualTo(6);
+    assertThat(client.fetch("July 17").state()).as("exactly TTL").isEqualTo(State.FRESH);
+    assertThat(requestCount()).isEqualTo(4);
   }
 
   @Test
   void rowOfAPageThatIsNowMissingIsDeletedAndNeverServedAsStale() {
-    stubPage("2월 29일", LEAP_PREFIX);
-    client.fetch("2월 29일");
+    stubPage("February 29", LEAP_PREFIX);
+    client.fetch("February 29");
     expireCache();
     wikimedia.resetAll();
     wikimedia.stubFor(
         get(urlPathEqualTo(KOWIKI_PATH))
             .willReturn(okJson(read("synthetic/synthetic-missingtitle.json"))));
 
-    assertThat(client.fetch("2월 29일").state()).isEqualTo(State.ABSENT);
-    assertThat(rows("2월 29일")).isEmpty();
+    assertThat(client.fetch("February 29").state()).isEqualTo(State.ABSENT);
+    assertThat(rows("February 29")).isEmpty();
 
     wikimedia.resetAll();
     wikimedia.stubFor(get(urlPathEqualTo(KOWIKI_PATH)).willReturn(aResponse().withStatus(503)));
-    assertThat(client.fetch("2월 29일")).isEqualTo(KoWikiPage.unavailable("2월 29일"));
+    assertThat(client.fetch("February 29")).isEqualTo(KoWikiPage.unavailable("February 29"));
   }
 
   @Test
   void missingPageDeletesOnlyItsOwnRow() {
-    stubPage("2월 29일", LEAP_PREFIX);
-    stubRecorded("9월 17일");
-    client.fetch("2월 29일");
-    client.fetch("9월 17일");
+    stubPage("February 29", LEAP_PREFIX);
+    stubRecorded("July 17");
+    client.fetch("February 29");
+    client.fetch("July 17");
     expireCache();
     wikimedia.resetAll();
     wikimedia.stubFor(
         get(urlPathEqualTo(KOWIKI_PATH))
             .willReturn(okJson(read("synthetic/synthetic-missingtitle.json"))));
 
-    client.fetch("2월 29일");
+    client.fetch("February 29");
 
-    assertThat(rows("2월 29일")).isEmpty();
-    assertThat(rows("9월 17일")).hasSize(1);
+    assertThat(rows("February 29")).isEmpty();
+    assertThat(rows("July 17")).hasSize(1);
   }
 }

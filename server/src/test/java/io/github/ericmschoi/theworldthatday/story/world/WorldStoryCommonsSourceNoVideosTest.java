@@ -11,6 +11,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import io.github.ericmschoi.theworldthatday.event.wikidata.SparqlWikidataSignalSourceTest;
 import io.github.ericmschoi.theworldthatday.media.video.EventVideoSource;
 import io.github.ericmschoi.theworldthatday.media.video.VideoSearch;
+import io.github.ericmschoi.theworldthatday.wikimedia.WikiPageStubs;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaWireMockTest;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,7 +42,7 @@ import tools.jackson.databind.json.JsonMapper;
 class WorldStoryCommonsSourceNoVideosTest extends WikimediaWireMockTest {
 
   private static final JsonMapper JSON = JsonMapper.builder().build();
-  private static final String KOWIKI = "fixtures/wikimedia/kowiki/";
+  private static final String ENWIKI = "fixtures/wikimedia/enwiki/synthetic/";
   private static final String VIDEO = "fixtures/wikimedia/commons/video/";
 
   @Autowired private WebApplicationContext context;
@@ -69,23 +70,7 @@ class WorldStoryCommonsSourceNoVideosTest extends WikimediaWireMockTest {
   }
 
   private static void stubPage(String title, String prefix) {
-    JsonNode parse = JSON.readTree(read(KOWIKI + prefix + "-sections.json")).path("parse");
-    String revid = Long.toString(parse.path("revid").asLong());
-    wikimedia.stubFor(
-        WireMock.get(urlPathEqualTo(KOWIKI_PATH))
-            .withQueryParam("page", equalTo(title))
-            .willReturn(okJson(read(KOWIKI + prefix + "-sections.json"))));
-    for (JsonNode section : parse.path("sections")) {
-      String line = section.path("line").asString("");
-      String kind = line.equals("사건") ? "events" : line.equals("문화") ? "culture" : null;
-      if (kind != null && "2".equals(section.path("level").asString(""))) {
-        wikimedia.stubFor(
-            WireMock.get(urlPathEqualTo(KOWIKI_PATH))
-                .withQueryParam("oldid", equalTo(revid))
-                .withQueryParam("section", equalTo(section.path("index").asString()))
-                .willReturn(okJson(read(KOWIKI + prefix + "-" + kind + ".json"))));
-      }
-    }
+    WikiPageStubs.stubPage(wikimedia, title, prefix);
   }
 
   /**
@@ -115,12 +100,12 @@ class WorldStoryCommonsSourceNoVideosTest extends WikimediaWireMockTest {
 
   @Test
   void theDemoAnswerHasNoSelectionNoVideoAndNoLinkOnlyItem(CapturedOutput output) throws Exception {
-    stubPage("9월 17일", "09-17");
-    stubPage("1988년", "1988");
+    stubPage("September 17", "synthetic/synthetic-09-17");
+    stubPage("1988", "synthetic/synthetic-1988");
     wikimedia.stubFor(
         WireMock.get(urlPathEqualTo(KOWIKI_PATH))
             .withQueryParam("action", equalTo("query"))
-            .willReturn(okJson(read(KOWIKI + "pageprops-1988-09-17.json"))));
+            .willReturn(okJson(read(ENWIKI + "synthetic-pageprops-1988-09-17.json"))));
     wikimedia.stubFor(
         WireMock.get(urlPathEqualTo(SPARQL_PATH))
             .willReturn(okJson(SparqlWikidataSignalSourceTest.fixture("sparql-1988-09-17.json"))));

@@ -89,7 +89,7 @@ test.describe('1988-09-17 with media', () => {
     const root = page.locator('html')
     const eventSource = page
       .getByRole('list', { name: 'Events' })
-      .getByRole('link', { name: /“9월 17일”/ })
+      .getByRole('link', { name: /“September 17”/ })
       .first()
 
     expect(await css(root, 'backgroundColor')).toBe(

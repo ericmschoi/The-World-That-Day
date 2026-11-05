@@ -12,6 +12,7 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import io.github.ericmschoi.theworldthatday.event.wikidata.SparqlWikidataSignalSourceTest;
 import io.github.ericmschoi.theworldthatday.media.MediaLookupProperties;
 import io.github.ericmschoi.theworldthatday.wikimedia.CommonsProperties;
+import io.github.ericmschoi.theworldthatday.wikimedia.WikiPageStubs;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikidataProperties;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaWireMockTest;
 import java.io.IOException;
@@ -38,6 +39,7 @@ import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.StandardEnvironment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -51,6 +53,11 @@ import tools.jackson.databind.json.JsonMapper;
  * and the world section's worst time when Wikipedia, Wikidata and Commons are all slow (T3 (7)).
  * Recorded Commons fixtures and synthetic pages only; no network.
  */
+// The worst time tests keep Wikidata silent, so every event without a curated tone is tragic by
+// default and the day photos are not looked up. A synthetic curation keeps the 1988-09-17 lines
+// normal, as the Korean repository curation did before S3a (T5 rewrites that file).
+@TestPropertySource(
+    properties = "app.data-dir=src/test/resources/fixtures/curation/synthetic-1988-09-17")
 @ExtendWith(OutputCaptureExtension.class)
 class WorldStoryDayMediaAcceptanceTest extends WikimediaWireMockTest {
 
@@ -87,36 +94,17 @@ class WorldStoryDayMediaAcceptanceTest extends WikimediaWireMockTest {
   }
 
   /**
-   * Section list by title, then the level-2 사건 and 문화 sections by revid and index, each answer
-   * after {@code delayMs}.
+   * Parse by title, then the Events section by revid and index, each answer after {@code delayMs}.
    */
   private static void stubPage(String title, String prefix, int delayMs) {
-    String kowiki = "wikimedia/kowiki/";
-    JsonNode parse = JSON.readTree(read(kowiki + prefix + "-sections.json")).path("parse");
-    String revid = Long.toString(parse.path("revid").asLong());
-    wikimedia.stubFor(
-        WireMock.get(urlPathEqualTo(KOWIKI_PATH))
-            .withQueryParam("page", equalTo(title))
-            .willReturn(okJson(read(kowiki + prefix + "-sections.json")).withFixedDelay(delayMs)));
-    for (JsonNode section : parse.path("sections")) {
-      String line = section.path("line").asString("");
-      String kind = line.equals("사건") ? "events" : line.equals("문화") ? "culture" : null;
-      if (kind != null && "2".equals(section.path("level").asString(""))) {
-        wikimedia.stubFor(
-            WireMock.get(urlPathEqualTo(KOWIKI_PATH))
-                .withQueryParam("oldid", equalTo(revid))
-                .withQueryParam("section", equalTo(section.path("index").asString()))
-                .willReturn(
-                    okJson(read(kowiki + prefix + "-" + kind + ".json")).withFixedDelay(delayMs)));
-      }
-    }
+    WikiPageStubs.stubPage(wikimedia, title, prefix, delayMs);
   }
 
   private static void stubPageprops(String file) {
     wikimedia.stubFor(
         WireMock.get(urlPathEqualTo(KOWIKI_PATH))
             .withQueryParam("action", equalTo("query"))
-            .willReturn(okJson(read("wikimedia/kowiki/" + file))));
+            .willReturn(okJson(read("wikimedia/enwiki/synthetic/synthetic-" + file))));
   }
 
   private static void stubSparql(String file, int delayMs) {
@@ -133,16 +121,16 @@ class WorldStoryDayMediaAcceptanceTest extends WikimediaWireMockTest {
   }
 
   private static void stubOpeningDay() {
-    stubPage("9월 17일", "09-17", 0);
-    stubPage("1988년", "1988", 0);
+    stubPage("September 17", "synthetic/synthetic-09-17", 0);
+    stubPage("1988", "synthetic/synthetic-1988", 0);
     stubPageprops("pageprops-1988-09-17.json");
     stubSparql("sparql-1988-09-17.json", 0);
     stubCommons(read("wikimedia/commons/day-category-1988-09-17.json"), 0);
   }
 
   private static void stubQuarterFinalDay() {
-    stubPage("6월 22일", "06-22", 0);
-    stubPage("2002년", "2002", 0);
+    stubPage("June 22", "synthetic/synthetic-06-22", 0);
+    stubPage("2002", "synthetic/synthetic-2002", 0);
     stubPageprops("pageprops-2002-06-22.json");
     stubSparql("sparql-2002-06-22.json", 0);
     stubCommons(read("wikimedia/commons/day-category-2002-06-22.json"), 0);
@@ -230,8 +218,8 @@ class WorldStoryDayMediaAcceptanceTest extends WikimediaWireMockTest {
         .isEqualTo("http://www.kogl.or.kr/info/licenseType1.do");
 
     wikimedia.resetAll();
-    stubPage("3월 15일", "03-15", 0);
-    stubPage("1995년", "1995", 0);
+    stubPage("March 15", "synthetic/synthetic-03-15", 0);
+    stubPage("1995", "synthetic/synthetic-1995", 0);
     stubCommons(read("wikimedia/commons/day-category-1995-03-15.json"), 0);
     JsonNode noEvents = ok("1995-03-15");
 
@@ -353,8 +341,8 @@ class WorldStoryDayMediaAcceptanceTest extends WikimediaWireMockTest {
       assertThat(ok("2002-06-22").path("day_media").size()).isEqualTo(1);
 
       wikimedia.resetAll();
-      stubPage("3월 15일", "03-15", 0);
-      stubPage("1995년", "1995", 0);
+      stubPage("March 15", "synthetic/synthetic-03-15", 0);
+      stubPage("1995", "synthetic/synthetic-1995", 0);
       stubCommons(SYNTHETIC_CATEGORY, 0);
       JsonNode noEvents = ok("1995-03-15");
       assertThat(noEvents.path("day_media").findValuesAsString("id"))
@@ -373,7 +361,7 @@ class WorldStoryDayMediaAcceptanceTest extends WikimediaWireMockTest {
         .doesNotContain("Olympics opening ceremony", "월드컵-대한민국")
         .doesNotContain("Ken Hackman", "Jose Quinaliza", "문덕관", "Comitetul")
         .doesNotContain("Synthetic Mapper", "Synthetic Shooter", "Synthetic Keeper", "Synthetic 1")
-        .doesNotContain("kowiki-19", "kowiki-20");
+        .doesNotContain("enwiki-19", "enwiki-20");
     List<String> appMessages =
         logs.lines()
             .filter(line -> line.contains("i.g.e.") || line.contains("io.github.ericmschoi"))
@@ -395,8 +383,8 @@ class WorldStoryDayMediaAcceptanceTest extends WikimediaWireMockTest {
    */
   @Test
   void worldSectionWorstTimeWithEverySourceSlow() throws Exception {
-    stubPage("9월 17일", "09-17", 0);
-    stubPage("1988년", "1988", 1_200);
+    stubPage("September 17", "synthetic/synthetic-09-17", 0);
+    stubPage("1988", "synthetic/synthetic-1988", 1_200);
     stubPageprops("pageprops-1988-09-17.json");
     stubSparql("sparql-1988-09-17.json", 12_000);
     stubCommons(read("wikimedia/commons/day-category-1988-09-17.json"), 12_000);

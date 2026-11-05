@@ -61,10 +61,10 @@ class WorldStoryYoutubeSampleDatesTest extends YoutubeWorldTest {
   @Test
   void theOlympicsDayAttachesNoNewsreelOrRehearsalAndCachesTheAnswer() throws Exception {
     stubDay(
-        "9월 17일",
-        "1988년",
+        "September 17",
+        "1988",
         600,
-        List.of("* [[1988년]] - 서울에서 [[1988년 하계 올림픽|제24회 올림픽]]이 개막했다."),
+        List.of("*[[1988]] &ndash; 서울에서 [[1988년 하계 올림픽|제24회 올림픽]]이 개막했다."),
         new Link("1988년 하계 올림픽", "Q9101", false));
     ObjectNode notEmbeddable = titled("Abc123xyz_3", "대한뉴스 제 1715호-서울 올림픽 개막", "제작일: 1988-09-17");
     ((ObjectNode) notEmbeddable.path("status")).put("embeddable", false);
@@ -91,10 +91,10 @@ class WorldStoryYoutubeSampleDatesTest extends YoutubeWorldTest {
   @Test
   void theMoonLandingDayAttachesNeitherTheLaunchNorTheAnniversary() throws Exception {
     stubDay(
-        "7월 20일",
-        "1969년",
+        "July 20",
+        "1969",
         700,
-        List.of("* [[1969년]] - [[아폴로 11호]]가 달에 착륙했다."),
+        List.of("*[[1969]] &ndash; [[아폴로 11호]]가 달에 착륙했다."),
         new Link("아폴로 11호", "Q9102", false));
     stubSearch(okJson(searchOf(CLIP, "Abc123xyz_2")));
     stubVideos(
@@ -115,10 +115,10 @@ class WorldStoryYoutubeSampleDatesTest extends YoutubeWorldTest {
   @Test
   void theLeapDayAttachesAVideoWithoutAnEventWordToNothing() throws Exception {
     stubDay(
-        "2월 29일",
-        "2000년",
+        "February 29",
+        "2000",
         800,
-        List.of("* [[2000년]] - [[2000년 시험 행사|시험 행사]]가 열렸다."),
+        List.of("*[[2000]] &ndash; [[2000년 시험 행사|시험 행사]]가 열렸다."),
         new Link("2000년 시험 행사", "Q9103", false));
     stubSearch(okJson(searchOf(CLIP)));
     stubVideos(okJson(videosOf(titled(CLIP, "서울 지하철 2호선 개통", "시험용 설명"))));
@@ -135,10 +135,10 @@ class WorldStoryYoutubeSampleDatesTest extends YoutubeWorldTest {
   @Test
   void theWarDayAsksNothingOnTheSecondCallEither() throws Exception {
     stubDay(
-        "6월 25일",
-        "1950년",
+        "June 25",
+        "1950",
         400,
-        List.of("* [[1950년]] - [[시험 전쟁 문서|시험 전쟁]]이 일어났다."),
+        List.of("*[[1950]] &ndash; [[시험 전쟁 문서|시험 전쟁]]이 일어났다."),
         new Link("시험 전쟁 문서", "Q9003", true));
 
     JsonNode first = world("1950-06-25");
@@ -148,10 +148,10 @@ class WorldStoryYoutubeSampleDatesTest extends YoutubeWorldTest {
   @Test
   void theFerryDayAsksNothingOnTheSecondCallEither() throws Exception {
     stubDay(
-        "4월 16일",
-        "2014년",
+        "April 16",
+        "2014",
         500,
-        List.of("* [[2014년]] - [[시험 사고 문서|시험 사고]]가 일어났다."),
+        List.of("*[[2014]] &ndash; [[시험 사고 문서|시험 사고]]가 일어났다."),
         new Link("시험 사고 문서", "Q9004", true));
 
     JsonNode first = world("2014-04-16");
@@ -160,8 +160,8 @@ class WorldStoryYoutubeSampleDatesTest extends YoutubeWorldTest {
 
   @Test
   void theDayWithoutEventsAsksNothingOnTheSecondCallEither() throws Exception {
-    WorldStoryCommonsVideoTest.stubPage("3월 15일", "03-15");
-    WorldStoryCommonsVideoTest.stubPage("1995년", "1995");
+    WorldStoryCommonsVideoTest.stubPage("March 15", "synthetic/synthetic-03-15");
+    WorldStoryCommonsVideoTest.stubPage("1995", "synthetic/synthetic-1995");
 
     JsonNode first = world("1995-03-15");
 

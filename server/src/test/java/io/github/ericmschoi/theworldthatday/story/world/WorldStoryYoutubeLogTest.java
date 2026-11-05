@@ -126,7 +126,7 @@ class WorldStoryYoutubeLogTest extends YoutubeWorldTest {
             GAMES,
             "아시안",
             "1986-09-20",
-            "1986년",
+            "1986",
             "KTV",
             "x-goog-api-key",
             "key=");

@@ -371,3 +371,19 @@
 | 2026-10-29 | orchestrator | C1 S1 PR | PR #31 열림 | dd3a9c2 |
 | 2026-10-29 | PM | Canada 리서치 | PR #30 머지 | bea33b1 |
 | 2026-11-04 | frontend-dev | C1 S1 T3 시행일 (머지 날) | 완료, November 4, 2026, 웹 751·e2e 118 통과 (직전 실행 e2e 2건 시간 초과는 흔들림으로 봄) | 3fe26a6 |
+| 2026-10-29 | backend-dev | C1 S3a T1 영어 위키백과 녹화 fixture | 완료, JSON 38개 408KB + README, 무결성 시험 9개, check 2253 통과 | 90101ec |
+| 2026-10-29 | backend-dev | C1 S3a T2 문서 읽기 영어 | 막힘, T2만 바꾸면 기존 시험 164개 실패(T3·T4 필요), 커밋 없음, PM 결정 필요(1 묶기 추천) | - |
+| 2026-10-29 | PM | S3a T2 막힘 결정: 1 (T2·T3·T4 한 작업으로 묶기) | 결정 | 6751af8 |
+| 2026-10-29 | backend-dev | C1 S3a T2-T4 묶음 | 막힘, T4 (3) 멈춤 조건 (1976 개막 0.33·1969 달 착륙 0.5로 병합 안 됨), 커밋 없음, 확인점 2 초과 알림 (+778, 코드만 약 277), PM 결정 필요 | - |
+| 2026-10-29 | PM | S3a 병합 규칙: 1 주 링크 규칙 D3m (문서 사이 짝만, 0.6 유지, synthetic-one-link 기대값 변경 승인) | 결정 | b5ffb64 |
+| 2026-11-05 | backend-dev | C1 S3a T2~T4 영어 위키백과 날짜·연도 문서, 범위 줄, D3m, 영어 tone, Q16, D7 그날 미디어 끔(check 2305 통과, 데모 6개 일치) | 완료 | f8a27f9 |
+| 2026-11-05 | orchestrator | PM 위임 (추천안): D3m에 장소 검사 유지 · 최악 시간 시험의 시험 전용 큐레이션 유지 | 결정 | 76b4b05 |
+| 2026-11-05 | orchestrator | C1 S3a main merge(S1), 서버 check 통과 | 완료 | 4ac53eb |
+| 2026-11-05 | content-curator | C1 S3a T5 한국 tone 4개 삭제, 1980 쿠데타 tragic·테리 폭스 domestic(시험 4개가 옛 값 기대로 실패) | 막힘 | 2e55ab0 |
+| 2026-11-05 | orchestrator | PM 위임 (추천안): 시험 4개 기대값은 backend-dev · 동티모르 normal 유지 · 1976 기대표 3건으로 | 결정 | d7aec0b |
+| 2026-11-05 | backend-dev | C1 S3a T5 시험 4개 기대값을 캐나다 큐레이션으로(check 2318 통과) | 완료 | 8fca4b2 |
+| 2026-11-05 | frontend-dev | C1 S3a T6 "Started that day — ran until X", 영어 사건 타입, 합성 영어 fixture, 방침 출처 English Wikipedia(웹 759·e2e 118 통과) | 완료 | 3b070d9 |
+| 2026-11-05 | test-engineer | C1 S3a T7 검증(데모 표 응답 시험 추가, 서버 2324·웹 759·e2e 118, check 2회·마감/DB 3회) | 완료 | 9e56382 |
+| 2026-11-05 | code-reviewer | C1 S3a 리뷰 승인(필수 없음, 권장 6: 범위 끝 다음 해 규칙, D3m 절 범위(S3b), 합친 무리 키워드(S3b), 영어 키워드 보강, 대시만 있는 머리줄, 녹화 사진 데모 시험) | 승인 | 9e56382 |
+| 2026-11-05 | orchestrator | PM 위임 (추천안): 권장 1·4·5는 S3a에서 backend-dev가 고침 · 2·3은 S3b 계획 T4에 넣음 · 6은 S3c 시험으로 | 결정 | 1da46c6 |
+| 2026-11-05 | backend-dev | C1 S3a 리뷰 권장 1·4·5(범위 끝 다음 해 규칙, 대시 머리줄, 영어 키워드 24개, check 2335 통과) | 완료 | 39127d0 |

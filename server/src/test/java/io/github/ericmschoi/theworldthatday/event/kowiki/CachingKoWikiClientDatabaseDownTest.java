@@ -1,7 +1,6 @@
 package io.github.ericmschoi.theworldthatday.event.kowiki;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
@@ -10,6 +9,7 @@ import static io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiFixtures.w
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiPage.State;
+import io.github.ericmschoi.theworldthatday.wikimedia.WikiPageStubs;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaWireMockTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,18 +35,7 @@ class CachingKoWikiClientDatabaseDownTest extends WikimediaWireMockTest {
   @Autowired private PostgreSQLContainer postgres;
 
   private static void stubYearPage() {
-    wikimedia.stubFor(
-        get(urlPathEqualTo(KOWIKI_PATH))
-            .withQueryParam("page", equalTo("1988년"))
-            .willReturn(okJson(read("1988-sections.json"))));
-    wikimedia.stubFor(
-        get(urlPathEqualTo(KOWIKI_PATH))
-            .withQueryParam("section", equalTo("1"))
-            .willReturn(okJson(read("1988-events.json"))));
-    wikimedia.stubFor(
-        get(urlPathEqualTo(KOWIKI_PATH))
-            .withQueryParam("section", equalTo("2"))
-            .willReturn(okJson(read("1988-culture.json"))));
+    WikiPageStubs.stubPage(wikimedia, "1988", "1988");
   }
 
   @Test
@@ -54,25 +43,25 @@ class CachingKoWikiClientDatabaseDownTest extends WikimediaWireMockTest {
     postgres.stop();
 
     stubYearPage();
-    KoWikiPage fresh = client.fetch("1988년");
+    KoWikiPage fresh = client.fetch("1988");
 
     assertThat(fresh.state()).isEqualTo(State.FRESH);
-    assertThat(fresh.revision()).isEqualTo(42640701L);
+    assertThat(fresh.revision()).isEqualTo(1382686554L);
     assertThat(fresh.eventsWikitext()).isEqualTo(wikitext("1988-events.json"));
     assertThat(fresh.fetchedAt()).isEqualTo(clock.instant());
     assertThat(output.getAll())
-        .contains("Wiki section cache read failed: title=1988년")
+        .contains("Wiki section cache read failed: title=1988")
         .as("T4: no write after a failed read")
         .doesNotContain("Wiki section cache write failed");
 
     wikimedia.resetAll();
     wikimedia.stubFor(get(urlPathEqualTo(KOWIKI_PATH)).willReturn(aResponse().withStatus(404)));
-    assertThat(client.fetch("9월 17일").state()).isEqualTo(State.UNAVAILABLE);
+    assertThat(client.fetch("July 17").state()).isEqualTo(State.UNAVAILABLE);
 
     wikimedia.resetAll();
     wikimedia.stubFor(
         get(urlPathEqualTo(KOWIKI_PATH))
             .willReturn(okJson(read("synthetic/synthetic-missingtitle.json"))));
-    assertThat(client.fetch("2월 30일").state()).isEqualTo(State.ABSENT);
+    assertThat(client.fetch("February 30").state()).isEqualTo(State.ABSENT);
   }
 }

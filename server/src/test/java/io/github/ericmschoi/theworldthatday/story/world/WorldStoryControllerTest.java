@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import io.github.ericmschoi.theworldthatday.config.ClockConfig;
+import io.github.ericmschoi.theworldthatday.event.kowiki.DateKind;
 import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiDayResult;
 import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiDocStatus;
 import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiEvent;
@@ -115,7 +116,7 @@ class WorldStoryControllerTest {
     return new KoWikiDayResult(
         LEAP_DAY,
         events,
-        List.of(doc("2월 29일", datePage), doc("2000년", yearPage)),
+        List.of(doc("February 29", datePage), doc("2000", yearPage)),
         0,
         0,
         linksFailed);
@@ -123,11 +124,11 @@ class WorldStoryControllerTest {
 
   private static KoWikiEvent event(String page, String section, String text, String link) {
     return new KoWikiEvent(
-        "kowiki-2000-02-29-" + String.format("%08x", text.hashCode()),
+        "enwiki-2000-02-29-" + String.format("%08x", text.hashCode()),
         LEAP_DAY,
         page,
         section,
-        page.equals("2월 29일") ? 100L : 200L,
+        page.equals("February 29") ? 100L : 200L,
         text,
         link == null ? List.of() : List.of(link),
         link == null ? null : "Q1",
@@ -236,8 +237,11 @@ class WorldStoryControllerTest {
     String logs = output.getAll();
     assertThat(logs.lines().filter(line -> line.contains(" WARN ")))
         .singleElement()
-        .satisfies(line -> assertThat(line).contains("source=kowiki", "UNAVAILABLE,UNAVAILABLE"));
-    assertThat(logs).doesNotContain("2000-02-29").doesNotContain("02-29").doesNotContain("2월 29일");
+        .satisfies(line -> assertThat(line).contains("source=enwiki", "UNAVAILABLE,UNAVAILABLE"));
+    assertThat(logs)
+        .doesNotContain("2000-02-29")
+        .doesNotContain("02-29")
+        .doesNotContain("February 29");
   }
 
   @ParameterizedTest(name = "date page {0}, year page {1} -> 200, partial")
@@ -249,7 +253,7 @@ class WorldStoryControllerTest {
   })
   void oneUnavailablePageWithAnyCopyOfTheOtherIsPartial(State datePage, State yearPage)
       throws Exception {
-    List<KoWikiEvent> events = List.of(event("2000년", "사건", "시험 사건 다.", "시험 문서 다"));
+    List<KoWikiEvent> events = List.of(event("2000", "Events", "Test event C.", "Test page C"));
     source.next.set(day(events, datePage, yearPage, false));
 
     world("?date=2000-02-29")
@@ -284,7 +288,7 @@ class WorldStoryControllerTest {
 
   @Test
   void failedLinkLookupIsPartial() throws Exception {
-    List<KoWikiEvent> events = List.of(event("2월 29일", "사건", "시험 사건 가.", null));
+    List<KoWikiEvent> events = List.of(event("February 29", "Events", "Test event A.", null));
     source.next.set(day(events, State.FRESH, State.CACHED, true));
 
     world("?date=2000-02-29")
@@ -297,23 +301,111 @@ class WorldStoryControllerTest {
   void everyEventIsPassedThroughWhateverItsPageOrSection() throws Exception {
     List<KoWikiEvent> events =
         List.of(
-            event("2월 29일", "문화", "시험 사건 나.", "시험 문서 나"),
-            event("2000년", "사건", "시험 사건 다", "시험 문서 다"),
-            event("2000년", "문화", "시험 채널에서 시험 항목 24개를 시험했다.", "시험 채널"));
+            event("February 29", "Events", "Test event B.", "Test page B"),
+            event("2000", "Events", "Test event C", "Test page C"),
+            event("2000", "Events", "Test channel A tests 24 test items.", "Test channel A"));
     source.next.set(day(events, State.FRESH, State.FRESH, false));
 
     world("?date=2000-02-29")
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.events.length()").value(events.size()))
-        .andExpect(jsonPath("$.events[0].source_title").value("2월 29일"))
-        .andExpect(jsonPath("$.events[0].source_section").value("문화"))
-        .andExpect(jsonPath("$.events[1].source_title").value("2000년"))
-        .andExpect(jsonPath("$.events[1].source_section").value("사건"))
-        .andExpect(jsonPath("$.events[1].summary").value("시험 사건 다"))
-        .andExpect(jsonPath("$.events[2].source_title").value("2000년"))
-        .andExpect(jsonPath("$.events[2].source_section").value("문화"))
-        .andExpect(jsonPath("$.events[2].summary").value("시험 채널에서 시험 항목 24개를 시험했다."))
+        .andExpect(jsonPath("$.events[0].source_title").value("February 29"))
+        .andExpect(jsonPath("$.events[0].source_section").value("Events"))
+        .andExpect(jsonPath("$.events[1].source_title").value("2000"))
+        .andExpect(jsonPath("$.events[1].source_section").value("Events"))
+        .andExpect(jsonPath("$.events[1].summary").value("Test event C"))
+        .andExpect(jsonPath("$.events[2].source_title").value("2000"))
+        .andExpect(jsonPath("$.events[2].source_section").value("Events"))
+        .andExpect(jsonPath("$.events[2].summary").value("Test channel A tests 24 test items."))
         .andExpect(jsonPath("$.notice").value(nullValue()))
         .andExpect(jsonPath("$.partial").value(false));
+  }
+
+  /**
+   * Plan C1 S3a T4 (1): the response contract with the 1988-02-13 Olympics event as the source
+   * gives it (EnWikiDemoDaysEventSourceTest), every key and value of the event.
+   */
+  @Test
+  void calgaryOlympicsEventHasTheEnglishContractWithItsRange() throws Exception {
+    LocalDate calgary = LocalDate.of(1988, 2, 13);
+    KoWikiEvent olympics =
+        new KoWikiEvent(
+            "enwiki-1988-02-13-d716c4f7",
+            calgary,
+            "1988",
+            "Events",
+            1382686554L,
+            "The 1988 Winter Olympics are held in Calgary, Alberta, Canada.",
+            List.of("1988 Winter Olympics", "Calgary", "Alberta"),
+            "Q9658",
+            Instant.parse("2026-10-30T04:05:06.789Z"),
+            DateKind.RANGE_START,
+            LocalDate.of(1988, 2, 28));
+    source.next.set(
+        new KoWikiDayResult(
+            calgary,
+            List.of(olympics),
+            List.of(
+                new KoWikiDocStatus("February 13", 1370674264L, READ, State.FRESH),
+                new KoWikiDocStatus("1988", 1382686554L, READ, State.FRESH)),
+            5,
+            0,
+            false));
+
+    world("?date=1988-02-13")
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.date").value("1988-02-13"))
+        .andExpect(jsonPath("$.events.length()").value(1))
+        .andExpect(jsonPath("$.events[0].length()").value(22))
+        .andExpect(jsonPath("$.events[0].id").value("enwiki-1988-02-13-d716c4f7"))
+        .andExpect(jsonPath("$.events[0].date").value("1988-02-13"))
+        .andExpect(jsonPath("$.events[0].date_kind").value("range_start"))
+        .andExpect(jsonPath("$.events[0].range_end").value("1988-02-28"))
+        .andExpect(jsonPath("$.events[0].scope").value("unknown"))
+        .andExpect(jsonPath("$.events[0].title").value("1988 Winter Olympics"))
+        .andExpect(
+            jsonPath("$.events[0].summary")
+                .value("The 1988 Winter Olympics are held in Calgary, Alberta, Canada."))
+        .andExpect(jsonPath("$.events[0].summary_lang").value("en"))
+        .andExpect(jsonPath("$.events[0].summary_modified").value(false))
+        .andExpect(jsonPath("$.events[0].text_license").value("CC BY-SA 4.0"))
+        .andExpect(
+            jsonPath("$.events[0].text_license_url")
+                .value("https://creativecommons.org/licenses/by-sa/4.0/deed.en"))
+        .andExpect(jsonPath("$.events[0].source_name").value("English Wikipedia"))
+        .andExpect(jsonPath("$.events[0].source_title").value("1988"))
+        .andExpect(jsonPath("$.events[0].source_url").value("https://en.wikipedia.org/wiki/1988"))
+        .andExpect(jsonPath("$.events[0].source_section").value("Events"))
+        .andExpect(jsonPath("$.events[0].source_revision").value(1382686554L))
+        .andExpect(jsonPath("$.events[0].wikidata_qid").value("Q9658"))
+        .andExpect(jsonPath("$.events[0].tone").value("tragic"))
+        .andExpect(jsonPath("$.events[0].tone_basis").value("default"))
+        .andExpect(jsonPath("$.events[0].related_links.length()").value(3))
+        .andExpect(jsonPath("$.events[0].related_links[0].title").value("1988 Winter Olympics"))
+        .andExpect(
+            jsonPath("$.events[0].related_links[0].url")
+                .value("https://en.wikipedia.org/wiki/1988_Winter_Olympics"))
+        .andExpect(
+            jsonPath("$.events[0].related_links[2].url")
+                .value("https://en.wikipedia.org/wiki/Alberta"))
+        .andExpect(jsonPath("$.events[0].media").isEmpty())
+        .andExpect(jsonPath("$.events[0].retrieved_at").value("2026-10-30T04:05:06Z"))
+        .andExpect(jsonPath("$.partial").value(false));
+  }
+
+  @Test
+  void dayEventsHaveDateKindDayAndNoRangeEnd() throws Exception {
+    source.next.set(
+        day(
+            List.of(event("February 29", "Events", "Test event A.", "Test page A")),
+            State.FRESH,
+            State.FRESH,
+            false));
+
+    world("?date=2000-02-29")
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.events[0].date_kind").value("day"))
+        .andExpect(jsonPath("$.events[0].range_end").value(nullValue()))
+        .andExpect(jsonPath("$.events[0].summary_lang").value("en"));
   }
 }

@@ -1,7 +1,8 @@
-// Plan C1 S1 T2 (3): the page is en-CA, but the server's event text is
-// Korean (`summary_lang: 'ko'`) until S3a. The text and the source page title
-// carry that language so screen readers read them right; the hidden new-tab
-// hint stays in the page language. Demo date 1988-09-17 (product brief 12).
+// Plan C1 S1 T2 (3): the page is en-CA and the event text carries the
+// server's `summary_lang`. Since S3a that is English Wikipedia (`en`). The
+// text and the source page title carry that language so screen readers read
+// them right; the hidden new-tab hint stays in the page language. Demo date
+// 1988-09-17 (product brief 12).
 import { render, screen, within } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
 import { describe, expect, it } from 'vitest'
@@ -13,8 +14,8 @@ import { WorldSection } from './WorldSection'
 const answer = (body: object) =>
   server.use(http.get('/api/story/world', () => HttpResponse.json(body)))
 
-describe('event text language (summary_lang ko)', () => {
-  it('marks every event sentence and source title link as ko', async () => {
+describe('event text language (summary_lang en)', () => {
+  it('marks every event sentence and source title link as en', async () => {
     answer(world1988)
     render(<WorldSection date="1988-09-17" />)
     const list = await screen.findByRole('list', { name: 'Events' })
@@ -24,12 +25,12 @@ describe('event text language (summary_lang ko)', () => {
       const item = items[index]
       expect(within(item).getByText(event.summary)).toHaveAttribute(
         'lang',
-        'ko',
+        'en',
       )
       const title = within(item).getByRole('link', {
         name: new RegExp(`^“${event.source_title}”`),
       })
-      expect(title).toHaveAttribute('lang', 'ko')
+      expect(title).toHaveAttribute('lang', 'en')
       expect(title.querySelector('.visually-hidden')).toHaveAttribute(
         'lang',
         'en-CA',
@@ -54,13 +55,13 @@ describe('event text language (summary_lang ko)', () => {
     )
     expect(within(block).getByText(tragic.summary)).toHaveAttribute(
       'lang',
-      'ko',
+      'en',
     )
     expect(
       within(block).getByRole('link', {
         name: new RegExp(`^“${tragic.source_title}”`),
       }),
-    ).toHaveAttribute('lang', 'ko')
+    ).toHaveAttribute('lang', 'en')
   })
 })
 

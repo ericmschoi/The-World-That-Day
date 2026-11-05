@@ -1,0 +1,6 @@
+==Events==
+*[[2000]] &ndash; {{flagicon|Test}} Test event I one.
+*[[2000]] &ndash; Test event I two.
+*[[2001]] &ndash; {{flagicon|Test}} Test event of another year.
+*[[2000]]
+**{{flagicon|Test}} Test event I three.

@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "date": "1988-09-17",
+      "primary_link": "1988 Summer Olympics",
+      "summary_contains": null,
+      "tone": "normal",
+      "hide": false,
+      "reason": "Synthetic test entry: the opening line of the synthetic September 17 and 1988 pages stays normal when Wikidata never answers.",
+      "evidence_url": "https://en.wikipedia.org/w/index.php?title=September_17&oldid=917",
+      "reviewed_at": "2026-11-05"
+    },
+    {
+      "date": "1988-09-17",
+      "primary_link": "KBS 1TV",
+      "summary_contains": null,
+      "tone": "normal",
+      "hide": false,
+      "reason": "Synthetic test entry: test broadcast A of the synthetic 1988 page.",
+      "evidence_url": "https://en.wikipedia.org/w/index.php?title=1988&oldid=1988",
+      "reviewed_at": "2026-11-05"
+    },
+    {
+      "date": "1988-09-17",
+      "primary_link": "KBS 2TV",
+      "summary_contains": null,
+      "tone": "normal",
+      "hide": false,
+      "reason": "Synthetic test entry: test broadcast B of the synthetic 1988 page.",
+      "evidence_url": "https://en.wikipedia.org/w/index.php?title=1988&oldid=1988",
+      "reviewed_at": "2026-11-05"
+    }
+  ]
+}

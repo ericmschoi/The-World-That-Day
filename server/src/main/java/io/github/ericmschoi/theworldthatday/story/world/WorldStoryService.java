@@ -53,7 +53,7 @@ public class WorldStoryService {
   public WorldStoryResponse find(LocalDate date) {
     KoWikiDayResult day = source.find(date);
     if (day.allUnavailable()) {
-      log.warn("World section unavailable: source=kowiki states={}", states(day.docs()));
+      log.warn("World section unavailable: source=enwiki states={}", states(day.docs()));
       throw new ApiProblem(
           HttpStatus.SERVICE_UNAVAILABLE,
           "UPSTREAM_UNAVAILABLE",
@@ -116,7 +116,7 @@ public class WorldStoryService {
   /** The photo place of an event: its scope as a {@code place_ref}. */
   private static String place(Scope scope) {
     return switch (scope) {
-      case DOMESTIC -> "country:KR";
+      case DOMESTIC -> "country:CA";
       case WORLD -> "world";
       case UNKNOWN -> "unknown";
     };

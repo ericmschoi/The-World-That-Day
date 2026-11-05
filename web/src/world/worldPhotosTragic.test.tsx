@@ -269,7 +269,7 @@ describe('tragic block (T1 (1), (3))', () => {
       expect(link).toHaveAttribute('rel', 'noopener noreferrer')
     }
     expect(links[0].closest('p')).toHaveTextContent(
-      `Source: 한국어 위키백과, “${event.source_title}”`,
+      `Source: English Wikipedia, “${event.source_title}”`,
     )
   })
 })

@@ -2,6 +2,7 @@ package io.github.ericmschoi.theworldthatday.event.tone;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 
 import io.github.ericmschoi.theworldthatday.config.AppProperties;
 import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiEvent;
@@ -76,20 +77,20 @@ class EventCurationTest {
   }
 
   @Test
-  void defaultDataDirHoldsTheFourDemoEntriesWithoutTakedowns() {
+  void defaultDataDirHoldsTheTwoCanadaDemoEntriesWithoutTakedowns() {
     EventCuration curation = load(Path.of("../data"));
 
-    assertThat(curation.entries()).hasSize(4);
+    assertThat(curation.entries()).hasSize(2);
     assertThat(curation.entries()).noneMatch(Entry::hide);
+    // the coup is tragic and keeps the scope of its P17; Terry Fox is normal and domestic
     assertThat(curation.entries())
-        .allSatisfy(
-            entry -> {
-              assertThat(entry.tone()).contains(Tone.NORMAL);
-              assertThat(entry.scope()).contains(Scope.DOMESTIC);
-            });
+        .extracting(Entry::tone, Entry::scope)
+        .containsExactly(
+            tuple(Optional.of(Tone.TRAGIC), Optional.empty()),
+            tuple(Optional.of(Tone.NORMAL), Optional.of(Scope.DOMESTIC)));
     assertThat(curation.entries())
         .extracting(entry -> entry.primaryLink().orElseThrow())
-        .containsExactly("1988년 하계 올림픽", "KBS 1TV", "KBS 2TV", "2002년 FIFA 월드컵");
+        .containsExactly("1980 Liberian coup d'état", "Terry Fox");
   }
 
   @Test

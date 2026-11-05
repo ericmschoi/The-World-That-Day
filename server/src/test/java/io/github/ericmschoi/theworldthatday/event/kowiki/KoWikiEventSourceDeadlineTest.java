@@ -27,8 +27,8 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 /**
  * Plan M3a1c T1 (4): one date never takes longer than {@code wikimedia.kowiki-day-deadline} (test
- * values: deadline 1 s, read timeout 300 ms), with stalls made by WireMock delays or by a page
- * client that blocks like a hung database.
+ * values: deadline 1 s, read timeout 300 ms) on the English demo day 1976-07-17, with stalls made
+ * by WireMock delays or by a page client that blocks like a hung database.
  */
 class KoWikiEventSourceDeadlineTest {
 
@@ -36,7 +36,7 @@ class KoWikiEventSourceDeadlineTest {
   static final WireMockExtension wikimedia =
       WireMockExtension.newInstance().options(wireMockConfig().dynamicPort()).build();
 
-  private static final LocalDate OPENING = LocalDate.of(1988, 9, 17);
+  private static final LocalDate OPENING = LocalDate.of(1976, 7, 17);
   private static final Duration DEADLINE = Duration.ofSeconds(1);
   private static final Duration READ_TIMEOUT = Duration.ofMillis(300);
   private static final Duration BOUND = Duration.ofMillis(1500);
@@ -73,8 +73,8 @@ class KoWikiEventSourceDeadlineTest {
     assertThat(result.allUnavailable()).isTrue();
     assertThat(params(wikimedia, "page"))
         .as("date page attempt and its retry only")
-        .containsOnly("9월 17일")
-        .doesNotContain("1988년");
+        .containsOnly("July 17")
+        .doesNotContain("1976");
   }
 
   @Test
@@ -87,16 +87,16 @@ class KoWikiEventSourceDeadlineTest {
 
     assertThat(elapsed.getFirst()).isLessThan(BOUND);
     assertThat(result.docs()).extracting(KoWikiDocStatus::state).containsOnly(State.UNAVAILABLE);
-    assertThat(params(wikimedia, "page")).doesNotContain("1988년");
+    assertThat(params(wikimedia, "page")).doesNotContain("1976");
   }
 
   @Test
   void stalledYearPageStillReturnsTheDatePageEvents() {
-    stubRecorded(wikimedia, "9월 17일");
-    stubPageprops(wikimedia, read("pageprops-1988-09-17.json"));
+    stubRecorded(wikimedia, "July 17");
+    stubPageprops(wikimedia, read("pageprops-1976-07-17.json"));
     wikimedia.stubFor(
         get(urlPathEqualTo(PATH))
-            .withQueryParam("page", equalTo("1988년"))
+            .withQueryParam("page", equalTo("1976"))
             .willReturn(ok().withFixedDelay(STALL_MILLIS)));
     KoWikiSourceFixture parts = new KoWikiSourceFixture(wikimedia, READ_TIMEOUT, DEADLINE);
     List<Duration> elapsed = new ArrayList<>();
@@ -109,14 +109,14 @@ class KoWikiEventSourceDeadlineTest {
         .containsExactly(State.FRESH, State.UNAVAILABLE);
     assertThat(result.events())
         .isNotEmpty()
-        .allSatisfy(event -> assertThat(event.sourceTitle()).isEqualTo("9월 17일"));
+        .allSatisfy(event -> assertThat(event.sourceTitle()).isEqualTo("July 17"));
     assertThat(result.degraded()).isTrue();
   }
 
   @Test
   void stalledLinkLookupKeepsTheEventsAndMarksTheLookupFailed() {
-    stubRecorded(wikimedia, "9월 17일");
-    stubRecorded(wikimedia, "1988년");
+    stubRecorded(wikimedia, "July 17");
+    stubRecorded(wikimedia, "1976");
     wikimedia.stubFor(
         get(urlPathEqualTo(PATH))
             .withQueryParam("action", equalTo("query"))
@@ -141,11 +141,11 @@ class KoWikiEventSourceDeadlineTest {
     KoWikiSourceFixture parts = new KoWikiSourceFixture(wikimedia, READ_TIMEOUT, DEADLINE);
     KoWikiPage staleYear =
         new KoWikiPage(
-            "1988년",
+            "1976",
             State.STALE,
-            42640701L,
-            KoWikiFixtures.wikitext("1988-events.json"),
-            KoWikiFixtures.wikitext("1988-culture.json"),
+            1382023488L,
+            KoWikiFixtures.wikitext("1976-events.json"),
+            null,
             parts.clock.instant().minus(Duration.ofDays(8)));
     List<String> cachedCalls = new ArrayList<>();
     KoWikiClient client =
@@ -164,8 +164,8 @@ class KoWikiEventSourceDeadlineTest {
 
     KoWikiDayResult result = parts.source(client).find(OPENING);
 
-    assertThat(cachedCalls).containsExactly("1988년");
-    assertThat(params(wikimedia, "page")).containsOnly("9월 17일");
+    assertThat(cachedCalls).containsExactly("1976");
+    assertThat(params(wikimedia, "page")).containsOnly("July 17");
     assertThat(result.docs())
         .extracting(KoWikiDocStatus::state)
         .containsExactly(State.UNAVAILABLE, State.STALE);
@@ -173,7 +173,7 @@ class KoWikiEventSourceDeadlineTest {
         .isNotEmpty()
         .allSatisfy(
             event -> {
-              assertThat(event.sourceTitle()).isEqualTo("1988년");
+              assertThat(event.sourceTitle()).isEqualTo("1976");
               assertThat(event.retrievedAt()).isEqualTo(staleYear.fetchedAt());
             });
     assertThat(result.degraded()).isTrue();
@@ -199,7 +199,7 @@ class KoWikiEventSourceDeadlineTest {
     KoWikiDayResult result = timed(() -> parts.source(hung).find(OPENING), elapsed);
 
     assertThat(elapsed.getFirst()).isLessThan(BOUND);
-    assertThat(fetched).containsExactly("9월 17일");
+    assertThat(fetched).containsExactly("July 17");
     assertThat(result.docs()).extracting(KoWikiDocStatus::state).containsOnly(State.UNAVAILABLE);
     assertThat(result.allUnavailable()).isTrue();
     assertThat(wikimedia.getAllServeEvents()).isEmpty();

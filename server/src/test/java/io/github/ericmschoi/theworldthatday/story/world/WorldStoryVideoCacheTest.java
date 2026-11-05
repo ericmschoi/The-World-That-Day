@@ -89,9 +89,9 @@ class WorldStoryVideoCacheTest extends WikimediaWireMockTest {
   }
 
   private static void stubDemoDay() {
-    stubPage("9월 17일", "09-17");
-    stubPage("1988년", "1988");
-    stubPageprops(read("fixtures/wikimedia/kowiki/pageprops-1988-09-17.json"));
+    stubPage("September 17", "synthetic/synthetic-09-17");
+    stubPage("1988", "synthetic/synthetic-1988");
+    stubPageprops(read("fixtures/wikimedia/enwiki/synthetic/synthetic-pageprops-1988-09-17.json"));
     stubSignals(SparqlWikidataSignalSourceTest.fixture("sparql-1988-09-17.json"));
     wikimedia.stubFor(
         WireMock.get(urlPathEqualTo(COMMONS_PATH))
@@ -116,7 +116,7 @@ class WorldStoryVideoCacheTest extends WikimediaWireMockTest {
 
     assertThat(videoRequests()).isEmpty();
     assertThat(second).isEqualTo(first);
-    JsonNode video = event(JSON.readTree(second), "시험 문서 가").path("media").get(1);
+    JsonNode video = event(JSON.readTree(second), "Test page A").path("media").get(1);
     assertThat(video.path("id").asString()).isEqualTo("commons-900002");
     assertThat(video.path("selection").path("score").asInt()).isEqualTo(130);
     assertThat(rows())
@@ -134,7 +134,7 @@ class WorldStoryVideoCacheTest extends WikimediaWireMockTest {
     // an hour later the photos are read again, the video keeps its first retrieved_at
     clock.advance(Duration.ofHours(1));
     wikimedia.resetRequests();
-    JsonNode later = event(JSON.readTree(call("2000-02-29")), "시험 문서 가").path("media").get(1);
+    JsonNode later = event(JSON.readTree(call("2000-02-29")), "Test page A").path("media").get(1);
     assertThat(videoRequests()).isEmpty();
     assertThat(later).isEqualTo(video);
     assertThat(output.getAll()).doesNotContain("Media search cache", "Video search failed");
@@ -188,7 +188,7 @@ class WorldStoryVideoCacheTest extends WikimediaWireMockTest {
     JsonNode next = JSON.readTree(call("2000-02-29"));
 
     assertThat(videoRequests()).hasSize(2);
-    assertThat(event(next, "시험 문서 가").path("media").findValuesAsString("type"))
+    assertThat(event(next, "Test page A").path("media").findValuesAsString("type"))
         .containsExactly("photo", "video");
     assertThat(rows()).hasSize(1);
   }
@@ -214,8 +214,8 @@ class WorldStoryVideoCacheTest extends WikimediaWireMockTest {
 
   @Test
   void theDayWithoutEventsReadsAndWritesNothing() throws Exception {
-    stubPage("3월 15일", "03-15");
-    stubPage("1995년", "1995");
+    stubPage("March 15", "synthetic/synthetic-03-15");
+    stubPage("1995", "synthetic/synthetic-1995");
 
     call("1995-03-15");
 
@@ -271,9 +271,9 @@ class WorldStoryVideoCacheTest extends WikimediaWireMockTest {
 
   @Test
   void theQuarterFinalDayIsCachedToo() throws Exception {
-    stubPage("6월 22일", "06-22");
-    stubPage("2002년", "2002");
-    stubPageprops(read("fixtures/wikimedia/kowiki/pageprops-2002-06-22.json"));
+    stubPage("June 22", "synthetic/synthetic-06-22");
+    stubPage("2002", "synthetic/synthetic-2002");
+    stubPageprops(read("fixtures/wikimedia/enwiki/synthetic/synthetic-pageprops-2002-06-22.json"));
     stubSignals(SparqlWikidataSignalSourceTest.fixture("sparql-2002-06-22.json"));
 
     String first = call("2002-06-22");

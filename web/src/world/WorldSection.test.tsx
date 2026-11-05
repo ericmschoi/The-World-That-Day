@@ -46,14 +46,14 @@ const photo: Media = {
 // Event A, plainly synthetic, built from the first 1988 event.
 const eventA: WorldEvent = {
   ...world1988.events[0],
-  id: 'kowiki-1988-09-17-00000001',
+  id: 'enwiki-1988-09-17-00000001',
   title: 'Test event',
   summary: 'Test event sentence A',
 }
 
 const tragicEvent: WorldEvent = {
   ...eventA,
-  id: 'kowiki-1988-09-17-00000002',
+  id: 'enwiki-1988-09-17-00000002',
   summary: 'Test tragic event sentence',
   tone: 'tragic',
   tone_basis: 'rule:keyword',
@@ -90,7 +90,7 @@ describe('WorldSection with media (default handler, T2 (2), (6))', () => {
         within(items[i]).getByText(event.summary, { exact: true }),
       ).toBeInTheDocument()
     })
-    expect(screen.getAllByText(/서울 하계 올림픽/)).toHaveLength(1)
+    expect(screen.getAllByText(/Summer Olympics open in Seoul/)).toHaveLength(1)
   })
 
   it('gives each event a source line with new-tab links', async () => {
@@ -112,7 +112,7 @@ describe('WorldSection with media (default handler, T2 (2), (6))', () => {
         expect(link).toHaveAttribute('rel', 'noopener noreferrer')
       }
       expect(source.closest('p')).toHaveTextContent(
-        `Source: 한국어 위키백과, “${event.source_title}”`,
+        `Source: English Wikipedia, “${event.source_title}”`,
       )
     })
   })
@@ -382,8 +382,8 @@ describe('WorldSection fallbackAlt (T2 (10))', () => {
       .map((img) => img.getAttribute('alt'))
 
     expect(alts).toEqual([
-      'Material about “1988년 하계 올림픽”',
-      'Material about “1988년 하계 올림픽”',
+      'Material about “1988 Summer Olympics”',
+      'Material about “1988 Summer Olympics”',
     ])
     for (const alt of alts) {
       for (const word of [

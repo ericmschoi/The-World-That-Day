@@ -126,8 +126,8 @@ describe('demo 1988-09-17 captions on the screen (데모 표 1행)', () => {
     ]
 
     expect(eventAlts).toEqual([
-      'Material about “1988년 하계 올림픽”',
-      'Material about “1988년 하계 올림픽”',
+      'Material about “1988 Summer Olympics”',
+      'Material about “1988 Summer Olympics”',
     ])
     expect(dayImgs.map((img) => img.getAttribute('alt'))).toEqual([
       'Archive photo',

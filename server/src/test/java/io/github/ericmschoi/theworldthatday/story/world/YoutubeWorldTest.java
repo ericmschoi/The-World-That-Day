@@ -1,6 +1,5 @@
 package io.github.ericmschoi.theworldthatday.story.world;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -11,6 +10,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import io.github.ericmschoi.theworldthatday.media.youtube.YoutubeItems;
 import io.github.ericmschoi.theworldthatday.media.youtube.YoutubeQuota;
+import io.github.ericmschoi.theworldthatday.wikimedia.WikiPageStubs;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaWireMockTest;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -54,7 +54,7 @@ abstract class YoutubeWorldTest extends WikimediaWireMockTest {
   static final String SEARCH = YOUTUBE + "/search";
   static final String VIDEOS = YOUTUBE + "/videos";
   static final String GAMES = "1986년 아시안 게임";
-  static final String GAMES_LINE = "* [[1986년]] - 서울에서 [[" + GAMES + "|제10회 아시안 게임]]이 개막했다.";
+  static final String GAMES_LINE = "*[[1986]] &ndash; 서울에서 [[" + GAMES + "|제10회 아시안 게임]]이 개막했다.";
   private static final ZoneId PACIFIC = ZoneId.of("America/Los_Angeles");
 
   @Autowired private WebApplicationContext context;
@@ -128,18 +128,18 @@ abstract class YoutubeWorldTest extends WikimediaWireMockTest {
     stubVideos(okJson(YoutubeItems.fixture("videos-1986-09-20.json")));
   }
 
-  /** A linked article of a synthetic day: its QID, in Korea, and tragic by its class or not. */
+  /** A linked article of a synthetic day: its QID, in Canada, and tragic by its class or not. */
   record Link(String title, String qid, boolean tragic) {}
 
   /**
-   * A synthetic day: the {@code dayTitle} page with {@code lines} under 사건 (revision {@code revid})
-   * and a {@code yearTitle} page without a line of that day (revision {@code revid + 1}), the
-   * links' QIDs and their signals.
+   * A synthetic day: the {@code dayTitle} page with {@code lines} under Events (revision {@code
+   * revid}) and a {@code yearTitle} page without a line of that day (revision {@code revid + 1}),
+   * the links' QIDs and their signals.
    */
   static void stubDay(
       String dayTitle, String yearTitle, int revid, List<String> lines, Link... links) {
-    stubPage(dayTitle, revid, "== 사건 ==\n" + String.join("\n", lines));
-    stubPage(yearTitle, revid + 1, "== 사건 ==\n* [[1월 1일]] - 시험 사건 영.");
+    stubPage(dayTitle, revid, "==Events==\n" + String.join("\n", lines));
+    stubPage(yearTitle, revid + 1, "==Events==\n* [[January 1]] – Test event zero.");
     ArrayNode pages = JSON.createArrayNode();
     ArrayNode bindings = JSON.createArrayNode();
     for (int i = 0; i < links.length; i++) {
@@ -153,7 +153,7 @@ abstract class YoutubeWorldTest extends WikimediaWireMockTest {
           .put("wikibase_item", link.qid());
       ObjectNode binding = bindings.addObject();
       binding.putObject("item").put("type", "uri").put("value", entity(link.qid()));
-      binding.putObject("country").put("type", "uri").put("value", entity("Q884"));
+      binding.putObject("country").put("type", "uri").put("value", entity("Q16"));
       if (link.tragic()) {
         binding.putObject("tragicClass").put("type", "uri").put("value", entity("Q3839081"));
       }
@@ -169,7 +169,7 @@ abstract class YoutubeWorldTest extends WikimediaWireMockTest {
 
   /** The 1986-09-20 sample with the Asian Games line only. */
   static void stubGamesDay() {
-    stubDay("9월 20일", "1986년", 300, List.of(GAMES_LINE), new Link(GAMES, "Q9001", false));
+    stubDay("September 20", "1986", 300, List.of(GAMES_LINE), new Link(GAMES, "Q9001", false));
   }
 
   private static String entity(String qid) {
@@ -177,32 +177,6 @@ abstract class YoutubeWorldTest extends WikimediaWireMockTest {
   }
 
   private static void stubPage(String title, int revid, String wikitext) {
-    ObjectNode sections = JSON.createObjectNode();
-    ObjectNode parse = sections.putObject("parse").put("title", title).put("pageid", revid);
-    parse.put("revid", revid).putArray("redirects");
-    parse
-        .putArray("sections")
-        .addObject()
-        .put("toclevel", 1)
-        .put("level", "2")
-        .put("line", "사건")
-        .put("number", "1")
-        .put("index", "1")
-        .put("anchor", "사건");
-    wikimedia.stubFor(
-        WireMock.get(urlPathEqualTo(KOWIKI_PATH))
-            .withQueryParam("page", equalTo(title))
-            .willReturn(okJson(sections.toString())));
-    ObjectNode text = JSON.createObjectNode();
-    text.putObject("parse")
-        .put("title", title)
-        .put("pageid", revid)
-        .put("revid", revid)
-        .put("wikitext", wikitext);
-    wikimedia.stubFor(
-        WireMock.get(urlPathEqualTo(KOWIKI_PATH))
-            .withQueryParam("oldid", equalTo(Integer.toString(revid)))
-            .withQueryParam("section", equalTo("1"))
-            .willReturn(okJson(text.toString())));
+    WikiPageStubs.stubPage(wikimedia, title, revid, wikitext);
   }
 }

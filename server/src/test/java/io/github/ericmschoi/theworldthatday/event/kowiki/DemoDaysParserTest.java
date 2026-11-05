@@ -15,10 +15,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 /**
- * The three demo days (product brief 12) against all four recorded sections each (date page and
- * year page, "사건" and "문화"): event counts and skipped-line counts, read off the recorded wikitext
- * by hand. Plan M3a1 T4 (5) table input; the merged {@code KoWikiEventSource} result is T3
- * (separate PR).
+ * The four Canada demo days and the video sample 1969-07-20 (plan C1 S3a decision 1 (b)) against
+ * the recorded English Events sections of their date page and year page: event counts and
+ * skipped-line counts (plan T3 (1), (5)), read off the recorded wikitext by hand. The merged {@code
+ * KoWikiEventSource} result is EnWikiDemoDaysEventSourceTest.
  */
 class DemoDaysParserTest {
 
@@ -34,22 +34,25 @@ class DemoDaysParserTest {
 
   @ParameterizedTest(name = "{0} {1}: {2} events, {3} skipped")
   @CsvSource({
-    // 1988-09-17: every section has the opening; nothing skipped.
-    "1988-09-17, 09-17-events.json,  1, 0",
-    "1988-09-17, 09-17-culture.json, 1, 0",
-    "1988-09-17, 1988-events.json,   1, 0",
-    "1988-09-17, 1988-culture.json,  3, 0", // heading line + three sub-lines
-    // 2002-06-22: only the culture sections have the day.
-    "2002-06-22, 06-22-events.json,  0, 0",
-    "2002-06-22, 06-22-culture.json, 1, 0",
-    "2002-06-22, 2002-events.json,   0, 0",
-    "2002-06-22, 2002-culture.json,  1, 0",
-    // 1995-03-15: no event. Skips are lines whose year/date cannot be read, not templates:
-    // date page "[[기원전 44년]]"; year page "[[1995년 5월|5월]]"; "* 날짜미상" + its two sub-lines.
-    "1995-03-15, 03-15-events.json,  0, 1",
-    "1995-03-15, 03-15-culture.json, 0, 0",
-    "1995-03-15, 1995-events.json,   0, 1",
-    "1995-03-15, 1995-culture.json,  0, 3",
+    // 1988-02-13: only the year page, as a range line (February 13–28).
+    "1988-02-13, 02-13-events.json, 0, 0",
+    // year page skips: two month-only lines, three lines without a date
+    "1988-02-13, 1988-events.json,  1, 5",
+    // 1976-07-17: both pages; the date page skips [[AD 180|180]].
+    "1976-07-17, 07-17-events.json, 2, 1",
+    // year page skips: one month-only line, five lines without a date
+    "1976-07-17, 1976-events.json,  2, 6",
+    // 2010-02-12: only the year page, as a range line (February 12–28).
+    "2010-02-12, 02-12-events.json, 0, 0",
+    // year page skips: one line without a date, one month-only line
+    "2010-02-12, 2010-events.json,  1, 2",
+    // 1980-04-12: three date page lines (references removed), two year page sub-lines.
+    "1980-04-12, 04-12-events.json, 3, 0",
+    "1980-04-12, 1980-events.json,  2, 0",
+    // 1969-07-20: the date page skips [[AD 70|70]] and [[911 (year)|911]].
+    "1969-07-20, 07-20-events.json, 2, 2",
+    // year page skips: a date key that links another page, a season line, two lines without a date
+    "1969-07-20, 1969-events.json,  2, 4",
   })
   void demoDayCountsPerSection(String date, String file, int events, int skipped) {
     Result result = parse(date, file);
@@ -60,12 +63,14 @@ class DemoDaysParserTest {
 
   @ParameterizedTest(name = "{0} {1}")
   @CsvSource({
-    "1988-09-17, 09-17-events.json",
-    "1988-09-17, 09-17-culture.json",
-    "1988-09-17, 1988-events.json",
-    "1988-09-17, 1988-culture.json",
-    "2002-06-22, 06-22-culture.json",
-    "2002-06-22, 2002-culture.json",
+    "1988-02-13, 1988-events.json",
+    "1976-07-17, 07-17-events.json",
+    "1976-07-17, 1976-events.json",
+    "2010-02-12, 2010-events.json",
+    "1980-04-12, 04-12-events.json",
+    "1980-04-12, 1980-events.json",
+    "1969-07-20, 07-20-events.json",
+    "1969-07-20, 1969-events.json",
   })
   void demoDayTextsAreFreeOfWikiMarkup(String date, String file) {
     assertThat(parse(date, file).events())
@@ -73,7 +78,7 @@ class DemoDaysParserTest {
         .allSatisfy(
             event -> {
               assertThat(event.text())
-                  .doesNotContain("[[", "]]", "''", "{{", "}}", "<ref", "<!--", "&nbsp;")
+                  .doesNotContain("[[", "]]", "''", "{{", "}}", "<ref", "<!--", "&nbsp;", "&ndash;")
                   .doesNotStartWith(" ")
                   .doesNotEndWith(" ")
                   .doesNotContain("  ");
@@ -83,49 +88,50 @@ class DemoDaysParserTest {
   }
 
   @Test
-  void seoulOlympicsOpeningIsInBothPagesWithTheSameLeadingLink() {
-    // T3 removes the year-page copy; here both pages must expose the same leading link.
-    List<ParsedEvent> datePage = parse("1988-09-17", "09-17-events.json").events();
-    List<ParsedEvent> yearPage = parse("1988-09-17", "1988-events.json").events();
+  void montrealOpeningIsInBothPagesWithTheSameLeadingLink() {
+    // the source merges the year-page copy (D3m); here both pages expose the same leading link
+    List<ParsedEvent> datePage = parse("1976-07-17", "07-17-events.json").events();
+    List<ParsedEvent> yearPage = parse("1976-07-17", "1976-events.json").events();
 
-    assertThat(datePage.getFirst().linkTitles().getFirst()).isEqualTo("1988년 하계 올림픽");
-    assertThat(yearPage.getFirst().linkTitles().getFirst()).isEqualTo("1988년 하계 올림픽");
+    assertThat(datePage.get(1).linkTitles().getFirst()).isEqualTo("1976 Summer Olympics");
+    assertThat(yearPage.getFirst().linkTitles().getFirst()).isEqualTo("1976 Summer Olympics");
   }
 
   @Test
-  void yearPageCultureSubLinesUnderTheDayAreAllKept() {
-    assertThat(parse("1988-09-17", "1988-culture.json").events())
+  void yearPageSubLinesUnderTheDayAreAllKept() {
+    assertThat(parse("1980-04-12", "1980-events.json").events())
         .extracting(ParsedEvent::text)
         .containsExactly(
-            "대한민국 서울특별시에서 제24회 하계 올림픽이 개최하다.",
-            "KBS 1TV의 채널에서 광고 24개를 때려갔다.",
-            "KBS 2TV의 채널에서 광고 37개를 때려갔다.");
+            "1980 Liberian coup d'état: Samuel K. Doe overthrows the government of Liberia in a"
+                + " violent coup d'état, executing President William Tolbert and ending over 130"
+                + " years of democratic presidential succession in that country.",
+            "Terry Fox begins his Marathon of Hope, a plan to run across Canada to raise money for"
+                + " cancer research, setting off from St. John's, Newfoundland and running"
+                + " westward.");
   }
 
   @Test
-  void quarterFinalLinesKeepTheirOriginalSentence() {
-    assertThat(parse("2002-06-22", "06-22-culture.json").events())
-        .singleElement()
-        .satisfies(
-            event -> {
-              assertThat(event.text())
-                  .startsWith("2002 FIFA 월드컵에서 대한민국이 스페인에 승부차기 끝에")
-                  .endsWith("(터키도 일한 만시즈의 결승골로 세네갈을 1:0으로 꺾고 4강에 진출함.)");
-              assertThat(event.linkTitles()).containsExactly("2002 FIFA 월드컵");
-            });
-    assertThat(parse("2002-06-22", "2002-culture.json").events())
+  void rangeAndCoupLinesKeepTheirOriginalSentence() {
+    assertThat(parse("1988-02-13", "1988-events.json").events())
         .singleElement()
         .isEqualTo(
             new ParsedEvent(
-                "대한민국이 2002년 FIFA 월드컵 8강전에서 스페인을 승부차기에서 5대 3으로 꺾고 준결승에 진출하였다.",
-                List.of("2002년 FIFA 월드컵")));
+                "The 1988 Winter Olympics are held in Calgary, Alberta, Canada.",
+                List.of("1988 Winter Olympics", "Calgary", "Alberta"),
+                DateKind.RANGE_START,
+                LocalDate.of(1988, 2, 28)));
+    assertThat(parse("1980-04-12", "04-12-events.json").events().getFirst())
+        .isEqualTo(
+            new ParsedEvent(
+                "The Americo-Liberian government of Liberia is violently deposed.",
+                List.of("1980 Liberian coup d'état")));
   }
 
   @Test
   void nonBreakingSpacesBecomeOneSpace() {
     assertThat(parser.parse(parserCase("nbsp"), DATE, LEAP_DAY).events())
         .extracting(ParsedEvent::text)
-        .containsExactly("시험 사건 파가 열렸다.");
+        .containsExactly("Test event R is held.");
   }
 
   @Test
@@ -134,8 +140,8 @@ class DemoDaysParserTest {
 
     assertThat(result.events())
         .containsExactly(
-            new ParsedEvent("시험 문서 하에서 시험 사건 하 하나.", List.of("시험 문서 하")),
-            new ParsedEvent("시험 문서 하에서 시험 사건 하 둘.", List.of("시험 문서 하")));
+            new ParsedEvent("At Test page S, test event S one.", List.of("Test page S")),
+            new ParsedEvent("At Test page S, test event S two.", List.of("Test page S")));
     assertThat(result.skippedLines()).isEqualTo(1);
   }
 }

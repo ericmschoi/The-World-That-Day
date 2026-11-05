@@ -23,13 +23,13 @@ import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.CsvSource;
 
 /**
- * Plan M3a1 T2 (4) for every recorded demo page, not only {@code 9월 17일} and {@code 1988년}: one
- * section-list request plus one request per level-2 "사건"/"문화" section, pinned to the listed revid,
- * and nothing else. Any other request gets a 404 from a catch-all stub so it would show up as a
- * failed page.
+ * Plan M3a1 T2 (4) and plan C1 S3a T2 (1)~(3) for every recorded English demo page: one
+ * section-list request plus one request for the level-2 "Events" section, pinned to the listed
+ * revid, and nothing else. Any other request gets a 404 from a catch-all stub so it would show up
+ * as a failed page.
  */
 class KoWikiRecordedPagesClientTest {
 
@@ -70,14 +70,23 @@ class KoWikiRecordedPagesClientTest {
   }
 
   @ParameterizedTest(name = "{0}")
-  @ValueSource(strings = {"9월 17일", "6월 22일", "3월 15일", "1988년", "2002년", "1995년"})
-  void recordedPageIsReadWithExactlyItsEventsAndCultureSections(String title) {
-    String prefix = KoWikiFixtureReadme.DEMO_PAGES.get(title);
-    long revid = KoWikiFixtureReadme.revid(prefix + "-sections.json");
-    String eventsIndex = KoWikiFixtureReadme.sectionIndex(prefix, "사건");
-    String cultureIndex = KoWikiFixtureReadme.sectionIndex(prefix, "문화");
-    assertThat(eventsIndex).as("recorded 사건 index").isNotNull();
-    assertThat(cultureIndex).as("recorded 문화 index").isNotNull();
+  @CsvSource({
+    "February 13, 02-13, 1370674264, 1",
+    "July 17, 07-17, 1375524665, 1",
+    "February 12, 02-12, 1370674257, 1",
+    "April 12, 04-12, 1378081960, 1",
+    "July 20, 07-20, 1373354079, 1",
+    "1988, 1988, 1382686554, 1",
+    "1976, 1976, 1382023488, 1",
+    "2010, 2010, 1382559665, 2",
+    "1980, 1980, 1382118549, 1",
+    "1969, 1969, 1380604178, 1"
+  })
+  void recordedPageIsReadWithExactlyItsEventsSection(
+      String title, String prefix, long revid, String eventsIndex) {
+    assertThat(EnWikiPages.RECORDED).containsEntry(title, prefix);
+    assertThat(EnWikiPages.revid(prefix)).as("recorded revid").isEqualTo(revid);
+    assertThat(EnWikiPages.eventsIndex(prefix)).as("recorded Events index").isEqualTo(eventsIndex);
 
     wikimedia.stubFor(
         get(urlPathEqualTo(PATH)).atPriority(10).willReturn(aResponse().withStatus(404)));
@@ -85,44 +94,33 @@ class KoWikiRecordedPagesClientTest {
         get(urlPathEqualTo(PATH))
             .atPriority(1)
             .withQueryParam("page", equalTo(title))
-            .withQueryParam("prop", equalTo("sections|revid"))
-            .willReturn(okJson(read(prefix + "-sections.json"))));
-    for (String[] section :
-        List.of(new String[] {eventsIndex, "events"}, new String[] {cultureIndex, "culture"})) {
-      wikimedia.stubFor(
-          get(urlPathEqualTo(PATH))
-              .atPriority(1)
-              .withQueryParam("oldid", equalTo(Long.toString(revid)))
-              .withQueryParam("prop", equalTo("wikitext"))
-              .withQueryParam("section", equalTo(section[0]))
-              .willReturn(okJson(read(prefix + "-" + section[1] + ".json"))));
-    }
+            .withQueryParam("prop", equalTo("tocdata|revid"))
+            .willReturn(okJson(read(prefix + "-tocdata.json"))));
+    wikimedia.stubFor(
+        get(urlPathEqualTo(PATH))
+            .atPriority(1)
+            .withQueryParam("oldid", equalTo(Long.toString(revid)))
+            .withQueryParam("prop", equalTo("wikitext"))
+            .withQueryParam("section", equalTo(eventsIndex))
+            .willReturn(okJson(read(prefix + "-events.json"))));
 
     KoWikiPage page = client().fetch(title);
 
     assertThat(page.state()).isEqualTo(State.FRESH);
     assertThat(page.title()).isEqualTo(title);
     assertThat(page.revision()).isEqualTo(revid);
-    assertThat(page.revision())
-        .as("README revid")
-        .isEqualTo(KoWikiFixtureReadme.rows().get(prefix + "-sections.json").revid());
     assertThat(page.eventsWikitext()).isEqualTo(wikitext(prefix + "-events.json"));
-    assertThat(page.cultureWikitext()).isEqualTo(wikitext(prefix + "-culture.json"));
+    assertThat(page.cultureWikitext()).as("English Wikipedia has no culture section").isNull();
 
     List<ServeEvent> requests = wikimedia.getAllServeEvents().reversed();
-    assertThat(requests).hasSize(3);
+    assertThat(requests).hasSize(2);
     assertThat(param(requests.getFirst(), "page")).isEqualTo(title);
     assertThat(param(requests.getFirst(), "section")).isNull();
-    assertThat(requests.subList(1, 3))
-        .extracting(event -> param(event, "section"))
-        .containsExactly(eventsIndex, cultureIndex);
-    assertThat(requests.subList(1, 3))
-        .extracting(event -> param(event, "oldid"))
-        .containsOnly(Long.toString(revid));
-    assertThat(requests.subList(1, 3))
-        .extracting(event -> param(event, "page"))
+    assertThat(param(requests.get(1), "section")).isEqualTo(eventsIndex);
+    assertThat(param(requests.get(1), "oldid")).isEqualTo(Long.toString(revid));
+    assertThat(param(requests.get(1), "page"))
         .as("wikitext requests are pinned by oldid, not by title")
-        .containsOnlyNulls();
+        .isNull();
     assertThat(requests)
         .allSatisfy(event -> assertThat(event.getResponse().getStatus()).isEqualTo(200));
   }

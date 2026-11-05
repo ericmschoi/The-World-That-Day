@@ -28,15 +28,17 @@ import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 
 /**
- * Plan M3a1c T2 (2)~(5): one synthetic case per rule D1~D6, link normalization and the log rule.
- * Sentences are neutral test lines ("시험 대회 A조 경기 가"), never real events. Sections: 0 date page 사건,
- * 1 문화, 2 year page 사건, 3 문화.
+ * Plan M3a1c T2 (2)~(5) and plan C1 S3a T4 (D3m): one synthetic case per rule D1~D6, link
+ * normalization and the log rule. Sentences are neutral test lines ("Test Cup group A match A"),
+ * never real events. Sections: 0 date page Events, 1 year page Events.
  */
 @ExtendWith(OutputCaptureExtension.class)
 class KoWikiEventDeduplicatorTest {
 
   private static final LocalDate LEAP_DAY = LocalDate.of(2000, 2, 29);
   private static final Instant READ = Instant.parse("2026-01-01T00:00:00Z");
+  private static final int DATE = 0;
+  private static final int YEAR = 1;
 
   private final KoWikiEventDeduplicator deduplicator =
       new KoWikiEventDeduplicator(new KoWikiDedupProperties(0.6));
@@ -48,14 +50,14 @@ class KoWikiEventDeduplicatorTest {
             .map(l -> l.contains("=") ? l.split("=") : new String[] {l, null})
             .map(parts -> new Link(parts[0], parts[1]))
             .toList();
-    String page = section < 2 ? "2월 29일" : "2000년";
+    String page = section == DATE ? "February 29" : "2000";
     KoWikiEvent event =
         new KoWikiEvent(
             TwoPageKoWikiEventSource.id(LEAP_DAY, page, text),
             LEAP_DAY,
             page,
-            section % 2 == 0 ? "사건" : "문화",
-            section < 2 ? 100L : 200L,
+            "Events",
+            section == DATE ? 100L : 200L,
             text,
             parsed.stream().map(Link::title).toList(),
             parsed.isEmpty() ? null : parsed.getFirst().wikidataQid(),
@@ -73,8 +75,8 @@ class KoWikiEventDeduplicatorTest {
 
   @Test
   void d1LinesOfOneSectionNeverMergeEvenWithTheSameMainLink() {
-    Candidate a = line(0, "시험 대회 1경기가 열렸다.", "시험 대회");
-    Candidate b = line(0, "시험 대회 2경기가 열렸다.", "시험 대회");
+    Candidate a = line(DATE, "Test Cup match 1 is played.", "Test Cup");
+    Candidate b = line(DATE, "Test Cup match 2 is played.", "Test Cup");
 
     Result result = dedup(a, b);
 
@@ -84,11 +86,11 @@ class KoWikiEventDeduplicatorTest {
 
   @Test
   void d1ExceptionIdenticalLineTwiceOnOnePageIsOneEventSoIdsStayUnique() {
-    Candidate a = line(0, "시험 사건 가.", "시험 문서 가");
-    Candidate twice = line(0, "시험 사건 가.", "시험 문서 가");
-    Candidate otherSection = line(1, "시험 사건 가.");
+    Candidate a = line(DATE, "Test event A.", "Test page A");
+    Candidate twice = line(DATE, "Test event A.", "Test page A");
+    Candidate otherPage = line(YEAR, "Test event A.");
 
-    Result result = dedup(a, twice, otherSection);
+    Result result = dedup(a, twice, otherPage);
 
     assertThat(result.events()).containsExactly(a.event());
     assertThat(result.mergedCount()).isEqualTo(2);
@@ -97,8 +99,8 @@ class KoWikiEventDeduplicatorTest {
 
   @Test
   void d2SameTextApartFromSpacesAndPunctuationMerges() {
-    Candidate date = line(0, "시험 사건 가가 열렸다.");
-    Candidate year = line(2, "시험 사건 가가  열렸다");
+    Candidate date = line(DATE, "Test event A opens.");
+    Candidate year = line(YEAR, "Test event A  opens");
 
     Result result = dedup(date, year);
 
@@ -108,15 +110,15 @@ class KoWikiEventDeduplicatorTest {
 
   @Test
   void d2DifferentWordsStayApart() {
-    Result result = dedup(line(0, "시험 사건 가가 열렸다."), line(2, "시험 사건 나가 열렸다."));
+    Result result = dedup(line(DATE, "Test event A opens."), line(YEAR, "Test event B opens."));
 
     assertThat(result.mergedCount()).isZero();
   }
 
   @Test
   void d3LineWithAGenericMainLinkMergesThroughTheSharedSpecificLink() {
-    Candidate date = line(0, "시험 대회가 개막했다.", "시험 대회");
-    Candidate year = line(3, "대한민국에서 시험 대회가 열리다.", "대한민국", "시험 대회");
+    Candidate date = line(DATE, "Test Cup opens.", "Test Cup");
+    Candidate year = line(YEAR, "Test Cup is held in South Korea.", "South Korea", "Test Cup");
 
     Result result = dedup(date, year);
 
@@ -126,9 +128,9 @@ class KoWikiEventDeduplicatorTest {
 
   @Test
   void d3OnlyGenericLinksSharedStayApart() {
-    Candidate a = line(0, "대한민국에서 시험 사건 가.", "대한민국", "시험 문서 가");
-    Candidate b = line(2, "대한민국에서 시험 사건 나.", "대한민국", "시험 문서 나");
-    Candidate c = line(3, "대한민국에서 시험 사건 다.", "대한민국");
+    Candidate a = line(DATE, "Test event A in South Korea.", "South Korea", "Test page A");
+    Candidate b = line(YEAR, "Test event B in South Korea.", "South Korea", "Test page B");
+    Candidate c = line(YEAR, "Test event C in South Korea.", "South Korea");
 
     Result result = dedup(a, b, c);
 
@@ -136,68 +138,136 @@ class KoWikiEventDeduplicatorTest {
     assertThat(result.mergedCount()).isZero();
   }
 
+  /** The overlap rule on its own: the cup is the date line's main link only. */
   @Test
   void d3CounterexampleSharingOnlyTheTournamentStaysApart() {
-    Candidate a = line(1, "시험 대회 A조 경기 가", "시험 대회", "시험 팀 가");
-    Candidate b = line(2, "시험 대회 A조 경기 나", "시험 대회", "시험 팀 나");
-    Candidate c = line(3, "시험 대회 A조 경기 다", "시험 대회", "시험 팀 다", "시험 팀 라");
+    Candidate a = line(DATE, "Test Cup group A match A", "Test Cup", "Test team A");
+    Candidate b = line(YEAR, "Test team B wins group A match B", "Test team B", "Test Cup");
+    Candidate c =
+        line(YEAR, "Test team C meets Test team D", "Test team C", "Test Cup", "Test team D");
 
     Result result = dedup(a, b, c);
 
     assertThat(result.events()).isEqualTo(events(a, b, c));
   }
 
+  /**
+   * D3m (plan C1 S3a, PM decision): the counterexample with the cup as the main link of both lines
+   * now merges across the two pages, whatever the overlap; on one page it stays two (D1).
+   */
+  @Test
+  void d3mSameSpecificMainLinkMergesAcrossPagesOnly() {
+    Candidate date = line(DATE, "Test Cup group A match A", "Test Cup", "Test team A");
+    Candidate year = line(YEAR, "Test Cup group A match B", "Test Cup", "Test team B");
+    Candidate sameDate = line(DATE, "Test Cup group A match B", "Test Cup", "Test team B");
+
+    Result across = dedup(date, year);
+    Result onePage = dedup(date, sameDate);
+
+    assertThat(across.events()).containsExactly(date.event());
+    assertThat(across.mergedCount()).isEqualTo(1);
+    assertThat(onePage.events()).isEqualTo(events(date, sameDate));
+    assertThat(onePage.mergedCount()).isZero();
+  }
+
+  @Test
+  void d3mSameItemUnderAnotherTitleIsTheSameMainLink() {
+    Candidate date = line(DATE, "Test event A.", "Test page A=Q9", "Test page C");
+    Candidate year =
+        line(YEAR, "Test event A, written another way.", "Test page B=Q9", "Test page D");
+
+    assertThat(dedup(date, year).events()).containsExactly(date.event());
+  }
+
+  @Test
+  void d3mGenericOrPageMainLinksNeverMergeAlone() {
+    assertThat(
+            dedup(
+                    line(DATE, "Test event A in Montreal.", "Montreal", "Test page A"),
+                    line(YEAR, "Test event B in Montreal.", "Montreal", "Test page B"))
+                .mergedCount())
+        .as("a city main link")
+        .isZero();
+    assertThat(
+            dedup(
+                    line(DATE, "Test event A.", "1999", "Test page A"),
+                    line(YEAR, "Test event B.", "1999", "Test page B"))
+                .mergedCount())
+        .as("a year page main link")
+        .isZero();
+    assertThat(
+            dedup(
+                    line(DATE, "Test event A.", "March 1", "Test page A"),
+                    line(YEAR, "Test event B.", "March 1", "Test page B"))
+                .mergedCount())
+        .as("a date page main link")
+        .isZero();
+  }
+
   @Test
   void d3SharedMainLinkWithEnoughOverlapMerges() {
-    Candidate a = line(1, "시험 대회 A조 경기 가", "시험 대회", "시험 팀 가", "시험 팀 나");
-    Candidate b = line(2, "시험 팀 가가 시험 대회에서 이겼다", "시험 대회", "시험 팀 가");
+    Candidate a = line(DATE, "Test Cup group A match A", "Test Cup", "Test team A", "Test team B");
+    Candidate b = line(YEAR, "Test team A wins at the Test Cup", "Test Cup", "Test team A");
 
     assertThat(dedup(a, b).events()).containsExactly(a.event());
   }
 
   @Test
   void d3PageLinksAreNeitherMainLinksNorCounted() {
-    Candidate a = line(0, "시험 사건 가.", "1999년", "시험 문서 가");
-    Candidate b = line(2, "시험 사건 나.", "1999년", "시험 문서 나");
-    Candidate c = line(3, "시험 사건 다.", "2월 28일");
-    Candidate d = line(1, "시험 사건 라.", "2월 28일");
+    Candidate a = line(DATE, "Test event A.", "1999", "Test page A");
+    Candidate b = line(YEAR, "Test event B.", "1999", "Test page B");
+    Candidate c = line(YEAR, "Test event C.", "February 28");
+    Candidate d = line(DATE, "Test event D.", "February 28");
 
     assertThat(dedup(a, b, c, d).mergedCount()).isZero();
   }
 
-  /** T4 (2): a line with one specific link no longer absorbs a line with more (T3 repro). */
+  /**
+   * T4 (2) of plan M3a1c, under D3m: the one-link line of the T3 repro now absorbs the year page
+   * line with the same main link (approved expectation change, plan C1 S3a); two such lines of one
+   * page stay apart. Without a shared main link the overlap boundary is unchanged.
+   */
   @Test
-  void d3ShortLineDoesNotAbsorbALineWithMoreSpecificLinks() {
-    Candidate date = line(1, "시험 대회 1경기.", "2002 시험 대회");
-    Candidate year = line(3, "시험 대회 2경기.", "2002년 시험 대회", "시험 팀 다", "시험 팀 라");
+  void d3OneLinkLineMergesAcrossPagesByItsMainLinkButNotOnOnePage() {
+    Candidate date = line(DATE, "Test Cup match 1.", "2002 Test Cup");
+    Candidate year = line(YEAR, "Test Cup match 2.", "2002 Test Cup", "Test team C", "Test team D");
+    Candidate sameDate =
+        line(DATE, "Test Cup match 2.", "2002 Test Cup", "Test team C", "Test team D");
 
-    Result result = dedup(date, year);
+    Result across = dedup(date, year);
 
-    assertThat(result.events()).isEqualTo(events(date, year));
-    assertThat(result.mergedCount()).isZero();
+    assertThat(across.events()).containsExactly(date.event());
+    assertThat(across.mergedCount()).isEqualTo(1);
+    assertThat(dedup(date, sameDate).events()).isEqualTo(events(date, sameDate));
     Result boundary =
-        dedup(line(1, "시험 대회 3경기.", "시험 대회"), line(3, "시험 대회 4경기.", "시험 대회", "시험 장소"));
+        dedup(
+            line(DATE, "Test Cup match 3.", "Test Cup"),
+            line(YEAR, "Test Cup match 4.", "Test venue", "Test Cup"));
     assertThat(boundary.events()).as("1/2 is below 0.6").hasSize(2);
   }
 
-  /** T4 (5): the same link written twice in one line counts once. */
+  /** T4 (5): the same link written more than once in a line counts once. */
   @Test
   void d3SameLinkTwiceInALineCountsOnce() {
-    Candidate date = line(1, "시험 대회 개막.", "2002 시험 대회", "2002년 시험 대회");
-    Candidate year = line(3, "시험 대회 개막식.", "2002 시험 대회");
+    Candidate date =
+        line(DATE, "Test Cup opens.", "Test Cup", "Test Cup", "Test Cup", "Test team A");
+    Candidate year = line(YEAR, "Test team A at the Test Cup opening.", "Test team A", "Test Cup");
 
-    assertThat(dedup(date, year).events()).containsExactly(date.event());
+    assertThat(dedup(date, year).events()).as("2 of 2, not 2 of 4").containsExactly(date.event());
   }
 
   /** T4 (6): same tournament, different country pairs linked only by country pages. */
   @Test
   void d3DifferentCountryPairsStayApart() {
-    Candidate date = line(1, "시험 대회 가조 경기.", "2002 시험 대회", "대한민국", "스페인");
-    Candidate year = line(3, "시험 대회 나조 경기.", "2002년 시험 대회", "독일", "미국");
+    Candidate date = line(DATE, "Test Cup group A match.", "2002 Test Cup", "South Korea", "Spain");
+    Candidate year =
+        line(YEAR, "Test Cup group B match.", "2002 Test Cup", "Germany", "United States");
 
     Result result = dedup(date, year);
 
-    assertThat(result.events()).isEqualTo(events(date, year));
+    assertThat(result.events())
+        .as("the D3 (iii) place conflict also holds for D3m")
+        .isEqualTo(events(date, year));
     assertThat(result.mergedCount()).isZero();
   }
 
@@ -206,20 +276,22 @@ class KoWikiEventDeduplicatorTest {
   void d3ControlsWithoutAGenericConflictStillMerge() {
     assertThat(
             dedup(
-                    line(1, "시험 대회 가.", "2002 시험 대회", "대한민국"),
-                    line(3, "시험 대회 나.", "2002년 시험 대회", "대한민국", "미국"))
+                    line(DATE, "Test Cup A.", "2002 Test Cup", "South Korea"),
+                    line(YEAR, "Test Cup B.", "2002 Test Cup", "South Korea", "United States"))
                 .mergedCount())
         .as("(a) a shared country")
         .isEqualTo(1);
     assertThat(
-            dedup(line(1, "시험 대회 가.", "2002 시험 대회"), line(3, "시험 대회 나.", "2002년 시험 대회", "미국"))
+            dedup(
+                    line(DATE, "Test Cup A.", "2002 Test Cup"),
+                    line(YEAR, "Test Cup B.", "2002 Test Cup", "United States"))
                 .mergedCount())
         .as("(b) one line has no country or city")
         .isEqualTo(1);
     assertThat(
             dedup(
-                    line(1, "시험 대회 가.", "2002 시험 대회", "1999년"),
-                    line(3, "시험 대회 나.", "2002년 시험 대회", "미국"))
+                    line(DATE, "Test Cup A.", "2002 Test Cup", "1999"),
+                    line(YEAR, "Test Cup B.", "2002 Test Cup", "United States"))
                 .mergedCount())
         .as("(c) a year page is not a listed generic link")
         .isEqualTo(1);
@@ -227,10 +299,10 @@ class KoWikiEventDeduplicatorTest {
 
   @Test
   void d4LineMatchingTwoEarlierEventsIsNotMerged(CapturedOutput output) {
-    // T4: each earlier line shares 2 of its 3 specific links with the later one (2/3 >= 0.6)
-    Candidate first = line(0, "시험 사건 가.", "시험 문서 가", "시험 문서 나", "시험 문서 다");
-    Candidate second = line(0, "시험 사건 나.", "시험 문서 가", "시험 문서 나", "시험 문서 라");
-    Candidate both = line(2, "시험 사건 가와 나.", "시험 문서 가", "시험 문서 나");
+    // each earlier line has the same main link as the later one (D3m) and shares 2 of 3 links
+    Candidate first = line(DATE, "Test event A.", "Test page A", "Test page B", "Test page C");
+    Candidate second = line(DATE, "Test event B.", "Test page A", "Test page B", "Test page D");
+    Candidate both = line(YEAR, "Test events A and B.", "Test page A", "Test page B");
     ch.qos.logback.classic.Logger logger =
         (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(KoWikiEventDeduplicator.class);
     Level before = logger.getLevel();
@@ -253,53 +325,70 @@ class KoWikiEventDeduplicatorTest {
 
   @Test
   void d5TheFirstLineIsKeptUnchanged() {
-    Candidate culture = line(1, "시험 대회가 개막하였다.", "시험 대회");
-    Candidate year = line(2, "시험 대회 개막.", "시험 대회=Q7");
-    Candidate yearCulture = line(3, "시험 대회 개막식.", "대한민국", "시험 대회");
+    Candidate date = line(DATE, "Test Cup opened.", "Test Cup");
+    Candidate year = line(YEAR, "Test Cup opens.", "Test Cup=Q7");
 
-    Result result = dedup(culture, year, yearCulture);
+    Result result = dedup(date, year);
 
-    assertThat(result.events()).singleElement().isSameAs(culture.event());
+    assertThat(result.events()).singleElement().isSameAs(date.event());
     assertThat(result.events().getFirst().wikidataQid()).isNull();
-    assertThat(result.mergedCount()).isEqualTo(2);
+    assertThat(result.mergedCount()).isEqualTo(1);
   }
 
   @Test
-  void spellingsWithAndWithoutTheYearSuffixMergeWithoutItems() {
-    Candidate date = line(1, "시험 대회에서 시험 팀 가가 이겼다.", "2002 시험 대회");
-    Candidate year = line(3, "시험 팀 가가 시험 대회 8강에서 이겼다.", "2002년 시험 대회");
+  void d1KeepsASecondYearLineOutOfAGroupThatHasOne() {
+    Candidate date = line(DATE, "Test Cup opened.", "Test Cup");
+    Candidate year = line(YEAR, "Test Cup opens.", "Test Cup=Q7");
+    Candidate yearAgain = line(YEAR, "Test Cup opening ceremony.", "South Korea", "Test Cup");
+
+    Result result = dedup(date, year, yearAgain);
+
+    assertThat(result.events()).containsExactly(date.event(), yearAgain.event());
+    assertThat(result.mergedCount()).isEqualTo(1);
+  }
+
+  @Test
+  void sameTitleMergesWithoutItems() {
+    Candidate date = line(DATE, "Test team A wins at the Test Cup.", "2002 Test Cup");
+    Candidate year = line(YEAR, "Test team A wins a Test Cup quarter-final.", "2002 Test Cup");
 
     assertThat(dedup(date, year).events()).containsExactly(date.event());
   }
 
   @Test
   void differentTitlesWithTheSameItemMerge() {
-    Candidate date = line(0, "시험 사건 가.", "시험 문서 가=Q9");
-    Candidate year = line(2, "시험 사건 가 다른 표기.", "시험 문서 나=Q9");
+    Candidate date = line(DATE, "Test event A.", "Test page A=Q9");
+    Candidate year = line(YEAR, "Test event A, written another way.", "Test page B=Q9");
 
     assertThat(dedup(date, year).events()).containsExactly(date.event());
-    assertThat(KoWikiEventDeduplicator.sameLink(new Link("가", "Q1"), new Link("나", "Q2")))
+    assertThat(KoWikiEventDeduplicator.sameLink(new Link("A", "Q1"), new Link("B", "Q2")))
         .isFalse();
-    assertThat(KoWikiEventDeduplicator.titleKey("2002년 시험 대회")).isEqualTo("2002 시험 대회");
-    assertThat(KoWikiEventDeduplicator.titleKey("2002년")).isEqualTo("2002년");
+    assertThat(KoWikiEventDeduplicator.sameLink(new Link("A", null), new Link("A", "Q2")))
+        .as("same title")
+        .isTrue();
+    assertThat(
+            KoWikiEventDeduplicator.sameLink(
+                new Link("2002 Test Cup", null), new Link("2002 test Cup", null)))
+        .as("titles are compared as resolved, no spelling rule")
+        .isFalse();
   }
 
   @Test
   void mergedCountIsTheNumberOfRemovedLines() {
     Candidate[] lines = {
-      line(0, "시험 대회 개막.", "시험 대회"),
-      line(0, "시험 사건 나.", "시험 문서 나"),
-      line(1, "시험 대회가 열렸다.", "시험 대회", "대한민국"),
-      line(2, "시험 사건 나", "시험 문서 다"),
-      line(2, "시험 사건 라.", "시험 문서 라"),
-      line(3, "시험 대회 개막식.", "대한민국", "시험 대회")
+      line(DATE, "Test Cup opens.", "Test Cup"),
+      line(DATE, "Test event B.", "Test page B"),
+      line(DATE, "Test event D.", "Test page D"),
+      line(YEAR, "Test event B", "Test page C"),
+      line(YEAR, "Test Cup opening ceremony.", "South Korea", "Test Cup"),
+      line(YEAR, "Test event D.")
     };
 
     Result result = dedup(lines);
 
     assertThat(result.events())
         .extracting(KoWikiEvent::text)
-        .containsExactly("시험 대회 개막.", "시험 사건 나.", "시험 사건 라.");
+        .containsExactly("Test Cup opens.", "Test event B.", "Test event D.");
     assertThat(result.mergedCount()).isEqualTo(3).isEqualTo(lines.length - result.events().size());
   }
 
@@ -310,32 +399,40 @@ class KoWikiEventDeduplicatorTest {
     Level before = logger.getLevel();
     logger.setLevel(Level.DEBUG);
     try {
-      Candidate first = line(0, "시험 사건 가.", "시험 문서 가", "시험 문서 나", "시험 문서 다");
-      Candidate second = line(0, "시험 사건 나.", "시험 문서 가", "시험 문서 나", "시험 문서 라");
-      Candidate third = line(0, "시험 사건 마.", "시험 문서 마");
-      Candidate d2 = line(2, "시험 사건 가");
-      Candidate d3 = line(3, "시험 문서 마에 관한 줄.", "시험 문서 마");
-      Candidate d4 = line(1, "시험 사건 가와 나.", "시험 문서 가", "시험 문서 나");
-      dedup(first, second, third, d2, d3, d4);
+      Candidate first = line(DATE, "Test event A.", "Test page A", "Test page B", "Test page C");
+      Candidate second = line(DATE, "Test event B.", "Test page A", "Test page B", "Test page D");
+      Candidate third = line(DATE, "Test event E.", "Test page E");
+      Candidate fourth = line(DATE, "Test Cup opens.", "Test Cup");
+      Candidate d4 = line(YEAR, "Test events A and B.", "Test page A", "Test page B");
+      Candidate d2 = line(YEAR, "Test event E");
+      Candidate d3 = line(YEAR, "Test Cup is held in South Korea.", "South Korea", "Test Cup");
+      Candidate d3m = line(DATE, "Test event F.", "Test page F");
+      Candidate d3mYear = line(YEAR, "A line about Test page F.", "Test page F");
+      dedup(first, second, third, fourth, d3m, d4, d2, d3, d3mYear);
     } finally {
       logger.setLevel(before);
     }
 
-    String hashFirst = line(0, "시험 사건 가.").event().id().substring(18);
+    String hashThird = line(DATE, "Test event E.").event().id().substring(18);
     assertThat(output.getAll())
-        .contains("rule=D2 kept=" + hashFirst)
-        .contains("rule=D3")
+        .contains("rule=D2 kept=" + hashThird)
+        .contains("rule=D3 kept=")
+        .contains("rule=D3m kept=")
         .contains("rule=D4")
-        .doesNotContain("시험")
+        .doesNotContain("Test event")
+        .doesNotContain("Test page")
+        .doesNotContain("Test Cup")
+        .doesNotContain("South Korea")
         .doesNotContain("2000-02-29")
-        .doesNotContain("kowiki-");
+        .doesNotContain("enwiki-");
   }
 
   @Test
   void genericLinksAreLoadedWithoutCommentsOrBlankLines() {
     assertThat(deduplicator.genericLinks())
-        .contains("대한민국", "서울특별시", "서울", "미국", "도쿄")
-        .doesNotContain("", "1988년 하계 올림픽", "2002년 FIFA 월드컵")
+        .contains("South Korea", "United States", "Montreal", "Calgary", "Seoul", "Timor-Leste")
+        .doesNotContain(
+            "", "1988 Winter Olympics", "1976 Summer Olympics", "2002 FIFA World Cup", "대한민국")
         .noneMatch(title -> title.startsWith("#") || !title.equals(title.strip()));
   }
 
@@ -347,7 +444,10 @@ class KoWikiEventDeduplicatorTest {
         .withMessageContaining("wikimedia.dedup.min-link-overlap");
   }
 
-  /** The counterexample fixture through the whole source, with the link lookup failing. */
+  /**
+   * The counterexample fixture through the whole source, with the link lookup failing: the cup is
+   * the main link of the date line only, so D3m does not apply and 1 of 2 links is below 0.6.
+   */
   @Test
   void counterexampleFixtureStaysTwoEventsThroughTheSource() {
     WikimediaProperties properties =
@@ -363,21 +463,19 @@ class KoWikiEventDeduplicatorTest {
             URI.create("http://localhost:9/w/api.php"));
     KoWikiClient pages =
         title ->
-            title.equals("2월 29일")
+            title.equals("February 29")
                 ? new KoWikiPage(
                     title,
                     State.FRESH,
                     100L,
+                    KoWikiFixtures.read("synthetic/dedup/synthetic-counterexample-date.wikitext"),
                     null,
-                    KoWikiFixtures.read(
-                        "synthetic/dedup/synthetic-counterexample-date-culture.wikitext"),
                     READ)
                 : new KoWikiPage(
                     title,
                     State.FRESH,
                     200L,
-                    KoWikiFixtures.read(
-                        "synthetic/dedup/synthetic-counterexample-year-events.wikitext"),
+                    KoWikiFixtures.read("synthetic/dedup/synthetic-counterexample-year.wikitext"),
                     null,
                     READ);
     KoWikiEventSource source =
@@ -393,7 +491,9 @@ class KoWikiEventDeduplicatorTest {
 
     assertThat(result.events())
         .extracting(KoWikiEvent::text)
-        .containsExactly("시험 대회 A조 경기 가에서 시험 팀 가가 이겼다.", "시험 대회 A조 경기 나에서 시험 팀 나가 이겼다.");
+        .containsExactly(
+            "Test Cup group A match A is won by Test team A.",
+            "Test team B wins group A match B of the Test Cup.");
     assertThat(result.mergedCount()).isZero();
     assertThat(result.linkResolutionFailed()).isTrue();
   }

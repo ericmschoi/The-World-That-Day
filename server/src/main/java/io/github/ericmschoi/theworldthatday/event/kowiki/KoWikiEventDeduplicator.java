@@ -21,20 +21,27 @@ import org.springframework.stereotype.Component;
  * with the same event ID: identical text on one page is one line written twice, and IDs must stay
  * unique. A line that matches two or more groups stays on its own (D4): showing an event twice is a
  * smaller failure than losing one. Debug logs carry the rule and the hash part of the event IDs
- * only, never text or dates (D6).
+ * only, never text or dates (D6). A date page line and a year page line with the same specific main
+ * link are one event (D3m, plan C1 S3a); otherwise they need D2 or D3.
  */
 @Component
 public class KoWikiEventDeduplicator {
 
-  /** An event with its section in input order (0 date 사건, 1 문화, 2 year 사건, 3 문화). */
+  /** An event with its section in input order (0 date page Events, 1 year page Events). */
   public record Candidate(KoWikiEvent event, int section, List<Link> links) {}
 
   public record Result(List<KoWikiEvent> events, int mergedCount) {}
 
-  static final String GENERIC_LINKS = "kowiki-generic-links.txt";
+  static final String GENERIC_LINKS = "wiki-generic-links.txt";
 
   private static final Logger log = LoggerFactory.getLogger(KoWikiEventDeduplicator.class);
-  private static final Pattern PAGE_LINK = Pattern.compile("\\d+년|\\d+월 \\d+일");
+
+  /** Year and date page links ("1988", "February 13"): they never make two lines one event. */
+  private static final Pattern PAGE_LINK =
+      Pattern.compile(
+          "\\d{1,4}|(?:January|February|March|April|May|June|July|August|September|October"
+              + "|November|December) \\d{1,2}");
+
   private static final Pattern NOISE = Pattern.compile("[\\s\\p{P}]");
 
   private final double minLinkOverlap;
@@ -96,6 +103,9 @@ public class KoWikiEventDeduplicator {
     if (textKey(a).equals(textKey(b))) {
       return "D2";
     }
+    if (sameSpecificMain(a, b)) {
+      return placesConflict(a, b) ? null : "D3m";
+    }
     List<Link> left = specific(a.links());
     List<Link> right = specific(b.links());
     if (left.isEmpty() || right.isEmpty() || !(sharesMain(a, right) || sharesMain(b, left))) {
@@ -108,13 +118,30 @@ public class KoWikiEventDeduplicator {
     if ((double) shared / larger.size() < minLinkOverlap) {
       return null; // (ii) shared specific links over the larger set
     }
+    return placesConflict(a, b) ? null : "D3";
+  }
+
+  /** (iii) Both lines name places (generic links), and no place in common. */
+  private boolean placesConflict(Candidate a, Candidate b) {
     List<Link> genericA = a.links().stream().filter(this::isGeneric).toList();
     List<Link> genericB = b.links().stream().filter(this::isGeneric).toList();
-    boolean conflict =
-        !genericA.isEmpty()
-            && !genericB.isEmpty()
-            && genericA.stream().noneMatch(l -> genericB.stream().anyMatch(o -> sameLink(l, o)));
-    return conflict ? null : "D3"; // (iii) both name places, and no place in common
+    return !genericA.isEmpty()
+        && !genericB.isEmpty()
+        && genericA.stream().noneMatch(l -> genericB.stream().anyMatch(o -> sameLink(l, o)));
+  }
+
+  /**
+   * D3m (plan C1 S3a, PM decision): a date page line and a year page line whose main links are the
+   * same specific link (same QID or same resolved title) are one event, whatever the overlap,
+   * unless their places conflict as in D3 (iii). Only for lines of different pages; lines of one
+   * page never merge by D3m.
+   */
+  private boolean sameSpecificMain(Candidate a, Candidate b) {
+    if (a.section() == b.section() || a.links().isEmpty() || b.links().isEmpty()) {
+      return false;
+    }
+    Link main = a.links().getFirst();
+    return !isPageLink(main) && !isGeneric(main) && sameLink(main, b.links().getFirst());
   }
 
   /** (i) The main link of {@code event} is specific and in {@code set}. */
@@ -132,15 +159,10 @@ public class KoWikiEventDeduplicator {
     return generic.contains(link.title());
   }
 
-  /** Same QID, same resolved title, or same title once a leading "2002년 " reads "2002 ". */
+  /** Same QID or same resolved title. */
   static boolean sameLink(Link a, Link b) {
     return (a.wikidataQid() != null && a.wikidataQid().equals(b.wikidataQid()))
-        || a.title().equals(b.title())
-        || titleKey(a.title()).equals(titleKey(b.title()));
-  }
-
-  static String titleKey(String title) {
-    return title.replaceFirst("^(\\d{4})년 ", "$1 ");
+        || a.title().equals(b.title());
   }
 
   /** Links that are neither generic nor page links, the same link counted once. */

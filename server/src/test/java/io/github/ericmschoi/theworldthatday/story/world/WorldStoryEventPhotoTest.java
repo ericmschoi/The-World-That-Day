@@ -14,6 +14,7 @@ import com.github.tomakehurst.wiremock.http.QueryParameter;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import io.github.ericmschoi.theworldthatday.data.DataSchemas;
 import io.github.ericmschoi.theworldthatday.event.wikidata.SparqlWikidataSignalSourceTest;
+import io.github.ericmschoi.theworldthatday.wikimedia.WikiPageStubs;
 import io.github.ericmschoi.theworldthatday.wikimedia.WikimediaWireMockTest;
 import java.io.IOException;
 import java.io.InputStream;
@@ -82,26 +83,8 @@ class WorldStoryEventPhotoTest extends WikimediaWireMockTest {
 
   // ---- stubs ----
 
-  /** Section list by title, then the level-2 사건 and 문화 sections by revid and index. */
   private static void stubPage(String title, String prefix) {
-    String kowiki = "wikimedia/kowiki/";
-    JsonNode parse = JSON.readTree(read(kowiki + prefix + "-sections.json")).path("parse");
-    String revid = Long.toString(parse.path("revid").asLong());
-    wikimedia.stubFor(
-        WireMock.get(urlPathEqualTo(KOWIKI_PATH))
-            .withQueryParam("page", equalTo(title))
-            .willReturn(okJson(read(kowiki + prefix + "-sections.json"))));
-    for (JsonNode section : parse.path("sections")) {
-      String line = section.path("line").asString("");
-      String kind = line.equals("사건") ? "events" : line.equals("문화") ? "culture" : null;
-      if (kind != null && "2".equals(section.path("level").asString(""))) {
-        wikimedia.stubFor(
-            WireMock.get(urlPathEqualTo(KOWIKI_PATH))
-                .withQueryParam("oldid", equalTo(revid))
-                .withQueryParam("section", equalTo(section.path("index").asString()))
-                .willReturn(okJson(read(kowiki + prefix + "-" + kind + ".json"))));
-      }
-    }
+    WikiPageStubs.stubPage(wikimedia, title, prefix);
   }
 
   private static void unavailablePage(String title) {
@@ -146,26 +129,26 @@ class WorldStoryEventPhotoTest extends WikimediaWireMockTest {
   }
 
   private static void stubOpeningDay() {
-    stubPage("9월 17일", "09-17");
-    stubPage("1988년", "1988");
-    stubPageprops(read("wikimedia/kowiki/pageprops-1988-09-17.json"));
+    stubPage("September 17", "synthetic/synthetic-09-17");
+    stubPage("1988", "synthetic/synthetic-1988");
+    stubPageprops(read("wikimedia/enwiki/synthetic/synthetic-pageprops-1988-09-17.json"));
     stubSparql(SparqlWikidataSignalSourceTest.fixture("sparql-1988-09-17.json"));
     stubDayCategory(read("wikimedia/commons/day-category-1988-09-17.json"));
   }
 
-  /** The leap day pages; only 시험 문서 가 (Q1, in Korea, no tragic signal) is a normal event. */
+  /** The leap day pages; only Test page A (Q1, in Canada, no tragic signal) is a normal event. */
   private static void stubLeapDay() {
-    stubPage("2월 29일", "synthetic/synthetic-02-29");
-    stubPage("2000년", "synthetic/synthetic-2000");
+    stubPage("February 29", "synthetic/synthetic-02-29");
+    stubPage("2000", "synthetic/synthetic-2000");
     stubPageprops(
         """
-        {"batchcomplete":true,"query":{"pages":[{"pageid":1,"ns":0,"title":"시험 문서 가",
+        {"batchcomplete":true,"query":{"pages":[{"pageid":1,"ns":0,"title":"Test page A",
          "pageprops":{"wikibase_item":"Q1"}}]}}""");
     stubSparql(
         """
         {"head":{"vars":["item","tragicClass","deaths","country"]},"results":{"bindings":[
          {"item":{"type":"uri","value":"http://www.wikidata.org/entity/Q1"},
-          "country":{"type":"uri","value":"http://www.wikidata.org/entity/Q884"}}]}}""");
+          "country":{"type":"uri","value":"http://www.wikidata.org/entity/Q16"}}]}}""");
   }
 
   private static final String SYNTHETIC_FILE =
@@ -186,7 +169,7 @@ class WorldStoryEventPhotoTest extends WikimediaWireMockTest {
     stubPageImages(
         okJson(
             "{\"batchcomplete\":true,\"query\":{\"pages\":[{\"pageid\":1,\"ns\":0,"
-                + "\"title\":\"시험 문서 가\",\"pageimage\":\"Synthetic_test_photo.jpg\"}]}}"));
+                + "\"title\":\"Test page A\",\"pageimage\":\"Synthetic_test_photo.jpg\"}]}}"));
   }
 
   // ---- calls and counts ----
@@ -261,7 +244,7 @@ class WorldStoryEventPhotoTest extends WikimediaWireMockTest {
   @Test
   void openingDayAsksPageImagesOnceAndDropsTheSvgLogo() throws Exception {
     stubOpeningDay();
-    stubPageImages(okJson(read("wikimedia/kowiki/pageimages-1988-09-17.json")));
+    stubPageImages(okJson(read("wikimedia/enwiki/synthetic/synthetic-pageimages-1988-09-17.json")));
     stubFileBatch(okJson(read("wikimedia/commons/files-1988-09-17.json")));
 
     JsonNode root = ok("1988-09-17");
@@ -277,7 +260,7 @@ class WorldStoryEventPhotoTest extends WikimediaWireMockTest {
             "commons-26546944");
     assertThat(root.path("partial").asBoolean()).isFalse();
     assertThat(pageImagesRequests()).hasSize(1);
-    assertThat(askedTitles()).containsExactly("1988년 하계 올림픽", "KBS 1TV", "KBS 2TV");
+    assertThat(askedTitles()).containsExactly("1988 Summer Olympics", "KBS 1TV", "KBS 2TV");
     assertThat(served(COMMONS_PATH)).hasSize(2);
     assertThat(dayCategoryRequests()).isEqualTo(1);
     assertThat(fileBatchRequests()).isEqualTo(1);
@@ -286,27 +269,27 @@ class WorldStoryEventPhotoTest extends WikimediaWireMockTest {
 
   @Test
   void quarterFinalDayHasNoLeadImageAndNoFileBatch() throws Exception {
-    stubPage("6월 22일", "06-22");
-    stubPage("2002년", "2002");
-    stubPageprops(read("wikimedia/kowiki/pageprops-2002-06-22.json"));
+    stubPage("June 22", "synthetic/synthetic-06-22");
+    stubPage("2002", "synthetic/synthetic-2002");
+    stubPageprops(read("wikimedia/enwiki/synthetic/synthetic-pageprops-2002-06-22.json"));
     stubSparql(SparqlWikidataSignalSourceTest.fixture("sparql-2002-06-22.json"));
     stubDayCategory(read("wikimedia/commons/day-category-2002-06-22.json"));
-    stubPageImages(okJson(read("wikimedia/kowiki/pageimages-2002-06-22.json")));
+    stubPageImages(okJson(read("wikimedia/enwiki/synthetic/synthetic-pageimages-2002-06-22.json")));
 
     JsonNode root = ok("2002-06-22");
 
     assertEveryEventMediaEmpty(root);
     assertThat(ids(root.path("day_media"))).containsExactly("commons-129150318");
     assertThat(root.path("partial").asBoolean()).isFalse();
-    assertThat(askedTitles()).containsExactly("2002년 FIFA 월드컵");
+    assertThat(askedTitles()).containsExactly("2002 FIFA World Cup");
     assertThat(served(COMMONS_PATH)).hasSize(1);
     assertThat(fileBatchRequests()).isZero();
   }
 
   @Test
   void dayWithoutEventsAsksNoPageImages() throws Exception {
-    stubPage("3월 15일", "03-15");
-    stubPage("1995년", "1995");
+    stubPage("March 15", "synthetic/synthetic-03-15");
+    stubPage("1995", "synthetic/synthetic-1995");
     stubDayCategory(read("wikimedia/commons/day-category-1995-03-15.json"));
 
     JsonNode root = ok("1995-03-15");
@@ -329,7 +312,7 @@ class WorldStoryEventPhotoTest extends WikimediaWireMockTest {
 
     JsonNode event = null;
     for (JsonNode candidate : root.path("events")) {
-      if ("시험 문서 가".equals(candidate.path("title").asString(null))) {
+      if ("Test page A".equals(candidate.path("title").asString(null))) {
         event = candidate;
       }
     }
@@ -345,7 +328,7 @@ class WorldStoryEventPhotoTest extends WikimediaWireMockTest {
     }
     assertThat(photo.path("id").asString()).isEqualTo("commons-900001");
     assertThat(photo.path("display_mode").asString()).isEqualTo("image");
-    assertThat(photo.path("place_ref").asString()).isEqualTo("country:KR");
+    assertThat(photo.path("place_ref").asString()).isEqualTo("country:CA");
     assertThat(photo.path("captured_at").asString()).isEqualTo("1998");
     assertThat(photo.path("date_relation").path("kind").asString()).isEqualTo("years_apart");
     assertThat(photo.path("date_relation").path("years").asInt()).isEqualTo(-2);
@@ -354,13 +337,13 @@ class WorldStoryEventPhotoTest extends WikimediaWireMockTest {
         assertThat(other.path("media").isEmpty()).as("only the normal event").isTrue();
       }
     }
-    assertThat(askedTitles()).containsExactly("시험 문서 가");
-    assertThat(output.getAll()).doesNotContain("Synthetic", "시험 문서", "File:");
+    assertThat(askedTitles()).containsExactly("Test page A");
+    assertThat(output.getAll()).doesNotContain("Synthetic", "Test page", "File:");
   }
 
   // ---- tragic days (T1 (4)) ----
 
-  /** 시험 문서 가 is tragic by its Wikidata class; the other leap day events have no title. */
+  /** Test page A is tragic by its Wikidata class; the other leap day events have no title. */
   @Test
   void tragicEventIsNeverAskedAndTheDayHasNoDayPhotos() throws Exception {
     stubLeapDay();
@@ -369,7 +352,7 @@ class WorldStoryEventPhotoTest extends WikimediaWireMockTest {
         {"head":{"vars":["item","tragicClass","deaths","country"]},"results":{"bindings":[
          {"item":{"type":"uri","value":"http://www.wikidata.org/entity/Q1"},
           "tragicClass":{"type":"uri","value":"http://www.wikidata.org/entity/Q3839081"},
-          "country":{"type":"uri","value":"http://www.wikidata.org/entity/Q884"}}]}}""");
+          "country":{"type":"uri","value":"http://www.wikidata.org/entity/Q16"}}]}}""");
     synthPhotoLeadImage();
     stubFileBatch(okJson(SYNTHETIC_FILE));
     stubDayCategory("{\"batchcomplete\":true}");
@@ -401,7 +384,7 @@ class WorldStoryEventPhotoTest extends WikimediaWireMockTest {
   @Test
   void fileBatchWithoutAQueryEmptiesOnlyTheEventPhotos() throws Exception {
     stubOpeningDay();
-    stubPageImages(okJson(read("wikimedia/kowiki/pageimages-1988-09-17.json")));
+    stubPageImages(okJson(read("wikimedia/enwiki/synthetic/synthetic-pageimages-1988-09-17.json")));
     stubFileBatch(okJson("{\"batchcomplete\":true}"));
 
     JsonNode root = ok("1988-09-17");
@@ -415,9 +398,9 @@ class WorldStoryEventPhotoTest extends WikimediaWireMockTest {
 
   @Test
   void unavailableYearPageTurnsTheDayPhotosOffButStillAsksForEventPhotos() throws Exception {
-    stubPage("9월 17일", "09-17");
-    unavailablePage("1988년");
-    stubPageprops(read("wikimedia/kowiki/pageprops-1988-09-17.json"));
+    stubPage("September 17", "synthetic/synthetic-09-17");
+    unavailablePage("1988");
+    stubPageprops(read("wikimedia/enwiki/synthetic/synthetic-pageprops-1988-09-17.json"));
     stubSparql(SparqlWikidataSignalSourceTest.fixture("sparql-1988-09-17.json"));
     stubDayCategory(read("wikimedia/commons/day-category-1988-09-17.json"));
 
@@ -432,9 +415,9 @@ class WorldStoryEventPhotoTest extends WikimediaWireMockTest {
 
   @Test
   void unavailableDatePageTurnsTheDayPhotosOff() throws Exception {
-    unavailablePage("9월 17일");
-    stubPage("1988년", "1988");
-    stubPageprops(read("wikimedia/kowiki/pageprops-1988-09-17.json"));
+    unavailablePage("September 17");
+    stubPage("1988", "synthetic/synthetic-1988");
+    stubPageprops(read("wikimedia/enwiki/synthetic/synthetic-pageprops-1988-09-17.json"));
     stubSparql(SparqlWikidataSignalSourceTest.fixture("sparql-1988-09-17.json"));
     stubDayCategory(read("wikimedia/commons/day-category-1988-09-17.json"));
 
@@ -467,6 +450,7 @@ class WorldStoryEventPhotoTest extends WikimediaWireMockTest {
         .containsExactly(
             "Wikimedia call failed: source=commons title=commons files of 1 cause=status 503");
     assertThat(lines).allSatisfy(l -> assertThat(ISO_DATE.matcher(l).find()).isFalse());
-    assertThat(output.getAll()).doesNotContain("Synthetic", "시험 문서", "File:", "kowiki-2000-02-29");
+    assertThat(output.getAll())
+        .doesNotContain("Synthetic", "Test page", "File:", "enwiki-2000-02-29");
   }
 }

@@ -83,7 +83,7 @@ class ApplicationConfigTest {
     assertThat(value("wikimedia.read-timeout")).isEqualTo("4s");
     assertThat(value("wikimedia.max-retries")).isEqualTo("1");
     assertThat(value("wikimedia.rate-limit-max-wait")).isEqualTo("120s");
-    assertThat(value("wikimedia.kowiki-api-url")).isEqualTo("https://ko.wikipedia.org/w/api.php");
+    assertThat(value("wikimedia.kowiki-api-url")).isEqualTo("https://en.wikipedia.org/w/api.php");
     assertThat(value("wikimedia.kowiki-day-deadline")).isEqualTo("5s");
     assertThat(value("wikimedia.dedup.min-link-overlap")).isEqualTo("0.6");
   }

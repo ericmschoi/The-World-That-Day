@@ -56,6 +56,8 @@ class WorldStoryYoutubeWiredTest extends YoutubeWorldTest {
     ObjectNode expected =
         (ObjectNode) JSON.readTree(YoutubeItems.fixture("contract-video-embed-1986-09-20.json"));
     expected.put("retrieved_at", retrievedAt);
+    assertThat(expected.path("place_ref").asString()).isEqualTo("country:KR");
+    expected.put("place_ref", "country:CA"); // a domestic event is in Canada (plan C1 S3a T4 (5))
     assertThat(media.get(0)).isEqualTo(expected);
     assertThat(first.path("partial").asBoolean()).isFalse();
     assertThat(requests(SEARCH))
@@ -104,10 +106,11 @@ class WorldStoryYoutubeWiredTest extends YoutubeWorldTest {
 
   @Test
   void theQuarterFinalDaySearchesOnceSendsNoVideosCallAndCachesTheEmptyAnswer() throws Exception {
-    WorldStoryCommonsVideoTest.stubPage("6월 22일", "06-22");
-    WorldStoryCommonsVideoTest.stubPage("2002년", "2002");
+    WorldStoryCommonsVideoTest.stubPage("June 22", "synthetic/synthetic-06-22");
+    WorldStoryCommonsVideoTest.stubPage("2002", "synthetic/synthetic-2002");
     WorldStoryCommonsVideoTest.stubPageprops(
-        WorldStoryCommonsVideoTest.read("fixtures/wikimedia/kowiki/pageprops-2002-06-22.json"));
+        WorldStoryCommonsVideoTest.read(
+            "fixtures/wikimedia/enwiki/synthetic/synthetic-pageprops-2002-06-22.json"));
     WorldStoryCommonsVideoTest.stubSignals(
         SparqlWikidataSignalSourceTest.fixture("sparql-2002-06-22.json"));
     stubSearch(okJson(YoutubeItems.fixture("search-empty.json")));
@@ -140,8 +143,8 @@ class WorldStoryYoutubeWiredTest extends YoutubeWorldTest {
 
     assertThat(requests(SEARCH))
         .singleElement()
-        .satisfies(search -> assertThat(query(search, "q")).isEqualTo("시험 문서 가"));
-    assertThat(event(root, "시험 문서 가").path("media").findValuesAsString("type"))
+        .satisfies(search -> assertThat(query(search, "q")).isEqualTo("Test page A"));
+    assertThat(event(root, "Test page A").path("media").findValuesAsString("type"))
         .containsExactly("photo", "video");
     assertThat(youtubeItems(root)).isEmpty();
   }
@@ -151,10 +154,10 @@ class WorldStoryYoutubeWiredTest extends YoutubeWorldTest {
   @Test
   void aTragicEventIsNeverSearchedNextToANormalOne() throws Exception {
     stubDay(
-        "9월 20일",
-        "1986년",
+        "September 20",
+        "1986",
         300,
-        List.of(GAMES_LINE, "* [[1986년]] - [[시험 비극 문서|시험 비극]]이 일어났다."),
+        List.of(GAMES_LINE, "*[[1986]] &ndash; [[시험 비극 문서|시험 비극]]이 일어났다."),
         new Link(GAMES, "Q9001", false),
         new Link("시험 비극 문서", "Q9002", true));
     stubSearch(okJson(YoutubeItems.fixture("search-empty.json")));
@@ -169,10 +172,10 @@ class WorldStoryYoutubeWiredTest extends YoutubeWorldTest {
   @Test
   void theWarDayAsksNothingOfYoutube() throws Exception {
     stubDay(
-        "6월 25일",
-        "1950년",
+        "June 25",
+        "1950",
         400,
-        List.of("* [[1950년]] - [[시험 전쟁 문서|시험 전쟁]]이 일어났다."),
+        List.of("*[[1950]] &ndash; [[시험 전쟁 문서|시험 전쟁]]이 일어났다."),
         new Link("시험 전쟁 문서", "Q9003", true));
 
     JsonNode root = world("1950-06-25");
@@ -185,10 +188,10 @@ class WorldStoryYoutubeWiredTest extends YoutubeWorldTest {
   @Test
   void theFerryDayAsksNothingOfYoutube() throws Exception {
     stubDay(
-        "4월 16일",
-        "2014년",
+        "April 16",
+        "2014",
         500,
-        List.of("* [[2014년]] - [[시험 사고 문서|시험 사고]]가 일어났다."),
+        List.of("*[[2014]] &ndash; [[시험 사고 문서|시험 사고]]가 일어났다."),
         new Link("시험 사고 문서", "Q9004", true));
 
     JsonNode root = world("2014-04-16");
@@ -200,8 +203,8 @@ class WorldStoryYoutubeWiredTest extends YoutubeWorldTest {
 
   @Test
   void theDayWithoutEventsAsksNothingOfYoutube() throws Exception {
-    WorldStoryCommonsVideoTest.stubPage("3월 15일", "03-15");
-    WorldStoryCommonsVideoTest.stubPage("1995년", "1995");
+    WorldStoryCommonsVideoTest.stubPage("March 15", "synthetic/synthetic-03-15");
+    WorldStoryCommonsVideoTest.stubPage("1995", "synthetic/synthetic-1995");
 
     world("1995-03-15");
 

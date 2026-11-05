@@ -18,7 +18,7 @@ import { interceptNetwork, openDemo, type VideoRequests } from './network'
 const DEMO_1988 = '1988년 9월 17일로 보기'
 const SAME_DAY = 'Photos taken that day'
 const UNDATED = 'Photos with an unknown capture time'
-const EVENT_VIDEO = 'Material about “1988년 하계 올림픽”'
+const EVENT_VIDEO = 'Material about “1988 Summer Olympics”'
 const DAY_VIDEO = 'Archive video'
 const VIDEO_URLS = exampleVideoFile.video_sources.map((source) => source.url)
 
@@ -296,9 +296,11 @@ test.describe('video files that fail', () => {
       .getByRole('list', { name: 'Events' })
       .getByRole('listitem')
       .first()
-    await expect(first).toContainText('제24회 서울 하계 올림픽 개막.')
+    await expect(first).toContainText(
+      'The 1988 Summer Olympics open in Seoul, South Korea.',
+    )
     await expect(first.getByRole('img')).toHaveCount(2)
-    await expect(first).toContainText('Source: 한국어 위키백과')
+    await expect(first).toContainText('Source: English Wikipedia')
 
     await expect(world).not.toContainText(
       /오류|실패|재생할 수 없|error|fail|couldn't|can't play/i,
@@ -311,7 +313,7 @@ test.describe('video files that fail', () => {
 // each event up to one video, so two events in a row can each carry one.
 // The plan's rules ("보이면 음소거 자동 재생", "하나만 재생") mean exactly one
 // of them plays.
-const SECOND_EVENT_VIDEO = 'Material about “KBS 1TV”'
+const SECOND_EVENT_VIDEO = 'Material about “Test event B”'
 const twoEventVideos: WorldResponse = {
   ...world1988WithVideo,
   events: [

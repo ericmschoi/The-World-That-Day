@@ -68,17 +68,30 @@ class ActionApiKoWikiLinkResolverTest {
   @Test
   void recordedLookupFollowsRedirectsAndReturnsItemsInOneRequest() {
     wikimedia.stubFor(
-        get(urlPathEqualTo(PATH)).willReturn(okJson(read("pageprops-1988-09-17.json"))));
-    List<String> titles = List.of("1988년 하계 올림픽", "대한민국", "서울", "서울특별시", "KBS 1TV", "KBS 2TV");
+        get(urlPathEqualTo(PATH)).willReturn(okJson(read("pageprops-1976-07-17.json"))));
+    List<String> titles =
+        List.of(
+            "East Timor",
+            "Indonesian invasion of East Timor",
+            "Provinces of Indonesia",
+            "Indonesia",
+            "1976 Summer Olympics",
+            "Montreal",
+            "New Zealand",
+            "IOC",
+            "South Africa",
+            "Apartheid",
+            "Indonesian occupation of East Timor");
 
     Map<String, Link> links = parts.resolver.resolve(titles).orElseThrow();
 
     assertThat(links)
-        .containsEntry("1988년 하계 올림픽", new Link("1988년 하계 올림픽", "Q8470"))
-        .containsEntry("서울", new Link("서울특별시", "Q8684"))
-        .containsEntry("서울특별시", new Link("서울특별시", "Q8684"))
-        .containsEntry("대한민국", new Link("대한민국", "Q884"))
-        .hasSize(6);
+        .containsEntry("1976 Summer Olympics", new Link("1976 Summer Olympics", "Q8444"))
+        .containsEntry("IOC", new Link("International Olympic Committee", "Q40970"))
+        .containsEntry("East Timor", new Link("Timor-Leste", "Q574"))
+        .containsEntry("Indonesia", new Link("Indonesia", "Q252"))
+        .containsEntry("Montreal", new Link("Montreal", "Q340"))
+        .hasSize(11);
     List<ServeEvent> requests = requests(wikimedia);
     assertThat(requests).hasSize(1);
     ServeEvent request = requests.getFirst();
@@ -95,12 +108,14 @@ class ActionApiKoWikiLinkResolverTest {
   @Test
   void bothSpellingsOfTheSameCupResolveToOneTitleAndItem() {
     wikimedia.stubFor(
-        get(urlPathEqualTo(PATH)).willReturn(okJson(read("pageprops-2002-06-22.json"))));
+        get(urlPathEqualTo(PATH))
+            .willReturn(okJson(read("synthetic/synthetic-pageprops-2002-06-22.json"))));
 
     Map<String, Link> links =
-        parts.resolver.resolve(List.of("2002 FIFA 월드컵", "2002년 FIFA 월드컵")).orElseThrow();
+        parts.resolver.resolve(List.of("2002 FIFA World Cup", "2002 World Cup")).orElseThrow();
 
-    assertThat(links.values()).containsOnly(new Link("2002년 FIFA 월드컵", "Q47735"));
+    assertThat(links).hasSize(2);
+    assertThat(links.values()).containsOnly(new Link("2002 FIFA World Cup", "Q47735"));
   }
 
   @Test

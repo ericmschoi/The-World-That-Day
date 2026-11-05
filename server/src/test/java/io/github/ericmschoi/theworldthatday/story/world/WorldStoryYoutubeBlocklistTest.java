@@ -61,7 +61,7 @@ class WorldStoryYoutubeBlocklistTest extends YoutubeWorldTest {
             "http://localhost:5173",
             List.of(),
             List.of("youtube"));
-    EventContext event = new EventContext(eventId, DAY, GAMES, null, null, null, "country:KR");
+    EventContext event = new EventContext(eventId, DAY, GAMES, null, null, null, "country:CA");
     List<Candidate> stored =
         Stream.of("Abc123xyz_0", "Abc123xyz_4")
             .map(id -> unblocked.map(YoutubeItems.item(id), event).candidate())

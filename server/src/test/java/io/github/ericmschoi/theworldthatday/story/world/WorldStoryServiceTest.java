@@ -32,12 +32,12 @@ class WorldStoryServiceTest {
 
   private static KoWikiEvent event(String suffix, String page, String section, String... links) {
     return new KoWikiEvent(
-        "kowiki-2000-02-29-0000000" + suffix,
+        "enwiki-2000-02-29-0000000" + suffix,
         LEAP_DAY,
         page,
         section,
-        page.equals("2월 29일") ? 100L : 200L,
-        "시험 사건 " + suffix + ".",
+        page.equals("February 29") ? 100L : 200L,
+        "Test event " + suffix + ".",
         List.of(links),
         links.length == 0 ? null : "Q" + suffix,
         READ);
@@ -48,8 +48,8 @@ class WorldStoryServiceTest {
         LEAP_DAY,
         events,
         List.of(
-            new KoWikiDocStatus("2월 29일", 100L, READ, State.FRESH),
-            new KoWikiDocStatus("2000년", 200L, READ, State.CACHED)),
+            new KoWikiDocStatus("February 29", 100L, READ, State.FRESH),
+            new KoWikiDocStatus("2000", 200L, READ, State.CACHED)),
         0,
         0,
         false);
@@ -62,33 +62,31 @@ class WorldStoryServiceTest {
 
   @Test
   void eventFieldsComeFromTheSourceEventUnchanged() {
-    KoWikiEvent source = event("1", "2월 29일", "사건", "시험 문서 가", "시험 (문서) 나/다");
+    KoWikiEvent source = event("1", "February 29", "Events", "Test page A", "Test (page) B/C");
 
     Event event = respond(List.of(source), new DefaultEventToneJudge()).events().getFirst();
 
     assertThat(event.id()).isEqualTo(source.id());
     assertThat(event.date()).isEqualTo("2000-02-29");
-    assertThat(event.title()).isEqualTo("시험 문서 가");
-    assertThat(event.summary()).isEqualTo("시험 사건 1.");
-    assertThat(event.summaryLang()).isEqualTo("ko");
+    assertThat(event.title()).isEqualTo("Test page A");
+    assertThat(event.summary()).isEqualTo("Test event 1.");
+    assertThat(event.summaryLang()).isEqualTo("en");
     assertThat(event.summaryModified()).isFalse();
     assertThat(event.textLicense()).isEqualTo("CC BY-SA 4.0");
     assertThat(event.textLicenseUrl())
-        .isEqualTo("https://creativecommons.org/licenses/by-sa/4.0/deed.ko");
-    assertThat(event.sourceName()).isEqualTo("한국어 위키백과");
-    assertThat(event.sourceTitle()).isEqualTo("2월 29일");
-    assertThat(event.sourceUrl()).isEqualTo("https://ko.wikipedia.org/wiki/2%EC%9B%94_29%EC%9D%BC");
-    assertThat(event.sourceSection()).isEqualTo("사건");
+        .isEqualTo("https://creativecommons.org/licenses/by-sa/4.0/deed.en");
+    assertThat(event.sourceName()).isEqualTo("English Wikipedia");
+    assertThat(event.sourceTitle()).isEqualTo("February 29");
+    assertThat(event.sourceUrl()).isEqualTo("https://en.wikipedia.org/wiki/February_29");
+    assertThat(event.sourceSection()).isEqualTo("Events");
+    assertThat(event.dateKind()).isEqualTo("day");
+    assertThat(event.rangeEnd()).isNull();
     assertThat(event.sourceRevision()).isEqualTo(100L);
     assertThat(event.wikidataQid()).isEqualTo("Q1");
     assertThat(event.relatedLinks())
         .containsExactly(
-            new Link(
-                "시험 문서 가",
-                "https://ko.wikipedia.org/wiki/%EC%8B%9C%ED%97%98_%EB%AC%B8%EC%84%9C_%EA%B0%80"),
-            new Link(
-                "시험 (문서) 나/다",
-                "https://ko.wikipedia.org/wiki/%EC%8B%9C%ED%97%98_%28%EB%AC%B8%EC%84%9C%29_%EB%82%98%2F%EB%8B%A4"));
+            new Link("Test page A", "https://en.wikipedia.org/wiki/Test_page_A"),
+            new Link("Test (page) B/C", "https://en.wikipedia.org/wiki/Test_%28page%29_B%2FC"));
     assertThat(event.media()).isEmpty();
     assertThat(event.retrievedAt()).as("seconds, UTC").isEqualTo("2026-01-01T00:00:00Z");
   }
@@ -96,21 +94,21 @@ class WorldStoryServiceTest {
   @Test
   void eventWithoutLinksHasNoTitleNoQidAndNoRelatedLinks() {
     Event event =
-        respond(List.of(event("2", "2000년", "문화")), new DefaultEventToneJudge())
+        respond(List.of(event("2", "2000", "Events")), new DefaultEventToneJudge())
             .events()
             .getFirst();
 
     assertThat(event.title()).isNull();
     assertThat(event.wikidataQid()).isNull();
     assertThat(event.relatedLinks()).isEmpty();
-    assertThat(event.sourceUrl()).isEqualTo("https://ko.wikipedia.org/wiki/2000%EB%85%84");
+    assertThat(event.sourceUrl()).isEqualTo("https://en.wikipedia.org/wiki/2000");
   }
 
   @Test
   void placeholderJudgeGivesEveryEventTheConservativeVerdict() {
     WorldStoryResponse response =
         respond(
-            List.of(event("1", "2월 29일", "사건", "가"), event("2", "2000년", "문화")),
+            List.of(event("1", "February 29", "Events", "A"), event("2", "2000", "Events")),
             new DefaultEventToneJudge());
 
     assertThat(response.events())
@@ -127,17 +125,17 @@ class WorldStoryServiceTest {
   void normalEventsComeFirstAndEachToneKeepsTheSourceOrder() {
     List<KoWikiEvent> events =
         List.of(
-            event("1", "2월 29일", "사건", "가"),
-            event("2", "2월 29일", "문화", "나"),
-            event("3", "2000년", "사건", "다"),
-            event("4", "2000년", "문화", "라"));
+            event("1", "February 29", "Events", "A"),
+            event("2", "February 29", "Events", "B"),
+            event("3", "2000", "Events", "C"),
+            event("4", "2000", "Events", "D"));
     EventToneJudge judge = found -> new Judgement(List.of(TRAGIC, NORMAL, TRAGIC, NORMAL), false);
 
     WorldStoryResponse response = respond(events, judge);
 
     assertThat(response.events())
         .extracting(Event::summary)
-        .containsExactly("시험 사건 2.", "시험 사건 4.", "시험 사건 1.", "시험 사건 3.");
+        .containsExactly("Test event 2.", "Test event 4.", "Test event 1.", "Test event 3.");
     assertThat(response.events())
         .extracting(Event::tone, Event::toneBasis, Event::scope)
         .first()
@@ -148,7 +146,8 @@ class WorldStoryServiceTest {
   void aFailedSupportingSourceOfTheJudgeMakesThePagePartial() {
     EventToneJudge failing = found -> new Judgement(List.of(TRAGIC), true);
 
-    WorldStoryResponse response = respond(List.of(event("1", "2월 29일", "사건", "가")), failing);
+    WorldStoryResponse response =
+        respond(List.of(event("1", "February 29", "Events", "A")), failing);
 
     assertThat(response.partial()).isTrue();
     assertThat(response.notice()).isNull();
@@ -158,17 +157,17 @@ class WorldStoryServiceTest {
   void aJudgeThatLosesAnEventIsAProgrammingError() {
     EventToneJudge broken = found -> new Judgement(List.of(), false);
 
-    assertThatThrownBy(() -> respond(List.of(event("1", "2월 29일", "사건", "가")), broken))
+    assertThatThrownBy(() -> respond(List.of(event("1", "February 29", "Events", "A")), broken))
         .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
   void pageUrlEncodesSpacesAsUnderscoresAndEverythingElseAsUtf8() {
-    assertThat(WorldStoryResponse.pageUrl("9월 17일"))
-        .isEqualTo("https://ko.wikipedia.org/wiki/9%EC%9B%94_17%EC%9D%BC");
-    assertThat(WorldStoryResponse.pageUrl("KBS 1TV"))
-        .isEqualTo("https://ko.wikipedia.org/wiki/KBS_1TV");
+    assertThat(WorldStoryResponse.pageUrl("February 13"))
+        .isEqualTo("https://en.wikipedia.org/wiki/February_13");
+    assertThat(WorldStoryResponse.pageUrl("1980 Liberian coup d'état"))
+        .isEqualTo("https://en.wikipedia.org/wiki/1980_Liberian_coup_d%27%C3%A9tat");
     assertThat(WorldStoryResponse.pageUrl("A&B?C#D"))
-        .isEqualTo("https://ko.wikipedia.org/wiki/A%26B%3FC%23D");
+        .isEqualTo("https://en.wikipedia.org/wiki/A%26B%3FC%23D");
   }
 }

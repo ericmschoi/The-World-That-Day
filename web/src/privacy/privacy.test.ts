@@ -89,8 +89,10 @@ describe('privacy policy page (T1 (1))', () => {
   // which includes the YouTube Data API).
   it('lists the outside sources the server calls now', () => {
     expect(text).toContain(
-      'Right now these are Korean Wikipedia, Wikidata, Wikimedia Commons (photos and videos) and YouTube Data API (video search on the KTV Archive channel).',
+      'Right now these are English Wikipedia, Wikidata, Wikimedia Commons (photos and videos) and YouTube Data API (video search on the KTV Archive channel).',
     )
+    // Plan C1 S3a T6 (4): the server reads English Wikipedia now.
+    expect(text).not.toContain('Korean Wikipedia')
   })
 
   it('links the YouTube terms and the Google privacy policy', () => {

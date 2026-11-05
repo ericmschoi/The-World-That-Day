@@ -1,10 +1,5 @@
 package io.github.ericmschoi.theworldthatday.event.kowiki;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiFixtures.read;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.ericmschoi.theworldthatday.event.kowiki.KoWikiPage.State;
@@ -47,12 +42,7 @@ class KoWikiEventSourceDatabaseDownTest extends WikimediaWireMockTest {
 
   @Test
   void stoppedDatabaseStillGivesBothPagesInsideTheDeadline(CapturedOutput output) {
-    KoWikiEventSourceContextTest.stubRecorded("9월 17일");
-    KoWikiEventSourceContextTest.stubRecorded("1988년");
-    wikimedia.stubFor(
-        get(urlPathEqualTo(KOWIKI_PATH))
-            .withQueryParam("action", equalTo("query"))
-            .willReturn(okJson(read("pageprops-1988-09-17.json"))));
+    KoWikiEventSourceContextTest.stubOpeningDay();
     postgres.stop();
 
     long start = System.nanoTime();
@@ -63,15 +53,15 @@ class KoWikiEventSourceDatabaseDownTest extends WikimediaWireMockTest {
     assertThat(result.docs())
         .extracting(KoWikiDocStatus::title, KoWikiDocStatus::state)
         .containsExactly(
-            org.assertj.core.groups.Tuple.tuple("9월 17일", State.FRESH),
-            org.assertj.core.groups.Tuple.tuple("1988년", State.FRESH));
+            org.assertj.core.groups.Tuple.tuple("September 17", State.FRESH),
+            org.assertj.core.groups.Tuple.tuple("1988", State.FRESH));
     assertThat(result.events()).isNotEmpty();
     assertThat(result.events().getFirst().wikidataQid()).isEqualTo("Q8470");
     assertThat(result.degraded()).isFalse();
     assertThat(lines(output, "Wiki section cache read failed")).isEqualTo(2);
     assertThat(output.getAll())
-        .contains("Wiki section cache read failed: title=9월 17일")
-        .contains("Wiki section cache read failed: title=1988년");
+        .contains("Wiki section cache read failed: title=September 17")
+        .contains("Wiki section cache read failed: title=1988");
     assertThat(lines(output, "Wiki section cache write failed")).isZero();
   }
 }

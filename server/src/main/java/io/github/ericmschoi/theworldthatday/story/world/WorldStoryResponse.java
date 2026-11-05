@@ -14,13 +14,15 @@ import tools.jackson.databind.annotation.JsonNaming;
 /**
  * Body of {@code GET /api/story/world} (plan M3a2 response fields). JSON names are snake_case.
  * {@code dayMedia} holds the day's photos (M3a3b); an event's {@code media} holds its photo (0 or
- * 1, M3a3d), and M3a4 adds videos.
+ * 1, M3a3d), and M3a4 adds videos. Events come from English Wikipedia (plan C1 S3a): {@code
+ * date_kind} is {@code day} or {@code range_start}, and {@code range_end} is the last day of a
+ * range (else {@code null}).
  */
 @JsonNaming(SnakeCaseStrategy.class)
 public record WorldStoryResponse(
     String date, List<Event> events, List<MediaItem> dayMedia, Notice notice, boolean partial) {
 
-  static final String WIKI_BASE = "https://ko.wikipedia.org/wiki/";
+  static final String WIKI_BASE = "https://en.wikipedia.org/wiki/";
 
   public WorldStoryResponse {
     events = List.copyOf(events);
@@ -41,6 +43,8 @@ public record WorldStoryResponse(
   public record Event(
       String id,
       String date,
+      String dateKind,
+      String rangeEnd,
       String scope,
       String title,
       String summary,
@@ -64,14 +68,16 @@ public record WorldStoryResponse(
       return new Event(
           event.id(),
           event.date().toString(),
+          event.dateKind().value(),
+          event.rangeEnd() == null ? null : event.rangeEnd().toString(),
           verdict.scope().value(),
           event.linkTitles().isEmpty() ? null : event.linkTitles().getFirst(),
           event.text(),
-          "ko",
+          "en",
           false,
           "CC BY-SA 4.0",
-          "https://creativecommons.org/licenses/by-sa/4.0/deed.ko",
-          "한국어 위키백과",
+          "https://creativecommons.org/licenses/by-sa/4.0/deed.en",
+          "English Wikipedia",
           event.sourceTitle(),
           pageUrl(event.sourceTitle()),
           event.sourceSection(),

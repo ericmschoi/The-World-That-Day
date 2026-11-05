@@ -1,7 +1,6 @@
 package io.github.ericmschoi.theworldthatday.event.kowiki;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
@@ -37,7 +36,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 class CachingKoWikiClientFailureIsolationTest extends WikimediaWireMockTest {
 
   private static final String SITE = "localhost"; // host of the WireMock kowiki-api-url
-  private static final String TITLE = "9월 17일";
+  private static final String TITLE = "July 17";
 
   @Autowired private KoWikiClient client;
   @Autowired private WikimediaHttpClient http;
@@ -50,19 +49,7 @@ class CachingKoWikiClientFailureIsolationTest extends WikimediaWireMockTest {
   }
 
   private void stubRecordedDemoPage() {
-    String prefix = KoWikiFixtureReadme.DEMO_PAGES.get(TITLE);
-    wikimedia.stubFor(
-        get(urlPathEqualTo(KOWIKI_PATH))
-            .withQueryParam("page", equalTo(TITLE))
-            .willReturn(okJson(read(prefix + "-sections.json"))));
-    wikimedia.stubFor(
-        get(urlPathEqualTo(KOWIKI_PATH))
-            .withQueryParam("section", equalTo(KoWikiFixtureReadme.sectionIndex(prefix, "사건")))
-            .willReturn(okJson(read(prefix + "-events.json"))));
-    wikimedia.stubFor(
-        get(urlPathEqualTo(KOWIKI_PATH))
-            .withQueryParam("section", equalTo(KoWikiFixtureReadme.sectionIndex(prefix, "문화")))
-            .willReturn(okJson(read(prefix + "-culture.json"))));
+    KoWikiSourceFixture.stubRecorded(wikimedia, TITLE);
   }
 
   /** Reads the demo page once (FRESH, stored), then lets the row expire and clears WireMock. */
@@ -98,7 +85,7 @@ class CachingKoWikiClientFailureIsolationTest extends WikimediaWireMockTest {
     assertThat(stale.state()).isEqualTo(State.STALE);
     assertThat(stale).usingRecursiveComparison().ignoringFields("state").isEqualTo(first);
     assertThat(output.getAll())
-        .contains("source=kowiki title=9월 17일 cause=HttpTimeoutException")
+        .contains("source=enwiki title=July 17 cause=HttpTimeoutException")
         .doesNotContain(wikimedia.baseUrl())
         .doesNotContain("oldid=");
   }
@@ -156,7 +143,7 @@ class CachingKoWikiClientFailureIsolationTest extends WikimediaWireMockTest {
             pool.submit(
                 () -> {
                   start.await();
-                  repository.upsert(SITE, TITLE, revid, "== 사건 ==", null, now.plusSeconds(revid));
+                  repository.upsert(SITE, TITLE, revid, "==Events==", null, now.plusSeconds(revid));
                   return null;
                 }));
       }

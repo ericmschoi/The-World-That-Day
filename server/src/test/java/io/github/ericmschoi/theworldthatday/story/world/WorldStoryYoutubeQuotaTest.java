@@ -48,13 +48,13 @@ class WorldStoryYoutubeQuotaTest extends YoutubeWorldTest {
   @Test
   void threeEventsWith78SearchesUsedSearchNone() throws Exception {
     stubDay(
-        "9월 20일",
-        "1986년",
+        "September 20",
+        "1986",
         300,
         List.of(
             GAMES_LINE,
-            "* [[1986년]] - [[시험 문서 나|시험 행사 나]]가 열렸다.",
-            "* [[1986년]] - [[시험 문서 다|시험 행사 다]]가 열렸다."),
+            "*[[1986]] &ndash; [[시험 문서 나|시험 행사 나]]가 열렸다.",
+            "*[[1986]] &ndash; [[시험 문서 다|시험 행사 다]]가 열렸다."),
         new Link(GAMES, "Q9001", false),
         new Link("시험 문서 나", "Q9005", false),
         new Link("시험 문서 다", "Q9006", false));

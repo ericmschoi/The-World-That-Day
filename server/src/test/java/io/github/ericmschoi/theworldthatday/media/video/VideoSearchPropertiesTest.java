@@ -67,7 +67,7 @@ class VideoSearchPropertiesTest {
     runner.run(
         context -> {
           VideoSearchProperties properties = context.getBean(VideoSearchProperties.class);
-          assertNumbers(properties);
+          assertNumbers(properties, 3);
           assertThat(properties.commemorationWords()).isEmpty();
           assertThat(properties.otherStageWords()).isEmpty();
           assertThat(properties.stopwords()).isEmpty();
@@ -81,16 +81,16 @@ class VideoSearchPropertiesTest {
         .run(
             context -> {
               VideoSearchProperties properties = context.getBean(VideoSearchProperties.class);
-              assertNumbers(properties);
+              assertNumbers(properties, 0); // plan C1 S3a D7 (a): videos off until S3c, was 3
               assertThat(properties.commemorationWords()).containsExactlyElementsOf(COMMEMORATION);
               assertThat(properties.otherStageWords()).containsExactlyElementsOf(OTHER_STAGE);
               assertThat(properties.stopwords()).containsExactlyElementsOf(STOPWORDS);
             });
   }
 
-  private static void assertNumbers(VideoSearchProperties properties) {
+  private static void assertNumbers(VideoSearchProperties properties, int maxEvents) {
     assertThat(properties.minScore()).isEqualTo(60);
-    assertThat(properties.maxEvents()).isEqualTo(3);
+    assertThat(properties.maxEvents()).isEqualTo(maxEvents);
     assertThat(properties.maxDurationSeconds()).isEqualTo(600);
   }
 
@@ -101,7 +101,7 @@ class VideoSearchPropertiesTest {
         .run(
             context -> {
               MediaLookupProperties lookup = context.getBean(MediaLookupProperties.class);
-              assertThat(lookup.dayMediaLimit()).isEqualTo(6);
+              assertThat(lookup.dayMediaLimit()).isZero(); // plan C1 S3a D7 (a), was 6
               assertThat(lookup.lookupDeadline()).isEqualTo(Duration.ofSeconds(3));
               assertThat(lookup.maxYearsApart()).isEqualTo(5);
               MediaProperties media = context.getBean(MediaProperties.class);

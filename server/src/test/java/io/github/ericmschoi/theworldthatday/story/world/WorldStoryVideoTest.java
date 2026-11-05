@@ -72,8 +72,8 @@ class WorldStoryVideoTest {
   private static final Verdict DOMESTIC = new Verdict(Tone.NORMAL, Basis.CURATED, Scope.DOMESTIC);
   private static final Verdict WORLD = new Verdict(Tone.NORMAL, Basis.RULE_NO_SIGNAL, Scope.WORLD);
   private static final Verdict TRAGIC = new Verdict(Tone.TRAGIC, Basis.RULE_CLASS, Scope.WORLD);
-  private static final String E1 = "kowiki-2000-02-29-00000001";
-  private static final String E2 = "kowiki-2000-02-29-00000002";
+  private static final String E1 = "enwiki-2000-02-29-00000001";
+  private static final String E2 = "enwiki-2000-02-29-00000002";
 
   private boolean silentDay;
   private boolean silentPageImages;
@@ -125,7 +125,7 @@ class WorldStoryVideoTest {
         }
         return failedPageImages
             ? Optional.empty()
-            : Optional.of(Map.of("알파 행사", "Synthetic event.jpg"));
+            : Optional.of(Map.of("Alpha event", "Synthetic event.jpg"));
       };
 
   private final List<FakeVideoSource> sources = new CopyOnWriteArrayList<>();
@@ -134,17 +134,17 @@ class WorldStoryVideoTest {
     return new KoWikiEvent(
         id,
         LEAP_DAY,
-        "2000년",
-        "사건",
+        "2000",
+        "Events",
         200L,
-        "시험 사건 " + id.substring(25) + ".",
+        "Test event " + id.substring(25) + ".",
         linkList(link),
         qid,
         READ);
   }
 
   private static List<String> linkList(String link) {
-    return link == null ? List.of() : List.of(link, "시험 문서 기타");
+    return link == null ? List.of() : List.of(link, "Test page other");
   }
 
   private WorldStoryResponse respond(
@@ -159,8 +159,8 @@ class WorldStoryVideoTest {
             LEAP_DAY,
             events,
             List.of(
-                new KoWikiDocStatus("2월 29일", 100L, READ, datePage),
-                new KoWikiDocStatus("2000년", 200L, READ, yearPage)),
+                new KoWikiDocStatus("February 29", 100L, READ, datePage),
+                new KoWikiDocStatus("2000", 200L, READ, yearPage)),
             0,
             0,
             false);
@@ -186,7 +186,11 @@ class WorldStoryVideoTest {
   private FakeVideoSource source(String key, String... eventIds) {
     Candidate video =
         FakeVideoSource.commons(
-            900001, "알파 행사 영상", day("2000-02-29"), EventLink.P10, Selection.Basis.COMMONS_P10);
+            900001,
+            "Alpha event footage",
+            day("2000-02-29"),
+            EventLink.P10,
+            Selection.Basis.COMMONS_P10);
     Map<String, List<Candidate>> byEvent = new HashMap<>();
     for (String id : eventIds) {
       byEvent.put(id, List.of(video));
@@ -212,7 +216,8 @@ class WorldStoryVideoTest {
   void eventMediaIsThePhotoThenTheVideoAndOnlyTheVideoHasASelection() {
     source("commons", E1);
 
-    WorldStoryResponse response = respond(List.of(event(E1, "알파 행사", null)), List.of(DOMESTIC));
+    WorldStoryResponse response =
+        respond(List.of(event(E1, "Alpha event", null)), List.of(DOMESTIC));
 
     List<MediaItem> media = response.events().getFirst().media();
     assertThat(ids(media)).containsExactly("commons-101", "commons-900001");
@@ -239,7 +244,8 @@ class WorldStoryVideoTest {
 
     WorldStoryResponse response =
         respond(
-            List.of(event(E1, "알파 행사", null), event(E2, "알파 행사", null)), List.of(TRAGIC, DOMESTIC));
+            List.of(event(E1, "Alpha event", null), event(E2, "Alpha event", null)),
+            List.of(TRAGIC, DOMESTIC));
 
     for (FakeVideoSource source : List.of(a, b)) {
       assertThat(askedIds(source)).containsExactly(E2);
@@ -258,7 +264,7 @@ class WorldStoryVideoTest {
     FakeVideoSource a = source("alpha");
     FakeVideoSource b = source("beta");
 
-    respond(List.of(event(E1, "알파 행사", null)), List.of(DOMESTIC), datePage, yearPage);
+    respond(List.of(event(E1, "Alpha event", null)), List.of(DOMESTIC), datePage, yearPage);
 
     assertThat(a.dayPathsOff).containsExactly(off);
     assertThat(b.dayPathsOff).containsExactly(off);
@@ -271,12 +277,14 @@ class WorldStoryVideoTest {
     FakeVideoSource a = source("alpha");
 
     respond(
-        List.of(event(E1, "알파 행사", "Q999999901"), event(E2, null, null)), List.of(WORLD, DOMESTIC));
+        List.of(event(E1, "Alpha event", "Q999999901"), event(E2, null, null)),
+        List.of(WORLD, DOMESTIC));
 
     assertThat(a.asked)
         .containsExactly(
             List.of(
-                new EventContext(E1, LEAP_DAY, "알파 행사", null, "시험 사건 1.", "Q999999901", "world")));
+                new EventContext(
+                    E1, LEAP_DAY, "Alpha event", null, "Test event 1.", "Q999999901", "world")));
   }
 
   @Test
@@ -298,7 +306,8 @@ class WorldStoryVideoTest {
     failedPageImages = true;
     source("commons", E1);
 
-    WorldStoryResponse response = respond(List.of(event(E1, "알파 행사", null)), List.of(DOMESTIC));
+    WorldStoryResponse response =
+        respond(List.of(event(E1, "Alpha event", null)), List.of(DOMESTIC));
 
     assertThat(ids(response.events().getFirst().media())).containsExactly("commons-900001");
     assertThat(response.partial()).isTrue();
@@ -313,7 +322,8 @@ class WorldStoryVideoTest {
               throw new IllegalStateException("synthetic");
             }));
 
-    WorldStoryResponse response = respond(List.of(event(E1, "알파 행사", null)), List.of(DOMESTIC));
+    WorldStoryResponse response =
+        respond(List.of(event(E1, "Alpha event", null)), List.of(DOMESTIC));
 
     assertThat(ids(response.events().getFirst().media())).containsExactly("commons-101");
     assertThat(ids(response.dayMedia())).containsExactly("commons-201");
@@ -344,7 +354,8 @@ class WorldStoryVideoTest {
                                 EventLink.P10,
                                 Selection.Basis.COMMONS_P10))))));
     WorldStoryService service =
-        service(List.of(event(E1, "알파 행사", null)), List.of(DOMESTIC), State.FRESH, State.FRESH);
+        service(
+            List.of(event(E1, "Alpha event", null)), List.of(DOMESTIC), State.FRESH, State.FRESH);
     MockMvc mvc =
         MockMvcBuilders.standaloneSetup(
                 new WorldStoryController(service, Clock.fixed(READ, ClockConfig.SERVICE_ZONE)))
@@ -378,7 +389,8 @@ class WorldStoryVideoTest {
     sources.add(new FakeVideoSource("beta", events -> FakeVideoSource.silent()));
 
     long start = System.nanoTime();
-    WorldStoryResponse response = respond(List.of(event(E1, "알파 행사", null)), List.of(DOMESTIC));
+    WorldStoryResponse response =
+        respond(List.of(event(E1, "Alpha event", null)), List.of(DOMESTIC));
     Duration took = Duration.ofNanos(System.nanoTime() - start);
     System.out.println(
         "M3a4 T6 (9) media segment, day category, PageImages and two video sources silent"

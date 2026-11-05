@@ -1,0 +1,17 @@
+{
+  "head" : {
+    "vars" : [ "item", "tragicClass", "deaths", "country" ]
+  },
+  "results" : {
+    "bindings" : [ {
+      "item" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q9674"
+      },
+      "country" : {
+        "type" : "uri",
+        "value" : "http://www.wikidata.org/entity/Q16"
+      }
+    } ]
+  }
+}
