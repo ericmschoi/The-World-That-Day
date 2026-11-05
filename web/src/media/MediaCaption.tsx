@@ -13,8 +13,8 @@ type Props = { media: Media }
 
 // The caption every media card carries (product brief 6, CLAUDE.md 7.1):
 // date relation first, then description, source, license, and links.
-// An unknown capture time gets no badge, only "촬영 시점 미상". The license
-// line is left out when the attribution already names the license.
+// An unknown capture time gets no badge, only "Capture time unknown". The
+// license line is left out when the attribution already names the license.
 export function MediaCaption({ media }: Props) {
   const { badge, text } = dateLabel(media)
   // Not a string (a number, an object): no description line (M3b3 decision 2 (b)).
@@ -33,12 +33,12 @@ export function MediaCaption({ media }: Props) {
         <p className={styles.meta}>{licenseLabel(media)}</p>
       )}
       <p className={styles.links}>
-        <NewTabLink href={media.source_url}>원문 보기</NewTabLink>
+        <NewTabLink href={media.source_url}>View original</NewTabLink>
         {isHttpUrl(media.license_url) && (
           <>
             <span aria-hidden="true"> · </span>
             <NewTabLink href={media.license_url}>
-              {isProviderTerms(media) ? '이용약관' : '라이선스'}
+              {isProviderTerms(media) ? 'Terms' : 'Licence'}
             </NewTabLink>
           </>
         )}

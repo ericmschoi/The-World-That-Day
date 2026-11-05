@@ -8,8 +8,8 @@ import { world1988 } from '../src/mocks/fixtures/world/responses'
 import { interceptNetwork, openDemo, tokenColor } from './network'
 
 const DEMO_1988 = '1988년 9월 17일로 보기'
-const CONSENT_LABEL = '개인정보처리방침에 동의합니다 (필수)'
-const CONSENT_HINT = '개인정보처리방침에 동의해야 볼 수 있습니다.'
+const CONSENT_LABEL = 'I agree to the privacy policy (required)'
+const CONSENT_HINT = 'Agree to the privacy policy to see the story.'
 const BUTTONS = [
   DEMO_1988,
   '2002년 6월 22일로 보기',
@@ -21,9 +21,10 @@ const LOCAL = new Set(['localhost', '127.0.0.1'])
 
 const consentBox = (page: Page) =>
   page.getByRole('checkbox', { name: CONSENT_LABEL })
-const world = (page: Page) => page.getByRole('region', { name: '그날의 세계' })
+const world = (page: Page) =>
+  page.getByRole('region', { name: 'The world that day' })
 const footerLink = (page: Page) =>
-  page.getByRole('contentinfo').getByRole('link', { name: /^개인정보처리방침/ })
+  page.getByRole('contentinfo').getByRole('link', { name: /^Privacy policy/ })
 
 // The dates asked for, in order. React's StrictMode in the dev server may
 // ask twice for the same date, so repeats are folded.
@@ -117,10 +118,10 @@ test.describe('before agreeing', () => {
     }
     expect(order).toEqual([
       `input:${CONSENT_LABEL}`,
-      'a:개인정보처리방침 보기 (새 창에서 열림)',
-      'a:YouTube 이용약관 (새 창에서 열림)',
+      'a:Read the privacy policy (opens in a new tab)',
+      'a:YouTube Terms of Service (opens in a new tab)',
       ...BUTTONS.map((label) => `button:${label}`),
-      'a:개인정보처리방침 (새 창에서 열림)',
+      'a:Privacy policy (opens in a new tab)',
     ])
   })
 })
@@ -134,7 +135,7 @@ test('(b) after agreeing the button opens the story', async ({ page }) => {
   ).not.toHaveAttribute('aria-disabled', 'true')
   await page.getByRole('button', { name: DEMO_1988 }).click()
   await expect(
-    world(page).getByRole('list', { name: '사건 목록' }).getByRole('listitem'),
+    world(page).getByRole('list', { name: 'Events' }).getByRole('listitem'),
   ).toHaveCount(3)
   expect(askedDates()).toEqual(['1988-09-17'])
 })
@@ -156,10 +157,10 @@ async function openPolicyFrom(page: Page) {
 async function expectPolicy(policy: Page, opener: Page) {
   expect(new URL(policy.url()).pathname).toBe('/privacy.html')
   await expect(policy.getByRole('heading', { level: 1 })).toHaveText(
-    '개인정보처리방침',
+    'Privacy policy',
   )
   await expect(policy.getByRole('main')).toContainText(
-    'The World That Day 운영자',
+    'Operator: The World That Day operator',
   )
   // Checked by href only, never clicked.
   await expect(
@@ -217,9 +218,7 @@ test.describe('(c) the footer link opens the policy in a new tab', () => {
     const policy = await openPolicyFrom(page)
     await expectPolicy(policy, page)
     await expect(
-      world(page)
-        .getByRole('list', { name: '사건 목록' })
-        .getByRole('listitem'),
+      world(page).getByRole('list', { name: 'Events' }).getByRole('listitem'),
     ).toHaveCount(3)
   })
 })
@@ -228,7 +227,7 @@ test('(d) the agreement survives 처음으로 and not a reload', async ({
   page,
 }) => {
   await openDemo(page, DEMO_1988)
-  await page.getByRole('button', { name: '처음으로' }).click()
+  await page.getByRole('button', { name: 'Start over' }).click()
   await expect(consentBox(page)).toBeChecked()
   await page.getByRole('button', { name: BUTTONS[1] }).click()
   await expect(world(page)).toBeVisible()

@@ -18,10 +18,12 @@ import {
 
 const DATE_WORDS = [
   '그날',
-  '같은 날',
+  'Same day',
+  'that day',
   '당일',
   '1988-09-17',
   '1988년 9월 17일',
+  'September 17',
   '9월 17일',
 ]
 
@@ -36,7 +38,7 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-const world = () => screen.getByRole('region', { name: '그날의 세계' })
+const world = () => screen.getByRole('region', { name: 'The world that day' })
 
 async function showStory() {
   server.use(
@@ -44,10 +46,10 @@ async function showStory() {
   )
   render(<StoryScreen date="1988-09-17" onRestart={() => {}} />)
   await waitFor(() => expect(world()).not.toHaveAttribute('aria-busy'))
-  const eventVideo = within(screen.getByRole('list', { name: '사건 목록' }))
+  const eventVideo = within(screen.getByRole('list', { name: 'Events' }))
     .getAllByRole('listitem')[0]
     .querySelector('video')!
-  const dayVideo = within(world()).getByLabelText('기록 영상')
+  const dayVideo = within(world()).getByLabelText('Archive video')
   return { eventVideo, dayVideo: dayVideo as HTMLVideoElement }
 }
 
@@ -84,8 +86,10 @@ describe('one coordinator for the whole story screen', () => {
 describe('video names', () => {
   it('name no date in either video', async () => {
     const { eventVideo, dayVideo } = await showStory()
-    expect(dayVideo).toHaveAccessibleName('기록 영상')
-    expect(eventVideo).toHaveAccessibleName('「1988년 하계 올림픽」 관련 자료')
+    expect(dayVideo).toHaveAccessibleName('Archive video')
+    expect(eventVideo).toHaveAccessibleName(
+      'Material about “1988년 하계 올림픽”',
+    )
     for (const video of [eventVideo, dayVideo]) {
       const name = video.getAttribute('aria-label') ?? ''
       for (const word of DATE_WORDS) expect(name).not.toContain(word)

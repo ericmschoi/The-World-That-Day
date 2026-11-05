@@ -51,7 +51,7 @@ a:focus-visible {
   }
 }
 
-/* Text for screen readers only, e.g. "(새 창에서 열림)" inside links. */
+/* Text for screen readers only, e.g. "(opens in a new tab)" inside links. */
 .visually-hidden {
   position: absolute;
   width: 1px;
