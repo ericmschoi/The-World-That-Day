@@ -1104,11 +1104,11 @@ csd_code,name,province_code,cd_name,lat,lng,cgndb_id,coord_rule
 2422045,Sainte-Brigitte-de-Laval,24,La Jacques-Cartier,47.0024410,-71.1935630,ESIPN,unique
 2422902,Lac-Croche,24,La Jacques-Cartier,47.4000000,-71.7833334,ELBQL,unique
 2423015,Notre-Dame-des-Anges,24,Québec,46.8144500,-71.2328600,EMCEF,unique
-2423027,Québec,24,Québec,,,,none
+2423027,Québec,24,Québec,46.8138190,-71.2079970,EHTWR,override
 2423057,L'Ancienne-Lorette,24,Québec,46.7987300,-71.3625500,ERDPN,unique
 2423072,Saint-Augustin-de-Desmaures,24,Québec,46.7468660,-71.4594360,ERDPU,unique
 2423802,Wendake,24,Québec,,,,none
-2425213,Lévis,24,Lévis,,,,none
+2425213,Lévis,24,Lévis,46.7581720,-71.2403660,EGZSK,override
 2426005,Frampton,24,La Nouvelle-Beauce,46.4634160,-70.8074080,EQMEG,unique
 2426010,Saints-Anges,24,La Nouvelle-Beauce,46.4180570,-70.8767180,EIAYF,unique
 2426015,Vallée-Jonction,24,La Nouvelle-Beauce,46.3751240,-70.9267820,ENKRK,unique
@@ -1263,7 +1263,7 @@ csd_code,name,province_code,cd_name,lat,lng,cgndb_id,coord_rule
 2435906,Rivière-de-la-Savane,24,Mékinac,47.0500000,-73.6333333,ELBSS,unique
 2435908,Lac-Boulé,24,Mékinac,46.8833333,-73.6166666,ELBUE,unique
 2436033,Shawinigan,24,Shawinigan,,,,none
-2437067,Trois-Rivières,24,Francheville,,,,none
+2437067,Trois-Rivières,24,Francheville,46.3430770,-72.5433830,EIITR,override
 2437205,Sainte-Anne-de-la-Pérade,24,Francheville,46.5833333,-72.2000000,ENGBP,unique
 2437210,Batiscan,24,Francheville,46.4882520,-72.2567720,ELIDL,unique
 2437215,Sainte-Geneviève-de-Batiscan,24,Francheville,46.5322430,-72.3389300,EIBDM,unique
@@ -1348,7 +1348,7 @@ csd_code,name,province_code,cd_name,lat,lng,cgndb_id,coord_rule
 2442098,Richmond,24,Le Val-Saint-François,45.6655050,-72.1471710,EHVWU,unique
 2442100,Saint-Claude,24,Le Val-Saint-François,45.6666667,-71.9833334,EHYZU,unique
 2442110,Cleveland,24,Le Val-Saint-François,45.6666667,-72.0833333,EFYGS,unique
-2443027,Sherbrooke,24,Sherbrooke,,,,none
+2443027,Sherbrooke,24,Sherbrooke,45.4040470,-71.8931710,EIDHN,override
 2444003,Saint-Malo,24,Coaticook,45.2000000,-71.5000000,EIALK,unique
 2444005,Saint-Venant-de-Paquette,24,Coaticook,45.1249630,-71.4619330,EPSOD,unique
 2444010,East Hereford,24,Coaticook,45.0762350,-71.5026500,ELYKA,unique
@@ -1550,7 +1550,7 @@ csd_code,name,province_code,cd_name,lat,lng,cgndb_id,coord_rule
 2458012,Saint-Lambert,24,Longueuil,,,,none
 2458033,Boucherville,24,Longueuil,45.6044000,-73.4523360,ESCZQ,unique
 2458037,Saint-Bruno-de-Montarville,24,Longueuil,45.5260070,-73.3405910,ESCLU,unique
-2458227,Longueuil,24,Longueuil,,,,none
+2458227,Longueuil,24,Longueuil,45.5139470,-73.4314930,EHAYB,override
 2459010,Sainte-Julie,24,Marguerite-D'Youville,45.5876710,-73.3261490,EJBSN,unique
 2459015,Saint-Amable,24,Marguerite-D'Youville,45.6500000,-73.3000000,EKQRD,unique
 2459020,Varennes,24,Marguerite-D'Youville,45.6825000,-73.4408333,EIKGU,unique
@@ -1612,7 +1612,7 @@ csd_code,name,province_code,cd_name,lat,lng,cgndb_id,coord_rule
 2463065,Saint-Liguori,24,Montcalm,46.0166666,-73.5666667,ESKJU,unique
 2464008,Terrebonne,24,Les Moulins,45.6915380,-73.6343020,EIGOG,unique
 2464015,Mascouche,24,Les Moulins,45.7455910,-73.6017800,EHEKR,unique
-2465005,Laval,24,Laval,,,,none
+2465005,Laval,24,Laval,45.5515380,-73.7446160,EGYIC,override
 2466007,Montréal-Est,24,Montréal,45.6313070,-73.4955600,ESAWM,unique
 2466023,Montréal,24,Montréal,45.5088220,-73.5540770,EHHUN,override
 2466032,Westmount,24,Montréal,45.4854990,-73.5967490,ESAEO,unique
@@ -1809,7 +1809,7 @@ csd_code,name,province_code,cd_name,lat,lng,cgndb_id,coord_rule
 2480135,Duhamel,24,Papineau,46.0243350,-75.0789160,EGFFQ,unique
 2480140,Val-des-Bois,24,Papineau,45.9154470,-75.5932910,EIJYY,unique
 2480145,Bowman,24,Papineau,45.8806790,-75.6343960,EFQII,unique
-2481017,Gatineau,24,Gatineau,,,,none
+2481017,Gatineau,24,Gatineau,45.4279290,-75.7109380,EGLTT,override
 2482005,L'Ange-Gardien,24,Les Collines-de-l'Outaouais,,,,none
 2482010,Notre-Dame-de-la-Salette,24,Les Collines-de-l'Outaouais,45.7663440,-75.5826680,EJNFC,unique
 2482015,Val-des-Monts,24,Les Collines-de-l'Outaouais,45.6650020,-75.7344190,EITUI,unique
@@ -1989,7 +1989,7 @@ csd_code,name,province_code,cd_name,lat,lng,cgndb_id,coord_rule
 2493904,Lac-Moncouche,24,Lac-Saint-Jean-Est,47.9500000,-71.9666667,ELBQI,unique
 2493906,Lac-Achouakan,24,Lac-Saint-Jean-Est,48.1166667,-71.6500000,ELBVO,unique
 2493908,Belle-Rivière,24,Lac-Saint-Jean-Est,48.1666666,-71.7666667,ELBVL,unique
-2494068,Saguenay,24,Le Saguenay-et-son-Fjord,,,,none
+2494068,Saguenay,24,Le Saguenay-et-son-Fjord,48.4282210,-71.0622020,ERBYN,override
 2494205,Petit-Saguenay,24,Le Saguenay-et-son-Fjord,48.2160610,-70.0767020,EJIYF,unique
 2494210,L'Anse-Saint-Jean,24,Le Saguenay-et-son-Fjord,48.2336490,-70.2062770,EKOLK,unique
 2494215,Rivière-Éternité,24,Le Saguenay-et-son-Fjord,48.2551750,-70.4139630,EJGRU,unique
@@ -2218,7 +2218,7 @@ csd_code,name,province_code,cd_name,lat,lng,cgndb_id,coord_rule
 3519070,Georgina,35,York,44.2805550,-79.3244440,FBHBU,unique
 3519076,Chippewas of Georgina Island First Nation,35,York,,,,none
 3520005,Toronto,35,Toronto,43.7417000,-79.3733000,FEUZB,unique
-3521005,Mississauga,35,Peel,,,,none
+3521005,Mississauga,35,Peel,43.5856600,-79.6571100,FEAKO,override
 3521010,Brampton,35,Peel,43.6883334,-79.7608333,FALIF,unique
 3521024,Caledon,35,Peel,43.8660500,-79.8590100,FAYKX,unique
 3522001,East Garafraxa,35,Dufferin,43.8481800,-80.2449200,FELOZ,unique
@@ -2241,7 +2241,7 @@ csd_code,name,province_code,cd_name,lat,lng,cgndb_id,coord_rule
 3524002,Burlington,35,Halton,43.3700600,-79.8140300,FAMXK,unique
 3524009,Milton,35,Halton,43.5055556,-79.9177778,FDGEM,unique
 3524015,Halton Hills,35,Halton,43.6269445,-79.9513889,FBLIE,unique
-3525005,Hamilton,35,Hamilton,,,,none
+3525005,Hamilton,35,Hamilton,43.2427780,-79.9894440,FEVNS,override
 3526003,Fort Erie,35,Niagara,42.9226100,-79.0220000,FEBVJ,unique
 3526011,Port Colborne,35,Niagara,42.9155556,-79.1930555,FCHYP,unique
 3526014,Wainfleet,35,Niagara,42.9275000,-79.3927778,FEMDE,unique
@@ -2265,7 +2265,7 @@ csd_code,name,province_code,cd_name,lat,lng,cgndb_id,coord_rule
 3530004,North Dumfries,35,Waterloo,43.3286111,-80.3872222,FELXH,unique
 3530010,Cambridge,35,Waterloo,43.3972220,-80.3113890,FANXK,unique
 3530013,Kitchener,35,Waterloo,43.4186111,-80.4727778,FEBWC,unique
-3530016,Waterloo,35,Waterloo,,,,none
+3530016,Waterloo,35,Waterloo,43.4797222,-80.5411111,FDBJZ,override
 3530020,Wilmot,35,Waterloo,43.4102778,-80.6416667,FDTRB,unique
 3530027,Wellesley,35,Waterloo,43.5507300,-80.7161900,FDBYW,unique
 3530035,Woolwich,35,Waterloo,43.5836111,-80.5150000,FEALY,unique
@@ -4446,7 +4446,7 @@ csd_code,name,province_code,cd_name,lat,lng,cgndb_id,coord_rule
 5909883,Sachteen,59,Fraser Valley,,,,none
 5909884,Skowkale,59,Fraser Valley,49.1417127,-121.9405793,JZBBX,unique
 5909885,Squiaala,59,Fraser Valley,,,,none
-5915001,Langley,59,Greater Vancouver,,,,none
+5915001,Langley,59,Greater Vancouver,49.1202780,-122.6597220,JAPSK,override
 5915002,Langley,59,Greater Vancouver,,,,none
 5915004,Surrey,59,Greater Vancouver,49.1116670,-122.8275000,JAZBU,unique
 5915007,White Rock,59,Greater Vancouver,49.0236110,-122.7983330,JCSNX,unique
