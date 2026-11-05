@@ -181,7 +181,7 @@ describe('additions from the Canada privacy review (C1 S1 T3b)', () => {
   it('puts the purpose first in "How we use and share it"', () => {
     const [first] = page.querySelectorAll('ul > li')
     expect(first.textContent?.replace(/\s+/g, ' ').trim()).toBe(
-      'We use the information we receive only to find photos, videos and events for that day and place. We do not use it for advertising or profiling.',
+      'We use the information we receive only to find photos, videos and events for that day. We do not use it for advertising or profiling.',
     )
   })
 
@@ -224,7 +224,7 @@ describe('the input on the same page as YouTube (C1 S2 T8b)', () => {
 
   it('says the YouTube IFrame API script can read the screen', () => {
     expect(section('Content from elsewhere and ads')).toMatch(
-      /The YouTube IFrame API script on the same page can read what is shown on the screen, including the date and place you entered\.$/,
+      /The YouTube IFrame API script on the same page can read what is shown on the screen, including the date, place and, if given, time you entered\.$/,
     )
   })
 })

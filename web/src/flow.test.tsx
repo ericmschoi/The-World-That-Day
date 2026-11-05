@@ -70,7 +70,7 @@ describe('opening (T4 (1))', () => {
   it.each(DEMOS)('%o reads as the plan table says', async (input, words) => {
     const user = await start()
     await openStory(user, input)
-    expect(opening()).toHaveTextContent(new RegExp(`^${words}$`))
+    expect(opening().textContent).toBe(words)
     expect(screen.getAllByRole('region')[0]).toHaveAccessibleName('Opening')
   })
 
@@ -80,7 +80,7 @@ describe('opening (T4 (1))', () => {
   ])('time %s keeps zero minutes', async (time, words) => {
     const user = await start()
     await openStory(user, { date: '1988-02-13', place: 'Calgary', time })
-    expect(opening()).toHaveTextContent(new RegExp(`^${words}$`))
+    expect(opening().textContent).toBe(words)
   })
 })
 
