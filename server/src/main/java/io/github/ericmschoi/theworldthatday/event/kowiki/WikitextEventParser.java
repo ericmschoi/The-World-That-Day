@@ -98,6 +98,12 @@ public class WikitextEventParser {
               + MONTH
               + " (\\d{1,2})(?!\\d)|(\\d{1,2})(?![\\d\\]]))");
   private static final Pattern SEPARATOR = Pattern.compile("\\s+" + DASH + "\\s+");
+
+  /**
+   * A date heading that ends with a dash and nothing after it, such as {@code [[October 15]] –}.
+   */
+  private static final Pattern TRAILING_DASH = Pattern.compile("\\s*" + DASH + "\\s*");
+
   private static final Pattern MEDIA_LINK =
       Pattern.compile("\\[\\[\\s*(?:파일|그림|분류|File|Image|Category)\\s*:", Pattern.CASE_INSENSITIVE);
   private static final Pattern LINK = Pattern.compile("\\[\\[([^\\[\\]|]*)(?:\\|([^\\[\\]]*))?]]");
@@ -164,7 +170,7 @@ public class WikitextEventParser {
       } else {
         parent = new Parent(parent.key(), headingOrSeparated(rest), DateKind.DAY, null);
       }
-      if (parent.key() != Key.TARGET || rest.isBlank()) {
+      if (parent.key() != Key.TARGET || heading(rest)) {
         continue; // another date, or a heading line whose sub-lines carry the events
       }
       Matcher separator = SEPARATOR.matcher(rest);
@@ -176,8 +182,13 @@ public class WikitextEventParser {
     return new Result(List.copyOf(events), skipped);
   }
 
+  /** Nothing after the date but perhaps a dash: the sub-lines carry the events. */
+  private static boolean heading(String rest) {
+    return rest.isBlank() || TRAILING_DASH.matcher(rest).matches();
+  }
+
   private static boolean headingOrSeparated(String rest) {
-    return rest.isBlank() || SEPARATOR.matcher(rest).lookingAt();
+    return heading(rest) || SEPARATOR.matcher(rest).lookingAt();
   }
 
   private static boolean matches(Matcher key, KoWikiPageKind kind, LocalDate date) {

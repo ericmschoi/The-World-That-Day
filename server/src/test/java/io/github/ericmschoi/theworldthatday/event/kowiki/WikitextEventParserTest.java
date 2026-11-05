@@ -60,6 +60,43 @@ class WikitextEventParserTest {
       assertThat(result.skippedLines()).as("[[AD 180|180]]: its year cannot be read").isEqualTo(1);
     }
 
+    /** {@code * [[October 15]] – } with nothing after the dash is a heading of its sub-lines. */
+    @Test
+    void yearPageHeadingWithATrailingDashKeepsItsSubLines() {
+      Result result = parser.parse(wikitext("1969-events.json"), YEAR, LocalDate.of(1969, 10, 15));
+
+      assertThat(wikitext("1969-events.json").lines()).contains("* [[October 15]] – ");
+      assertThat(result.events())
+          .extracting(ParsedEvent::text, ParsedEvent::dateKind)
+          .containsExactly(
+              tuple(
+                  "DZKB-TV Channel 9, the Philippines' sixth TV station, is launched.",
+                  DateKind.DAY),
+              tuple(
+                  "Vietnam War: Hundreds of thousands of people take part in Moratorium to End the"
+                      + " War in Vietnam demonstrations across the United States.",
+                  DateKind.DAY));
+      assertThat(result.skippedLines())
+          .as(
+              "only the page's four lines without a readable date, as for 1969-07-20; not the heading")
+          .isEqualTo(4);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(strings = {"*[[2000]] &ndash;", "* 2000 –", "*[[2000]] - "})
+    void datePageHeadingWithATrailingDashKeepsItsSubLines(String heading) {
+      Result result =
+          parser.parse(
+              "==Events==\n" + heading + "\n** Test event A opens.\n** Test event B closes.",
+              DATE,
+              LEAP_DAY);
+
+      assertThat(result.events())
+          .extracting(ParsedEvent::text)
+          .containsExactly("Test event A opens.", "Test event B closes.");
+      assertThat(result.skippedLines()).isZero();
+    }
+
     /** T3 (4): the text is the original sentence with only the link brackets removed (D5 (a)). */
     @Test
     void datePageLineIsTheOriginalSentenceWithoutLinkMarkupAndKeepsEveryLinkInOrder() {
