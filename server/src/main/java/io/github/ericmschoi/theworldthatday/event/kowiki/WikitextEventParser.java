@@ -192,7 +192,8 @@ public class WikitextEventParser {
 
   /**
    * The last day of a range starting on {@code start}'s month and day, or {@code null} when it is
-   * not a real date or is the first day itself.
+   * not a real date, is the first day itself, or comes before it. A day without a month must be
+   * later in the same month; only a range from December into January ends in the next year.
    */
   private static LocalDate rangeEnd(Matcher range, LocalDate start) {
     int month;
@@ -206,10 +207,16 @@ public class WikitextEventParser {
     } else {
       month = start.getMonthValue();
       day = Integer.parseInt(range.group(5));
+      if (day <= start.getDayOfMonth()) {
+        return null; // "January 30–2" is a broken line, not a range of almost a year
+      }
     }
     LocalDate end = on(start.getYear(), month, day);
     if (end != null && end.isBefore(start)) {
-      end = on(start.getYear() + 1, month, day); // December 30 – January 2
+      end =
+          start.getMonthValue() == 12 && month == 1
+              ? on(start.getYear() + 1, month, day) // December 30 – January 2
+              : null;
     }
     return end == null || end.equals(start) ? null : end;
   }

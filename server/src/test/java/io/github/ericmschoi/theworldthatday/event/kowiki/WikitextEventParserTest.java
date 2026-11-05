@@ -356,6 +356,47 @@ class WikitextEventParserTest {
                   LocalDate.of(2001, 1, 2)));
     }
 
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(
+        strings = {
+          "* [[January 30]]–2 – Test range with a day-only end before its start.",
+          "* [[January 30]]–30 – Test range with a day-only end on its start.",
+          "* [[January 30]]–[[January 2]] – Test range with an earlier end in January.",
+          "* [[January 30]] – [[March 5|5 March]] – Test range ending later stays."
+        })
+    void rangeEndBeforeItsStartIsSkippedUnlessItCrossesTheNewYear(String line) {
+      Result result = parser.parse("==Events==\n" + line, YEAR, LocalDate.of(2000, 1, 30));
+
+      if (line.contains("later stays")) {
+        assertThat(result.events())
+            .extracting(ParsedEvent::dateKind, ParsedEvent::rangeEnd)
+            .containsExactly(tuple(DateKind.RANGE_START, LocalDate.of(2000, 3, 5)));
+        assertThat(result.skippedLines()).isZero();
+      } else {
+        assertThat(result.events()).as("never a range of almost a year").isEmpty();
+        assertThat(result.skippedLines()).isEqualTo(1);
+      }
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(
+        strings = {
+          "* [[December 30]]–[[January 2|2 January]] – Test range F over the new year.",
+          "* December 30 – January 2 – Test range F over the new year."
+        })
+    void decemberToJanuaryRangeEndsInTheNextYear(String line) {
+      Result result = parser.parse("==Events==\n" + line, YEAR, LocalDate.of(2000, 12, 30));
+
+      assertThat(result.events())
+          .containsExactly(
+              new ParsedEvent(
+                  "Test range F over the new year.",
+                  List.of(),
+                  DateKind.RANGE_START,
+                  LocalDate.of(2001, 1, 2)));
+      assertThat(result.skippedLines()).isZero();
+    }
+
     @Test
     void monthOnlyLinesAreNeverEventsOfADay() {
       for (LocalDate day : List.of(LocalDate.of(2000, 2, 1), LEAP_DAY)) {
