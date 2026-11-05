@@ -32,9 +32,9 @@ describe('App', () => {
       screen.getByRole('button', { name: '1988년 9월 17일로 보기' }),
     )
     expect(screen.getAllByRole('region')).toHaveLength(5)
-    await screen.findByRole('list', { name: '사건 목록' })
+    await screen.findByRole('list', { name: 'Events' })
 
-    await user.click(screen.getByRole('button', { name: '처음으로' }))
+    await user.click(screen.getByRole('button', { name: 'Start over' }))
     expect(screen.queryAllByRole('region')).toHaveLength(0)
     expect(
       screen.getByRole('button', { name: '1988년 9월 17일로 보기' }),
@@ -52,11 +52,11 @@ describe('App', () => {
     expect(consentBox()).toBeChecked()
     await user.tab()
     expect(
-      screen.getByRole('link', { name: /^개인정보처리방침 보기/ }),
+      screen.getByRole('link', { name: /^Read the privacy policy/ }),
     ).toHaveFocus()
     await user.tab()
     expect(
-      screen.getByRole('link', { name: /^YouTube 이용약관/ }),
+      screen.getByRole('link', { name: /^YouTube Terms of Service/ }),
     ).toHaveFocus()
     await user.tab()
     expect(
@@ -64,7 +64,7 @@ describe('App', () => {
     ).toHaveFocus()
     await user.keyboard('{Enter}')
     expect(screen.getAllByRole('region')).toHaveLength(5)
-    await screen.findByRole('list', { name: '사건 목록' })
+    await screen.findByRole('list', { name: 'Events' })
   })
 
   it('offers the three demo dates and no empty-story button', () => {
@@ -87,14 +87,14 @@ describe('App', () => {
       screen.getByRole('button', { name: '1988년 9월 17일로 보기' }),
     )
 
-    const list = await screen.findByRole('list', { name: '사건 목록' })
+    const list = await screen.findByRole('list', { name: 'Events' })
     expect(within(list).getAllByRole('listitem')).toHaveLength(3)
     const others = screen
       .getAllByRole('region')
       .filter((region) => region.id !== 'world')
     expect(others).toHaveLength(4)
     for (const region of others) {
-      expect(region).toHaveTextContent('아직 준비 중인 섹션입니다.')
+      expect(region).toHaveTextContent('This section is coming soon.')
     }
   })
 
@@ -108,7 +108,7 @@ describe('App', () => {
     )
 
     expect(
-      await screen.findByText('이 날짜에 기록된 큰 사건을 찾지 못했습니다.'),
+      await screen.findByText('No major events were found for this date.'),
     ).toBeInTheDocument()
   })
 
@@ -129,7 +129,7 @@ describe('App', () => {
       screen.getByRole('button', { name: '1988년 9월 17일로 보기' }),
     )
     await waitFor(() => expect(signal).not.toBeNull())
-    await user.click(screen.getByRole('button', { name: '처음으로' }))
+    await user.click(screen.getByRole('button', { name: 'Start over' }))
 
     await waitFor(() => expect(signal!.aborted).toBe(true))
     expect(screen.queryAllByRole('region')).toHaveLength(0)

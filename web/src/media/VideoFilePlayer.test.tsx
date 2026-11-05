@@ -12,7 +12,7 @@ import { MediaItem } from './MediaItem'
 import { PlaybackProvider } from './PlaybackProvider'
 import type { Media } from './types'
 
-const ALT = '기록 영상'
+const ALT = 'Archive video'
 
 const patch = (media: Media, fields: Record<string, unknown>) =>
   ({ ...media, ...fields }) as Media
@@ -258,7 +258,7 @@ describe('VideoFilePlayer when play() is refused (T2 (5))', () => {
 
     expect(media.play).toHaveBeenCalledTimes(1)
     expect(videos()).toHaveLength(1)
-    expect(screen.getByRole('figure')).toHaveTextContent('원문 보기')
+    expect(screen.getByRole('figure')).toHaveTextContent('View original')
     expect(screen.queryByRole('alert')).toBeNull()
     expect(unhandled).not.toHaveBeenCalled()
     for (const spy of spies) expect(spy).not.toHaveBeenCalled()
@@ -282,10 +282,14 @@ describe('VideoFilePlayer when it cannot play (T2 (8))', () => {
     expect(videos()).toHaveLength(0)
     expect(screen.getAllByRole('figure')).toHaveLength(1)
     expect(screen.getByRole('img')).toBeInTheDocument()
-    expect(screen.getAllByRole('link', { name: /원문 보기/ })).toHaveLength(1)
+    expect(screen.getAllByRole('link', { name: /View original/ })).toHaveLength(
+      1,
+    )
     expect(onUnavailable).toHaveBeenCalledTimes(1)
     expect(onUnavailable).toHaveBeenCalledWith(twoSources.id)
-    expect(document.body).not.toHaveTextContent(/오류|실패|재생할 수 없/)
+    expect(document.body).not.toHaveTextContent(
+      /오류|실패|재생할 수 없|error|fail|couldn't|can't play/i,
+    )
   })
 
   it('hides the card when the video itself fails', () => {
@@ -328,11 +332,13 @@ describe('VideoFilePlayer caption (T2 (9))', () => {
       }),
     ])
     const caption = screen.getByRole('figure').querySelector('figcaption')!
-    expect(caption).toHaveTextContent('촬영 시점 미상')
-    expect(caption).not.toHaveTextContent('같은 날')
+    expect(caption).toHaveTextContent('Capture time unknown')
+    expect(caption).not.toHaveTextContent('Same day')
     expect(caption).toHaveTextContent(videoFile.attribution)
     expect(caption).toHaveTextContent('CC BY-SA 4.0')
-    expect(screen.getByRole('link', { name: /^원문 보기/ })).toBeInTheDocument()
+    expect(
+      screen.getByRole('link', { name: /^View original/ }),
+    ).toBeInTheDocument()
   })
 })
 

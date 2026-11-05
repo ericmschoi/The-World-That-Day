@@ -8,7 +8,7 @@ type Props = { className?: string }
 export function SiteFooter({ className }: Props) {
   return (
     <footer className={className}>
-      <NewTabLink href={PRIVACY_PAGE}>개인정보처리방침</NewTabLink>
+      <NewTabLink href={PRIVACY_PAGE}>Privacy policy</NewTabLink>
     </footer>
   )
 }

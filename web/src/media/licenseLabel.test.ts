@@ -10,12 +10,12 @@ import type { Media } from './types'
 
 describe('licenseLabel', () => {
   it('says the license is unverified when license_status is unknown', () => {
-    expect(licenseLabel(unlicensedPhoto)).toBe('라이선스 확인 안 됨')
+    expect(licenseLabel(unlicensedPhoto)).toBe('Licence not verified')
   })
 
   it('ignores a license name when license_status is unknown', () => {
     expect(licenseLabel({ ...unlicensedPhoto, license: 'CC BY 4.0' })).toBe(
-      '라이선스 확인 안 됨',
+      'Licence not verified',
     )
   })
 
@@ -23,17 +23,17 @@ describe('licenseLabel', () => {
     ['free', sameDayPhoto, 'CC BY-SA 4.0'],
     ['free, KOGL Type 1 (2002-06-22)', koglPhoto, 'KOGL Type 1'],
     // M3b3c T1 (4): `provider-terms` is a code, now put into words.
-    ['other', imageEmbed, '제공사 이용약관에 따름'],
+    ['other', imageEmbed, "Provider's terms apply"],
   ])('shows the license name as given (%s)', (_name, media, expected) => {
     expect(licenseLabel(media)).toBe(expected)
   })
 
   it('says unverified when a known status comes without a name', () => {
     expect(licenseLabel({ ...sameDayPhoto, license: null })).toBe(
-      '라이선스 확인 안 됨',
+      'Licence not verified',
     )
     expect(licenseLabel({ ...sameDayPhoto, license: '  ' })).toBe(
-      '라이선스 확인 안 됨',
+      'Licence not verified',
     )
   })
 })
@@ -45,17 +45,17 @@ describe('licenseLabel for provider-terms (M3b3c T1 (4))', () => {
   ) => ({ ...sameDayPhoto, license, license_status })
 
   it.each(['provider-terms', '  provider-terms ', '\tprovider-terms\n'])(
-    'says 제공사 이용약관에 따름 for %j with status other',
+    "says Provider's terms apply for %j with status other",
     (license) => {
       expect(licenseLabel(withLicense(license, 'other'))).toBe(
-        '제공사 이용약관에 따름',
+        "Provider's terms apply",
       )
     },
   )
 
   it('still says unverified when the status is unknown', () => {
     expect(licenseLabel(withLicense('provider-terms', 'unknown'))).toBe(
-      '라이선스 확인 안 됨',
+      'Licence not verified',
     )
   })
 
@@ -75,7 +75,7 @@ describe('licenseLabel for provider-terms (M3b3c T1 (4))', () => {
     expect(
       licenseInAttribution({
         ...youtube,
-        attribution: 'KTV 아카이브 · YouTube · 제공사 이용약관에 따름',
+        attribution: "KTV 아카이브 · YouTube · Provider's terms apply",
       }),
     ).toBe(true)
   })
@@ -107,7 +107,7 @@ describe('licenseInAttribution (M3b2b T2 (1), decision (b))', () => {
   })
 
   it('is always false for "라이선스 확인 안 됨", even if the attribution says it', () => {
-    const attribution = 'Author · 라이선스 확인 안 됨 · CC BY 4.0'
+    const attribution = 'Author · Licence not verified · CC BY 4.0'
     expect(
       licenseInAttribution({
         ...unlicensedPhoto,

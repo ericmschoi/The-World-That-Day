@@ -14,7 +14,7 @@ describe('StoryScreen', () => {
   it('renders the five story sections in brief order with stable ids', async () => {
     render(<StoryScreen date="1995-03-15" onRestart={() => {}} />)
     // The world section loads its own content (MSW default handler).
-    await screen.findByText('이 날짜에 기록된 큰 사건을 찾지 못했습니다.')
+    await screen.findByText('No major events were found for this date.')
     const regions = screen.getAllByRole('region')
     expect(regions).toHaveLength(5)
     expect(
@@ -29,14 +29,18 @@ describe('StoryScreen', () => {
     ])
     regions.forEach((region, index) => {
       expect(region).toHaveAccessibleName(
-        ['오프닝', '그날의 동네', '그 도시의 풍경', '그날의 세계', '마무리'][
-          index
-        ],
+        [
+          'Opening',
+          'The neighbourhood that day',
+          'Scenes of the city',
+          'The world that day',
+          'Closing',
+        ][index],
       )
       if (region.id === 'world') {
-        expect(region).not.toHaveTextContent('아직 준비 중')
+        expect(region).not.toHaveTextContent('coming soon')
       } else {
-        expect(region).toHaveTextContent('아직 준비 중')
+        expect(region).toHaveTextContent('coming soon')
       }
     })
   })
@@ -44,8 +48,8 @@ describe('StoryScreen', () => {
   it('calls onRestart when the restart button is pressed', async () => {
     const onRestart = vi.fn()
     render(<StoryScreen date="1995-03-15" onRestart={onRestart} />)
-    await screen.findByText('이 날짜에 기록된 큰 사건을 찾지 못했습니다.')
-    await userEvent.click(screen.getByRole('button', { name: '처음으로' }))
+    await screen.findByText('No major events were found for this date.')
+    await userEvent.click(screen.getByRole('button', { name: 'Start over' }))
     expect(onRestart).toHaveBeenCalledTimes(1)
   })
 })
@@ -60,7 +64,7 @@ describe('StoryScreen with a malformed world answer (M3b2b T0 (4))', () => {
     )
     render(<StoryScreen date="1988-09-17" onRestart={() => {}} />)
 
-    const list = await screen.findByRole('list', { name: '사건 목록' })
+    const list = await screen.findByRole('list', { name: 'Events' })
 
     expect(within(list).getAllByRole('listitem')).toHaveLength(3)
     const regions = screen.getAllByRole('region')
@@ -73,10 +77,10 @@ describe('StoryScreen with a malformed world answer (M3b2b T0 (4))', () => {
     ])
     for (const region of regions) {
       if (region.id !== 'world') {
-        expect(region).toHaveTextContent('아직 준비 중')
+        expect(region).toHaveTextContent('coming soon')
       }
     }
-    expect(screen.getByRole('button', { name: '처음으로' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Start over' })).toBeEnabled()
     for (const spy of spies) expect(spy).not.toHaveBeenCalled()
   })
 })

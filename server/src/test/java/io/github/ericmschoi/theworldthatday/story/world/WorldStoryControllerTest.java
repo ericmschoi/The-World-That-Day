@@ -43,7 +43,7 @@ import org.springframework.test.web.servlet.ResultActions;
 /**
  * Plan M3a2 T2 (2), (3), (6), (7): date validation and error format, and how {@link
  * KoWikiDayResult} states become 503, {@code partial} and {@code notice}. The event source is a
- * stub that returns a hand-built result; "today" is 2026-10-10 in Asia/Seoul.
+ * stub that returns a hand-built result; "today" is 2026-10-10 in America/St_Johns.
  */
 @WebMvcTest(WorldStoryController.class)
 @Import({
@@ -177,6 +177,38 @@ class WorldStoryControllerTest {
 
     assertThat(source.asked).as("no source call for a bad date").isEmpty();
     assertThat(output.getAll()).as("400s are not logged").doesNotContain(date).doesNotContain(code);
+  }
+
+  @Test
+  void dateBeforeTheStartIsTooEarlyAndNotEchoed(CapturedOutput output) throws Exception {
+    expectProblem("?date=1949-12-31", 400, "DATE_TOO_EARLY", "1949-12-31", "19491231", "12-31");
+    world("?date=1949-12-31")
+        .andExpect(jsonPath("$.detail").value("date must not be earlier than 1950-01-01"))
+        .andExpect(jsonPath("$.instance").value("/api/story/world"));
+
+    assertThat(source.asked).as("no source call for a bad date").isEmpty();
+    assertThat(output.getAll())
+        .as("400s are not logged")
+        .doesNotContain("1949-12-31")
+        .doesNotContain("DATE_TOO_EARLY");
+  }
+
+  // C1 S1 T6: the first supported day passes through the API; the day before is the 400 above.
+  @Test
+  void theStartDateIsAllowed() throws Exception {
+    world("?date=1950-01-01")
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.date").value("1950-01-01"));
+    assertThat(source.asked).containsExactly(LocalDate.of(1950, 1, 1));
+  }
+
+  // C1 S1 T6: the future check names St. John's (not Seoul) in its fixed English detail.
+  @Test
+  void futureDateDetailNamesStJohns() throws Exception {
+    expectProblem("?date=2026-10-11", 400, "DATE_IN_FUTURE", "2026-10-11", "20261011");
+    world("?date=2026-10-11")
+        .andExpect(
+            jsonPath("$.detail").value("date must not be later than today in America/St_Johns"));
   }
 
   @Test

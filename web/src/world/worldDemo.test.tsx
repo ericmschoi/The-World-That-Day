@@ -23,9 +23,9 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-const NOTICE = '이 날짜에 기록된 큰 사건을 찾지 못했습니다.'
-const ERROR = '이 섹션을 불러오지 못했습니다.'
-const PLACEHOLDER = '아직 준비 중인 섹션입니다.'
+const NOTICE = 'No major events were found for this date.'
+const ERROR = "This section couldn't be loaded."
+const PLACEHOLDER = 'This section is coming soon.'
 const DEMO = {
   '1988-09-17': '1988년 9월 17일로 보기',
   '2002-06-22': '2002년 6월 22일로 보기',
@@ -41,8 +41,8 @@ const DATE_STRINGS = [
   '1995년 3월 15일',
 ]
 
-const world = () => screen.getByRole('region', { name: '그날의 세계' })
-const eventList = () => screen.findByRole('list', { name: '사건 목록' })
+const world = () => screen.getByRole('region', { name: 'The world that day' })
+const eventList = () => screen.findByRole('list', { name: 'Events' })
 const answer = (body: WorldResponse) =>
   server.use(http.get('/api/story/world', () => HttpResponse.json(body)))
 
@@ -54,8 +54,8 @@ async function openDemo(date: DemoDate) {
   return user
 }
 
-// "출처: {source_name} 「{source_title}」 · {text_license}" with the hidden
-// "(새 창에서 열림)" texts removed, whitespace collapsed. The media cards'
+// "Source: {source_name}, “{source_title}” · {text_license}" with the hidden
+// "(opens in a new tab)" texts removed, whitespace collapsed. The media cards'
 // own caption links live inside their figure and are skipped.
 const sourceLinks = (item: HTMLElement) =>
   within(item)
@@ -72,7 +72,7 @@ function expectSourceLines(items: HTMLElement[], events: WorldEvent[]) {
   expect(items).toHaveLength(events.length)
   events.forEach((event, i) => {
     expect(visibleSourceLine(items[i])).toBe(
-      `출처: 한국어 위키백과 「${event.source_title}」 · CC BY-SA 4.0`,
+      `Source: 한국어 위키백과, “${event.source_title}” · CC BY-SA 4.0`,
     )
     const links = sourceLinks(items[i])
     expect(links).toHaveLength(2)
@@ -111,12 +111,14 @@ describe('demo 1988-09-17 (데모 표 1행)', () => {
     const pdSrc = within(pd).getByRole('img').getAttribute('src')!
     expect(new URL(pdSrc).host).toBe('thumb.wikimedia.org')
     expect(pdSrc).toBe(olympicsOpeningPd.thumbnail_url)
-    expect(within(pd).getByText('같은 날')).toBeInTheDocument()
-    expect(within(undated).getByText('촬영 시점 미상')).toBeInTheDocument()
-    expect(within(undated).queryByText('같은 날')).not.toBeInTheDocument()
-    // The unlicensed day_media photo says "라이선스 확인 안 됨", outside.
+    expect(within(pd).getByText('Same day')).toBeInTheDocument()
     expect(
-      within(list).queryByText('라이선스 확인 안 됨'),
+      within(undated).getByText('Capture time unknown'),
+    ).toBeInTheDocument()
+    expect(within(undated).queryByText('Same day')).not.toBeInTheDocument()
+    // The unlicensed day_media photo says "Licence not verified", outside.
+    expect(
+      within(list).queryByText('Licence not verified'),
     ).not.toBeInTheDocument()
     expect(document.querySelector('iframe, video')).toBeNull()
   })
@@ -148,7 +150,7 @@ describe('demo 2002-06-22 (데모 표 2행)', () => {
       screen.getAllByText(quarterFinal.summary, { exact: true }),
     ).toHaveLength(1)
     expect(visibleSourceLine(items[0])).toBe(
-      '출처: 한국어 위키백과 「6월 22일」 · CC BY-SA 4.0',
+      'Source: 한국어 위키백과, “6월 22일” · CC BY-SA 4.0',
     )
     expectSourceLines(items, world2002WithMedia.events)
     const figure = within(items[0]).getByRole('figure')
@@ -156,7 +158,7 @@ describe('demo 2002-06-22 (데모 표 2행)', () => {
     // The attribution names KOGL Type 1, so there is no separate line.
     expect(figure).toHaveTextContent('KOGL Type 1')
     expect(within(figure).queryByText('KOGL Type 1')).not.toBeInTheDocument()
-    expect(within(figure).getByText('같은 날')).toBeInTheDocument()
+    expect(within(figure).getByText('Same day')).toBeInTheDocument()
     expect(
       new URL(within(figure).getByRole('img').getAttribute('src')!).host,
     ).toBe('thumb.wikimedia.org')
@@ -181,11 +183,14 @@ describe('demo 1995-03-15 (데모 표 3행)', () => {
 
     expect(await screen.findByText(NOTICE)).toBeInTheDocument()
     expect(
-      within(world()).getByRole('heading', { level: 2, name: '그날의 세계' }),
+      within(world()).getByRole('heading', {
+        level: 2,
+        name: 'The world that day',
+      }),
     ).toBeInTheDocument()
     expect(within(world()).getByText(NOTICE)).toBeInTheDocument()
     expect(screen.queryAllByRole('img')).toHaveLength(0)
-    expect(screen.queryByRole('list', { name: '사건 목록' })).toBeNull()
+    expect(screen.queryByRole('list', { name: 'Events' })).toBeNull()
   })
 })
 
@@ -249,7 +254,7 @@ describe('failure isolation: only the world section fails (product brief 8)', ()
 
     // The screen still works: back to the start, then a working demo date.
     server.resetHandlers()
-    await user.click(screen.getByRole('button', { name: '처음으로' }))
+    await user.click(screen.getByRole('button', { name: 'Start over' }))
     await user.click(screen.getByRole('button', { name: DEMO['1995-03-15'] }))
     expect(await screen.findByText(NOTICE)).toBeInTheDocument()
   })
@@ -267,10 +272,10 @@ describe('privacy: the date stays in memory only (C4, C5)', () => {
 
     const user = await openDemo('1988-09-17')
     await eventList()
-    await user.click(screen.getByRole('button', { name: '처음으로' }))
+    await user.click(screen.getByRole('button', { name: 'Start over' }))
     await user.click(screen.getByRole('button', { name: DEMO['2002-06-22'] }))
     await eventList()
-    await user.click(screen.getByRole('button', { name: '처음으로' }))
+    await user.click(screen.getByRole('button', { name: 'Start over' }))
     // An error path too: errors must not log the date either.
     server.use(
       http.get(
@@ -312,15 +317,15 @@ describe('event media and source links (CLAUDE.md 7.1)', () => {
     const [item] = within(await eventList()).getAllByRole('listitem')
 
     expect(within(item).getAllByRole('figure')).toHaveLength(1)
-    expect(within(item).getByText('촬영 시점 미상')).toBeInTheDocument()
+    expect(within(item).getByText('Capture time unknown')).toBeInTheDocument()
     expect(
       within(item)
         .getAllByRole('img')
         .map((img) => img.getAttribute('src')),
     ).not.toContain(base.media[0].thumbnail_url)
-    // Only the remaining card's "원문 보기" plus the two source line links.
+    // Only the remaining card's "View original" plus the two source line links.
     expect(
-      within(item).getAllByRole('link', { name: /^원문 보기/ }),
+      within(item).getAllByRole('link', { name: /^View original/ }),
     ).toHaveLength(1)
   })
 
@@ -340,7 +345,7 @@ describe('event media and source links (CLAUDE.md 7.1)', () => {
     const [item] = within(await eventList()).getAllByRole('listitem')
 
     expect(within(item).queryAllByRole('link')).toHaveLength(0)
-    expect(item).toHaveTextContent('출처: 한국어 위키백과 「9월 17일」')
+    expect(item).toHaveTextContent('Source: 한국어 위키백과, “9월 17일”')
     expect(item).toHaveTextContent('CC BY-SA 4.0')
     expect(
       item.querySelector('[href^="javascript:"], [href^="data:"]'),
@@ -356,7 +361,7 @@ describe('event media and source links (CLAUDE.md 7.1)', () => {
         {
           ...second,
           id: 'kowiki-1988-09-17-00000003',
-          summary: '시험용 비극 사건 문장',
+          summary: 'Test tragic event sentence',
           tone: 'tragic',
           tone_basis: 'rule:keyword',
         },
@@ -373,7 +378,7 @@ describe('event media and source links (CLAUDE.md 7.1)', () => {
       world1988.events[2].summary,
     ])
     expect(
-      within(list).queryByText('시험용 비극 사건 문장'),
+      within(list).queryByText('Test tragic event sentence'),
     ).not.toBeInTheDocument()
   })
 })

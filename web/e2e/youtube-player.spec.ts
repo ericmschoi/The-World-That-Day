@@ -44,9 +44,9 @@ import {
 } from './youtubeFake'
 
 const DEMO_1988 = '1988년 9월 17일로 보기'
-const CONSENT_LABEL = '개인정보처리방침에 동의합니다 (필수)'
-const EVENT_1 = '「1988년 하계 올림픽」 관련 자료'
-const EVENT_2 = '「KBS 1TV」 관련 자료'
+const CONSENT_LABEL = 'I agree to the privacy policy (required)'
+const EVENT_1 = 'Material about “1988년 하계 올림픽”'
+const EVENT_2 = 'Material about “KBS 1TV”'
 const IFRAME_API = 'https://www.youtube.com/iframe_api'
 const EMBED_URLS = [
   exampleDaehanNews.embed_url,
@@ -69,14 +69,15 @@ const FIXTURE_FILES = FIXTURE_MEDIA.flatMap((media) => [
   media.embed_url,
   ...(media.video_sources ?? []).map((source) => source.url),
 ])
-const ERROR_TEXT = /오류|실패|재생할 수 없/
+const ERROR_TEXT = /오류|실패|재생할 수 없|error|fail|couldn't|can't play/i
 const PLAYING = 1
 
-const world = (page: Page) => page.getByRole('region', { name: '그날의 세계' })
+const world = (page: Page) =>
+  page.getByRole('region', { name: 'The world that day' })
 const daehan = (page: Page) => page.locator(`iframe[title="${EVENT_1}"]`)
 const undated = (page: Page) => page.locator(`iframe[title="${EVENT_2}"]`)
 const commonsVideo = (page: Page) =>
-  page.getByRole('list', { name: '사건 목록' }).locator('video')
+  page.getByRole('list', { name: 'Events' }).locator('video')
 
 const isYouTubeHost = (url: string) =>
   /(^|\.)(youtube\.com|youtube-nocookie\.com|ytimg\.com|googlevideo\.com)$/.test(
@@ -235,7 +236,8 @@ const daehanAlone: WorldResponse = {
     ...restEvents,
   ],
 }
-const dayVideo = (page: Page) => page.getByLabel('기록 영상', { exact: true })
+const dayVideo = (page: Page) =>
+  page.getByLabel('Archive video', { exact: true })
 
 test.describe('with the fake YT', () => {
   test.beforeEach(async ({ context, page }) => {
@@ -350,14 +352,14 @@ test.describe('with the fake YT', () => {
     await expect(undated(page)).toHaveCount(1)
 
     const first = world(page)
-      .getByRole('list', { name: '사건 목록' })
+      .getByRole('list', { name: 'Events' })
       .getByRole('listitem')
       .first()
     await expect(first).toContainText('제24회 서울 하계 올림픽 개막.')
     await expect(first.getByRole('img')).toHaveCount(2)
     await expect(first.locator('video')).toHaveCount(1)
     await expect(first.getByRole('figure')).toHaveCount(3)
-    await expect(first).toContainText('출처: 한국어 위키백과')
+    await expect(first).toContainText('Source: 한국어 위키백과')
     await expect(world(page)).not.toContainText(ERROR_TEXT)
   })
 

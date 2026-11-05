@@ -395,7 +395,7 @@ class WorldStoryDayMediaTest extends WikimediaWireMockTest {
             null,
             LicenseStatus.UNKNOWN,
             null,
-            "Synthetic Author · 라이선스 확인 안 됨 · Wikimedia Commons",
+            "Synthetic Author · Licence not verified · Wikimedia Commons",
             null,
             null,
             null,
