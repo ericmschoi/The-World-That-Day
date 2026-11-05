@@ -376,3 +376,4 @@
 | 2026-11-05 | frontend-dev | C1 S2 T8b 방침 S-1·S-7·YouTube 문장, S-9 요약, S1 리뷰 남은 일(793f943 단독 typecheck 실패, 277542e와 한 묶음) | 완료 | 277542e |
 | 2026-11-05 | test-engineer | C1 S2 T6 검증(입력 화면 영어, 날짜만 전송, 840·e2e 128 2회, 제품 코드 +450/−75) | 완료 | 8f35e36 |
 | 2026-11-05 | code-reviewer | C1 S2 리뷰 승인(필수 없음, 권장 4: 방침 "that day and place" 문장, IFrame 문장에 시각, flow.test 정규식 이스케이프, Intl ICU 판) | 승인 | 8f35e36 |
+| 2026-11-05 | frontend-dev | C1 S2 PR #33 리뷰 권장 3건(방침 "for that day", IFrame 문장에 시각, 오프닝 전체 문장 비교) | 완료 | 0e74cd2 |
