@@ -2,7 +2,8 @@
 # per line, English only, every form written out (no stemming). A summary that contains any of them
 # as a whole word, in any letter case, is tragic: "Killed" matches kill, "skilled" does not.
 # Source: the proposed list of research canada-day-events.md section 2 row 7 (no official basis),
-# plus "coup". False positives ("World War II", "fire" for a building) lean the same way as the
+# plus "coup", plus the English counterparts of the former Korean list (sinking, derailment,
+# collision, storms, floods, invasion, execution; S3a review). False positives ("World War II", "fire" for a building) lean the same way as the
 # conservative default and are accepted.
 kill
 kills
@@ -78,3 +79,27 @@ fires
 war
 wars
 coup
+sank
+sinks
+sinking
+derail
+derails
+derailed
+derailment
+collide
+collides
+collided
+collision
+hurricane
+typhoon
+cyclone
+flood
+floods
+flooding
+invade
+invades
+invaded
+invasion
+executed
+execution
+executions

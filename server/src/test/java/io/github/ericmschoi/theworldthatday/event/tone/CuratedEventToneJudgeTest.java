@@ -289,7 +289,31 @@ class CuratedEventToneJudgeTest {
             "fires",
             "war",
             "wars",
-            "coup");
+            "coup",
+            "sank",
+            "sinks",
+            "sinking",
+            "derail",
+            "derails",
+            "derailed",
+            "derailment",
+            "collide",
+            "collides",
+            "collided",
+            "collision",
+            "hurricane",
+            "typhoon",
+            "cyclone",
+            "flood",
+            "floods",
+            "flooding",
+            "invade",
+            "invades",
+            "invaded",
+            "invasion",
+            "executed",
+            "execution",
+            "executions");
     CuratedEventToneJudge judge = judge("");
 
     for (String word : words) {
@@ -333,6 +357,21 @@ class CuratedEventToneJudgeTest {
             "Transbrasil Flight 303");
 
     assertThat(only(judge(""), crash))
+        .extracting(Verdict::tone, Verdict::basis)
+        .containsExactly(Tone.TRAGIC, Basis.RULE_KEYWORD);
+  }
+
+  /** S3a review: the recorded 1918 line of July 17 is tragic by keyword ("are executed"). */
+  @Test
+  void recordedExecutionLineIsTragicByKeyword() {
+    KoWikiEvent execution =
+        event(
+            "Tsar Nicholas II of Russia and his immediate family and retainers are executed by"
+                + " Bolshevik Chekists at the Ipatiev House in Yekaterinburg, Russia.",
+            "Q6",
+            "Nicholas II of Russia");
+
+    assertThat(only(judge(""), execution))
         .extracting(Verdict::tone, Verdict::basis)
         .containsExactly(Tone.TRAGIC, Basis.RULE_KEYWORD);
   }
