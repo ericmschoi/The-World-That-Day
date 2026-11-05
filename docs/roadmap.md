@@ -1,476 +1,252 @@
 # 로드맵
 
-> 작성: planner · 기준: `docs/product-brief.md` 11절 마일스톤 초안, `docs/research/summary.md` (M0 결과), `docs/research/video-sources.md` (M3 영상 리서치 결과)
-> 상태: 처음 승인 2026-10-08 · M0 완료 (PR #1) · M1 완료 (PR #2·#3) · M3 계획 PM 승인 2026-10-11 · M3a1b·M3a1c·M3b1b 분할 승인 2026-10-11 · **이번 갱신 PM 승인 (2026-10-12): 영상 리서치 결과(T1~T5, 3.5절 PM 실행 결과, 6bf0267)와 PM 결정(10.1절 1~24번, M3b1b 리뷰 후속)을 반영. M3a6을 M3에서 뺌. D1 (a) M3a4·M3a5·M3b2·M3b3 분할(M3 PR 17개 — 당시 "18개"는 `chore/m1-followups` 를 함께 센 수, 2026-10-12 정정), D2 (a) 동의 단계는 M3b3b가 임시 입력 화면에 먼저, D3 (a) `web-ci` 에 Chromium Playwright 단계** · **M3a2 개정 PM 승인 (2026-10-12): M3-P16 변경(원문을 거르지 않음, PM 결정 2026-10-12), M3a2는 한 PR((b), 중간 확인점 T2·T2b 뒤 누적 S1 360), M3a1c 리뷰 권장 2·5를 M6b로** · **M3a2 완료 (PR #11, 2026-10-13, 실제 S1 +1,094)** · **M3a3 개정·분할 PM 승인 (2026-10-13): A (a) M3a3(형식·규칙) + M3a3b(Commons 사진) 두 PR → M3 PR 18개, B (a) 스키마 검증 라이브러리는 테스트 범위 유지(M4a·M5b 때 다시), C (c) `chore/env-guard` 하지 않음** · **M3a3 확인점 결과 (2026-10-13): T2 뒤 누적 S1 505 > 450 → PM (a) T3을 별도 PR M3a3a `feat/media-rules` 로 → M3 PR 19개** · **M3a3a 계획 PM 승인 (2026-10-13): 이름 M3a3a 유지, D1 (b) 통신사 낱말 경계는 원래 문구 그대로** · **M3a3 완료 (PR #12, `main` f99a9e7)** · **M3b2 개정 PM 승인 (2026-10-13): 결정 1 (a) 한 PR + T1b 뒤 확인점(누적 S1 170), 결정 2 (a) T5(실제 서버, 사진 없이)로 머지하고 실제 사진 확인은 M3a3b 머지 뒤 T6** · **M3b2b 개정 PM 승인 (2026-10-13): 결정 1~4 (a) — 1 T0은 응답 모양 검사만(섹션 ErrorBoundary는 M6b), 2 `web-ci` 경로를 T3에, 3 한 PR + T2 뒤 확인점(누적 S1 300), 4 세 번째 소제목 "다른 때 찍힌 사진"** · **M3a3a 완료 (PR #14)** · **M3b2b 완료 (PR #15, `main` 9642d08, 실제 S1 319)** · **M3a3b 개정 PM 승인 (2026-10-14): 결정 1 (a) 두 PR — M3a3b(그날 사진·Commons 파일 매퍼·이월 리뷰 권장) + M3a3c `feat/event-photos`(사건 사진) → M3 PR 20개, 결정 2 (b) T2는 backend-dev** · **M3b3 개정 PM 승인 (2026-10-14): 결정 1 (a)·2 (b)·3 (a)** · **M3b3 완료 (PR #16, 실제 S1 343)** · **M3a3b 완료 (PR #17, `main` ce3760c, 실제 S1 585 — 다시 셈 485의 ×1.21)** · **M3a3c 개정 PM 승인 (2026-10-15): 결정 1 (a) 미디어 호출 재시도 없음, 2 (b) 위키백과 문서 하나가 `UNAVAILABLE` 이면 그날 사진을 찾지 않음, 3 (a) 한 PR + 확인점 T0·T1 뒤 320(알림)·T2 뒤 500(멈춤), 4 (b) T0은 backend-dev** · **M3b3b 개정 PM 승인 (2026-10-15)** · **M3b3b 완료 (PR #18, 실제 S1 361 + 리뷰 수정, 방침 시행일 후속 PR #19 — 시행일 2026년 10월 16일)** · **M3a3c 확인점 1 (2026-10-16): T0·T1 뒤 누적 S1 433 > 320, T2 뒤 예상 약 600 → 결정 5 분할 — M3a3c는 T0·T1(공용 시간 상한·재시도 없음·PageImages·Commons 파일 묶음)만, T2(사건 사진 연결)는 M3a3d `feat/event-photo-wiring` → M3 PR 21개 · 결정 6 데모 날짜에 맞는 사건 사진이 없으면 사진 없이 냄(다른 날짜를 찾지 않음)** · **M3a3c 완료 (PR #20, `main` 25d5227, 실제 S1 433 / −109)** · **M3b3c 개정 PM 승인 (2026-10-16): 결정 1 (a) 스크립트 실패·준비 안 됨이면 공식 플레이어 그대로, 결정 2 (a) T5 뒤 머지·실제 YouTube 확인 T6은 M3a5 머지 뒤 `main`. 확인점 229 수용** · **M3b3c 완료 (PR #21, `main` 7d83f3d, 실제 S1 375 / −19)** · **M3a3d 계획 개정 PM 승인 (2026-10-17): 결정 1 (a) 한 PR, 확인점 T0 뒤 130(멈춤)·T1 뒤 420(알림)** · **M3a3d 완료 (PR #22, `main` d566bda, 실제 S1 312 / −72 — T0 84 / −28, T1 228 / −44, 파일별 셈의 ×1.33. 확인점 1·2 모두 넘지 않음)** · **M3a4 계획 개정 PM 승인 (2026-10-18): 머지 코드 대조, PR #22 리뷰 권장 2개를 T0으로, 다시 셈 약 675 → 결정 1 (b) 한 PR(T0~T8) + 확인점 T2 뒤 400·T6 뒤 750(둘 다 알림, 멈추지 않음), 결정 2 (b) ★ T2는 backend-dev. M3 PR 21개 그대로** · **M3a4 완료 (PR #23, `main` 298cb8e, 실제 S1 953 — 파일별 셈 450의 ×2.1)** · **M3a4b 계획 개정 PM 승인 (2026-10-24): 머지 이름 대조, PR #23 리뷰 권장 2·3을 T0으로, 다시 셈 약 1,100 → 결정 1 (a) 두 PR 어댑터(T0~T5) → M3a4c `feat/media-search-cache` 결과 캐시(T6~T9), M3 PR 22개 · 2 (a) Wikidata 질의는 어댑터가 따로 1회 · 3 (b) ★ T6은 backend-dev · 4 (a) 보조 경로는 후속 후보** · **M3a4b 완료 (PR #24, `main` 9203562, 실제 S1 1,155 / −236 — CI 수정 943244e 포함, 확인점 1·2 모두 넘어 PM 수용)** · **M3a4c 계획 PM 승인 (2026-10-24): M3a4b 계획서 B절(T6~T9)을 새 계획서로 떼어 머지 코드와 대조, 크기 기대값 약 650 (550~760) → 크기 결정 1 (a) 한 PR, 확인점 T1 뒤 300·T3 뒤 700(알림)** · **M3a4c 완료 (PR #25, `main` 28ffb01, 실제 S1 +583 / −23 — 확인점 T1 뒤 181·T3 뒤 580 둘 다 넘지 않음, T4 결정 (a), 리뷰 승인(필수 0), PM T6 캐시 확인 통과)** · **M3a5 계획 개정 PM 승인 (2026-10-25): 머지 코드 대조, M3b3c 이월 3가지와 M3a4c 리뷰 권장 1 반영, 다시 셈 약 830 (745~975) → 결정 1 (a) 한 PR + 확인점 T3 뒤 500(멈춤)·T5 뒤 1,000(알림), 결정 2 (b) ★ T3은 backend-dev** · **M3a5 확인점 1 (2026-10-26): T3 뒤 누적 S1 525 / −6 > 500(T1 뒤 200, T2 뒤 413) → PM 결정 1 (b) 두 PR로 나눔 — M3a5 `feat/official-channel-video` = T0c·T1·T2·T3 + T1b(순서 의존 시험 고침) + 검증 + PR, 새 M3a5a `feat/youtube-video-source` = T4·T5·T6·T8 + 검증(M3a5 머지 뒤). 순서 M3a5 → M3a5a → M3a5b, M3 PR 23개 · 결정 2 (a) 시작 WARN은 시험 설정에서 고침(단언 변경 없음) · 결정 3 (a) `YoutubeQuota.reserve` n < 1 예외 유지(M3a5a T5가 예약할 것이 없으면 부르지 않음)** · **M3 후속 정리 계획 PM 승인 (2026-10-27)**: 결정 D1 (a), D2 (a), D3 (b), D4 (c), D5 (a) — M3 PR 수에 넣지 않음
->
-> "결정 #n"은 `docs/research/summary.md` 6절 표의 번호다. "M3-Pn", "M3-Dn", "#13-C"는 M3 계획에서 생긴 결정이다. "영상 n번"은 `docs/research/video-sources.md` 10.1절 결정 번호다. "R-…"는 그 문서 7절 정확도 규칙이다. "Dn"은 2026-10-12 갱신에서 PM이 정한 결정이다(아래 "PM 결정 (2026-10-12)").
-> 기능 하나 = 브랜치 하나 = PR 하나.
+> 작성: planner (2026-11-04, 2026-11-05 고침) · 기준: `docs/plans/canada-research.md` 의 로드맵 개요 C0~C8과 PM 결정(2026-10-29), `docs/research/canada-summary.md`(T9 판정표·결정·PM 명령), PM 위임(2026-11-04, `docs/progress.md` 375~376행), 승인된 기능 계획 `c1-english-ui.md`·`c1-input-and-opening-ca.md`·`c2-english-events.md`, 초안 `c2-ca-place-resolve.md`, `docs/product-brief.md`(캐나다 문구는 아직 반영 전 — 제안은 `docs/plans/brief-changes-canada.md`)
+> 상태: **캐나다 전환으로 다시 씀, PM 확인 대기.** 한국판 로드맵(M0~M6, 처음 승인 2026-10-08 ~ 마지막 갱신 2026-10-27)은 git 기록에 있다(`main` f07e420의 이 파일). 한국판의 결정 번호(#1~#27, M3-Pn 등)는 그 판과 `docs/research/summary.md` 를 따른다.
+> 표기: "결정 N" = `canada-research.md` 의 PM 결정(2026-10-29). "A1", "T1 D1", "T5 D2", "X4" = `canada-summary.md` 6절 결정 ID. "명령 #N" = 같은 문서 4절 명령 번호. "S1-Pn", "S2-Pn", "S3 Dn", "C2-Pn" = 각 기능 계획의 PM 결정. "#5" 같은 한국판 번호는 그대로 쓴다(공개 배포 #5).
+> 기능 하나 = 브랜치 하나 = PR 하나. 브랜치 이름에 "(임시)"가 붙은 것은 기능 계획에서 확정한다.
 
-## 현재 위치 (2026-10-26)
+## 현재 위치 (2026-11-05)
 
-- 완료: M0 (PR #1), M1 (PR #2·#3), `chore/m1-followups`(M1 후속), M3 20개 — **M3a1** (PR #5), **M3b1** (PR #6), **M3b1b** (PR #7), **M3a1b** (PR #8), **영상 리서치** (PR #9, 계획 개정 포함), **M3a1c** (PR #10), **M3a2** (PR #11), **M3a3** (PR #12, `main` f99a9e7), **M3b2** (PR #13, `main` e254ad1, 실제 S1 434), **M3a3a** (PR #14), **M3b2b** (PR #15, `main` 9642d08, 실제 S1 319), **M3b3** (PR #16, 실제 S1 343), **M3a3b** (PR #17, `main` ce3760c, 실제 S1 585), **M3b3b** (PR #18 + 시행일 후속 PR #19, 실제 S1 361), **M3a3c** (PR #20, `main` 25d5227, 실제 S1 433 / −109), **M3b3c** (PR #21, `main` 7d83f3d, 실제 S1 375 / −19), **M3a3d** (PR #22, `main` d566bda, 실제 S1 312 / −72), **M3a4** (PR #23, `main` 298cb8e, 실제 S1 953), **M3a4b** (PR #24, `main` 9203562, 실제 S1 1,155 / −236), **M3a4c** (PR #25, `main` 28ffb01, 실제 S1 583 / −23)
-- 진행:
-  - 서버: **M3a4c** 완료 (PR #25, `main` 28ffb01, 실제 S1 +583 / −23 — 파일별 셈 323의 ×1.8로 기대값 약 650보다 작음. 확인점 1(T1 뒤 181 ≤ 300)·2(T3 뒤 580 ≤ 700) 모두 넘지 않음, T4 결정 (a), 리뷰 승인(필수 0 — 고치지 않은 권장 1은 M3a5 T7 (9)에 남김, 권장 3은 후속 후보), PM T6: 1969-07-20을 두 번 불러 영상 항목이 같고 캐시 줄에 요청자 정보 없음). 진행 **M3a5** `feat/official-channel-video`(`main` 28ffb01에서 갈라짐) — **2026-10-26 확인점 1에서 둘로 나눔**(PM 결정 1 (b), `docs/plans/m3a5-official-channel-video.md`): T3 뒤 누적 S1이 525 / −6(T1 뒤 200, T2 뒤 413)으로 확인점 500을 넘었다(파일별 셈 약 210의 ×2.5, 기대 ×2.0보다 큼). **M3a5 = 부품만**: T0c(약관·쿼터 문서 다시 확인, b3f6be6)·T1(설정·키·`app.web-origin`·TTL 30일 상한, 97ff244)·T2(`YoutubeClient`, ab060b3)·T3(★ `YoutubeQuota` 두 버킷, 876affb) + **T1b**(시험 설정이 `YoutubeKeyCheck` 로그 수준을 낮춰 순서에 따라 실패하던 시험을 고침, 단언 변경 없음 — 진행 중) + **T7**(M3a5 범위 검증, M3a4c 리뷰 권장 1 포함) + 리뷰 + PR. 머지돼도 **API·화면은 달라지지 않는다**(출처를 흐름에 연결하지 않음 — 의도된 것). 이어서 **M3a5a** `feat/youtube-video-source`(M3a5 머지 뒤, `docs/plans/m3a5a-youtube-video-source.md`, **계획 PM 승인 대기**): T4(★ 확인·버림 규칙과 레코드)·T5(출처 연결·캐시 30일·키 없을 때 끄기, `reserve` n < 1 이면 부르지 않음)·T6(방침 문장 현재형과 시행일, 머지하는 날)·T7(검증)·T8(PM 품질 확인) + PM T0(Y5). 다시 셈 약 510(410~590) > 400 → M3a5a 크기 결정 1(추천 (a) 한 PR + 확인점 T4 뒤 300(멈춤)·T5 뒤 650(알림)), 결정 2 ★ T4(추천 backend-dev). 영상은 M3a5a가 머지돼야 응답과 화면에 나온다. M3a5의 나머지 설계(YouTube 출처는 같은 미디어 창의 작업 하나라 세계 섹션 최악 시간 그대로, 요청 제한기 없음, 캐시 쓰기 실패 뒤 다른 출처 쓰기도 건너뜀, 쿼터는 메모리 두 버킷(전부 아니면 없음 예약 — 부분 검색이 0건으로 캐시되지 않게, 태평양 자정, 다시 켜면 0부터), 캐시 `youtube` TTL 7일(30일 넘으면 시작 실패) + 29일 지난 줄 지우기(III.E.4.d), 같은 꼭지 여러 ID(R-N7)는 M3a5b로)는 그대로다. 그다음 **M3a5b**
-  - 웹: **M3b3** 완료 (PR #16), **M3b3b** 완료 (PR #18·#19), **M3b3c** 완료 (PR #21) — **M3의 웹 기능 7개가 모두 끝났다.** 남은 웹 작업은 PM 실제 확인(`main` 에서): M3b2b T6과 **M3b2 T6은 지금 할 수 있다**(M3a3d 머지됨 — 데모 날짜는 사건 사진이 없는 것이 정상, M3a3c 결정 6), 실제 영상 확인 **M3b3 T6도 지금 할 수 있다**(M3a4b 머지됨 — 1969-07-20 표본, 데모 3날짜는 Commons 영상이 없는 것이 정상), 실제 YouTube 확인 M3b3c T6은 **M3a5a 머지 뒤**(1988은 M3a5b 뒤). 작은 `fix/` 후보 2개(M3b3c 리뷰 권장 1, 웹 mock `selection.score` 정수 — 후속 후보 표). 다음 웹 기능은 M2b(M3 다음)
-  - **M3a5 T0**: PM이 YouTube 키를 발급하고 Y1·Y2·Y4·N3을 실행했다 → YouTube 경로 "확인됨". 남은 것: Y5(콘솔 사용량, 필수 — M3a5a T0, T8 전), Y3 재실행(선택), 공공데이터포털 활용신청 + N1·N2, CSV(N-B1), N-B9(선택)
-- M3b1b 리뷰 후속 4건과 라이선스 줄 (b)는 PM 결정으로 M3b2b에서 했다(새 창 안내의 공용 `visually-hidden` 클래스와 출처 줄 링크는 M3b2가 먼저 만들었다).
-- 진행 순서 (R1 (a)): **M1 → M3 → M2 → M4 → M5 → M6**
+- **완료**: C0 캐나다 리서치 (PR #30, `main` bea33b1), C1 S1 영어 화면 (PR #31, `main` cc9af18). 한국판: M0 (PR #1), M1 (PR #2·#3), M3 22개 (PR #5~#28, M3a5a까지), 후속 정리 2개 (`chore/m1-followups`, `chore/m3-followups` PR #29).
+- **진행**: S2 `feat/input-and-opening` (worktree `The-World-That-Day-m2b`, M2b 고쳐 쓰기), S3a `feat/enwiki-events` (worktree `The-World-That-Day-c2`). C2 계획 `docs/plans/c2-ca-place-resolve.md`(초안)와 C3 계획 `docs/plans/c3-then-vs-now.md`(작성 중)는 다른 planner가 쓴다.
+- **막힘**: S4 캐나다 YouTube 채널 (PM 명령 #5~#8), `feat/ca-place-search` 지점 검색 (Nominatim `부분 확인`).
+- **운영 방식 (PM 2026-11-04)**:
+  - 배포 직전까지 PR마다 멈추지 않는다.
+  - 앞 PR이 머지되지 않았으면 다음 브랜치를 그 위에 쌓는다(아래 "진행 순서").
+  - 유료 API 호출과 배포는 하지 않는다.
+  - 키나 PM 명령이 필요한 일은 마지막 보고의 "배포 전 확인 목록"(아래)에 모은다.
+  - 막히면 가장 타당한 안(리서치·계획 문서의 추천안)으로 진행하고 기록한다. 다만 "PM만 정할 수 있는 결정"(아래 목록)은 위임으로 정하지 않는다.
 
 | 마일스톤 | 목표 | 기능 (브랜치 단위) | 선행 조건 | 끝나면 PM이 정할 것 |
 |---|---|---|---|---|
-| M0 데이터 출처 리서치 **(완료)** | 후보 출처 검증, 추천안, PM 결정 목록 | `docs/m0-source-research` (PR #1) | 없음 | 제품 정의서 수정(아래 "문구 제안") — PM 검토 |
-| M1 부트스트랩 **(완료)** | 골격, 로컬 DB, CI, 헬스 체크, 빈 결과 화면 | M1a (PR #3), M1b (PR #2) | M0 | (반영됨) |
-| M3 그날의 세계 | **아무 날짜에서나** 그날의 사건(같은 사건은 한 번만), 바로 보이는 사진(촬영 시점 미상도 보이되 그날 것처럼 보이지 않게), 자동으로 찾은 영상(Commons·KTV 아카이브 YouTube·대한뉴스, 없으면 사진만), `tone`, YouTube API 서비스 의무(개인정보처리방침·동의·약관 링크·출처 표시). 공용 미디어 형식, API 규약, 디자인 기초와 미디어 카드 | **PR 23개** = 리서치 1 + 서버 15: M3a1 → M3a1b → M3a1c → M3a2 → M3a3 → M3a3a → M3a3b → M3a3c → M3a3d → M3a4 → M3a4b → M3a4c → M3a5 → M3a5a → M3a5b + 웹 7: M3b1 → M3b1b → M3b2 → M3b2b · M3b3 · M3b3b → M3b3c. **M3a6 제외**(영상 15번 (a)). M3c 제외. M3a4c는 M3a4b 결정 1 (a)로 더해짐(2026-10-24), M3a5a는 M3a5 결정 1 (b)로 더해짐(2026-10-26) | M1 (완료). M3a5는 PM 키(발급됨), M3a5a는 PM Y5(콘솔 사용량), M3a5b는 PM 대한뉴스 CSV·N1·N2 | `tone` 검수, 표본 날짜 품질 확인으로 정확도 값 보정, 세계 사건이 적을 때 #20 후속, 후속 작업 후보 처리 |
-| M2 장소 해석과 입력 | 장소 유형 분류와 좌표, 후보 선택 UI, 날짜 검증과 오프닝, **입력 화면 안 필수 동의(영상 23번 (b))를 실제 폼으로 옮김**, 결과 주소에 생년월일·장소를 넣지 않음 | M2a `feat/place-resolve`, M2b `feat/input-and-opening` | M1, M3a2(API 규약), M3b3b(동의 구성 요소). 카카오 로컬 "확인됨". 결정 #2, #3, #7, #10, #11, #26 | 동네·지점 반경, 결과 검수 |
-| M4 그날의 동네 | 항공사진 그때/지금 **나란히 보기**, 로드뷰(현재 모습), 동네 곳곳 | M4a `feat/aerial-compare`, M4b `feat/streetview`, M4c `feat/neighborhood-photos` | M2a, M3a3(형식, `sdk`·`render`), M3a3a(공용 규칙), M3a3b(Commons 사진 매퍼 — M4c), M3b1b(카드). 결정 #2, #14, #15, #16, M3-P10의 항공사진 부분. 브라우저 확인 1·13·15, T3 K-S1 | 네이버 거리뷰(#2 (b)) 재검토 여부 |
-| M5 도시의 대표 풍경 | 대표 명소 큐레이션과 기록 미디어, 도시 섹션 | M5a `feat/landmark-data`, M5b `feat/landmark-media`, M5c `feat/city-section` | M5a: M2a. M5b: M3a3. M5c: M3b1b·M3b3, M5b. 결정 #19 | 시·도 범위 확대 |
-| M6 이야기 화면 완성 | 흐름, 성능, 출처 목록, 장애 격리, 데모 준비 | M6a `feat/story-flow`, M6b `feat/sources-and-resilience`, M6c `chore/demo-e2e` | M3~M5 | 배포 재검토(#5) — **미디어 결정·안전장치·#13-C·영상 리서치 공개 배포 항목 재검토**, MVP 완료 선언 |
+| C0 캐나다 리서치 **(완료)** | "그때 vs 지금" 11개 항목과 영역 8개 출처 검증, 판정표, 결정 목록 | `docs/canada-research` (PR #30) | 결정 1·7 | (반영됨: A1·A2·T1 D1~D5·T8 D4·T6 D4, 2026-11-04 위임) |
+| C1 나라 전환 | 화면은 en-CA, 입력·오프닝은 캐나다판, 사건은 영어 위키백과 문서 3개, 미디어와 범위는 캐나다, 한국 전용 코드 정리 | S1 `feat/english-ui` **(완료, PR #31)** → S2 `feat/input-and-opening` **(진행)** ∥ S3a `feat/enwiki-events` **(진행)** → S3b `feat/enwiki-canada-events` → S3c `feat/enwiki-media-scope` → S4 `feat/ca-youtube-channels` (임시, 막힘) | 정의서 1차 수정(S2 T9). S4는 PM 명령 #5~#8 + T4 D4~D7 | S4 허용 채널, ★ S3b T2 담당 |
+| C2 장소 해석 | 캐나다 장소 → 유형·좌표·주·CSD, 같은 이름 후보 고르기, 다시 입력 안내, 캐나다 밖 안내 | `feat/ca-place-data` → `feat/ca-place-matcher` → `feat/ca-place-resolve` (서버, C2-P1로 셋으로 나눔) → `feat/place-picker` (웹, M2b2 고쳐 씀) · `feat/ca-place-search` (`SPOT`·국외 판정, 막힘) | T1 D1~D5 (a). 웹은 S2(쌓기 가능). 검색은 Nominatim `확인됨` | Nominatim 예외 허용, 지도에서 위치 고르기, 동네 목록 큐레이션(T1 D3 (c)) |
+| C3 그때 vs 지금 공용 | 수치 레코드 형식·검사 규칙, "그때와 지금" 섹션 뼈대와 수치 카드, 정직한 수치 표기(결정 6 (a)) | 서버 `feat/then-now-format` · 웹 `feat/then-now-section` (둘 다 임시, `c3-then-vs-now.md` 에서 확정) | 결정 6 (a), T5 D6·D7, 정의서 2차 6.4절 | 섹션 위치(정의서 5절), "그해 자료 없음" 문구 |
+| C4 날짜만 필요한 항목 | 1차: 항목 2의 $100 환산. 2차: 7 금리·환율, 9 스탠리컵·주노상·영화, 5 같은 생일, 4 노래 | 1차 `feat/then-now-cpi` → 2차 항목마다 1 PR (임시) | C3. 2차는 항목별 결정·명령(아래 "MVP 부분집합") | 2차 결정 (T5 D1, T7 D3·D7 등) |
+| C5 주·도시가 필요한 항목 | 1차: 1 날씨, 2 휘발유·빵·우유, 3 최저임금 시간, 6 아기 이름, 11 도시 인구. 2차: 10 집값 | `feat/ca-region-codes` (`data/`) → 항목마다 1 PR (임시) | C2 사전(`province`·`csd`), C3 | 1차 결과 검수, T6 D2 |
+| C6 동네 그때/지금 | 지원 도시의 항공사진 그때/지금, 현재 위성 | `feat/ca-aerial-then` → `feat/ca-aerial-now` → `feat/montreal-aerial-curation` (임시) | C2, T2 D1~D6, X1·X2·X4, PM 브라우저 명령 #26~#28 | MVP에 넣을지 |
+| C7 도시의 대표 풍경 | 데모 도시 4곳의 대표 명소와 기록 미디어 | `feat/ca-landmark-data` → `feat/ca-landmark-media` → `feat/ca-city-section` (임시) | C2, T4 D1~D3, X1 | MVP에 넣을지 |
+| C8 이야기 화면 완성 | 흐름, 성능, 전체 출처 목록, 장애 격리, 데모 4개 E2E | `feat/story-flow` → `feat/sources-and-resilience` → `chore/demo-e2e` | C1~C5 (C6·C7은 머지된 만큼) | 공개 배포(#5), MVP 완료 선언 |
 
-## PM 결정 (2026-10-12)
+PR 수는 약 32개로 본다(C1 6, C2 5, C3 2, C4 5, C5 7, C6 3, C7 3, C8 3). 기능 계획에서 400줄 규칙으로 늘거나 준다.
 
-| # | 정한 것 | 결정 | 이유 (planner 추천 근거) |
-|---|---|---|---|
-| D1 | 보정 크기 400 초과 기능 나누기 (1.6배 보정으로 M3a4 약 690, M3a5 약 575, M3b2 약 650, M3b3 약 680줄) | **(a) 나눈다**: M3a4 → M3a4(검색 틀·정확도) + M3a4b(Commons·캐시), M3a5 → M3a5(YouTube) + M3a5b(대한뉴스, 이전 T2), M3b2 → M3b2(섹션 뼈대) + M3b2b(사진 묶음·비극 블록·접근성·Playwright), M3b3 → M3b3(재생 기초·Commons) + M3b3b(방침·동의) + M3b3c(YouTube). M3 PR 18개(2026-10-12 정정: M3 기능은 17개, 18은 `chore/m1-followups` 포함 — 2026-10-13 M3a3 분할로 M3 기능이 18개, 같은 날 M3a3 확인점 결과로 19개가 됨), 각 PR 보정 약 220~390줄 | 나눈 단위가 선행 조건과 같이 갈린다(M3a5는 지금 시작 가능, M3a5b는 PM CSV 대기 / M3b3c는 동의 단계 뒤). M3a1·M3b1이 예상의 1.6~1.75배였다 |
-| D2 | 동의 단계를 언제 만드나 (실제 입력 폼 M2b보다 YouTube 영상 M3b3c가 먼저 나옴) | **(a)** M3b3b에서 동의 구성 요소와 개인정보처리방침을 만들어 **지금의 임시 입력 화면(데모·표본 버튼)** 안에 두고, M2b가 실제 폼의 제출 버튼 앞으로 옮긴다 | 23번 결정의 위치(입력 화면 안, 제출 전)를 처음부터 지키고, 9번 결정("의무가 갖춰지기 전에는 YouTube 영상을 보여 주지 않는다")과 맞으며 M3 데모에서 국내 영상을 볼 수 있다 |
-| D3 | Playwright를 CI에서 돌리나 | **(a)** `web-ci` 에 Chromium 하나로 `npm run e2e` 단계를 더한다(M3b2b T3) | 실제 브라우저 확인(포커스 링·토큰 색·플레이어 크기)이 PR마다 깨지지 않게 지킨다. 외부 요청은 막으므로 불안정 요인이 적다 |
+## 지금 적용되는 PM 결정 (캐나다)
 
-## PM 미디어 결정 (2026-10-11)
+| 언제 | 결정 | 내용 |
+|---|---|---|
+| 2026-10-29 | 방향 전환 | 주 대상 캐나다, 화면은 영어만, 세계 사건은 영어 위키백과로, "그때 vs 지금" 11개 항목, 연·월 값은 "그해" 문구 |
+| 2026-10-29 | 결정 1 (b) | 데모 4개(아래 "데모 입력과 표본 날짜"), 같은 이름 확인용 장소 이름 "London"·"Victoria"·"Saint John" 예외 |
+| 2026-10-29 | 결정 2 (a) | "오늘"은 `America/St_Johns`, 서버·웹이 같은 상수 |
+| 2026-10-29 / 2026-11-04 | 결정 3 → **A2** | 지원 시작 **1950-01-01 확정** |
+| 2026-10-29 | 결정 4 (b) | 한국 전용 코드는 캐나다 PR 안에서 그 자리에서 바꾸거나 지운다 |
+| 2026-10-29 | 결정 5 (b) | 정의서·`CLAUDE.md` 수정은 두 번에 나눈다 → `brief-changes-canada.md` |
+| 2026-10-29 | 결정 6 (a) | 수치의 정직한 표기(기간·정밀도, "지금" 기간, approx., 인구조사 연도 차이) |
+| 2026-10-29 | 결정 7 (a) | 같은 생일: 실행 때 Wikidata, 저장소에는 합성 인물만 |
+| 2026-10-29 | 결정 8 | M2b 고쳐 씀(S2), M2a는 쓸 만한 부분만 새 브랜치로(C2) |
+| 2026-10-29 | 결정 9 (a) | en-CA (neighbourhood, licence, "3:20 p.m.") |
+| 2026-10-29 | 결정 10 (b) | `StoryDate` 는 backend-dev (S1 T5에서 끝남) |
+| 2026-10-29 | S1-P1~P4, S2-P1~P2, S3 D1~D9 | 각 계획의 추천안. ★ S3b T2는 (a) PM 직접으로 기록하고 S3b 전에 다시 확인 |
+| 2026-11-04 | **A1 (a)** | MVP 1차 항목 1·2·3·6·11. 4·5·7·9·10은 결정이나 PM 명령 뒤 2차. 8은 뺀다 |
+| 2026-11-04 | **T1 D1~D5 (a)** | CGNDB는 내려받기 파일만. Nominatim은 저장소 밖 임시 캐시만. 동네 이름은 SGC·CGNDB·OSM, 경계는 나중. 같은 이름 외국 도시는 캐나다 후보만. 병원은 최선의 검색 + 다시 입력 안내. Nominatim이 `부분 확인` 이라 `SPOT` 검색은 확인 전까지 만들지 않음 |
+| 2026-11-04 | **T8 D4 (b)** | 나이 문장 "This service is for a general audience. If you are under 13 (14 in Quebec), please ask a parent or guardian first." 을 S2 T8b에 |
+| 2026-11-04 | **T6 D4 (a)** | ECCC 일별 기후 라이선스를 서비스 단위로 읽는다(해석 확정 아님) |
+| 2026-11-04 | 운영 방식 | 위 "현재 위치" |
 
-- **사진과 영상은 링크로 처리하지 않는다. 결과 화면에서 바로 보이고 바로 재생된다.** 라이선스가 확인되지 않은 자료도 직접 보여 준다(PM 선택지 (c), 비상업). 화면에 띄울 수 없는 자료(임베드 불가·재생 실패)는 링크로 바꾸지 않고 **보여 주지 않는다**(영상 22번).
-- **촬영 시점을 모르는 미디어는 보여 주되 "촬영 시점 미상"으로 표시하고 그날 찍은 것처럼 보이게 하지 않는다. 출처가 빈 미디어는 보여 주지 않는다**(`CLAUDE.md` 7절 1항, 제품 정의서 6.2절). 촬영일 필드가 사건 날짜보다 늦으면(업로드·복원일) "촬영 시점 미상"으로 붙인다(영상 2번 (b)). 대한뉴스는 회차 날짜를 `approx` 와 "… 자"로만 쓴다.
-- 영상: **화면에 절반 넘게 보이면 음소거로 자동 재생**, 벗어나면 멈춤, 소리는 사용자가 켬, **한 번에 하나만**. YouTube 플레이어는 200×200 이상, 위에 아무것도 겹치지 않음(YouTube 정책). 움직임 줄이기·데이터 절약이면 자동 재생 안 함(M3-P8). 10분 넘는 영상은 붙이지 않음(영상 3번).
-- **M3-P9 (b)**: 아무 날짜에서나 그날 사건의 영상을 **자동으로 찾아** 보여 준다. 데모 날짜 큐레이션은 확인용 기준표로만 둔다. **영상이 없는 날짜는 사진만 나오는 것이 정상**이다(오류 아님).
-- 안전장치 (PM 확인):
-  1. 미디어 파일을 우리 서버·저장소에 복사·재배포하지 않는다. 원 출처 주소(핫링크)나 공식 플레이어·공식 임베드로만. (M3-P10: 자유 라이선스 자료의 Git 밖 사본 #13 (a)는 허용)
-  2. 모든 미디어에 출처, 라이선스(모르면 "라이선스 확인 안 됨"), 촬영 시점·정밀도(모르면 "촬영 시점 미상"). 6.1절·6.3절 그대로.
-  3. 통신사·언론사 사진은 직접 가져다 쓰기(핫링크 포함) 금지. 제공사 **공식 임베드**로는 허용 — M3에서는 그 경로(게티)를 뺐으므로 통신사 사진이 나오지 않는다.
-  4. 경로 우선순위: 자유 라이선스 → 임베드 허용 공식 채널 → 그 밖 직접 표시.
-  5. 출처별 차단 목록(설정값)으로 권리자 요청 시 바로 내린다.
-  6. 공개 배포(#5)를 정할 때 다시 본다.
+## MVP 부분집합 (A1 (a))
 
-## M0 결과로 바뀐 점 (요약)
+MVP = C1 + C2(`REGION`·`NEIGHBORHOOD`, `SPOT` 은 Nominatim 확인 뒤) + C3 + 아래 1차 항목 5개 + C8. C6·C7은 막히지 않은 만큼만 들어가고, 빠진 섹션은 정직한 빈 안내로 둔다(넣을지는 C5 끝에 PM이 정함).
 
-1. **M2a**: 카카오 로컬 `부분 확인 (PM 호출 대기)`. 지역 사전 + 실시간 호출(#11 (a)).
-2. **M3는 M1 직후** (R1 (a)): 사건 1순위는 모두 `확인됨`, 키 불필요.
-3. **M4a**: 과거 항공사진 API 없음, 2010년 이전 정사영상 아님 → 큐레이션 + 나란히 보기.
-4. **M4b**: 로드뷰는 현재 모습만, "현재 모습(촬영 시점 미제공)"(#17).
-5. **M4c**: 서울은 "사진으로 본 서울", 서울 밖은 Commons 현재 모습과 안내.
-6. **M5**: 서울 1989~1994년 공백, 광주 제1유형 원천 없음 — e영상역사관 사진 등은 핫링크로 직접 표시 가능(라이선스 상태 표시).
-7. **M3c**: MVP 제외(#24 (a)).
-8. **테스트 fixture**(#12): 카카오·네이버·Google(YouTube 포함) 응답은 합성 fixture, Wikimedia는 녹화 가능.
+| 항목 | 묶음 | 단계 | 1순위 출처 (확신도) | 표기 | 가장 이른 기간 | 시작에 필요한 것 |
+|---|---|---|---|---|---|---|
+| 1 생일 날씨 | 1차 | C5 | ECCC MSC GeoMet `climate-daily`·`climate-stations` (확인됨, T6 D4 (a)) | That day (기후일, 관측소 이름·거리) | 1950 | C2 도시 대표 좌표(CGNDB), 관측소 사전, T6 D3 "지금" 정의 |
+| 2 $100 그때→지금 + 장바구니 | 1차 | C4 (CPI 환산) + C5 (휘발유, 빵·우유) | StatCan CPI 41690973, 휘발유 18-10-0001-01, 빵·우유 18-10-0002-01·18-10-0245-01 (확인됨) | That month, 환산은 approx. | CPI 1914-01, 휘발유 1979-01, 빵·우유 1995-01 | 휘발유는 도시 대응표, 빵·우유 이어 붙임은 T5 D2. 영화표·우표는 뺀다(T5 D3 (a)) |
+| 3 최저임금으로 일한 시간 | 1차 | C5 | ESDC 최저임금 CSV + 항목 2 가격 (확인됨) | 그날 시행 요율 + That month, approx. | 임금 1965-01-01, 시간 계산은 가격 계열 시작부터 | 주(C2), T5 D7 |
+| 6 주별 인기 아기 이름 | 1차 | C5 | BC·온타리오·퀘벡 주 데이터 (확인됨), 앨버타 (부분 확인) | That year (주별 정의 주석, 주 사이 비교 없음) | BC 1926, 온타리오 1913/1917, 퀘벡 1980 | 주(C2), T7 D5. 앨버타는 명령 #48 뒤 |
+| 11 도시 인구 | 1차 | C5 | StatCan 17-10-0155-01 (CSD, 2001~) + CMA 표 17-10-0033-01·17-10-0037-01 (확인됨) | That year (7월 1일 추계, 경계 판 병기) | CSD 2001, CMA 1976 | CSD 코드(C2), T6 D1, T6 D6 |
+| 7 주택담보대출 금리 + CAD/USD | 2차 | C4 | BoC Valet V80691335 (확인됨), FXUSDCAD·StatCan 보관 표 (부분 확인) | 금리 That week (수요일), 환율 Same day (영업일) | 금리 1975, 환율 1950-10-02 | 금리는 T5 D5만. **환율은 T5 D1 (PM만)** |
+| 9 스탠리컵 + 주노상 + 영화 | 2차 | C4 | 스탠리컵 Wikidata (확인됨), 주노상·영화 (부분 확인) | That year | 1950 / 1970 / 1949 | 스탠리컵은 결정 없이 가능. 주노상 T7 D8 + 명령 #49. 영화 T7 D7 |
+| 5 같은 생일 | 2차 | C4 | Wikidata P569, 366일 사전 계산 (확인됨, 조건) | Same day (월·일) | 제한 없음 | **T7 D3 생존 인물 노출 (PM만)**, T7 D4 |
+| 4 그 주 1위 노래 + 재생 | 2차 | C4 | 영어 위키백과 1위 목록 큐레이션 + YouTube 공식 임베드 (부분 확인) | Chart dated <발행일> | 1957 | T7 D1·D2·D10, X3, 명령 #9 |
+| 10 집값 | 2차 | C5 | StatCan NHPI 18-10-0205-01 (확인됨, 지수) | That month, "new-house price index" | 1981-01 | T6 D2. "소득 몇 년"은 뺀다 |
+| 8 발명·기기 | **뺌** | — | 자동 출처 없음 | — | — | T7 D6 (a) |
+
+- 2차의 순서는 결정이 필요 없는 부분부터다: 금리 → 스탠리컵 → (결정 뒤) 같은 생일·노래·환율·주노상·영화 → 집값.
+- 비어 있는 해는 항목마다 "그해 자료 없음"을 보이고, 다른 날짜·해·지역으로 채우지 않는다(메모 "No substitute dates"). 규칙으로 정한 예외(가장 가까운 인구조사)만 연도를 밝혀 쓴다.
 
 ## 마일스톤 상세
 
-### M0 — 완료
-영역 문서 5개와 `docs/research/summary.md`, 결정 26개. `docs/plans/m0-source-research.md`.
+### C0 — 완료 (PR #30)
+`docs/research/canada-*.md` 8개와 `canada-summary.md`, 판정표, 결정 53개, PM 명령 50개. `docs/plans/canada-research.md`.
 
-### M1 — 완료 (PR #2, #3)
-- M1a: Spring Boot 4.1.1, Gradle 9.8.1, PostgreSQL 17, Flyway V1, `GET /api/health`, Spotless, `server-ci`. `docs/plans/m1a-bootstrap-server.md`.
-- M1b: Vite 8, React 19, TypeScript 6, Vitest 5, MSW 2, 빈 결과 화면, `/api` 프록시, `web-ci`. `docs/plans/m1b-bootstrap-web.md`.
+### C1 나라 전환 — PR 6개
 
-#### M1 리뷰에서 미룬 항목 — 처리 위치
+| 기능 | 브랜치 | 담당 | 상태 | 계획서 | 메모 |
+|---|---|---|---|---|---|
+| S1 영어 화면 | `feat/english-ui` | frontend-dev, backend-dev, test-engineer, PM | **완료 (PR #31, `main` cc9af18)** | `docs/plans/c1-english-ui.md` | `StoryDate` 하한 1950-01-01·St. John's "오늘"(S1-P3 (b)), 방침 보강 S-0·S-2~S-6·S-8·S-10·S-12, 방침 시행일 November 4, 2026 |
+| S2 입력·오프닝 캐나다판 (M2b 고쳐 쓰기) | `feat/input-and-opening` (worktree `The-World-That-Day-m2b`) | frontend-dev, test-engineer, PM(T7·T9) | **진행** (T0 `main` merge → T8a → T8b → T6) | `docs/plans/c1-input-and-opening-ca.md` (그 브랜치) | 장소는 서버로 보내지 않는다. T8b에 나이 문장 S-7(T8 D4 (b)). 크기 약 435~470(끝난 M2b 406 포함, 리서치 계획에서 받아들임). PM T9 = 정의서 1차(`brief-changes-canada.md` 1차) |
+| S3a 날짜·연도 문서를 영어로 | `feat/enwiki-events` (worktree `The-World-That-Day-c2`) | backend-dev, content-curator, frontend-dev, test-engineer, PM(T8) | **진행** (T2~T4 한 작업, 병합 규칙 D3m) | `docs/plans/c2-english-events.md` (그 브랜치) | 응답 필드 `date_kind`·`range_end`, 화면 "Started that day". 그날 사진·영상은 S3c까지 끔(D7 (a)) |
+| S3b "YYYY in Canada" 더하기 | `feat/enwiki-canada-events` | backend-dev, content-curator, test-engineer, PM | 계획됨 (S3a 위에 쌓기) | 같음 | ★ T2 캐시 V4·엔티티 — PM 직접 (a)로 기록, 시작 전에 다시 확인 |
+| S3c 미디어 캐나다로, 한국 코드 정리 | `feat/enwiki-media-scope` | backend-dev, content-curator, frontend-dev, test-engineer, PM | 계획됨 | 같음 | Commons `Canada photographs taken on`, `country:CA`, YouTube 지역 CA, KTV 채널 뺌 → 허용 채널이 비면 YouTube 꺼짐, `excluded-credits` 에 The Canadian Press, `PD US no notice` 뺌(S3 D3 (a)) |
+| S4 캐나다 YouTube 허용 채널 | `feat/ca-youtube-channels` (임시) | data-researcher(확신도 갱신), backend-dev | **막힘** — PM 명령 #5~#8(T4 C1~C4), 브라우저 명령 #36(T4 B5) | 미작성 | 추천 구성 Radio-Canada Archives + Olympic Games(올림픽 사건일만, T4 D4 (a)). 캐나다 밖 재생 제한 영상은 그 항목만 숨김(T4 D7 (a)). 그 전까지 사건 영상은 없다(정상) |
 
-| 항목 | 처리 |
-|---|---|
-| server-ci 경로 필터 등 | `chore/m1-followups` (완료) |
-| API 클라이언트 타임아웃·`AbortSignal`, effect 요청 테스트 완료 대기 | M3b2 |
-| `StorySection` `id` 를 `SectionId` 로 | M3b1 (완료) |
-| 화면 전환 포커스 이동 | M2b |
+### C2 장소 해석 — PR 5개
 
-### M3 그날의 세계 — 리서치 1 + 서버 15 + 웹 7 = PR 23개 (D1 (a), M3a3 분할 A (a), M3a3 확인점 (a), M3a3b 결정 1 (a), M3a3c 결정 5, M3a4b 결정 1 (a), M3a5 결정 1 (b))
+계획: `docs/plans/c2-ca-place-resolve.md` (다른 planner, 초안). 아래는 로드맵 수준의 요약이다. 세부는 그 계획을 따른다.
+- 서버 셋(C2-P1, 크기 때문에 나눔): `feat/ca-place-data`(사전 빌더와 파생 데이터, SGC 2021 + CGNDB 내려받기 파일만 — T1 D1 (a), 출처 문구) → `feat/ca-place-matcher`(사전 읽기와 매칭, HTTP 없음) → `feat/ca-place-resolve`(API 계약 `GET /api/places/resolve`).
+- 계약: M2a 뼈대를 `feat/place-resolve` 에서 읽어 새 커밋으로 쓴다(머지하지 않음, 결정 8-2 (a)). `province`·`csd`, `status` `FOUND`·`PARTIAL`·`NOT_FOUND`·`OUTSIDE_CANADA`(자리만), `id` 접두어 `province-`·`csd-`·`cgndb-`. 같은 이름 외국 도시는 캐나다 후보만, 주 이름을 붙임("London, Ontario", T1 D4 (a)). 사전에 없거나 일부만 맞으면 다시 입력 안내(T1 D5 (a)).
+- `feat/place-picker` (frontend-dev): M2b2 계획(`m2b2-place-picker.md`, `feat/input-and-opening` 에 있음)을 캐나다 계약으로 고쳐 쓴다. 후보 고르기, 다시 입력 안내. 장소가 처음 서버로 가므로 방침 S-1·입력 화면 요약 S-9를 이 PR에서 고친다(S2 계획 "개인정보"). 선행: S2와 `feat/ca-place-resolve`(쌓기 가능, 그 전에는 계약대로 MSW).
+- `feat/ca-place-search` (backend-dev): `SPOT` 과 캐나다 밖 판정(Nominatim `address.country_code`), `osm-` 접두어. 초당 1회 제한기, 저장소 밖 임시 캐시와 OpenStreetMap 표시(T1 D2 (a)). **Nominatim이 `확인됨` 이 되기 전에는 시작하지 않는다**(`CLAUDE.md` 7절 2항). 그 전에는 데모 "Vancouver General Hospital"이 다시 입력 안내로 끝나고, 캐나다 밖 입력은 "찾지 못함"과 구별되지 않는다.
+- 장소 해석 요청에는 날짜를 넣지 않는다. 날짜는 `GET /api/story/world` 에만 간다. 생년월일과 장소가 한 로그 줄에 남지 않음을 시험으로 확인한다(`CLAUDE.md` 7절 6항).
 
-**완료 20**(리서치, M3a1, M3a1b, M3a1c, M3a2, M3a3, M3a3a, M3a3b, M3a3c, M3a3d, M3a4, M3a4b, M3a4c, M3b1, M3b1b, M3b2, M3b2b, M3b3, M3b3b, M3b3c — PR #5~#18, #20~#25. PR #19는 M3b3b 방침 시행일 후속이라 기능 수에 넣지 않는다), **진행 1**(M3a5 서버), **남은 2**(M3a5a, M3a5b). 20 + 1 + 2 = 23. `chore/m1-followups` 는 M1 후속이라 M3 PR 수에 넣지 않는다. 2026-10-12에 17개로 정정했고, 2026-10-13 M3a3 분할(PM 결정 A (a))로 M3a3b가 더해져 18개, 같은 날 M3a3 확인점(T2 뒤 누적 S1 505 > 450)에서 PM이 T3을 따로 빼기로 해(a) M3a3a가 더해져 19개, 2026-10-14 M3a3b를 다시 재니 약 715여서 PM이 사건 사진을 따로 빼기로 해(M3a3b 결정 1 (a)) M3a3c가 더해져 20개, 2026-10-16 M3a3c 확인점 1(T0·T1 뒤 누적 S1 433, T2 뒤 예상 약 600)에서 PM이 사건 사진 연결을 따로 빼기로 해(M3a3c 결정 5) M3a3d가 더해져 **21개**다. 2026-10-18 M3a4는 다시 셈 약 675였지만 PM이 한 PR로 정해(M3a4 결정 1 (b)) **21개 그대로**다. 2026-10-24 M3a4b 다시 셈이 약 1,100이어서 PM이 어댑터와 결과 캐시를 나누기로 해(M3a4b 결정 1 (a)) M3a4c가 더해져 **22개**다. 2026-10-26 M3a5 확인점 1(T3 뒤 누적 S1 525 > 500)에서 PM이 (b) 두 PR로 나누기로 해(M3a5 결정 1 (b)) M3a5a가 더해져 **23개**다.
+### C3 그때 vs 지금 공용 — PR 2개
 
-#### 기능 표
+계획: `docs/plans/c3-then-vs-now.md` (다른 planner, 작성 중). 로드맵이 기대하는 범위:
+- 서버: 수치 레코드 형식(`value`, `unit`, `period`, `period_precision`, `geography`, `boundary_vintage`, `series_id`, `source_name`, `source_url`, `license`, `attribution`, `latest_period`, `is_preliminary`, `retrieved_at` — T5·T6·T7의 4절 매핑), `data/schema/` 의 스키마와 검사 규칙, 예시(M3a3 공용 미디어 형식과 같은 방식). 과거 값은 `data/` 에 고정하고 "지금" 값만 호출·캐시(T5 D6 (a)). 계산 값은 approx.와 계산식 링크(T5 D7 (a)).
+- 웹: "그때와 지금" 섹션 뼈대와 공용 수치 카드(기간 배지 "That day / That week / That month / That year / 1986 census (nearest to 1988)", "2025, latest", 출처·라이선스 줄, 비어 있음 상태). 항목 PR이 카드를 새로 만들지 않게 한다.
+- 이 단계에서 섹션 API의 모양(우리 API가 날짜와 장소 코드를 함께 받는 첫 엔드포인트)과 로그 규칙 시험을 정한다. 외부 출처에는 필요한 것만 보낸다: 날씨는 관측소 ID와 날짜, 연도만 필요한 항목(인구, 아기 이름)은 연도만(T9 7절).
+- 정의서 2차의 6.4절(결정 6 (a))을 PM이 넣기 전이면 계획이 결정 6 (a)를 근거로 쓴다.
 
-줄 수는 제품 코드(S1) 기준이다. "보정"은 M3a1·M3b1 실측(예상의 1.6~1.75배)을 곱한 값이다. 그 뒤 서버 기능은 M3a1b 약 2.4배, M3a1c 약 3.7배, M3a2 약 2.8배로 더 컸다 — M3a3·M3a3a·M3a3b는 ×2.8로 다시 추정했다. **M3a3 T2 실측은 이전 방식의 약 3.9배(130 → 505)**, **M3a3a는 약 3.3배(140 → 456, ×2.8 다시 추정 395 대비 ×1.15)** 였다 — M3a3b·M3a3c는 이 두 실측과 파일별 셈으로 다시 셌다. 웹은 M3b1 약 1.4배, M3b1b 약 1.0배로 예상과 가까웠다 — M3b2는 파일별로 다시 세고 웹 비율(×1.0~×1.4)로 범위를 잡았다. 그 뒤 웹 실측은 M3b2 ×1.19, M3b2b 약 1.01 — M3b3은 ×1.0~×1.2. M3b3 ×1.14(343), M3b3b ×1.14(361) — M3b3c는 ×1.14(범위 ×1.0~×1.2, 약 293)로 잡았고 **실제 375(파일별 다시 셈 257의 ×1.46 — T3 재생 규칙과 T4 경합 수정이 컸다)**. **M3a3b 실측은 585(다시 셈 485의 ×1.21 — 작은 고침 T0 ×2.08, T1 ×1.19, T2 ×1.11)** — M3a3c는 이 실측과 파일별 셈으로 다시 셌다(약 445). **M3a3c T0·T1 실측은 433 / −109(다시 셈 280의 ×1.55 — T0 ×1.64, T1 ×1.48. 다시 셈이 파일별 셈 ×1.11이었으므로 파일별 셈 대비 약 ×1.7)** — M3a3d는 파일별 셈에 ×1.7을 바로 곱했다(약 400, PR #20 리뷰 권장 포함). **M3a3d 실측은 312 / −72(파일별 셈 234의 ×1.33 — T0 84 ×1.31, T1 228 ×1.34)** — M3a4는 파일별 셈에 ×1.5(M3a3c ×1.7과 M3a3d ×1.33의 가운데, 범위 ×1.33~×1.7)를 곱했다(약 675). **M3a4 실측은 953(파일별 셈 450의 ×2.1)** — M3a4b는 파일별 셈에 ×1.7(M3a3d ×1.33과 M3a4 ×2.1의 가운데, 범위 ×1.33~×2.1)을 곱했다(약 1,100). **M3a4b 실측은 1,155 / −236(어댑터 쪽 파일별 셈 405의 ×2.85 — T0~T3 때 954 / −222로 ×2.36, 나머지는 계획에 없던 영상 슬롯 수정 943244e 등)** — M3a4c는 M3a4b 계획서 B절 파일별 셈 243에 머지 코드 대조로 알게 된 것(`Candidate.origin`, 읽을 때 다시 거르기, 합치기)을 더한 약 323에 ×2.0(×1.7과 ×2.36의 가운데, 범위 ×1.7~×2.36)을 곱했다(약 650). **M3a4c 실측은 583 / −23(파일별 셈 323의 ×1.8)** — M3a5는 머지 코드 대조 파일별 셈 약 414에 ×2.0(M3a4c ×1.8과 M3a4b ×2.36의 가운데 — 새 외부 어댑터, 범위 ×1.8~×2.36)을 곱했다(약 830). **M3a5 T1~T3 실측은 525 / −6(파일별 셈 약 210의 ×2.5 — T1 ×2.2, T2 ×2.9, T3 ×2.5, 확인점 500 초과로 분할)** — M3a5a는 T4·T5 파일별 셈 약 204에 ×2.5(범위 ×2.0~×2.9)를 곱했다(약 510, 410~590).
+### C4 날짜만 필요한 항목 — PR 약 5개
+위 "MVP 부분집합" 표. 1차는 CPI 환산 하나(장소 없이 됨). 같은 생일은 366일 사전 계산 작업이 앞선다(요청 경로에 Wikidata를 두지 않음). 노래 영상은 사건 영상과 YouTube 검색 버킷(하루 100회)을 나눠 쓴다(X3).
 
-| 기능 | 브랜치 | 담당 | 줄 수 (예상 → 보정 / 실제) | 선행 | 상태 | 계획서 |
-|---|---|---|---|---|---|---|
-| M1 후속 정리 (M1 후속, M3 PR 수에 넣지 않음) | `chore/m1-followups` | backend-dev, test-engineer | 약 10 | 없음 | 완료 | `docs/plans/chore-m1-followups.md` |
-| M3 후속 정리 (M3 PR 수에 넣지 않음) | `chore/m3-followups` | backend-dev, frontend-dev, test-engineer | 약 80 (파일별 셈 약 27 × 2.76 + 설정 4, 범위 50~110). 150을 넘으면 멈추고 알림 | 없음 (M3a5a 완료, `main` 7bbdc96). T1은 M3a5b T1(`data/daehan-news/`)보다 먼저 머지 | **계획 PM 승인 2026-10-27** (D1 (a) T1~T7, D2 (a), D3 (b) T8 진단만, D4 (c) ★ T2도 backend-dev, D5 (a)) | `docs/plans/chore-m3-followups.md` |
-| 영상·공식 임베드 출처 리서치 | `docs/m3-video-sources` | data-researcher | 문서만 | 없음 | **완료 (PR #9, 계획 개정 포함)** | `docs/plans/m3-video-sources-research.md` |
-| M3a1 위키백과 호출 공통·클라이언트·파서 | `feat/wiki-events-source` | backend-dev, test-engineer | 315 → 실제 577 | 없음 | **완료 (PR #5)** | `docs/plans/m3a1-wiki-events-source.md` |
-| M3a1b 위키백과 호출 보강 + 위키텍스트 캐시 | `feat/wiki-section-cache` | backend-dev, test-engineer | 150 → 보정 240 / 브랜치 S1 +366 | M3a1 | **완료 (PR #8)** | `docs/plans/m3a1b-wiki-section-cache.md` |
-| M3a1c 사건 합치기·중복 제거·`KoWikiEventSource` | `feat/wiki-events-merge` | backend-dev, test-engineer | 210 → 보정 340 / 실제 S1 +787 / −5 (T1~T4 누적, PM 수용) | M3a1 (M3a1b 다음) | **완료 (PR #10)** | `docs/plans/m3a1c-wiki-events-merge.md` |
-| M3a2 그날의 세계 API (원문 그대로 — M3-P16 2026-10-12 변경) | `feat/world-events-api` | content-curator, backend-dev, test-engineer, PM | 390 → 보정 약 625 / 실제 S1 +1,094 (약 2.8배, 한 PR — PM 결정 (b), T2 뒤 확인점 초과에도 유지) | M3a1c | **완료 (PR #11, `main` e6abf8b)** | `docs/plans/m3a2-world-events-api.md` |
-| M3a3 공용 미디어 형식 (분할 1부, 외부 호출 없음) | `feat/event-media` | content-curator, backend-dev, test-engineer, PM | 130(T3 뺀 뒤) → 다시 추정 약 365 / **T2 뒤 실제 S1 505** (확인점 450 초과 → T3을 M3a3a로. T4는 테스트만) | M3a2 (완료) | **완료 (PR #12, `main` f99a9e7)** | `docs/plans/m3a3-event-media.md` |
-| M3a3a 미디어 공용 규칙: 촬영 시점·라이선스 상태·차단과 제외 (새로, 이전 M3a3 T3) | `feat/media-rules` | backend-dev, test-engineer, PM | 130 → 다시 추정 약 365 (×2.8, 범위 310~480. M3a3 T2 실측 비율 ×3.9면 약 505). 확인점 T1 뒤 300(알림만) / **실제 S1 456** | M3a3 (완료) | **완료 (PR #14)** | `docs/plans/m3a3a-media-rules.md` |
-| M3a3b 그날 사진: Commons 연결·파일 매퍼 (분할 2부, 2026-10-14 다시 나눔) | `feat/commons-photos` | backend-dev, test-engineer, PM | 200 → 다시 추정 약 560 → **다시 셈 약 485 (420~585)** (나누기 전 약 715 — 사건 사진은 M3a3c). 확인점 T0·T1 뒤 350(알림), T2 뒤 450(T3 전에 멈추고 물음) / **실제 S1 585** (×1.21) | **M3a3a** (완료, PR #14) | **완료 (PR #17, `main` ce3760c)** — 개정 PM 승인 2026-10-14 (결정 1 (a) 두 PR, 2 (b) T2는 backend-dev) | `docs/plans/m3a3b-commons-photos.md` |
-| M3a3c 사건 사진 부품: 시간 상한 공용화·재시도 없음·PageImages·Commons 파일 묶음 (M3a3b에서 나눔, 2026-10-16 다시 나눔) | `feat/event-photos` | backend-dev, test-engineer, PM | 약 230 → 다시 셈 약 445 (370~530) → 결정 5로 범위 T0·T1(다시 셈 약 280) / **실제 S1 433 / −109** (T0 197 ×1.64, T1 236 ×1.48). T2(사건 사진 연결)는 M3a3d | **M3a3b** (완료, PR #17) | **완료 (PR #20, `main` 25d5227)** — 개정 PM 승인 2026-10-15 (결정 1~4), 분할 2026-10-16 (결정 5·6). 리뷰 승인(필수 0, 권장 5 → M3a3d) | `docs/plans/m3a3c-event-photos.md` |
-| M3a3d 사건 사진 연결: 세계 API + PR #20 리뷰 권장 (새로, M3a3c에서 나눔 2026-10-16) | `feat/event-photo-wiring` | backend-dev, test-engineer, PM | M3a3c T2 다시 셈 약 165 → ×1.5 약 250 → **개정 2026-10-16: 파일별 셈 약 234(T0 리뷰 권장 64 + T1 170) × 1.7 = 약 400 (350~445)**. 확인점 T0 뒤 130(T1 전에 멈추고 나눌지 물음), T1 뒤 420(알림) / **실제 S1 312 / −72** (T0 84 / −28, T1 228 / −44 — 파일별 셈의 ×1.33. 확인점 1 84 ≤ 130, 확인점 2 312 ≤ 420) | **M3a3c** (완료, PR #20) | **완료 (PR #22, `main` d566bda)** — 계획 개정 PM 승인 2026-10-17 (결정 1 (a) 한 PR + 확인점 두 개). ★ T1 담당 backend-dev(PM 2026-10-16). 리뷰 승인(필수 0, 권장 3) — `tragic` 사건 미디어 가드·`within` 주석은 M3a4 T0 | `docs/plans/m3a3d-event-photo-wiring.md` |
-| M3a4 영상 검색 틀과 정확도 규칙 + PR #22 리뷰 권장 (개정 2026-10-18) | `feat/event-video` | backend-dev, test-engineer, PM | 230 → 보정 약 370 → **다시 셈(2026-10-18) 파일별 약 450 × 1.5 = 약 675 (600~765)**. 한 PR(T0~T8), 확인점 T2 뒤 400·T6 뒤 750(둘 다 알림, 멈추지 않음) / **실제 S1 953** (파일별 셈의 ×2.1) | **M3a3d** (완료, PR #22 — `MediaLookup.lookup`·같은 `Deadline`·`Interrupted` 를 이어 씀) + 리서치 | **완료 (PR #23, `main` 298cb8e)** — 계획 개정 PM 승인 2026-10-18 (결정 1 (b) 한 PR, 결정 2 (b) ★ T2는 backend-dev, 결정 3 (b) 2026-10-23 어포스트로피 낱말 나누기는 T5에서 고침, 결정 4 (a) 2026-10-23 "절반 이상" 그대로, 결정 5 (a) 2026-10-24 `EventTarget` 동등성 그대로·리뷰 권장 2·3은 M3a4b로), 처음 승인 2026-10-12 | `docs/plans/m3a4-event-video.md` |
-| M3a4b Commons 동영상 + 결과 캐시 + PR #23 리뷰 권장 (개정 2026-10-24) | `feat/commons-video` | content-curator, backend-dev, test-engineer, PM | 245 → 보정 약 390 → **다시 셈(2026-10-24) 파일별 약 648 × 1.7 = 약 1,100 (860~1,360)** — 어댑터 쪽(T0~T3) 약 690, 결과 캐시(T6·T7) 약 415. 보조 경로 (b-2)·(b-3)은 범위 밖(결정 4 (a)). 결정 1 (a)로 이 PR은 T0~T5(약 690), T6~T9는 M3a4c / **실제 S1 1,155 / −236** (T0 뒤 192 / −81, T2 뒤 763 / −222, T3 뒤 954 / −222 — 어댑터 쪽 파일별 셈 405의 ×2.36, 최종은 CI 수정 943244e 포함 ×2.85. 확인점 1·2 모두 넘음, PM 수용) | **M3a4** (완료, PR #23 — `EventVideoSource`·`VideoSearch`·`VideoAccuracy.notAfter`) + **M3a3b**(`CommonsFileMapper` 재사용, 완료) | **완료 (PR #24, `main` 9203562)** — 계획 개정 PM 승인 (2026-10-24) — 머지 이름 대조 끝(`notAfter` 는 `CommonsFileMapper` 영상 매핑에서, `Semaphore(3)` 자리 다툼은 변환본 요청 없앰·두 단계 병렬, 새 날짜 최대 6요청). 결정 1 **(a)** 분할(M3a4b 어댑터 + M3a4c 결과 캐시, 확인점 M3a4b T2 뒤 600(멈춤)·T3 뒤 850(알림)), 결정 2 **(a)** 어댑터가 따로 질의, 결정 3 **(b)** ★ T6 backend-dev, 결정 4 **(a)** 보조 경로 뺌. 확인점 1 (a) T3까지 이 PR에서, T4 결정 1 (a)·2 (a). 리뷰 승인(필수 0, 권장 5) — 시험·주석 수준 권장은 M3a4c T4로. 슬롯 정책(영상 슬롯 1개)은 PM T5에서 1969-07-20 영상이 창 안에 도착해 바꾸지 않음(지켜보는 위험). 처음 승인 2026-10-12 | `docs/plans/m3a4b-commons-video.md` |
-| M3a4c 영상 검색 결과 캐시 + PR #24 리뷰 이월 (새로, M3a4b 결정 1 (a)) | `feat/media-search-cache` | backend-dev, test-engineer, PM | M3a4b 계획서 B절 약 415 → **다시 셈(2026-10-24) 파일별 약 323 × 2.0 = 약 650 (550~760)**. 확인점 T1 뒤 300(알림, PM 결정 — 넘을 수 있음)·T3 뒤 700(알림, 크기 결정 1 (a)에 포함) / **실제 S1 583 / −23** (T1 뒤 181, T3 뒤 580 — 파일별 셈의 ×1.8. 확인점 1·2 모두 넘지 않음) | **M3a4b** (완료, PR #24) | **완료 (PR #25, `main` 28ffb01)** — 계획 PM 승인 2026-10-24, 크기 결정 1 (a) 한 PR. ★ T1 backend-dev(M3a4b 결정 3 (b)). T1 저장소(V3) / T2 `Candidate.origin`·저장 형식 / T3 캐시 흐름 / T4 리뷰 이월(T4 결정 (a) 2026-10-25) / T5 검증 / T6 PM 캐시 확인 통과. 리뷰 승인(필수 0) — 고치지 않은 권장 1은 M3a5 T7 (9), 권장 3은 후속 후보 | `docs/plans/m3a4c-media-search-cache.md` |
-| M3a5 YouTube 설정·클라이언트·쿼터 부품 (개정 2026-10-25, **2026-10-26 확인점 1에서 둘로 나눔**) | `feat/official-channel-video` | PM(T0), data-researcher(T0c), backend-dev(T1·T1b·T2·T3), test-engineer(T7) | 220 → 보정 약 350 → 다시 셈(2026-10-25) 파일별 약 414 × 2.0 = 약 830 (745~975) → **분할: 이 PR = T1~T3 셈 약 210, 확인점 T3 뒤 500(멈춤) / 실제 S1 525 / −6** (T1 뒤 200 / −6, T2 뒤 413 / −6, T3 뒤 525 / −6 — 파일별 셈의 ×2.5. 확인점 1 넘음 → 결정 1 (b)). T1b·T7은 S1 0 | **M3a4c** (완료, PR #25 — 결과 캐시·`QUOTA_SKIPPED`·`Candidate.origin`). 출처 "확인됨"(6bf0267) | **진행 중 (T0c·T1·T2·T3 완료 — b3f6be6·97ff244·ab060b3·876affb, T1b 진행 중, T7·리뷰·PR 남음)**. 처음 승인 2026-10-11, 다시 승인 2026-10-12. 개정 PM 승인 2026-10-25 — 결정 1 (a) 한 PR + 확인점 T3 뒤 500(멈춤)·T5 뒤 1,000(알림), 결정 2 (b) ★ T3은 backend-dev. **확인점 1 결정 2026-10-26** — 1 (b) 두 PR(T4·T5·T6·T8은 M3a5a), 2 (a) 시작 WARN은 시험 설정에서, 3 (a) `reserve` n < 1 예외 유지. 머지돼도 API·화면은 그대로(출처를 연결하지 않음). M3b3c 이월 3가지는 M3a5a가 이어받고, M3a4c 리뷰 권장 1(javadoc 이동, 시험만)은 이 PR T7 (9)에 남김. 같은 꼭지 여러 ID(R-N7)는 M3a5b로 | `docs/plans/m3a5-official-channel-video.md` |
-| M3a5a YouTube 영상 출처 연결·방침 문장 (새로, M3a5 결정 1 (b), 2026-10-26) | `feat/youtube-video-source` | PM(T0 Y5·T8), backend-dev(T4 ★ 후보·T5), frontend-dev(T6 방침 한 줄), test-engineer(T7) | M3a5 계획 T4·T5 파일별 셈 약 204 → **×2.5(M3a5 실측) = 약 510 (410~590)**. 400 초과 → 크기 결정 1 대기(추천 (a) 한 PR + 확인점 T4 뒤 300(멈추고 나눌지 물음)·T5 뒤 650(알림)) | **M3a5** (머지 뒤 — 설정·`YoutubeClient`·`YoutubeQuota`). PM Y5(콘솔 사용량, T8 전) | **계획 PM 승인 대기** (M3a5a를 시작할 때 크기 결정 1·★ T4 결정 2를 물어도 됨). 영상이 응답과 화면에 처음 나오는 PR. T4 확인·버림 규칙과 레코드(순수 함수) / T5 출처 연결·캐시 30일·키 없을 때 끄기(`reserve` n < 1 이면 부르지 않음, 읽을 수 없는 403은 `FAILED`) / T6 방침 문장 현재형과 시행일 / T7 검증 / T8 PM 품질 확인(P1·P2). 머지 뒤 PM M3b3c T6 | `docs/plans/m3a5a-youtube-video-source.md` |
-| M3a5b 대한뉴스 영상 자동 연결 (새로, 이전 M3a5 T2) | `feat/daehan-news-video` | PM(T0), data-researcher, content-curator, backend-dev, test-engineer | 150 → 보정 약 240 (색인 데이터 제외) | M3a5a (M3a5를 거침) + PM CSV·N1·N2 | PM 승인 2026-10-12. 막힘: 색인(N-a) "부분 확인" | `docs/plans/m3a5b-daehan-news-video.md` |
-| ~~M3a6 제공사 공식 이미지 임베드~~ | ~~`feat/provider-image-embed`~~ | - | - | - | **M3에서 제외**(영상 15번 (a), 공개 배포 때 다시) | `docs/plans/m3a6-provider-image-embed.md` |
-| M3b1 디자인 기초와 미디어 문구·타입 | `feat/design-foundation` | frontend-dev, test-engineer, PM | 225 → 실제 309 | 없음 | **완료 (PR #6)** | `docs/plans/m3b1-design-foundation.md` |
-| M3b1b 공용 미디어 카드 | `feat/media-card` | frontend-dev, test-engineer, PM | 165 → 보정 290 / 실제 +158 | M3b1 | **완료 (PR #7)** | `docs/plans/m3b1b-media-card.md` |
-| M3b2 그날의 세계 섹션 뼈대 (개정 2026-10-13) | `feat/world-events-ui` | frontend-dev, test-engineer, PM | 240 → 파일별 다시 셈 약 365 (범위 365~510, 웹 실측 ×1.0~×1.4). 한 PR, 확인점 T1b 뒤 누적 170 | 구현: **M3a3 머지 뒤**(완료, PM 결정 A, 서버와 병렬). M3a3a에서 받을 것 없음(DTO 변화 없음), M3b1b. 실제 사진 확인(T6, 사건 사진): **M3a3d 머지 뒤** `main` 에서(머지됨 — 지금 가능) — PR 머지는 T5(실제 서버, 사진 없이) 뒤 | **완료 (PR #13, 실제 S1 434)** | `docs/plans/m3b2-world-events-ui.md` |
-| M3b2b 그날 사진·비극 블록·카드 접근성·Playwright (새로) | `feat/world-photos-a11y` | frontend-dev, test-engineer, PM | 다시 셈 약 315 → 약 375, 확인점 T2 뒤 300 / **실제 S1 319** (약 1.01배) | M3b2. 실제 사진 확인(T6, 그날 사진): **M3a3b 머지 뒤** `main` 에서 | **완료 (PR #15, `main` 9642d08)** — 개정 PM 승인 2026-10-13 (결정 1~4 (a)) | `docs/plans/m3b2b-world-photos-a11y.md` |
-| M3b3 영상 재생 기초와 Commons 동영상 (개정) | `feat/media-video` | frontend-dev, test-engineer, PM | 195 → 파일별 다시 셈 약 300 (범위 300~360, ×1.19면 약 355), 확인점 T2 뒤 360 / **실제 S1 343** (약 1.14배) | M3b2·M3b2b (완료, `main` 9642d08). 실제 영상 확인(T6)은 M3a4b 머지 뒤 `main` 에서(1969-07-20 표본 — M3a4b 머지됨, 지금 가능) — PR 머지는 T5 뒤(결정 1 (a)) | **완료 (PR #16, `main` 72fd4ae)** — 개정 PM 승인 2026-10-14 (결정 1 (a)·2 (b)·3 (a)) | `docs/plans/m3b3-media-video.md` |
-| M3b3b 개인정보처리방침과 동의 단계 (개정 2026-10-15) | `feat/privacy-consent` | frontend-dev, test-engineer, PM | 165 → 파일별 다시 셈 약 317 (T0 포함, 범위 317~380, 웹 실측 ×1.14면 약 361). 한 PR, 확인점 T1 뒤 누적 S1 210 / **실제 S1 361** (약 1.14배) | M3b2, **M3b3 (PR #16, `main` 72fd4ae) 완료** | **완료 (PR #18 + 방침 시행일 후속 PR #19)** — 개정 PM 승인 2026-10-15 (결정 1 (a) M3b3 리뷰 권장 1·2를 T0에서, 결정 2 운영자·문의·시행일 — 시행일 2026년 10월 16일) | `docs/plans/m3b3b-privacy-consent.md` |
-| M3b3c YouTube 공식 채널 영상 재생 (개정 2026-10-16) | `feat/youtube-embed` | frontend-dev, test-engineer, PM | 130 → 파일별 다시 셈 약 257 (범위 257~308, 웹 실측 ×1.14면 약 293). 한 PR, 확인점 T2 뒤 누적 S1 220(229로 넘음 — PM 수용) / **실제 S1 375 / −19** | **M3b3 (PR #16)·M3b3b (PR #18·#19) 완료**. PR 머지는 T5 뒤(결정 2 (a)), 실제 YouTube 확인 T6은 **M3a5a 머지 뒤** `main`(1988은 M3a5b 뒤) | **완료 (PR #21, `main` 7d83f3d)** — 개정 PM 승인 2026-10-16 (결정 1 (a)·2 (a)) | `docs/plans/m3b3c-youtube-embed.md` |
+### C5 주·도시가 필요한 항목 — PR 약 7개
+- 먼저 `feat/ca-region-codes` (content-curator): 장소 사전의 `csd`·`province` → 휘발유 도시 목록, CMA, 인구 벡터, 최저임금 관할, 아기 이름 주의 대응표(T9 7절 C5 — 영역 문서에 이 코드들을 자동으로 잇는 근거가 없다).
+- 이어서 날씨(관측소 사전 포함) → 최저임금 시간 + 휘발유·빵·우유 → 아기 이름 → 인구 → (2차) 집값.
+- 데모마다 빈 칸은 계열 시작 연도 그대로다. 1976 데모는 휘발유(1979~)·빵·우유(1995~)·집값(1981~)이 비고, 최저임금 시간은 임금만 나온다. 1980 데모는 빵·우유·집값이 빈다. 이것이 정상이다.
 
-M3a2는 보정 약 625로 400을 넘었지만 PM 결정 (b)로 한 PR로 갔고, 실제 S1은 +1,094(약 2.8배)였다. M3a3은 같은 비율로 약 1,290줄로 다시 추정되어 PM이 두 PR로 나눴다(결정 A (a), 2026-10-13): M3a3(형식·규칙, 약 730)과 M3a3b(Commons 사진, 약 560). M3a3의 T2 뒤 확인점(450)에서 실제 S1이 **505**(T2 한 작업이 이전 방식의 약 3.9배)여서 PM이 T3을 **M3a3a** 로 뺐다(확인점 (a), 2026-10-13). M3a3a는 약 365(같은 3.9배면 약 505)로 400을 넘을 수 있지만 더 나누지 않는다(PR이 200줄 안팎으로 잘게 쪼개지고 뒤 기능이 두 PR을 기다린다) — T1 뒤 300에서 알리기만 한다. M3a3a는 실제 S1 456이었다. M3a3b는 2026-10-14에 두 실측과 파일별 셈으로 다시 세니 약 715여서 PM이 다시 두 PR로 나눴다(M3a3b 결정 1 (a)): M3a3b(그날 사진·Commons 파일 매퍼, 약 485 — T0·T1 뒤 350 알림, T2 뒤 450 멈춤)와 M3a3c(사건 사진, 약 230). M3b2는 다시 셈 약 365(가운데 약 440)로 PM이 한 PR로 정했고(결정 1 (a), 2026-10-13), T1b 뒤 누적 170을 넘으면 T2·T3을 따로 뺄지 다시 묻는다. M3a3c는 2026-10-15 개정으로 약 445(T0 이월 권장 포함)였고, 확인점 1에서 T0·T1 실제 S1 433, T2 뒤 예상 약 600이 되어 PM이 T2(사건 사진 연결)를 M3a3d로 뺐다(M3a3c 결정 5, 2026-10-16). M3a3d는 2026-10-16 개정에서 PR #20 리뷰 권장 2~5(T0, 약 110)가 더해져 약 400(350~445)이 되었다 — T0은 따로 낼 수 있는 단위라 PM이 한 PR로 가되 T0 뒤 확인점(누적 S1 130)에서 나눌지 다시 묻기로 정했다(M3a3d 결정 1 (a), 2026-10-17). M3a3d는 실제 S1 312(T0 뒤 84, T1 뒤 312 — 두 확인점 모두 넘지 않음)였다. M3a4는 2026-10-18 머지 코드로 다시 세니 약 675(600~765)였고, PM이 한 PR로 정했다(M3a4 결정 1 (b)) — T2 뒤 400·T6 뒤 750을 넘으면 알리기만 하고 멈추지 않는다. M3a5는 2026-10-25 머지 코드로 다시 세니 약 830(745~975)이었고 PM이 한 PR + 확인점(T3 뒤 500 멈춤·T5 뒤 1,000 알림)을 골랐는데, T3 뒤 실제가 525(파일별 셈의 ×2.5)로 확인점을 넘어 PM이 두 PR로 나눴다(M3a5 결정 1 (b), 2026-10-26) — M3a5(부품, 실제 525)와 M3a5a(연결·방침, 약 510).
+### C6 동네 그때/지금 — PR 3개 (MVP 포함 여부는 PM)
+- 확인된 "그때" 출처는 NRCan NAPL 시계열(밴쿠버권 등 8곳)과 토론토 타일, 몽레알 기록보관소(큐레이션)다. "지금" 쪽 Esri는 `미확인`(T2 B4, 명령 #28)이라 `feat/ca-aerial-now` 는 그 확인 뒤다. 지도 타일을 그리는 웹 도구는 C6 계획에서 정한다(T9 8절 6항).
+- 데모로 보이는 것이 거의 없다: Calgary·St. John's는 `REGION` 이라 동네 섹션이 없고, Hochelaga-Maisonneuve는 몽레알 큐레이션 사본(결정 #13, PM이 받음)과 X2가 있어야 하며, Vancouver General Hospital은 NAPL 1982가 ±5년 밖이라 T2 D3 (a)면 빈다. 그래서 C5 뒤로 두고, 시작 전에 PM이 MVP 포함을 정한다.
 
-#### 진행 순서
+### C7 도시의 대표 풍경 — PR 3개 (MVP 포함 여부는 PM)
+- content-curator가 데모 도시 4곳의 대표 명소와 존재 기간(근거 링크)을 만든다. 미디어는 Commons 파일별 라이선스, 공식 채널 영상(S4 뒤).
+- 허락을 요구하는 기관 사진(PAA, LAC)과 "All rights reserved" 자료를 어떻게 다룰지는 X1(PM 미디어 결정의 적용 범위 해석)이라 PM만 정한다. 명소 데이터(미디어 없음)는 그 전에 시작할 수 있다.
 
-```
-서버: M3a1 ✔ ─> M3a1b ✔ ─> M3a1c ✔ ─> M3a2 ✔ ─> M3a3 ✔ ─> M3a3a ✔ ─> M3a3b ✔ ─> M3a3c ✔ ─> M3a3d ✔ ─> M3a4 ✔ ─> M3a4b ✔ ─> M3a4c ✔ ─> M3a5 ─> M3a5a ─> M3a5b
-                                                                                                                                              │         └ PM: Y5 (T8 전)  │
-                                                                                                                                              │                             └ PM: 활용신청·N1·N2·CSV (M3a5b 전)
-                                                                                                                                              └ (T1b 시험 고침 · T7 검증 — 머지돼도 API·화면 그대로)
-웹:   M3b1 ✔ ─> M3b1b ✔ ─> M3b2 ✔ (PM 화면 확인 T6 — 지금 가능) ─┬─> M3b2b ✔
-                                                              ├─> M3b3 ✔  ─┐
-                                                              └─> M3b3b ✔ ─┴─> M3b3c ✔ (실제 YouTube 확인 T6은 M3a5a 뒤)
-리서치 ✔ (PR #9)
-```
+### C8 이야기 화면 완성 — PR 3개
+- `feat/story-flow`: 흐름, 지연 로딩, 빈 섹션 문구, "다시 해보기".
+- `feat/sources-and-resilience`: 전체 출처 목록(CC BY-SA 4.0 위키백과, OGL-Canada·StatCan·ECCC 문구, Commons 작가·라이선스, OSM/ODbL, YouTube), 방침 출처 목록 갱신(T8 S-11), 출처 하나를 끊었을 때 섹션만 비는지, YouTube 쿼터 소진, 3초·10초 측정, 한국판 M3a1c 리뷰 권장 2·5(인터럽트와 캐시 쓰기, 긴 GET 414).
+- `chore/demo-e2e`: 데모 4개 + 표본 1969-07-20 E2E(목 서버, 플레이어 스텁, 기존 Playwright·`web-ci`). 배포는 하지 않는다.
 
-- 서버 줄과 웹 줄은 폴더가 달라 병렬이다. **PM 결정 A(2026-10-13)로 M3a3 머지 뒤부터 서버(M3a3a)와 웹(M3b2)을 동시에 진행했다** — 웹 M3 기능은 M3b3c(PR #21)로 모두 끝났다. 웹 화면 확인에 실제 데이터가 필요한 곳만 서버 머지를 기다린다(M3b2 ← M3a3d(머지됨 — 지금 가능), M3b2b ← M3a3b, M3b3 ← M3a4b (머지됨 — 지금 가능, PR 머지는 기다리지 않음, 결정 1 (a)), M3b3c ← M3a5a·M3a5b (PR 머지는 기다리지 않음, 결정 2 (a))).
-- **M3b2는 M3a3a에서 받을 것이 없다.** M3a3a는 `MediaItem` 필드를 더하거나 바꾸지 않고(`license_status`·`captured_at`·`date_precision` 의 값 목록은 M3a3에서 정해짐), 서버 안에서 그 값을 계산하는 부품과 차단·제외 필터만 만든다. M3b2 T1b의 대조 기준(서버 미디어 DTO 필드 목록)은 M3a3 T4가 냈다. M3b2의 실제 사진 확인(T6)은 M3a3d 머지 뒤 `main` 에서 하고(M3a3d 머지됨 — 지금 가능), M3b2 PR 머지는 기다리지 않는다(M3b2 결정 2 (a)) — M3b2b·M3b3·M3b3b가 M3b2 머지 뒤 바로 시작할 수 있다.
-- **M3a3a는 M3a3 바로 뒤, M3a3b·M3a4 앞이다.** M3a3b(Commons 사진)는 파서·라이선스 상태·차단과 제외를, M3a4(영상 검색 틀)는 파서(영어 서수 보강)·차단 목록·제외 목록을 쓴다.
-- **M3a4는 M3a3d 뒤에 시작했다**(`main` d566bda, 2026-10-18 — 머지 PR #23, `main` 298cb8e). `MediaLookup.lookup`·`CommonsMediaLookup` 의 같은 `Deadline`(try-with-resources)·`Interrupted` 를 이어 쓰고, 영상 출처 작업을 사진 두 경로와 같은 끝 시각에 올린다(미디어 창 하나 — 세계 섹션 최악 시간이 늘지 않음). 한 PR(M3a4 결정 1 (b))이고 실제 응답을 바꾸지 않는다(어댑터는 M3a4b부터).
-- **M3a4b는 M3a4와 M3a3b 둘 다 뒤다**(M3a3b의 Commons 파일 매퍼를 재사용). M3a3c·M3a3d(사건 사진)는 기다리지 않았다 — 지금은 모두 머지됨. M3a4b 계획 개정(2026-10-24)에서 머지 이름을 대조했다 — `notAfter` 는 `CommonsFileMapper` 영상 매핑에서, `Semaphore(3)` 자리 다툼은 변환본 요청 없앰·두 단계 병렬(새 날짜 최대 6요청)로. **M3a4b는 머지되었다**(PR #24, `main` 9203562). **M3a4c(결과 캐시)도 머지되었다**(PR #25, `main` 28ffb01) — `VideoSearch` 에 캐시를 붙였고(읽기는 `start`, 쓰기는 `await`, 요청 스레드), M3a5가 그 캐시에 `youtube` TTL(7일, 30일 상한) 설정을 더하고 M3a5a가 YouTube 줄을 쓰고 29일 지난 줄을 지운다.
-- **M3a5 → M3a5a → M3a5b** (2026-10-26 확인점 1 결정 1 (b)): M3a5는 설정·클라이언트·쿼터 부품만 `main` 에 넣고 흐름에 연결하지 않아 머지돼도 API·화면이 그대로다(M3a3 → M3a3a → M3a3b와 같은 이름 방식). M3a5a가 그 부품 위에 YouTube 출처를 `VideoSearch` 에 붙이고 영상이 응답과 화면에 처음 나온다. M3a5b(대한뉴스)는 M3a5a의 확인·버림 규칙·YouTube 출처를 쓴다. M3a5a는 M3a5가 머지된 뒤에 `main` 에서 갈라진다(M3a5의 T7에 M3a4c 리뷰 권장 1을 남겨 두어, M3a5a 쪽 시험 단언은 건드리지 않는다).
-- M3b2b·M3b3·M3b3b는 모두 M3b2 뒤다. M3b3과 M3b3b는 둘 다 `InputScreen` 을 고쳐서(표본 버튼, 동의) M3b3 → M3b3b 순서로 했다 — **끝남**: M3b3이 머지되었고(PR #16), M3b3b는 그 `main`(72fd4ae)에서 갈라졌다.
-- **M3b3c 계획을 시작할 때** — **반영됨** (M3b3c 개정 2026-10-16 — 재생 규칙·YouTube 상태 처리 표, 권장 5는 T6 안내). 단, 그 계획서의 "YouTube 상태 처리" 표는 머지 코드보다 낡았다(후속 후보 표).
-- **M3a5 계획 개정 때** (M3b3c에서 넘어옴) — **반영됨** (M3a5 개정 2026-10-25 — (1)은 계약 예시, (2)는 T6, (3)은 "머지 뒤". 2026-10-26 분할로 T6 등은 **M3a5a**가 맡고, (3)은 M3a5a 머지 뒤): (1) 계약 예시에 `lat`·`lng`·`place_ref`·`retrieved_at`·`date_relation.years` 채우기(웹은 `place_ref`(또는 좌표)·`retrieved_at` 이 없으면 숨긴다), (2) **웹 작업 하나** — 방침의 "YouTube Data API가 더해질 예정입니다"를 현재형으로 + 시행일(머지하는 날 한 줄 커밋, frontend-dev), (3) 머지 뒤 PM이 M3b3c T6.
-- M3a1b와 M3a1c는 `KoWikiClient` 인터페이스로만 이어져 worktree 병렬이 가능했다(둘 다 완료).
+## 진행 순서
 
-#### 영상 리서치가 바꾼 것 (2026-10-11 ~ 12)
+- **서버 줄**: S3a → S3b → S3c → `feat/ca-place-data` → `feat/ca-place-matcher` → `feat/ca-place-resolve` → `feat/then-now-format` → `feat/then-now-cpi` → `feat/ca-region-codes` → C5 항목들 → C4 2차 → (S4·`feat/ca-place-search` 는 풀리는 대로 끼움)
+- **웹 줄**: S2 → `feat/place-picker` → `feat/then-now-section` → 항목 PR의 웹 몫 → C8
+- 두 줄은 서로 다른 worktree에서 병렬로 간다(PM이 고른 서버·웹 병렬 방식). 같은 줄 안에서는 차례로 한다. `feat/ca-place-data` 는 `data/`·빌더만 바꾸므로 S3 줄과 겹치지 않으면 따로 worktree에서 먼저 할 수 있다.
+- **쌓기 규칙** (앞 PR이 머지되지 않았을 때):
+  1. 다음 브랜치는 앞 브랜치의 끝에서 만든다. 기능 계획 머리에 "쌓은 위치: `<앞 브랜치>` `<해시>`"를 적는다.
+  2. PR 대상은 `main` 으로 두고, 설명 첫 줄에 "Stacked on #N — merge #N first; this PR's own commits start at `<해시>`"를 쓴다. 머지는 쌓인 순서대로 PM이 한다.
+  3. 앞 PR에 고침 커밋이 생기면 오케스트레이터가 앞 브랜치를 뒤 브랜치에 merge 커밋으로 넣는다. rebase·amend는 하지 않는다(`CLAUDE.md` 4·5절).
+  4. 400줄 규칙과 확인점은 `<앞 브랜치>...HEAD` 로 잰다.
+  5. 쌓기는 줄마다 3단 정도에서 멈추고 오케스트레이터가 마지막 보고 때 머지를 요청한다(충돌과 리뷰 범위가 커진다).
 
-| 주제 | 리서치 결과 | 계획 반영 |
-|---|---|---|
-| 국내 영상 | Commons에는 국내 사건 영상이 표본 0건. 국내 영상은 **KTV 아카이브 YouTube**(대한뉴스 포함)뿐 | M3a5a·M3a5b가 데모 영상의 주 경로(M3a5는 그 부품). M3b3에 표본 날짜 버튼(1969·1986) |
-| PM 실행 결과(3.5절) | 채널 ID 3개 확인, KTV 아카이브 한정 검색 1988·1986·1969 맞음(대한뉴스 꼭지 1~2위), 2002·2000은 0건(사진만, 설계대로), 표본 5개 모두 임베드 허용·공개·제한 없음, `recordingDate` 모두 비어 있음 | 허용 채널은 KTV 아카이브 하나(영상 5번 (a) 유지). 촬영 시점은 제목·설명 명시 날짜만 |
-| 정확도 | 현행 점수표가 맞는 후보 4개를 버리고 틀린 후보 2개를 붙임 | M3a4: R-T1(다른 단계 −40, 예행연습·카운트다운 추가)~R-T4, 직속 범주만, 영어 라벨, 숫자 핵심어, 10분 상한, 늦은 촬영일은 "촬영 시점 미상" |
-| 쿼터 | `search.list` 는 **별도 버킷 하루 100회**, 태평양 시간 자정 초기화 | M3a5(부품 `YoutubeQuota`)·M3a5a(연결): 검색 80회·일반 8,000단위 두 상한, 다 쓰면 그날 건너뜀(캐시 안 함). 새 날짜 하루 약 26개 |
-| 임베드 | `autoplay=1&mute=1` 은 정책·문서와 어긋남 | 주소 `playsinline=1&rel=0&enablejsapi=1&origin=…`, IFrame API로 `mute()`·`playVideo()`(M3a5a·M3b3c) |
-| 대한뉴스 | e영상역사관에 공식 임베드 없음, API에 날짜 조건 없음, 수록 1953-06-23~1994-12-31, 같은 꼭지 중복 업로드·컬러 복원 재업로드 있음 | M3a5b: CSV 색인(content-curator) + KTV 아카이브 제목의 호수 대조(R-N5) + d ~ d+7 꼭지 사건어 + 중복 하나만(R-N7) + 설명 "제작일" 대조(R-N8) + 길이 대조(R-N6). 컬러 복원은 M3a5a가 뺌 |
-| YouTube 의무 | 약관 링크(III.A.1), 기능 사용 전 개인정보처리방침 동의와 방침 내용(III.A.2 (a)~(g)), YouTube 출처 표시(III.F.2.a) | M3b3b(방침·동의, D2 (a)), M3b3c(출처·약관 링크), M2b(동의를 실제 폼으로) |
-| 게티 | 자동 검색 키는 계약으로만 | M3a6 제외 |
-| 결과 주소 | YouTube 스크립트가 같은 페이지의 주소를 볼 수 있음(위험 26) | 결과 주소에 생년월일·장소를 넣지 않음(M3b2 C4, M2b) |
+## 멈춘 한국 작업
 
-#### 완료 기준 요약
-
-- **데모 3개 + 표본 5개 날짜**(1950-06-25, 1969-07-20, 1986-09-20, 2000-02-29, 2014-04-16 — 공개 역사 사건 날짜와 경계값, 실제 사람의 생년월일 아님, M3-P13)에서:
-  - 사건이 있으면 원문 문장·출처 링크·CC BY-SA 4.0과 함께 나오고, **같은 사건은 한 번만** 나온다. 없으면 빈 날짜 안내.
-  - 사진은 바로 보이고 날짜 관계·촬영 시점·출처·라이선스 상태가 붙는다. **촬영 시점 미상 사진은 "촬영 시점 미상"으로만 보이고 "그날 찍힌 사진" 제목 아래에 두지 않는다**(M3-P17 (a)).
-  - 자동으로 찾은 영상이 있으면 붙고(정확도 기준선 이상), **없으면 사진만**(오류 아님). 1988-09-17은 대한뉴스 제1715호(KTV 아카이브, "1988년 9월 17일 자", "대한뉴스(정부 제작 뉴스영화)")가 붙을 것으로 본다.
-  - YouTube 영상은 **동의 뒤에만**, 개인정보처리방침이 바닥글에 늘 있고, 캡션에 YouTube 출처와 이용약관 링크가 있다.
-  - `tragic` 사건과 그날에는 영상·사진이 붙지 않는다.
-- 자동 테스트는 fixture로 규칙을 확인하고, 실제 검색 품질은 PM 품질 확인(M3a4b T5, M3a5a T8, M3a5b T4)에서 기준표(`data/verification/event-media-expectations.json`)와 대조한다.
-- 외부 출처 하나가 실패하거나 쿼터가 끝나도 그 부분만 빠지고 응답은 200이다. 위키백과는 날짜당 시간 상한(M3a1c)을 넘지 않는다.
-
-#### M3 PM 결정
-
-| # | 결정 | 상태 |
-|---|---|---|
-| #17, #18(개정), #20~#24, #13-C, M3-P1~P5, M3-D1~D4 | 추천안대로 | 결정 2026-10-11 |
-| #4 영상 처리 | 바로 재생 | 결정 2026-10-11 |
-| 미디어 표시·안전장치 1~6 | 위 절 | 결정·PM 확인 2026-10-11 |
-| M3-P6~P8 | 리서치는 병렬, 영상 기능은 결과 뒤 / 비자유 위키 로컬 파일 제외 / 움직임 줄이기·데이터 절약이면 자동 재생 안 함 | 결정 2026-10-11 |
-| M3-P9 | (b) 아무 날짜에서나 자동 검색, 큐레이션은 확인용 기준표 | 결정 2026-10-11 |
-| M3-P10 | 자유 라이선스 사본(#13 (a))은 허용, PM 수령 항공사진은 M4 계획 때 | 결정 2026-10-11 |
-| M3-P11~P14 | 기준선 60 / 사건 3개까지 / 표본 날짜 5개 / 허용한 공식 채널만 | 결정 2026-10-11 |
-| M3-P15 | 자동 검색 경로를 확인하지 못하면 M3a6을 뺀다 → **적용: M3a6 제외** | 결정 2026-10-11 |
-| 촬영 시점 미상 표시 | 보여 주되 "촬영 시점 미상", 그날 것처럼 보이게 하지 않음. 출처 없으면 숨김 | 결정 2026-10-11 |
-| M3a1·M3b1 분할, M3a1b·M3a1c 재분할 | 승인 | 결정 2026-10-11 |
-| M3-P16, M3-P17 | ~~(b) 품질 필터~~ → **M3-P16 변경: 위키백과 원문을 거르지 않고 그대로 내보낸다. 큐레이션 `hide` 는 권리자 요청·명백히 틀린 줄을 바로 내리는 수단으로만(같은 사건의 다른 항목보다 `hide` 가 이김). 해석·다듬기는 최종 화면 표시 때(뒤의 웹·화면 기능에서 계획)** / M3-P17 (a) "그날 찍힌 사진"은 `same_day` 만 | 결정 2026-10-11, **M3-P16 변경 2026-10-12** |
-| **M3a2 분할** | **(b) 나누지 않고 한 PR**, 중간 확인점 T2·T2b 뒤 누적 S1 360 (planner 추천은 (a) 나눔). T2 뒤 394로 넘었을 때도 한 PR 유지 | **결정 2026-10-12** (실제 +1,094, PR #11) |
-| **M3a3 A·B·C** | **A (a)** 두 PR: M3a3 `feat/event-media`(형식·규칙) + M3a3b `feat/commons-photos`(Commons 사진) → M3 PR 18개 · **B (a)** `json-schema-validator` 는 테스트 범위 유지, `EventCuration` 그대로, 첫 런타임 큐레이션 미디어 자료(M4a·M5b) 계획 때 다시 · **C (c)** `chore/env-guard` 하지 않음 | **결정 2026-10-13** |
-| **M3a3 확인점** | T2 뒤 누적 S1 **505** > 450 → **(a) T3을 별도 PR로**: M3a3a `feat/media-rules`(촬영 시점 파서·라이선스 상태·차단과 제외·M3a2 리뷰 2차 권장 1). 순서 M3a3 → M3a3a → M3a3b, M3a4도 M3a3a 뒤 → M3 PR 19개 | **결정 2026-10-13** |
-| **속도 개선 A** | M3a3 머지 뒤부터 서버·웹을 동시에 진행(M3a3a ∥ M3b2) | **결정 2026-10-13** |
-| **M3a3a 승인·D1** | 계획 승인, 이름 M3a3a 유지 · D1 **(b)** 통신사 제외의 로마자 낱말 경계는 원래 문구("앞뒤가 글자·숫자가 아님") 그대로, 처음 제외 목록도 그대로. `AP통신`·`EPA연합` 은 걸리지 않음을 알고 수용(알려진 한계 — 발견되면 차단 목록으로 내림). planner 추천은 (a)였다 | **결정 2026-10-13** |
-| **M3b2 개정 결정 1·2** | 계획 개정 승인 · 결정 1 **(a)** 한 PR + T1b 뒤 확인점(누적 S1 170, 넘으면 T2·T3 분리를 다시 물음) · 결정 2 **(a)** T5(실제 서버, 사진 없이) 뒤 머지, 실제 사진 확인은 T6 — M3a3b 머지 뒤 `main` 에서. 둘 다 planner 추천과 같음. M3 PR 수는 19개 그대로 | **결정 2026-10-13** |
-| **M3b2b 개정 결정 1~4** | 1 **(a)** T0은 응답 모양 검사만(섹션 ErrorBoundary는 M6b) · 2 **(a)** `web-ci` 경로를 T3에 · 3 **(a)** 한 PR + T2 뒤 확인점(누적 S1 300) · 4 **(a)** 세 번째 소제목 "다른 때 찍힌 사진". 모두 planner 추천과 같음 | **결정 2026-10-13** (실제 S1 319, PR #15) |
-| **M3a3b 개정 결정 1·2** | 1 **(a)** 두 PR: M3a3b `feat/commons-photos`(그날 사진·Commons 파일 매퍼·이월 리뷰 권장, 약 485 — 확인점 T0·T1 뒤 350 알림, T2 뒤 450 멈추고 물음) + M3a3c `feat/event-photos`(사건 사진, 약 230) → M3 PR 20개. M3b2 T6(사건 사진)은 M3a3c 뒤, M3b2b T6(그날 사진)은 M3a3b 뒤 · 2 **(b)** ★ T2는 backend-dev가 구현. 둘 다 planner 추천과 같음 | **결정 2026-10-14** |
-| **M3b3 개정 결정 1~3** | 1 **(a)** PR 머지는 T5 뒤, 실제 영상 확인(T6)은 M3a4b 머지 뒤 `main` 에서 · 2 **(b)** · 3 **(a)** — 내용은 `docs/plans/m3b3-media-video.md` 개정판. 크기 파일별 다시 셈 약 300, 확인점 T2 뒤 360 | **결정 2026-10-14** (실제 S1 343, PR #16) |
-| **M3a3c 개정 결정 1~4** | 1 **(a)** 미디어 호출(날짜 범주·PageImages·파일 제목 묶음)은 재시도 없이 1회, 읽기 타임아웃 = 고정 `media.lookup-deadline`(`WikimediaHttpClient.getOnce`) · 2 **(b)** 위키백과 날짜·연도 문서 중 하나라도 `UNAVAILABLE` 인 날은 그날 사진을 찾지 않음(`tragic` 날처럼, 사건 사진은 그대로 — M3a3d T1 (14)) · 3 **(a)** 한 PR + 확인점 두 개(T0·T1 뒤 320 알림, T2 뒤 500 멈춤) — **결정 5로 대체** · 4 **(b)** ★ T0은 backend-dev | **결정 2026-10-15** |
-| **M3a3c 결정 5·6** | 5 확인점 1(T0·T1 뒤 누적 S1 433, T2 뒤 예상 약 600)에서 **나눈다**: M3a3c는 T0·T1 + 검증만, 사건 사진 연결은 새 기능 M3a3d `feat/event-photo-wiring` → M3 PR 21개 · 6 그날에 맞는 사건 사진이 없으면 사진 없이 낸다. **다른 날짜를 찾지 않는다** — 기능을 보이거나 확인하려고 다른 날짜를 제안하지도 않는다(PM 피드백 2026-10-16). PM 실제 확인은 데모 날짜에 사건 사진이 없고 이상한 것이 보이지 않음을 확인 | **결정 2026-10-16** (M3a3c 실제 S1 433 / −109, PR #20) |
-| **M3a3d ★ T1 담당** | backend-dev가 구현(M3a3c T0·T1 부품을 그대로 이어 씀) | **결정 2026-10-16** |
-| **M3a3d 결정 1** | 크기 약 400(350~445, PR #20 리뷰 권장 2~5를 T0으로 더함) → **(a)** 한 PR. 확인점 1: T0 뒤 누적 S1 130 넘으면 T1 전에 멈추고 T0만 낼지 물음. 확인점 2: T1 뒤 420 넘으면 알림. planner 추천과 같음. 고르지 않은 것: (b) T0 별도 PR(M3 PR 22개), (c) 리뷰 권장 2·3·5를 M3a4로 | **결정 2026-10-17** |
-| **M3a3d 결정 1 결과** | 확인점 1: T0 뒤 누적 S1 **84** ≤ 130 → 멈추지 않고 T1. 확인점 2: T1 뒤 **312** ≤ 420 → 알림 없음. 실제 S1 312 / −72 — 파일별 셈 234의 ×1.33(×1.7 보정 약 400보다 작음). 한 PR로 머지 | **2026-10-17 ~ 18** (PR #22, `main` d566bda) |
-| **M3a4 결정 1·2** | 1 크기 약 675(600~765) → **(b)** 한 PR(`feat/event-video`, T0~T8). 확인점 1: T2 뒤 누적 S1 400 넘으면 알림, 확인점 2: T6 뒤 750 넘으면 알림 — 둘 다 멈추지 않는다. M3 PR 21개 그대로. 고르지 않은 것: (a) 두 PR(planner 추천이었음), (c) 글 속 날짜를 M3a4b로 · 2 **(b)** ★ T2 정확도 판정은 backend-dev(planner 추천과 같음). 고르지 않은 것: (a) PM 직접 | **결정 2026-10-18** |
-| **M3a4b 결정 1~4** | 1 크기 약 1,100(860~1,360) → **(a)** 두 PR: M3a4b `feat/commons-video` 어댑터(T0~T5, 약 690) → M3a4c `feat/media-search-cache` 결과 캐시(T6~T9, 약 415). M3 PR 22개. 확인점 M3a4b T2 뒤 600(멈춤)·T3 뒤 850(알림), M3a4c T6 뒤 300(알림). 고르지 않은 것: (b) 캐시 먼저, (c) 한 PR · 2 **(a)** 영상용 Wikidata 질의는 Commons 어댑터가 따로 1회(M3a2 톤 질의는 그대로) · 3 **(b)** ★ T6 backend-dev · 4 **(a)** 보조 경로 (b-2)·(b-3)은 후속 후보. 모두 planner 추천과 같음 | **결정 2026-10-24** |
-| **M3a4b 확인점·T4 결정 결과** | 확인점 1: T2 뒤 누적 S1 763 / −222 > 600 → PM **(a)** 이 PR에서 T3까지(고르지 않은 것: (b) 부품만 먼저 PR, (c) 옮김을 되돌려 줄임). 확인점 2: T3 뒤 954 / −222 > 850 → 알림만. T4 결정: 1 **(a)** 기준표 1988-09-17 KBS 두 행은 근거 번호 없이 `not_researched` 그대로, 2 **(a)** 녹화 속 제3자 공개 연락처는 바이트 그대로. 최종 S1 1,155 / −236, PR #24 머지. PM T5: 1969-07-20 Commons 영상이 화면에 도착 — 영상 슬롯 정책은 바꾸지 않음(지켜보는 위험) | **2026-10-24** (PR #24, `main` 9203562) |
-| **M3a4c 결정 1·확인점·T4 결정 결과** | 결정 1 **(a)** 한 PR + 확인점 T1 뒤 300·T3 뒤 700(알림)(planner 추천과 같음). 확인점 1: T1 뒤 누적 S1 181 ≤ 300, 확인점 2: T3 뒤 580 ≤ 700 — 알림 없음. T4 결정 **(a)**: 영상 WARN 줄 수 ≤ 6 + 네 고정 이름표 모양 + `no free request slot` 이 아닌 줄 수 ≤ WireMock이 받은 영상 요청 수(흔들리면 (b) 줄 수 상한 6만). 리뷰 승인(필수 0) — 권장 1은 M3a5 T7, 권장 3은 후속 후보. PM T6 캐시 확인 통과. 최종 S1 583 / −23 | **2026-10-24 ~ 25** (PR #25, `main` 28ffb01) |
-| **M3a5 결정 1 (b)·2·3 (확인점 1)** | 확인점 1: T3 뒤 누적 S1 **525 / −6** > 500 (T1 뒤 200 / −6, T2 뒤 413 / −6 — 파일별 셈 약 210의 ×2.5, 기대 ×2.0 약 420보다 큼). 1 **(b)** 두 PR로 나눔: M3a5 `feat/official-channel-video` = T0c·T1·T2·T3 + T1b + 검증(T7) + PR(머지돼도 API·화면 그대로) → M3a5a `feat/youtube-video-source` = T4·T5·T6·T8 + 검증(M3a5 머지 뒤). 순서 M3a5 → M3a5a → M3a5b. M3 PR 23개. 고르지 않은 것: (a) 계속 한 PR · 2 **(a)** 순서에 따라 실패하는 시험은 시험 설정에서 `YoutubeKeyCheck` 로그 수준을 낮춰 고친다(단언 변경 없음, 운영 설정 그대로) · 3 **(a)** `YoutubeQuota.reserve(bucket, n)` 의 n < 1 예외는 그대로 두고, M3a5a T5가 예약할 것이 없을 때(검색어가 있는 사건 0개, 영상 ID 0개) 부르지 않는다. 같은 날: M3a5 T7에 허용되는 기존 시험 단언 변경은 T1이 새 yml 값에 맞게 바꾼 4건(`MediaPropertiesTest`, `SearchCachePropertiesTest` ×2, `VideoSearchPropertiesTest` — 오케스트레이터가 같은 엄격함의 갱신으로 수용)과 T1b의 시험 설정 한 줄뿐. M3a4c 리뷰 권장 1(javadoc 이동, 시험 주석만)은 M3a5 T7 (9)에 둔다. M3a5a 크기 약 510(410~590) → 그 계획의 크기 결정 1·★ T4 결정 2는 M3a5a를 시작할 때 | **결정 2026-10-26** (확인점 1) |
-| **M3b3b 개정 결정 1·2** | 계획 개정 승인 · 결정 1 **(a)** M3b3 리뷰 권장 1(절반 이하로 보일 때 사용자가 튼 영상이 화면 밖에서도 계속 재생)·2(`ourPause` 카운터)를 이 PR의 T0에서, `fix(media)` 커밋 따로 · 결정 2 방침의 운영자 "The World That Day 운영자", 문의 **(a)** 이 저장소의 GitHub Issues, 시행일 **(a)** 머지하는 날(PM이 머지하는 날 frontend-dev의 한 줄 커밋으로 채움 — 실제로는 머지 뒤 후속 PR #19, 시행일 2026년 10월 16일, PM 결정). 둘 다 planner 추천과 같음. M3 PR 수는 그대로 | **결정 2026-10-15** (실제 S1 361, PR #18·#19) |
-| **M3b3c 개정 결정 1·2** | 1 **(a)** IFrame API 스크립트를 못 불러오거나 플레이어가 준비되지 않으면 공식 플레이어를 그대로 둔다(자동 재생·하나만 재생·오류 숨김 없음, 눌러서 봄, 추가 코드 없음) · 2 **(a)** T5(Playwright, 가짜 `YT`) 뒤 머지, 실제 YouTube 확인 T6은 M3a5a 머지 뒤 `main`(1988은 M3a5b 뒤; 2026-10-26 M3a5 분할로 M3a5 → M3a5a). 둘 다 planner 추천과 같음 | **결정 2026-10-16** |
-| **M3b3c 확인점** | T1·T2 뒤 누적 S1 **229** > 220 → PM 수용, T3(YouTube 재생 규칙)도 이 PR에서 | **결정 2026-10-16** (실제 S1 375 / −19, PR #21) |
-| **M3b3c T4 경합 (기록)** | T4(Playwright 검수)에서 찾은 재생 경합을 이 PR에서 세 차례에 걸쳐 고쳤다 — YouTube 보고를 시작마다 짝짓고, 화면 밖에서 도착한 `PLAYING` 보고는 멈춘다. e2e 가짜 `YT` 의 멈춤 규칙도 바로잡았다(실제로 재생 중인 플레이어만 멈춤) | **2026-10-16** (PR #21) |
-| **영상 1~4번** | `deepcat:` 안 씀 / 늦은 촬영일은 범주 직속·`P10` 이면 "촬영 시점 미상"으로 붙임 / 10분 상한 / 언론사 자유 라이선스 영상 허용 + 차단 목록 | 결정 2026-10-11 |
-| **영상 5~9번** | KTV 아카이브만(Y2 뒤에도 유지) / 채널 한정 검색 + 캐시, 넘으면 그날 건너뜀(공개 배포 때 증설) / 출처를 구분하는 지금 설계, 업로드 목록 색인 안 함 / 비상업 공식 임베드 + 차단 목록(공개 전 KTV 서면 확인) / YouTube 의무는 M3b3(→ M3b3b·M3b3c) | 결정 2026-10-11 |
-| **영상 10~13번** | 대한뉴스 하한 1953-06-23 / PM이 CSV를 받고 content-curator가 색인 / d ~ d+7 + 꼭지 사건어 / 캡션 "대한뉴스(정부 제작 뉴스영화)" | 결정 2026-10-11 |
-| **영상 15~20번** | M3a6 M3에서 제외 / 게티 해석 16~19번은 다시 열 때 적용 / AP·로이터·연합뉴스는 PM G-B3 뒤 재조사 | 결정 2026-10-11 |
-| **영상 21·22번** | 정확도 보정(R-T1~R-T4, 기준선 60 유지) / 재생 실패는 캡션까지 숨김 | 결정 2026-10-11 |
-| **영상 23·24번** | (b) 입력 화면 안 제출 전 필수 동의 + 방침 링크 / (a) PM이 YouTube 키 발급(완료) | 결정 2026-10-11 |
-| **M3b1b 리뷰 후속** | 라이선스 줄 중복 (b), 새 창 안내, 설명 두 번 읽기 방지, `fallbackAlt` 테스트, Playwright 포커스·토큰 확인 → M3b2b | 결정 2026-10-11 |
-| **D1~D3** | D1 (a) 분할 / D2 (a) 동의는 M3b3b가 임시 입력 화면에, M2b가 옮김 / D3 (a) `web-ci` 에 Chromium Playwright 단계 | **결정 2026-10-12** |
-
-#### 후속 작업 후보 (M3 중 일정 없음 — M3 끝 또는 표의 시점에 PM이 정함)
-
-| 후보 | 내용 | 근거·시점 |
-|---|---|---|
-| ~~`chore/env-guard`~~ | `.env.example` 안내 보강 + 루트 `.env` 의 ASCII가 아닌 값·자리 표시 값을 시작 때 잡는 점검 | **PM: 하지 않음 (2026-10-13, M3a3 결정 C (c))**. 배경: M3a2 T5에서 한글 자리 표시 값을 Spring이 ISO-8859-1로 읽어 DB 인증 실패 |
-| 런타임 데이터 검증 라이브러리 (M3a2 리뷰 1차 권장 4) | `EventCuration` 의 손 검증(약 80줄)을 `json-schema-validator`(지금 테스트 범위 3.0.6)로 바꿀지. 구현 범위로 옮기면 Jackson 3.2 이행 때 런타임도 판을 함께 올려야 함 | **M4a·M5b 때 다시** (M3a3 결정 B (a), 2026-10-13 — 첫 런타임 큐레이션 미디어 자료 계획 때) |
-| Spring 기본 404·405·500 응답에 `code` 없음 (2026-10-13) | 프로젝트 공통 에러 형식(ProblemDetail + `code`, M3a2)은 `ApiProblem` 에만 적용된다. 없는 경로·허용되지 않은 메서드·처리되지 않은 예외는 Spring 기본 응답이라 `code` 가 없다. 예: `NOT_FOUND`, `METHOD_NOT_ALLOWED`, `INTERNAL_ERROR` 를 더하고 `detail` 에 입력값을 넣지 않음 | M3a2 메모. 두 번째 API(M2a `GET /api/places/resolve`) 전 |
-| Wikimedia WARN 로그의 문서 제목 (2026-10-13) | `WikimediaHttpClient` 의 실패 WARN 줄은 받은 `title` 을 그대로 찍는다. 위키백과 호출은 날짜·연도 문서 제목(`9월 17일`, `1988년`)이라 날짜를 짐작할 수 있다. 요청에 장소가 함께 들어오면 `CLAUDE.md` 7절 6항(생년월일과 장소를 함께 로그에 남기지 않음)에 걸릴 수 있다. M3a3b·M3a3c·M3a3d의 Commons·PageImages 호출은 날짜 없는 이름표만 쓴다 | **M2 계획 때 다시 본다** (장소가 요청에 들어오는 첫 기능) |
-| 위키백과 사건 어댑터의 공용 `error` 검사 | `ActionApiKoWikiClient`·`ActionApiKoWikiLinkResolver` 도 M3a3d T0의 `ActionApiErrors` 로(로그 코드 제한 포함) | M3a3d 다음 단계 제안. 작은 `chore/`, 또는 M2 계획 때 Wikimedia 로그 제목 정리와 함께 → **`chore/m3-followups` T4** (2026-10-27) |
-| `chore/kowiki-tocdata` | 위키백과 절 목록 요청을 `prop=sections` 에서 `prop=tocdata` 로 | M3a1 T2 메모. 경고가 생기면 앞당김 |
-| `chore/kowiki-safe-templates` | 국기류 "안전한 템플릿"을 보이는 글자로 | M3a1 T4, 낮은 우선순위 |
-| HTML `<br>` 등 뜻이 분명한 태그 처리 | M3a1b가 건너뛰는 줄이 많으면 | M3a1b 표 |
-| 섹션 전체 시간 상한 | 세계 섹션이 10초를 넘으면. M3a3b 뒤 최악 약 13~15초(위키백과 5 + Wikidata 5(+1 유예) + 미디어 3(+1 유예)). M3a3c·M3a3d 뒤에도 같음(사건 사진은 M3a3d가 같은 미디어 상한 안에서 그날 사진과 동시에), 스텁 측정 약 11.7초. M3a4도 같음 — 영상 출처를 같은 미디어 끝 시각에 올린다. 웹 시간 초과는 10초(M3b2) | M3a2 리스크 4, M3a3b 리스크 3, M3a3d 리스크 6, M3a4 리스크 7, M3b2 리스크 6, M6b |
-| 이미지 호스트 허용 목록·CSP | 웹은 지금 `http(s)` 만 확인한다. 허용 목록이나 `img-src` CSP를 두면 Commons 썸네일 `thumb.wikimedia.org`(960px 단계)와 원본 `upload.wikimedia.org` 를 넣는다. 서버도 허용 목록이 없다(R9는 `http(s)` 만). M3a3b T1이 녹화로 실제 호스트를 확인하고, 다른 호스트가 보이면 이 목록에 더한다 | M3a3 리뷰 권장 6, M3b2 리스크 7, M3a3b T1 (8). M6b·공개 배포(#5) 때 |
-| 사진 메타데이터 캐시 | M3a3b·M3a3c·M3a3d는 요청마다 Commons·PageImages를 부른다. 필요하면 M3a4c 결과 캐시에 사진 출처를 더한다 | M3a3b 리스크 6, M3a3c 리스크 4, M6b 측정 뒤 |
-| 차단 목록 실행 중 다시 읽기 | M3a3a 차단 목록은 서버 재시작으로 적용된다 | M3a3a 리스크 5, 공개 배포(#5) 때 |
-| 통신사 한글 붙은 표기 | M3a3a D1 (b)로 `AP통신`·`EPA연합` 은 제외되지 않는다(알려진 한계). 자주 보이면 낱말 경계 기준·처음 목록을 다시 정함. 반대 방향의 안전 쪽 오탐도 있다: `EPA` 가 미국 환경보호청(US EPA)의 퍼블릭 도메인 사진을, `Getty` 가 J. Paul Getty Museum 공개 소장품 사진을 뺄 수 있다(알려진 한계, 작업 아님) | M3a3a 리스크 3, M3a3b 리스크 9, M3a3b·M3a3c 데모 표에서 발견되면 |
-| 대표 링크 보정 (R-V8) | 대표 링크가 사건이 아닐 때(`조선인민군`, `전라남도`) 날짜가 맞는 다른 링크를 고름 | 리서치 7절. 지금은 `tragic` 날짜에만 나옴 |
-| D3 나라·도시 링크 보정 | 중복 제거 D3 (iii)이 `대한민국` 과 `서울특별시` 를 다른 장소로 보아, 같은 사건이 두 번 보일 수 있음 | M3a2 리스크 9·T5 (4). 실제 사례가 보이면 |
-| 화면 표시 때의 위키백과 문장 해석·다듬기 | M3-P16 변경(2026-10-12)으로 API는 원문 그대로. 표시 단계에서 다룰 때 #23 (a)와 CC BY-SA 변경 표시(`summary_modified`)를 함께 다시 정함 | M3a2 리스크 7, M3b2 리스크 2. 웹·화면 기능 계획 때 |
-| Commons 보조 경로 | (b-2) 영어 라벨 검색어·(b-3) `insource:` 날짜 문자열. M3a4b 계획 개정(2026-10-24)에서 크기로 범위 밖(M3a4b 결정 4 (a)) | 품질 확인(M3a4b T5·M3a5a T8) 뒤 필요하면 |
-| 대한뉴스 컬러 복원 재업로드 | 보조 정규식 + "컬러 복원" 캡션으로 회차 대조 | R-N5, M3a5b |
-| KTV 국민방송 채널 추가 | "오늘" 회고 클립 — Y2에서 KTV 아카이브가 이미 덮음 | 영상 5번 (b), 품질 확인 뒤 |
-| nocookie 대체 | nocookie + IFrame API가 안 되면 `www.youtube.com/embed` 로(방침 문구 함께) | M3b3c T6 결과 (서버 도메인 + 웹 `YOUTUBE_EMBED_ORIGIN` + 방침·시행일) |
-| M3b3c 리뷰 권장 1 (열림) | 플레이어 `onReady` 전에 사용자가 누른 재생을 조정자가 모른다 — "한 번에 하나만" 규칙에서 그 영상이 빠질 수 있다 | 작은 `fix/` 후보. M3b3c T6(M3a5a 머지 뒤) 전에 하면 실제 확인에서 함께 본다 · `chore/m3-followups` 에서 제외(2026-10-27) — M3b3c T6 결과 보고 `fix/` |
-| M3b3c 계획서 "YouTube 상태 처리" 표가 낡음 | 머지 코드(PR #21)는 YouTube 보고를 시작마다 짝짓고, 화면 밖에서 도착한 `PLAYING` 보고는 멈춘다(T4 경합 수정). 계획서 표는 그 전 규칙이다 — 코드가 기준 | 재생 규칙을 다시 고칠 때(위 `fix/` 또는 M3b3c T6 문제) 그 작업의 계획에 코드 기준 표를 적는다. 계획서 파일은 지금 고치지 않음 |
-| 웹 mock `selection.score` (2026-10-18) | `web/src/mocks/fixtures/world/youtube.ts` 의 `selection.score` 가 `0.9`(소수). 서버(M3a4)는 정수 합계(예: 90)를 보낸다. 웹 타입은 `number` 라 깨지지 않고 화면에 보이지 않는 값 | 작은 웹 `fix/`. M3a4 계획 리스크 12. M3a5a 머지 전 언제든 → **`chore/m3-followups` T5** (2026-10-27) |
-| M3a4c 리뷰 권장 3 (2026-10-25) | 캐시 DB 실패 때 "WARN 정확히 한 줄"은 가짜 저장소로만 시험됐다. 실제 Hikari·Hibernate가 더 남기는 줄(자리 표시 값만)을 실제 DB를 끊는 시험으로 확인 | M6b(장애 격리), 또는 작은 `test/` chore. M3a5 계획이 범위 밖으로 둠 |
-| 미룬 작은 정리 (2026-10-25 모음) | 시험 공용 `noUnmatchedRequest`, `WorldSection.test` describe 이름, 흔들리는 `TwoPageKoWikiEventSourceTest`, `server-ci` 경로(`web/src/media/types.ts`·`data/`) — 내용은 `docs/plans/m3a5-official-channel-video.md` "후속 작업 후보" 표 | PM이 일정을 정함 → 2026-10-27: `server-ci` 경로는 `chore/m3-followups` T1, `WorldSection.test` 이름은 T6, `TwoPageKoWikiEventSourceTest` 는 T8 진단. 시험 공용 `noUnmatchedRequest` 는 남음(M6b 시험 정리 때) |
-| `MediaNormalizer` DEBUG 줄의 영상 ID (2026-10-26) | `Media dropped: id=youtube-<영상 ID> rule=R…` — M3a5a T4 결정 2 (a)로 예외였던 줄. 공개 배포 전 필수 | **`chore/m3-followups` T2** (2026-10-27) |
-| `SearchCachePurgeStartupTest` 의 `toString()` 비교 (2026-10-26) | 예약 작업을 Spring 내부 문자열로 찾음 — M3a5a 리뷰 권장 2 | **`chore/m3-followups` T3** (2026-10-27) |
-| YouTube 쿼터 계수기 보존 | M3a5 계수기는 메모리(다시 켜면 0부터, 403 처리가 뒤를 받침) — 다시 켜도 남게 | 공개 배포(#5) 때 |
-| YouTube 쿼터 증설 | 준수 감사 뒤 신청 | 영상 6번 (d), 공개 배포(#5) 때 |
-| 403 `quotaExceeded` 본문 모양 확인 (2026-10-26) | `error.errors[].reason` 모양이 공식 문서에 없어 본문을 읽을 수 없는 403은 `FAILED` 로 둔다(M3a5 T2, M3a5a T5). 실제 응답이 다르면 쿼터 소진이 실패로 보인다 | M3a5a T8에서 PM이 로그 확인, 다르면 작은 `fix/`, M6b(쿼터 소진 동작) |
-| KTV 서면 확인 | "무단사용 금지" 문구 확인됨(3.5절) — 공개 전 KTV 아카이브팀에 임베드 확인 | 영상 8번, 공개 배포 전 |
-| 게티 계약 문의, M3a6 다시 열기 | `docs/plans/m3a6-provider-image-embed.md` "다시 열 때 고칠 것" | 영상 15번, 공개 배포(#5) 때 |
-| AP·로이터·연합뉴스 재조사 | PM이 G-B3(사진 기사 3개)을 본 뒤 | 영상 20번 |
-
-#### 제품 정의서·`CLAUDE.md` 문구 제안 (PM이 고치거나 오케스트레이터에게 맡긴다)
-
-| 문서·절 | 결정 | 제안 문구 | 반영 상태 (2026-10-12 확인) |
+| 기능 | 브랜치 | 상태 | 처리 |
 |---|---|---|---|
-| 제품 정의서 5절 4번 | #21 (a), M3-P9 (b) | 끝에 추가: "그 날짜에 기록된 사건이 없으면 '이 날짜에 기록된 큰 사건을 찾지 못했습니다'라고 안내하고, 같은 날 찍힌 사진이 있으면 그것만 보여 준다. 같은 달 사건으로 넓히지 않는다. 사건 영상은 어느 날짜에서나 자동으로 찾아 맞는 것만 붙이고, 없으면 사진만 보여 준다." | 아직 |
-| 제품 정의서 5절 (입력 흐름) | 영상 23번 (b), D2 (a) | 추가: "입력을 제출하기 전에 개인정보처리방침 동의(필수)를 받는다. 방침은 모든 화면에서 볼 수 있다." | 아직 |
-| 제품 정의서 6.1절 첫 항목 | #17 (a), 영상 2번 | "`현재 모습`" 을 "`현재 모습`(제공자가 촬영 시점을 주지 않으면 '현재 모습(촬영 시점 미제공)', 모르면 '촬영 시점 미상')" 으로. 덧붙임: "영상의 업로드·게시일과 사건 날짜보다 늦은 촬영일 필드는 촬영 시점으로 쓰지 않는다. 뉴스영화 회차 날짜는 '…자'로 표시한다." | 아직 |
-| 제품 정의서 6.2절 필드 표 | #18 개정 | 필수 필드는 `docs/plans/m3a3-event-media.md` R1~R9를 따른다는 문장 | 일부 반영 |
-| 제품 정의서 6.2절 영상 재생 | 영상 3·22번, YouTube 정책 | 추가: "영상은 화면에 절반 넘게 보일 때만, 한 번에 하나만 음소거로 자동 재생한다. YouTube 플레이어는 200×200 이상이고 위에 아무것도 겹치지 않는다. 10분을 넘는 영상은 붙이지 않는다. 재생할 수 없는 영상은 캡션까지 숨긴다." | 아직 |
-| 제품 정의서 6.2절 공공누리 항목 | 미디어 결정 | 끝에 추가: "MVP는 비상업이고 유형과 관계없이 표시하되 유형을 표시한다." | 아직 |
-| 제품 정의서 6.3절 | #22 (c) | 추가: "`tone` 은 큐레이션 → 비극 신호 순으로 정하고, 판정할 수 없으면 `tragic` 으로 둔다. 판정 근거를 `tone_basis` 로 남긴다. `tragic` 사건과 그날에는 사진·영상을 붙이지 않고 영상을 찾지도 않는다. 정부 제작 뉴스영화는 캡션에 그 성격을 밝힌다." | 아직 |
-| 제품 정의서 6절 (새 항목) | #23 (a), M3-P16 (2026-10-12 변경) | "위키백과 문장은 원문 그대로 … 번역·요약하지 않고, 읽기 어색하다는 이유로 거르지도 않는다. 권리자 요청이나 명백히 틀린 줄만 바로 내린다." | 아직 |
-| 제품 정의서 6절 (새 항목) | M3-P11 | "자동으로 찾은 영상은 사건과 맞는다는 근거가 충분할 때만 붙이고, 확실하지 않으면 붙이지 않는다." | 아직 |
-| 제품 정의서 7절 | #20 (a), #24 (a), M3-P9, 영상 리서치 | 영상 행: "Wikimedia Commons 동영상(키 없음), KTV 아카이브 YouTube(공식 채널, API 키·하루 검색 한도), 대한뉴스 1953-06-23~1994-12-31(공공데이터 색인 + KTV 아카이브 임베드)" | 아직 |
-| 제품 정의서 8절 | 미디어 결정, 영상 9·23번, 위험 26 | "원 출처 파일과 공식 플레이어는 브라우저가 직접 불러온다. YouTube API를 쓰므로 YouTube 이용약관 링크, 개인정보처리방침과 사전 동의, YouTube 출처 표시를 둔다. 결과 화면 주소에 생년월일·장소를 넣지 않는다." | 아직 |
-| 제품 정의서 12절 | M3-P9, M3-P13 | "데모 입력 3개와 표본 날짜에서 그날의 세계 섹션이 동작하고, 영상이 없는 날짜는 사진만 나온다." | 아직 |
-| 제품 정의서 13절 | #4 개정 | "상업적 이용 여부"·"배포 여부"도 결정됨으로 | 일부 반영 |
-| `CLAUDE.md` 7절 2항 (해석 메모) | 미디어 결정 | "확인됨" 기준은 출처(API·플레이어)의 접근 방법·약관에 적용하고, 개별 자료의 라이선스 미확인은 2026-10-11 결정에 따라 표시할 수 있다 | 아직 |
-| `CLAUDE.md` 7절 1·6항 | — | — | 반영됨 |
+| M2a 장소 해석 (법정동 사전, `REGION`) | `feat/place-resolve` (T2~T4 커밋 있음) | 멈춤 (2026-10-29) | C2 서버 셋이 쓸 만한 코드(`PlaceQuery`, 계약 뼈대 등)를 `git show` 로 읽어 새 커밋으로 쓴다(결정 8-2 (a), 머지하지 않음). 브랜치는 그대로 둔다 |
+| M2a2 카카오 로컬 | `feat/place-kakao` (브랜치 없음, 계획서만) | 멈춤 | 다시 열지 않는다. 계획서 `m2a2-place-kakao.md` 는 `feat/input-and-opening` 에 있다 |
+| M2b 입력·오프닝 | `feat/input-and-opening` | **S2로 고쳐 씀 (진행)** | 결정 8-1 (a) |
+| M2b2 후보 선택 화면 | `feat/place-picker` (브랜치 없음, 계획서만) | C2 웹으로 고쳐 씀 | 같은 브랜치 이름으로 C2에서 연다 |
+| M3a5b 대한뉴스 영상 | `feat/daehan-news-video` | **닫음 제안** | PR을 열지 않는다. 브랜치는 지우지 않는다(`CLAUDE.md` 5절). 진행 표에 "닫음" 한 줄. PM의 대한뉴스 작업(공공데이터포털 신청, N1·N2, CSV)은 더 하지 않는다 |
 
-### M2 장소 해석과 입력 — 2개 (M3 다음)
-- API는 M3a2의 공통 규약을 따른다.
-- M2a `feat/place-resolve` (content-curator + backend-dev): 지역 사전, `REGION` 판정, `NEIGHBORHOOD`·`SPOT` 은 카카오 로컬, 후보 목록, 국외·찾지 못함(#26). 장소 결과 저장 안 함(#11 (a)). 외부 호출은 M3a1 방식(+ M3a1b의 동시 요청 제한 패턴). 개인정보처리방침 (e)에 장소 출처를 더한다(M3b3b). 선행 PM 작업: K1~K6, D1~D2, 결정 #2, #7, #10, #11, #26.
-- M2b `feat/input-and-opening` (backend-dev + frontend-dev):
-  - 날짜 검증(#3 — 서버 `GET /api/story/world` 에도 하한), 후보 선택 UI, 오프닝, 입력 → 세계 섹션 연결, **임시 데모·표본 버튼 제거**, **화면 전환 포커스 이동**.
-  - **필수 동의(영상 23번 (b), D2 (a))**: M3b3b의 동의 구성 요소를 실제 입력 폼의 **제출 버튼 앞**으로 옮긴다. 동의하지 않으면 제출되지 않는다. 개인정보처리방침 링크를 그 자리에 둔다.
-  - **결과 화면 주소에 생년월일·장소를 넣지 않는다**(경로·쿼리·해시 모두). 같은 페이지의 YouTube IFrame API 스크립트가 주소를 읽을 수 있다(리서치 위험 26). 공유 링크가 필요하면 그때 PM이 정한다.
-  - 페이지 `Referrer-Policy` 는 `strict-origin-when-cross-origin` 이상(YouTube는 `Referer` 가 없으면 오류 153 — `no-referrer` 를 페이지 전체에 걸지 않는다). 사진 `img` 는 지금처럼 요소별 `no-referrer`.
-  - 오프닝 화면에 입력값을 크게 보여 주는 설계는 같은 페이지 외부 스크립트(IFrame API)와 함께 다시 본다(방침 (g)).
-- M2 계획 때 다시 볼 것(2026-10-13): `WikimediaHttpClient` WARN 줄의 문서 제목으로 날짜를 짐작할 수 있다 — 장소가 같은 요청에 들어오면 로그에 날짜와 장소가 함께 남지 않게 한다. Spring 기본 404·405·500 응답에도 `code` 를 붙일지(후속 후보 표).
-- M2 계획 때 PM이 정할 것: 지도에서 직접 위치를 고르는 기능, 결과 공유 링크 여부.
-
-### M4 그날의 동네 — 3개
-- 공통: M3a3 형식(`sdk`·`render`), M3b1b `MediaItem` 에 `sdk` 를 더한다. "그때" 자료도 직접 보여 준다. 촬영 시점 미상 규칙(M3a3)을 그대로 쓴다. 카카오 SDK를 쓰면 개인정보처리방침 (f)·(g)를 고친다. M4a 계획 때 런타임 스키마 검증을 다시 정한다(M3a3 결정 B (a)).
-- M4a: 큐레이션 항공사진 나란히 보기. "지금"은 카카오 스카이뷰 SDK. "그때"는 PM 수령 사진이라 공개 주소가 없다 — M3-P10에 따라 M4 계획 때 정한다. ±5년(#15).
-- M4b: `SPOT` 로드뷰(브라우저 키 하나, `http://localhost:5173`), 현재 모습만, "로드뷰 없음" 흐름.
-- M4c: 서울은 "사진으로 본 서울", 서울 밖은 Commons 현재 모습. M3a3 형식·M3a3a 규칙(파서·라이선스 상태·차단과 제외)과 M3a3b Commons 파일 매퍼 재사용.
-- 선행 PM 작업: 브라우저 확인 1·13·15, T3 K-S1, #16.
-
-### M5 도시의 대표 풍경 — 3개
-- M5a: 대표 명소와 존재 기간. M2a 이후 M4와 병렬 가능.
-- M5b (content-curator): M3a3 스키마. 서울은 서울역사아카이브·사진으로 본 서울, 서울 밖은 e영상역사관 사진 등 핫링크로 직접 표시. 명소 영상은 M3a4~M3a5b의 검색 틀을 재사용할 수 있다(M5 계획 때, YouTube 검색 버킷을 나눠 쓴다). 런타임 스키마 검증을 이때 다시 정할 수 있다(M3a3 결정 B (a), M4a에서 정하지 않았다면).
-- M5c: 출생 연도에 존재한 명소, 가장 가까운 연도 미디어, 도시 섹션 UI(M3b1b·M3b3·M3b3c 카드).
-
-### M6 이야기 화면 완성 — 3개
-- M6a: 흐름, 지연 로딩, M3b1 디자인 최종 다듬기, `tragic` 분리, 빈 섹션 문구, "다시 해보기".
-- M6b: 전체 출처 목록(위키백과, Commons, YouTube·KTV 아카이브, 대한뉴스 색인, "라이선스 확인 안 됨" 자료), 출처 하나를 끊었을 때 섹션·카드만 비는지, **YouTube 쿼터 소진 동작**, 원 출처 이미지가 깨질 때, 3초·10초·영상 데이터 사용량 측정(세계 섹션 최악 시간 포함), 개인정보처리방침이 구현과 맞는지. **M3a1c 리뷰 권장 2·5 확인**: 위키백과 날짜 상한에 걸린 `future.cancel(true)` 가 캐시 쓰기(JDBC) 중인 가상 스레드를 인터럽트할 때의 영향(연결 반납·트랜잭션), 링크가 많은 날 pageprops GET 주소가 길어져 414가 나는지(나면 POST 또는 더 작은 묶음).
-- M6c: 데모 3개 + 표본 날짜 E2E(목 서버, SDK·플레이어 스텁, M3b2b의 Playwright 설정과 `web-ci` 단계 재사용). 배포는 하지 않는다. M6 끝에 공개 배포를 다시 정하며 미디어 결정·안전장치·#13-C와 영상 리서치의 공개 배포 항목(쿼터 증설, KTV 서면 확인, 게티, 방침 법률 검토)을 다시 본다.
-
-## M0 이후 확정 항목
-
-| 확정할 것 | 상태 | 결정 |
-|---|---|---|
-| 상업적 이용 | 결정 | #1 (a) 비상업 |
-| 배포 | 결정 | #5 (a) 로컬 데모, M6 끝 재검토 |
-| 기술 스택 | 결정 | #6 (b), Spring Boot 4.1.x |
-| 진행 순서 | 결정 | R1 (a) |
-| 브라우저 키 | 결정 | #8 (a) |
-| 테스트 fixture | 결정 | #12 (a) |
-| 기록 사진 사본 | 결정 | #13 (a)(자유 라이선스), Commons 사건 이미지는 #13-C (a) 핫링크, M3-P10 |
-| User-Agent 연락처 | 결정 | #25 (a) |
-| 영상 처리·미디어 표시·안전장치·촬영 시점 미상 | 결정 2026-10-11 | 위 "PM 미디어 결정" |
-| M3 결정 (#17~#24, #13-C, M3-P1~P17, M3-D1~D4, 분할) | 결정 2026-10-11 (M3-P16 변경·M3a2 한 PR 2026-10-12) | M3 절 |
-| 영상 리서치 1~24번 | 결정 2026-10-11 | M3 절 |
-| D1~D3 (분할, 동의 시점, Playwright CI) | 결정 2026-10-12 | 위 "PM 결정 (2026-10-12)" |
-| M3a3 A·B·C (분할, 런타임 스키마 검증, `.env` 점검 chore) | 결정 2026-10-13 | A (a) 두 PR, B (a) 테스트 범위 유지, C (c) 하지 않음 — M3 절 |
-| M3a3 확인점 (T3 분리) | 결정 2026-10-13 | (a) M3a3a로 분리, M3 PR 19개 — M3 절 |
-| M3a3a 승인·D1 (통신사 낱말 경계) | 결정 2026-10-13 | 승인, D1 (b) 원래 문구 그대로 — M3 절 |
-| 속도 개선 A (서버·웹 병렬) | 결정 2026-10-13 | M3a3 머지 뒤 M3a3a ∥ M3b2 — M3 절 |
-| M3b2 개정 결정 1·2 (크기, 사진 확인 시점) | 결정 2026-10-13 | 1 (a) 한 PR + T1b 뒤 확인점 170, 2 (a) T5 뒤 머지·사진 확인은 M3a3b 뒤 T6 — M3 절 |
-| M3b2b 개정 결정 1~4 (응답 모양 검사, `web-ci` 경로, 크기, 소제목) | 결정 2026-10-13 | 모두 (a) — M3 절 |
-| M3a3b 개정 결정 1·2 (분할, ★ T2) | 결정 2026-10-14 | 1 (a) 두 PR(M3a3b + M3a3c, M3 PR 20개), 2 (b) backend-dev — M3 절 |
-| M3b3 개정 결정 1~3 | 결정 2026-10-14 | 1 (a), 2 (b), 3 (a) — M3 절 |
-| M3a3c 개정 결정 1~4 (재시도, 문서 실패 날, 크기, ★ T0) | 결정 2026-10-15 | 1 (a) 재시도 없음·읽기 타임아웃 = `media.lookup-deadline`, 2 (b) 그날 사진 없음, 3 (a) → 결정 5로 대체, 4 (b) backend-dev — M3 절 |
-| M3a3c 결정 5·6 (분할, 사진 없는 날) | 결정 2026-10-16 | 5 확인점 1에서 분할 → M3a3d, M3 PR 21개, 6 사진 없이 냄·다른 날짜를 찾지 않음 — M3 절 |
-| M3a3d ★ T1 담당 | 결정 2026-10-16 | backend-dev — M3 절 |
-| M3a3d 결정 1 (크기·분할) | 결정 2026-10-17 | (a) 한 PR + 확인점 T0 뒤 130(멈춤)·T1 뒤 420(알림) — 결과: 84·312, 둘 다 넘지 않음 (PR #22) — M3 절 |
-| M3a4 결정 1·2 (크기·분할, ★ T2 담당) | 결정 2026-10-18 | 1 (b) 한 PR + 확인점 T2 뒤 400·T6 뒤 750(알림), M3 PR 21개 그대로, 2 (b) backend-dev — M3 절 |
-| M3a5 결정 1·2·3 (확인점 1: 분할, 시작 WARN, `reserve` n < 1) | 결정 2026-10-26 | 1 (b) 두 PR(M3a5 + M3a5a), M3 PR 23개, 2 (a) 시험 설정에서 `YoutubeKeyCheck` 로그 수준 낮춤, 3 (a) 예외 유지·M3a5a T5가 예약할 것이 없으면 부르지 않음 — M3 절 |
-| M3b3b 개정 결정 1·2 | 결정 2026-10-15 | 1 (a), 2 운영자·GitHub Issues·시행일(2026년 10월 16일) — M3 절 |
-| M3b3c 개정 결정 1·2, 확인점 | 결정 2026-10-16 | 1 (a), 2 (a), 확인점 229 수용 — M3 절 |
-| 지도·로드뷰 제공자 | 미정 (M2 계획 전) | 추천 #2 (a) |
-| 지원 시작 연도 | 미정 (M2 계획 전) | 추천 #3 (a) 1950년 |
-| 근접 연도 | 미정 (M4 계획 전) | #15 (a) ±5년 (M3a3b·M3a3d는 초안값) |
-| 동네·도시 "그때" 구성 | 미정 (M4 계획 전) | 추천 #14 (c) |
-| 공공누리 제3·4유형 "변경" 범위 | 화면 표시는 막지 않음 | #9 (a) 서면 문의 (공개 배포 판단용) |
-| 장소·지도 응답 저장 | 미정 (M2 계획 전) | 추천 #11 (a) + (c) |
-
-### 결정 시점
-
-| 시점 | 결정 |
-|---|---|
-| M1 계획 전 (완료) | #1, #5, #6, #8, #12, #13, #25, R1 |
-| M3 계획 (완료 2026-10-11) | #4(개정), #17~#24, #13-C, M3-P1~P17, M3-D1~D4, 미디어 결정·안전장치, 촬영 시점 미상 표시, 분할 |
-| 영상 리서치 T5 (완료 2026-10-11) | 영상 1~24번 |
-| 이 계획 개정 (완료 2026-10-12) | D1 (a), D2 (a), D3 (a) |
-| M3a2 시작 (완료 2026-10-12) | M3-P16 변경, M3a2 한 PR (b) |
-| M3a3 시작 (완료 2026-10-13) | M3a3 A (a), B (a), C (c), 속도 개선 A |
-| M3a3 T2 확인점 (완료 2026-10-13) | (a) T3을 M3a3a로 분리 |
-| M3a3a 계획 승인 (완료 2026-10-13) | M3a3a D1 (b) |
-| M3b2 개정 승인 (완료 2026-10-13) | M3b2 결정 1 (a), 2 (a) |
-| M3b2b 개정 승인 (완료 2026-10-13) | M3b2b 결정 1~4 (a) |
-| M3a3b·M3b3 개정 승인 (완료 2026-10-14) | M3a3b 결정 1 (a)·2 (b), M3b3 결정 1 (a)·2 (b)·3 (a) |
-| M3a3c·M3b3b 개정 승인 (완료 2026-10-15) | M3a3c 결정 1 (a)·2 (b)·3 (a)·4 (b), M3b3b 결정 1 (a)·2 |
-| M3a3c 확인점 1 (완료 2026-10-16) | M3a3c 결정 5(분할)·6(사진 없는 날), M3a3d ★ T1 backend-dev |
-| M3b3c 개정 승인·확인점 (완료 2026-10-16) | M3b3c 결정 1 (a)·2 (a), 확인점 229 수용 |
-| M3a3d 계획 개정 승인 (완료 2026-10-17) | M3a3d 결정 1 (a) 한 PR + 확인점 T0 뒤 130·T1 뒤 420 |
-| M3a3d 확인점 (완료 2026-10-17 ~ 18) | 해당 없음 — T0 뒤 84 ≤ 130, T1 뒤 312 ≤ 420 |
-| M3a4 계획 개정 승인 (완료 2026-10-18) | M3a4 결정 1 (b) 한 PR + 확인점 T2 뒤 400·T6 뒤 750(알림), 2 (b) ★ T2 backend-dev |
-| M3a4 확인점 1·2 | 알림만 — T2 뒤 400, T6 뒤 750을 넘으면 오케스트레이터가 알리고 계속 |
-| M3a4b 계획 개정 승인 (완료 2026-10-24) | M3a4b 결정 1 (a) 분할·확인점, 2 (a) 어댑터가 따로 질의, 3 (b) ★ T6 backend-dev, 4 (a) 보조 경로 뺌 |
-| M3a4b 확인점 1·2 (완료 2026-10-24) | T2 뒤 763 > 600 → PM (a) T3까지 이 PR에서, T3 뒤 954 > 850 → 알림만. T4 결정 1 (a)·2 (a) |
-| M3a4c 계획 승인 (완료 2026-10-24) | M3a4c 결정 1 (a) 한 PR + 확인점 T1 뒤 300·T3 뒤 700(알림), ★ T1은 backend-dev(M3a4b 결정 3 (b)로 이미 정해짐) |
-| M3a4c 확인점 1·2 (완료 2026-10-24 ~ 25) | 해당 없음 — T1 뒤 181 ≤ 300, T3 뒤 580 ≤ 700. T4 결정 (a) |
-| M3a5 계획 개정 승인 (완료 2026-10-25 — **결정 1 (a)·결정 2 (b)**) | M3a5 결정 1 (크기 약 830 — (a) 한 PR + 확인점 T3 뒤 500(멈춤)·T5 뒤 1,000(알림) / (b) 두 PR M3a5 + M3a5a `feat/youtube-video-source` / (c) YouTube 결과를 캐시하지 않음), 결정 2 ★ T3 쿼터 두 버킷(PM 직접 / backend-dev) |
-| M3a5 확인점 1 (완료 2026-10-26) | T3 뒤 누적 S1 525 / −6 > 500 → **PM 결정 1 (b) 분할** (M3a5 + M3a5a), 2 (a) 시험 설정에서 시작 WARN 고침, 3 (a) `reserve` n < 1 예외 유지. 확인점 2(T5 뒤 1,000)는 M3a5a의 확인점(T4 뒤 300·T5 뒤 650)으로 바뀜 |
-| M3a5a 계획 승인 (2026-10-26 — **결정 1 (a)·결정 2 (b)**) | M3a5a 크기 결정 1 (약 510 — (a) 한 PR + 확인점 T4 뒤 300(멈춤)·T5 뒤 650(알림) / (b) 두 PR 또 나눔 / (c) 30일 지우기 미룸), 결정 2 ★ T4 확인·버림 규칙과 레코드(PM 직접 / backend-dev) |
-| M3 끝 | 후속 작업 후보(위 표) |
-| M2 계획 전 | #2, #3, #7, #10, #11, #26 + K1~K6·D1~D2, 결과 공유 링크 여부, Wikimedia 로그 제목·기본 에러 `code`(후속 후보) |
-| M4 계획 전 | #14, #15, #16, M3-P10 항공사진 부분, 런타임 스키마 검증 다시(M3a3 B (a)) |
-| M5 계획 전 | #19 (런타임 스키마 검증을 M4a에서 정하지 않았다면 함께) |
-| M6 끝 | #5, 미디어 결정·안전장치, #13-C, 영상 6번 (d)·8번 (b)·15번 (b) |
-
-## PM 작업 (에이전트에게 맡기지 않는다)
-
-| 작업 | 시점 |
-|---|---|
-| 이 계획 개정 검토와 D1~D3 결정 | **완료 2026-10-12** |
-| 리서치 PR 검수(이 계획 개정 포함) | **완료 (PR #9)** |
-| M3b1b PR #7 검수·머지 | **완료 (PR #7, 2026-10-12)** |
-| YouTube 키 발급, Y1·Y2·Y4·N3 실행 | **완료 2026-10-11** |
-| M3a3 계획 개정 검토와 결정 A·B·C | **완료 2026-10-13** |
-| M3a3 확인점 결정 (T3 분리) | **완료 2026-10-13** — (a) |
-| M3a3a 계획 검토와 D1 | **완료 2026-10-13** — 승인, D1 (b) |
-| M3a3 PR #12 검수·머지 | **완료 2026-10-13** |
-| M3b2 개정 계획 검토와 결정 1·2 | **완료 2026-10-13** — 1 (a), 2 (a) |
-| M3b2b 개정 계획 검토와 결정 1~4 | **완료 2026-10-13** — 모두 (a) |
-| M3a3b 개정 계획 검토와 결정 1·2, M3b3 개정 계획 검토와 결정 1~3 | **완료 2026-10-14** — M3a3b 1 (a)·2 (b), M3b3 1 (a)·2 (b)·3 (a) |
-| M3a3c 개정 계획 검토와 결정 1~4, 확인점 1 결정 5·6, PR #20 검수·머지 | **완료 2026-10-15 ~ 16** |
-| M3b3c 개정 계획 검토와 결정 1·2, 확인점 229, T5(PR 검수)·PR #21 머지 | **완료 2026-10-16** |
-| M3a3d 계획 개정 검토와 결정 1 (크기·분할) | **완료 2026-10-17** — (a) |
-| M3a3d 확인점 1·2 | **해당 없음** (T0 뒤 84 ≤ 130, T1 뒤 312 ≤ 420) |
-| M3a3d T3 — 실제 호출(데모 날짜 사건 사진 없음 확인)과 PR #22 검수·머지 | **머지됨 2026-10-18** (`main` d566bda) |
-| M3a4 계획 개정 검토와 결정 1·2 (크기·분할, ★ T2 담당) | **완료 2026-10-18** — 1 (b), 2 (b) |
-| M3a4 T4 — 낱말 목록(기념어·다른 단계·일반어)과 점수 결과 표 검토 | **머지됨** (PR #23 검수 때, `main` 298cb8e) |
-| M3a4 T8 — 실제 서버 회귀 확인(데모 날짜 응답이 M3a3d와 같고 영상·`selection` 없음) | **머지됨** (PR #23 검수 때, `main` 298cb8e) |
-| M3a4b 계획 개정 검토와 결정 1~4 (분할·확인점, Wikidata 질의 위치, ★ T6 담당, 보조 경로) | **완료 2026-10-24** — 1 (a), 2 (a), 3 (b), 4 (a) |
-| M3a4b T5 — 품질 확인(데모 3 + 표본 5 날짜를 기준표와 대조, 1969-07-20 로그의 시간 초과 여부)과 PR #24 검수·머지 | **완료 2026-10-24** (PR #24 머지 때, `main` 9203562). PM T5: 1969-07-20 Commons 영상이 화면에 도착 — 영상 슬롯 정책은 바꾸지 않음(지켜보는 위험) |
-| M3a4c 계획 검토와 결정 1 (크기) | 완료 2026-10-24 — (a) 한 PR |
-| M3a4c T6 — 캐시 확인(1969-07-20을 두 번 불러 영상 항목이 같은지, 캐시 줄에 요청자 정보가 없는지) | **완료** (PR #25 검수 때, `main` 28ffb01) |
-| M3a5 계획 개정 검토와 결정 1·2 (크기·분할, ★ T3 쿼터 담당) | 2026-10-25 완료 — 결정 1 (a)·2 (b) |
-| M3a5 확인점 1 결정 (T3 뒤 525 > 500: 분할, 시작 WARN, `reserve` n < 1) | **완료 2026-10-26** — 1 (b), 2 (a), 3 (a) |
-| M3a5 PR 검수·머지 | M3a5 PR 때 — **확인할 실제 호출·화면은 없다**(출처를 연결하지 않아 API·화면이 그대로). 시작 로그에 키 관련 WARN 한 줄(키가 비었을 때만)을 보면 됨 |
-| M3a5a 계획 검토와 결정 1·2 (크기·분할, ★ T4 담당) | 2026-10-26 완료 — 결정 1 (a)·2 (b) |
-| M3a5a T8 — 품질 확인(데모 3 + 표본 5 날짜를 기준표와 대조, 두 번째 호출 같음, 캐시 줄, 콘솔 검색 사용량, 로그에 `cause=status 403` 반복 없음)과 PR 검수, T6 방침 문구 확인·머지 날짜 | M3a5a PR 때 (Y5 먼저) |
-| M3b2 T5 — 실제 서버로 화면 확인(사진 없이)과 문구 검토 | M3b2 PR 검수 때 |
-| M3b2 T6 — 실제 사진으로 화면 확인 | **지금 `main` 에서 할 수 있다** (M3a3d 머지됨, M3b2 PR 머지와 별개. 데모 날짜는 사건 사진이 없는 것이 정상 — M3a3c 결정 6) |
-| M3b2b T6 — 실제 그날 사진 묶음으로 화면 확인 | M3a3b 머지 뒤 `main` 에서 (M3b2 T6과 함께 해도 됨) |
-| M3b3 T6 — 실제 Commons 영상으로 화면 확인 | **지금 `main` 에서 할 수 있다** (M3a4b 머지됨) — 1969-07-20 표본 버튼(Commons `P10` 영상). 데모 3날짜는 Commons 영상이 없는 것이 정상이고, 다른 날짜로 찾아보지 않는다 |
-| **M3b3c T6** — 실제 YouTube(KTV 아카이브) 영상으로 화면 확인(nocookie + IFrame API 조합 포함) | **M3a5a 머지 뒤 `main` 에서 (1988-09-17 대한뉴스는 M3a5b 뒤)** |
-| **Y5** — 콘솔 할당량 페이지에서 검색 100회·일반 10,000단위 버킷과 사용량(검색 11회·일반 5단위 근처) 확인 | M3a5a T8 전 (필수, M3a5a T0) |
-| Y3 — 고친 6.2절 함수로 다시 실행 | 편할 때 (선택, 쓰지 않는 대안 확인용, M3a5a T0) |
-| **공공데이터포털 "한국정책방송원_영상역사관 대한뉴스관" 활용신청 + N1·N2**(`DATA_GO_KR_SERVICE_KEY`, M2a와 같은 이름) | M3a5b 전 — 1988 데모 영상이 여기에 달려 있어 빠를수록 좋다 |
-| **대한뉴스 CSV 내려받기(N-B1)** — 브라우저로 받아 저장소 밖에 두고 경로를 오케스트레이터에게 | M3a5b 전 (같은 때) |
-| Y4를 제1611호 `W0isyEBFRvI` 로 1회 더 | M3a5b 전 |
-| N-B9 (e영상역사관 플레이어 퍼가기 메뉴) | M3a5b 전 (선택) |
-| Commons 핫링크 `curl` 2개(리서치 6.1절) | M3a4b PR 때 (선택) |
-| 개인정보처리방침·동의 문구 확정(운영자 표기·문의 방법·시행일 포함 — 결정 2026-10-15: "The World That Day 운영자", GitHub Issues, 머지하는 날) | **완료 (PR #18·#19, 시행일 2026년 10월 16일)**. M3a5a 머지 때 "YouTube Data API" 문장을 현재형으로 + 새 시행일(M3a5a T6) |
-| 제품 정의서 남은 문구 반영(위 표 "아직" 행) | 편할 때 (M3 끝 전) |
-| 루트 `.env` 빈 선택 항목 정리, `WIKIMEDIA_USER_AGENT` 값 | **완료 (M3a2 T5, 2026-10-13)**. 값은 ASCII로, 자리 표시 값은 바꿔 둔다 — 점검 코드는 만들지 않기로 함(M3a3 결정 C (c)), PR마다 PM 확인 단계에서 직접 본다 |
-| M3 PR 검수 중 실제 호출·화면·**표본 날짜 품질 확인**, `tone` 검수 | 각 PR (M3a3은 T5 형식 검토, M3a3a는 T4 규칙 검토·시작 실패 확인, M3a3b는 T4 실제 호출(그날 사진), M3a3c는 T4 실제 호출(회귀 없음), M3a3d는 T3 실제 호출(데모 날짜 사건 사진 없음 확인), M3a4는 T4 규칙 검토와 T8 회귀 확인, M3a4b는 T5 품질 확인, M3a4c는 T6 캐시 확인, M3a5는 확인할 실제 호출 없음(부품만), M3a5a는 T8 품질 확인) |
-| 권리자 요청 시 `media.blocklist` 추가 | 수시 (M3a3a 머지 뒤 — 항목 예시는 `application.yml` 주석. `AP통신` 처럼 제외 목록에 안 걸리는 통신사 사진도 이것으로 내린다) |
-| G-B3 (AP·로이터·연합뉴스 사진 기사 퍼가기 버튼 확인) | 편할 때 (급하지 않음, 영상 20번) |
-| 카카오·공공데이터포털 키 → K1~K6, D1~D2 / 카카오 공식 문의(#11) | M2a 전 |
-| 서면 문의(#9), KTV 임베드 서면 확인(영상 8번 (b)), 게티 문의(영상 15번 (b)) | 공개 배포 판단(M6 끝) 전 |
-| 브라우저 확인 1·13·15, T3 K-S1 / #16 | M4 계획 전 |
-| T4 A1~A3, 브라우저 확인 16~24 | M5 계획 전 |
+- 머지된 한국 전용 코드(kowiki 어댑터 규칙, 한국어 키워드·목록, KTV 채널, 한국 데모 큐레이션)는 S3a~S3c가 결정 4 (b)대로 바꾸거나 지운다.
+- 한국판의 남은 PM 확인(M3b2 T6, M3b3c T6, Y3 등)은 더 하지 않는다.
+- M3는 계획 23개 중 22개를 머지하고 M3a5b를 닫아 끝난 것으로 본다.
 
 ## 데모 입력과 표본 날짜
 
-| 날짜 | 필요한 기능 | 기대 (영상 리서치 반영) |
+결정 1 (b). 실제 장소와 공개된 캐나다 역사 사건의 날짜다(실제 사람의 생일이 아님, M3-P13). 정의서 12절 반영은 `brief-changes-canada.md` 1차.
+
+| 입력 | 확인할 것 | 정직하게 비는 곳 (리서치 기준) |
 |---|---|---|
-| 1988-09-17 + "서울" | M2, M3 전부, M5, M6 | 사건 3개: 서울 올림픽 개막(한 번만) + 1988년 문서 문화 절 KBS 1TV·KBS 2TV 줄(원문 그대로, M3-P16 — M3a2 결과). 같은 날 사진(촬영 시점 미상 1장은 따로 묶임), 사건 사진 없음(M3a3c T1 녹화 — 대표 이미지는 `KBS 2TV` 의 SVG 로고뿐이라 붙지 않음. 다른 날짜로 찾지 않음, M3a3c 결정 6), **영상: 대한뉴스 제1715호 「서울 올림픽 개막」(KTV 아카이브, `approx`, M3a5b 뒤)**. Commons에는 없음 |
-| 2002-06-22 + "광주 서구 풍암동" | M2, M3, M4a·M4c, M5, M6 | 한국-스페인 8강전(한 번만), 같은 날 사진 1장(KOGL 제1유형). 영상 없음(KTV 아카이브 0건, 대한뉴스 기간 밖) — 사진만 |
-| 1995-03-15 + "서울대학교병원" | M2, M3, M4, M5, M6 | 사건 0건 → 빈 날짜 안내, 사진·영상 없음 |
-| 표본 1950-06-25, 2014-04-16 | M3 | `tragic` → 차분한 블록, 사진·영상 없음, 영상 검색 요청 0 |
-| 표본 1969-07-20 | M3 (M3b3 표본 버튼) | 아폴로 11호 — Commons 영상(`P10`), 대한뉴스 제736호(+6일, `approx`) 후보. 발사일·기념 영상은 없어야 함 |
-| 표본 1986-09-20 | M3 (M3b3 표본 버튼) | 서울 아시안 게임 개막 — KTV 아카이브 개막식 클립(M3a5a), 대한뉴스 제1611호(M3a5b). 준비·카운트다운 회차는 없어야 함 |
-| 표본 2000-02-29 | M3 | 윤일 경계, 7호선 개통 — 영상 0건(다른 노선 개통 회차는 없어야 함), 사진만 |
+| 1988-02-13 + "Calgary" | `REGION`, 산악 시간대, 캘거리 동계 올림픽 개막, 1차 항목 5개 모두 | 동네 섹션 없음(`REGION`) |
+| 1976-07-17 + "Hochelaga-Maisonneuve, Montréal" | `NEIGHBORHOOD`, 악센트, 몽레알 하계 올림픽 개막 | 휘발유·빵·우유·집값(계열 시작 전), 동네 "그때"는 몽레알 큐레이션 전까지 |
+| 2010-02-12 + "Vancouver General Hospital" | `SPOT`, 태평양 시간대, 밴쿠버 동계 올림픽 개막 | `feat/ca-place-search` 전에는 다시 입력 안내, 동네 "그때"(±5년 밖) |
+| 1980-04-12 + "St. John's" | `REGION`, 뉴펀들랜드 시간대, 테리 폭스 "희망의 마라톤" 출발 | 빵·우유·집값(계열 시작 전), 동네 섹션 없음(`REGION`) |
+| 장소 이름만: "London", "Victoria", "Saint John" | 같은 이름 후보 목록, "London, Ontario" 표기 | 날짜와 짝짓지 않는다 |
+| 표본 1969-07-20 | 영상 표본(아폴로 11호), S3 D9 | 캐나다 관련 사건이 없어도 정상 |
+| 경계 1950-01-01, 1949-12-31, 2000-02-29 | 하한·윤일 | — |
+
+## 배포 전 확인 목록
+
+마지막 보고(배포 직전)에 이 목록을 그대로 쓴다. 진행하면서 오케스트레이터가 줄을 지우거나 더한다.
+
+### 1. 공개 배포 결정 (#5 — 지금은 로컬 데모만, 비상업)
+배포를 정할 때 함께 다시 볼 것:
+- 미디어 결정과 안전장치(2026-10-11), 결정 #13-C, 출처별 차단 목록 운영.
+- T8 D6 목록: 접속 로그·IP, HTTPS, 수익, 분석 도구, 서버 저장·계정, 퀘벡 Law 25 적용 판단과 변호사 검토, 책임자 연락처, 프랑스어 방침(T8 D5), Bill C-36, 퀘벡 밖 전달 평가.
+- 출처 조건: Nominatim 공개 서버 사용과 ODbL 파생 데이터베이스(T1 D2), BoC 환율 재배포(T5 D1), 위키백과 표를 `data/` 에 둔 동일조건(T7 D9), 몽레알 CC BY-NC-SA(비상업), 캘거리 "All rights reserved"(T2 D1), YouTube 쿼터 증설·감사.
+- 방침 문장은 법률 검토 전 초안이다(`canada-privacy.md`, 법률 자문 아님).
+
+### 2. PM이 발급하거나 확인할 키 (`.env`)
+- 1차 MVP에는 새 키가 없다(`canada-summary.md` 3절). `WIKIMEDIA_USER_AGENT` 값과 이미 발급한 `YOUTUBE_API_KEY` 를 `.env` 에서 확인한다.
+- 선택(정하면): `GOOGLE_MAPS_SERVER_KEY`(X4 (b)·(c)일 때만, 결제 계정 필요 — 유료 위험), `MAPILLARY_ACCESS_TOKEN`(명령 #4), `ARCGIS_API_KEY` 또는 `MAPBOX_ACCESS_TOKEN`(C6 "지금", T2 D4 — 브라우저 키인지 미확인, 그러면 한국판 #8 예외).
+- 한국판 키(카카오, `DATA_GO_KR_SERVICE_KEY`)는 더 쓰지 않는다. `.env` 에서 정리는 PM이 한다.
+
+### 3. PM 명령 (`canada-summary.md` 4절, 번호 그대로)
+
+| 풀리는 것 | 명령 | 종류 |
+|---|---|---|
+| S4 사건 영상 캐나다 채널 | #5~#8 (T4 C1~C4, 검색 9회), 브라우저 #36 (T4 B5), #32 (T4 B1) | 키 `YOUTUBE_API_KEY` |
+| 항목 4 노래 | #9 (T7 Y1, 검색 4회 — #5~#8과 같은 날 가능), 브라우저 #46 (T7 B1), #47 (T7 B2) | 키 |
+| `SPOT` 검색 | Nominatim 등급 올리기: 병원 커버리지와 ODbL 칸. data-researcher가 공개 엔드포인트로 다시 보고, PM이 T1 D2 (a)를 그 근거로 받아들이는 확인. 또는 PM이 `CLAUDE.md` 7절 2항 예외로 허용 | PM 확인 |
+| 항목 6 앨버타 | 브라우저 #48 (T7 B3) | 브라우저 |
+| 항목 9 주노상 | 브라우저 #49 (T7 B4) | 브라우저 |
+| 항목 1·3 (권장, 이미 진행 가능) | 브라우저 #40 (T6 B1 — T6 D4 (a)의 근거 확인), 선택 명령 #15 (T5 W5, 최저임금 원문) | 브라우저 / 키 없음 |
+| 항목 10·11 (선택) | 브라우저 #41~#45 (T6 B2~B6) | 브라우저 |
+| C2 장소 (선택) | 브라우저 #23 (T1 B5), #24 (T1 B6), 경계 #20~#22 (T1 B2~B4) | 브라우저 |
+| C6 동네 | 브라우저 #25~#31 (T2 B1~B8), Google·Mapillary를 쓸 때만 #1~#4 | 브라우저 / 키 |
+| C7 도시 | 브라우저 #33~#39 (T4 B2~B8) | 브라우저 |
+| 개인정보 | 브라우저 #50 (T8 B1, 퀘벡 조문) | 브라우저 |
+| 값 원문 재확인 (선택) | #10~#18 | 키 없음 |
+
+필수 명령은 없다. 1차 MVP 5개 항목의 출처는 명령 없이 `확인됨` 이다(4.5절).
+
+### 4. PM만 고칠 문서
+- `docs/plans/brief-changes-canada.md` **1차**(정의서 1·2·3·4·5·6.1·6.2 글자·8·9·12·13절, `CLAUDE.md` 0절·7절 1·5·6항, `.claude/` 정의 1차) — S2 T9의 완료 기준. S2·S3a 머지 전.
+- 같은 문서 **2차**(그때 vs 지금 섹션, 6.4절, 라이선스 예, 출처 표, 수치 원칙, `.claude/` 2차) — C3 계획 전이 좋고 늦어도 배포 전.
+
+### 5. 개인정보 (T8)
+- **D2 운영자 소재지와 법인 여부**: PM이 알려 준다(개인/단체, 한국/캐나다 어느 주). 방침 S-6 책임자 문장과 주 법 적용 판단이 달라진다.
+- **D6 공개 배포 때 다시 볼 목록**: 위 1번에 넣었다.
+- 장소가 처음 서버로 가는 PR(`feat/place-picker`)과, 장소에서 고른 관측소 ID가 날짜와 함께 ECCC로 가는 PR(C5 날씨)은 그 PR 안에서 방침 S-1·S-9를 고친다. 방침이 바뀐 PR은 머지하는 날 시행일 한 줄을 고친다(S-12).
+
+### 6. PM만 정할 수 있는 결정 (위임으로 정하지 않음)
+
+| 결정 | 이유 | 막는 것 |
+|---|---|---|
+| T7 D3 생존 인물 노출 범위 | 실제 인물의 개인정보, 결정 7 (c)를 다시 묻기로 함 | 항목 5 |
+| T5 D1 BoC 환율 | 출처가 `부분 확인` 이라 `CLAUDE.md` 7절 2항 예외가 필요 | 항목 7의 환율 |
+| X1 허락을 요구하는 자료 | PM 미디어 결정(2026-10-11)의 적용 범위 해석 | C6 캘거리, C7 기관 사진 |
+| X4 Google 사용 | 결제 계정·유료 위험 | C6 거리 사진, 대안 장소 검색 |
+| Nominatim 예외 허용 (확인 전 구현) | `CLAUDE.md` 7절 2항 예외 | `feat/ca-place-search` |
+| T4 D1 NFB 임베드 | 약관 "개인적 사용만" 해석 | S4, C7 |
+| T8 D2 운영자 정보 | PM만 아는 사실 | 방침 S-6 |
+| C6·C7 MVP 포함 | 범위 결정 | C8 완료 조건 |
+
+그 밖의 결정(T5 D2~D7, T6 D1·D2·D3·D5·D6·D7, T7 D1·D2·D4·D5·D7·D8·D10, T2 D3·D5·D6, T4 D4~D7, X2, X3, X5)은 문서 추천안으로 기능 계획에 적고 진행 기록에 남긴다. 약관 해석이 걸린 것(T6 D6, T7 D1)은 T6 D4와 같이 "해석 확정 아님, 배포 때 다시"로 적는다.
+
+### 7. 미뤄 둔 PM 확인 (운영 방식 때문에 PR마다 하지 않은 것)
+- S2 T7 화면 확인, S2 T9 정의서 1차, S3a T8, S3b·S3c의 PM 확인, 방침이 바뀐 PR의 시행일 커밋(머지하는 날), ★ S3b T2 담당.
 
 ## 순서를 이렇게 정한 이유
 
-1. **M0 → M1** (완료).
-2. **M3를 M1 바로 다음에** (R1 (a)): 사건 출처가 `확인됨`·키 불필요. 공용 형식·API 규약·카드를 먼저 만들어 M2·M4·M5가 재사용한다.
-3. **M3 안에서**: 서버는 앞 기능의 인터페이스에 기대므로 순서대로. 공용 미디어 형식(M3a3)과 공용 규칙(M3a3a — 촬영 시점 파서·라이선스 상태·차단과 제외)을 먼저 두어 사진(M3a3b)과 영상(M3a4~)이 같은 형식·규칙 위에 붙는다. M3a3a는 M3a3 확인점에서 크기 때문에 떼어 낸 것이고 순서는 원래 M3a3 안의 순서 그대로다. 영상은 키가 필요 없는 검색 틀·Commons(M3a4·M3a4b)를 먼저 해서 정확도 규칙을 일찍 검증하고, 출처가 "확인됨"이 된 YouTube를 다음에 — 설정·클라이언트·쿼터 부품(M3a5)을 먼저 `main` 에 넣고(머지돼도 응답이 그대로라 리뷰가 부품에만 집중), 규칙·연결·방침(M3a5a)에서 영상이 처음 나오게 한다. 이 나눔은 M3a5 확인점 1에서 크기(T3 뒤 525 > 500) 때문에 생겼고 순서는 원래 M3a5 안의 순서 그대로다(M3a3 → M3a3a와 같은 방식). PM 파일이 필요한 대한뉴스(M3a5b)를 마지막에 둔다. 웹은 섹션 뼈대 → 사진·접근성 / 재생 기초 / 동의 → YouTube 재생 순서라, YouTube 영상은 의무(방침·동의)가 갖춰진 뒤에만 화면에 나온다.
-4. **M2가 동네·도시보다 먼저**, **M4를 M5보다 먼저**, **M5a는 병렬 가능**, **M6는 마지막**.
+1. **C1을 먼저 끝낸다.** 화면과 사건 출처가 캐나다가 되어야 이후 기능을 모두 영어 데모로 확인할 수 있다. S1은 끝났고, S2와 S3a는 폴더가 겹치지 않아 병렬로 간다.
+2. **C2 사전을 C3보다 앞에 둔다.** 1차 항목 다섯 가운데 1·3·6·11은 주나 CSD 코드를 받고, 2도 휘발유 부분은 도시를 받는다. 장소 없이 되는 것은 CPI 환산뿐이다(T9 1.2.1). 사전 PR은 지금 `확인됨` 출처만으로 되고, 웹 후보 화면이 같은 계약으로 바로 따라온다.
+3. **C3 공용 형식을 항목보다 먼저 둔다.** 수치 레코드와 카드를 한 번 정하면 항목 PR이 작아지고 정직한 표기(결정 6 (a))가 한 곳에서 지켜진다(M3a3 공용 미디어 형식과 같은 이유).
+4. **1차 항목 → 2차 항목.** 1차는 새 키·명령 없이 `확인됨` 이고(A1 (a)), 2차는 결정이나 명령을 기다린다. 2차 안에서도 결정이 필요 없는 금리·스탠리컵을 먼저 한다.
+5. **C6·C7은 뒤로.** 출처 위험이 가장 크고(PM 브라우저 확인, X1·X4), 데모 4개에서 보일 것이 적다. C8은 C6·C7을 기다리지 않고 머지된 만큼으로 완성한다.
 
-### 순서 변경 R1 — 결정: (a) M3 먼저 (2026-10-10)
+## 가장 큰 리스크 3가지와 대응
 
-(b) M2 먼저는 PM 확인이 끝날 때까지 개발이 멈추고, (c) 동시 진행은 `server/` 충돌 관리가 필요하다.
-
-## 가장 큰 리스크와 대응
-
-1. **장소·지도 1순위(카카오)가 아직 `확인됨` 이 아니다** — M2·M4가 걸려 있다. 대응: PM 확인 명령을 앞쪽에, 막히면 #2 (c).
-2. **동네·도시 섹션의 "그때"가 비어 있을 수 있다** — 대응: #14 (c), 정직한 안내. 서울 밖 기록 사진을 핫링크로 보여 줄 수 있어 공백이 줄어든다.
-3. **사건이 비거나, 같은 사건이 여러 번 나오거나, 세계 사건이 없거나, `tone` 을 잘못 판정하거나, 읽기 어색한 원문이 그대로 나갈 수 있다** — 대응: #21 (a), M3a1c 중복 제거(애매하면 합치지 않음 — 나라·도시 링크만 다른 줄은 두 번 보일 수 있어 M3a2 T5에서 관찰), 원문은 거르지 않고 권리자 요청·명백히 틀린 줄만 큐레이션 `hide` 로 바로 내림(M3-P16 2026-10-12 변경, 해석·다듬기는 뒤의 화면 기능에서), #22 (c) + 큐레이션 + 판정 불가면 `tragic`, M3a2 T5 검수, #20 후속. 판정 불가 `tragic` 은 사진도 지운다(M3a3b·M3a3d — Wikidata가 실패한 날은 사진이 거의 없음, 의도된 보수적 동작). `tragic` 사건의 `media` 는 미디어 조회가 무엇을 주든 비운다(M3a4 T0 — 영상이 같은 자리에 들어오기 전의 두 번째 방어선).
-4. **저작권 — PM이 위험을 알고 정함 (2026-10-11)**
-
-   | 항목 | 내용 |
-   |---|---|
-   | 결정 | 라이선스가 확인되지 않은 사진·영상도 직접 보여 주고 재생한다(비상업). 아무 날짜에서나 자동으로 찾는다(M3-P9 (b)). PM은 이 선택이 저작권 침해 주장·삭제 요청의 위험을 키운다는 점을 알고 정했다 |
-   | 위험 | 권리자의 삭제 요청·이의 제기, 공개 배포 때 법적 문제, 자동 검색이 권리가 불분명한 자료를 고를 위험, 원 출처의 핫링크 차단·영상 삭제, 외부 플레이어의 추적·광고. KTV 아카이브 채널 설명의 "무단사용 금지" 문구(3.5절). 통신사 제외는 문자열 비교라 `AP통신` 같은 한글 붙은 표기는 걸리지 않는다(M3a3a D1 (b), PM 수용) |
-   | 줄이는 장치 | 안전장치 1~6(차단 목록·통신사 제외는 M3a3a), 공식 채널(KTV 아카이브)만, 공식 임베드로만, 정확도 기준선, 로컬 데모만(#5 (a)), 비상업(#1 (a)) |
-   | 다시 볼 때 | 공개 배포를 정할 때(M6 끝 — KTV 서면 확인 포함), 권리자 요청을 받았을 때, 상업화를 검토할 때 |
-
-5. **자동 검색의 정확도·쿼터와 국내 영상** — 같은 주제 다른 날 회차(예행연습·카운트다운·폐회식), 발사일·기념 영상, 다른 노선 개통이 섞여 나온다(3.5절). YouTube 검색은 하루 100회 별도 버킷이라 새 날짜 하루 약 26개까지다. 국내 영상은 KTV 아카이브뿐이고 1988 데모 영상은 대한뉴스 색인(PM CSV)에 달려 있다. 대응: R-T1~R-T4·숫자 핵심어(숫자 경계 포함, M3a4)·d ~ d+7 창·호수 대조, 표본 날짜 PM 품질 확인과 기준표, 차단 목록, 사건 3개 제한, 결과 캐시(0건 포함, 쿼터 건너뜀은 캐시 안 함), 상한 80%, PM 대한뉴스 작업을 앞당김. `tragic` 사건·날에는 영상을 찾지 않는다. 403 `quotaExceeded` 본문 모양이 공식 문서에 없어 본문을 읽을 수 없는 403은 `FAILED` 로 두므로(M3a5 T2, 2026-10-26), 실제로 모양이 다르면 쿼터 소진이 실패로 보인다 — 우리 상한 80회가 먼저 막고 M3a5a T8에서 PM이 로그로 확인한다.
-6. **예상보다 큰 PR과 응답 지연** — M3a1·M3b1 실제 줄 수가 예상의 1.6~1.75배였고, M3a1b는 약 2.4배, M3a1c는 약 3.7배(210 → +787), **M3a2는 약 2.8배(390 → +1,094, PM 결정으로 한 PR)** 였다. 1.6배 보정은 서버 기능에 낙관적이다. 대응: 보정 400 초과 기능을 미리 나눴다(D1 (a)). **M3a3은 ×2.8로 약 1,290줄로 다시 추정되어 두 PR로 나눴고(결정 A (a)), T2 한 작업이 이전 방식의 약 3.9배(130 → 505)로 확인점 450을 넘어 T3을 M3a3a로 다시 뗐다(확인점 (a), 2026-10-13)**. ×2.8도 낙관적일 수 있다 — M3a3a는 실제로 약 3.3배(140 → 456)였고, M3a3b는 두 실측과 파일별 셈으로 약 715로 다시 세어 두 PR로 나눴다(M3a3b 약 485 + M3a3c 약 230, M3a3b 결정 1 (a), 2026-10-14). M3a3c는 확인점 1에서 다시 나눴다(실제 433, 결정 5). M3a3d는 파일별 셈에 M3a3c 실측(약 ×1.7)을 곱해 약 400으로 잡았고 실제는 312(파일별 셈의 ×1.33)였다. M3a4는 파일별 셈에 ×1.5(범위 ×1.33~×1.7)를 곱해 약 675로 다시 셌고, PM이 한 PR + 확인점 두 개(T2 뒤 400·T6 뒤 750, 알림)로 정했다(M3a4 결정 1 (b)). 실제는 953(파일별 셈의 ×2.1)이었다. M3a4b는 ×1.7(범위 ×1.33~×2.1)로 약 1,100이 되어 분할안을 묻고 PM이 두 PR로 정했다(M3a4b 결정 1 (a)). 실제 M3a4b(어댑터 쪽만)는 1,155(파일별 셈 405의 ×2.85, T0~T3 때는 ×2.36)였다. M3a4c는 파일별 셈 약 323에 ×2.0을 곱해 약 650(550~760)이 되어 400을 넘으므로 크기 결정 1을 묻는다(추천 한 PR + 확인점 두 개). 실제 M3a4c는 583(파일별 셈의 ×1.8)이었다. M3a5는 머지 코드 대조 파일별 셈 약 414에 ×2.0을 곱해 약 830(745~975)이 되어 크기 결정 1을 물었고(추천 한 PR + T3 뒤 멈춤 확인점 — 넘으면 두 PR로), **T3 뒤 실제가 525 / −6(T1~T3 파일별 셈 약 210의 ×2.5)으로 확인점 500을 넘어 PM이 두 PR로 나눴다(M3a5 결정 1 (b), 2026-10-26)** — 새 외부 어댑터의 ×2.36~×2.9 흐름이 이어졌다. M3a5a(T4·T5, 파일별 셈 약 204)는 ×2.5로 약 510(410~590)이라 그 계획에서 크기 결정 1을 묻는다. 남은 서버 기능(M3a5a~M3a5b)은 각 계획을 시작할 때 최근 실측으로 다시 추정하고, 확인점을 둔다. 웹 기능은 지금까지 1.0~1.46배였다(M3b2 ×1.19, M3b2b 약 1.01, M3b3·M3b3b ×1.14, M3b3c ×1.46). 응답 지연은 위키백과 날짜당 상한, Wikidata 5초(+1초 취소 유예), M3a3b 미디어 조회 3초 상한(M3a3d 사건 사진과 M3a4 영상 출처, M3a5a YouTube도 같은 창 안), 동시 요청 제한, M6b 측정 — 세계 섹션 최악이 10초를 넘을 수 있어(약 13~15초, 웹 시간 초과는 10초) 섹션 전체 상한을 후속 후보로 둔다.
-7. **YouTube 의무와 개인정보** — 기능 사용 전 동의, 방침 내용, 약관 링크, 출처 표시가 필요하다. IFrame API 스크립트는 우리 페이지에서 돌아 주소·DOM을 볼 수 있다. nocookie + IFrame API 조합은 문서에 없다. 대응: M3b3b(방침·동의, D2 (a) — 완료), M3b3c(동의 뒤에만 표시, 출처·약관 — 완료), 결과 주소에 생년월일·장소 없음(M3b2 C4, M2b), 방침에 기기 저장·광고 고지, nocookie 조합은 M3b3c T6(M3a5a 머지 뒤)에서 확인(안 되면 PM 결정). 방침 문구는 법률 자문이 아니며 공개 배포 전에 다시 본다. 서버 로그는 날짜를 짐작할 수 있는 위키백과 문서 제목을 찍으므로 장소가 요청에 들어오는 M2에서 다시 본다(후속 후보).
+1. **막힌 출처와 결정이 MVP의 모습을 정한다.** S4(캐나다 사건 영상), `SPOT` 검색, 노래, 환율, C6·C7이 PM 명령이나 PM만의 결정을 기다린다. 자율 진행만으로 끝나면 데모는 "사건 + 도시 숫자" 중심이 되고, Vancouver General Hospital은 다시 입력 안내로 끝난다. 대응: 1차 5개는 명령 없이 `확인됨` 이다. 막힌 것은 "배포 전 확인 목록"에 풀리는 것과 함께 모은다. YouTube 명령 #5~#9는 하루에 몰아 검색 13회로 끝난다. 빈 섹션은 정직한 안내로 두고 다른 날짜로 채우지 않는다.
+2. **쌓인 브랜치와 큰 PR.** 머지 없이 쌓이면 충돌이 커지고 리뷰 범위가 흐려진다. 서버 PR은 최근 실측이 파일별 셈의 ×2.0~×2.9였다(S2는 이미 약 435~470, C2는 크기 때문에 서버 PR 셋으로 나눔). 대응: 위 "쌓기 규칙"(merge 커밋만, `<앞 브랜치>...HEAD` 로 재기, 3단 정도에서 멈춤), 기능 계획마다 확인점, 목록 파일 커밋을 따로 두어 리뷰를 쉽게 한다(S3a처럼).
+3. **수치와 개인정보의 정직성.** 같은 이름 다른 경계(몽레알 2002 통합, CSD 2021 경계), 가장 가까운 인구조사, 퀘벡·앨버타 CSD 추계의 제3자 제공(T6 D6), 월·연 값을 그날 값처럼 보일 위험. 그리고 장소가 처음 서버로 가고(C2), 우리 API가 날짜와 장소 코드를 함께 받는 첫 엔드포인트(C3)가 생긴다. 대응: C3 형식에 `period_precision`·`boundary_vintage`·`latest_period`·approx.를 필수로 두고 검사 규칙으로 막는다. 외부에는 관측소 ID + 날짜, 연도만 필요한 항목은 연도만 보낸다. 로그 규칙 시험은 3회 돌린다. 방침 S-1·S-9를 장소가 서버로 가는 PR에서 고친다.
 
 ## ★ PM 직접 구현 후보
 
-- M1·M3: 넣지 않음(M3a3b T2, M3a3c T0, M3a3d T1, M3a4 T2는 PM이 backend-dev로 정함 — M3a4 T2는 결정 2 (b), 2026-10-18). M3a4c T1(옛 M3a4b 계획 T6) 결과 캐시 저장소(Flyway V3·JPA 엔티티·upsert)도 PM이 backend-dev로 정함 — M3a4b 결정 3 (b), 2026-10-24. M3a5 T3 쿼터 두 버킷(전부 아니면 없음 예약·태평양 자정·동시성, 외부 호출·DB 없음)도 PM이 backend-dev로 정함 — M3a5 결정 2 (b), 2026-10-25. M3a5a는 T4 확인·버림 규칙과 레코드 만들기(순수 함수, 외부 호출·DB 없음)를 후보로 M3a5a 결정 2에서 묻는다(planner 추천 backend-dev).
-- M2a: 후보 "지역 사전 기반 `REGION` 판정과 유형 분류" — M2 계획 때 다시 묻는다.
-- M4a: 후보 "큐레이션 항공사진 중 근접 연도 선택" — M4 계획 때 다시 묻는다.
+- **S3b T2 캐시 V4와 엔티티** (Flyway 열 이름 바꾸기와 행 지우기, JPA `upsert`, "V3 → V4" Testcontainers 시험): 기록은 (a) PM 직접. 운영 방식(PR마다 멈추지 않음)으로는 PM이 맡으면 S3b가 기다린다. S3b 시작 전에 다시 확인한다.
+- **C2 사전 매칭과 접기 규칙** (`feat/ca-place-matcher`, 순수 함수, 외부 호출 없음): C2 계획에서 묻는다.
+- **C3 "지금" 값 캐시 전략** (과거 값 고정 + 최신 값 호출·캐시, `retrieved_at`, 출처별 TTL): C3 계획에서 묻는다.
+- 한국판 후반과 캐나다 S2에서 PM은 ★를 backend-dev에게 맡겼다(속도 방침). PM이 따로 정하지 않으면 자율 진행 중에는 backend-dev가 맡는 것으로 기능 계획에 적고 확인 목록에 남긴다.
