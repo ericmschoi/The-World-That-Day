@@ -1,5 +1,9 @@
-// Date rules for the input form (plan M2b "웹: 화면과 상태", decision #3 (a)).
-// The start date also lives in the server's StoryDate: change both together.
+// Date rules for the input form (plans M2b and C1 S2 "웹 상수").
+// The same two values as the server's StoryDate.TODAY_ZONE and START_DATE
+// (server/src/main/java/io/github/ericmschoi/theworldthatday/story/
+// StoryDate.java): change both together.
+// "Today" is the calendar day in Canada's earliest zone (decision 2 (a)).
+export const TODAY_ZONE = 'America/St_Johns'
 export const START_DATE = '1950-01-01'
 export const START_YEAR = 1950
 
@@ -7,10 +11,10 @@ export type DateCode =
   'DATE_REQUIRED' | 'DATE_NOT_EXIST' | 'DATE_IN_FUTURE' | 'DATE_TOO_EARLY'
 
 export const DATE_MESSAGES: Record<DateCode, string> = {
-  DATE_REQUIRED: '생년월일을 골라 주세요.',
-  DATE_NOT_EXIST: '없는 날짜입니다. 날짜를 다시 확인해 주세요.',
-  DATE_IN_FUTURE: '오늘 이후의 날짜는 볼 수 없습니다.',
-  DATE_TOO_EARLY: '1950년 1월 1일부터 볼 수 있습니다.',
+  DATE_REQUIRED: 'Choose your date of birth.',
+  DATE_NOT_EXIST: "That date doesn't exist. Please check it.",
+  DATE_IN_FUTURE: "Dates after today can't be shown.",
+  DATE_TOO_EARLY: 'The earliest date you can choose is January 1, 1950.',
 }
 
 // The three select boxes' values; '' while not chosen.
@@ -20,10 +24,10 @@ export type DateCheck = { date: string } | { code: DateCode }
 
 const pad = (n: number) => String(n).padStart(2, '0')
 
-// Today's date (YYYY-MM-DD) in Asia/Seoul, as the server judges "today".
-export function seoulToday(now: Date = new Date()): string {
+// Today's date (YYYY-MM-DD) in TODAY_ZONE, as the server judges "today".
+export function serviceToday(now: Date = new Date()): string {
   const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'Asia/Seoul',
+    timeZone: TODAY_ZONE,
     year: 'numeric',
     month: 'numeric',
     day: 'numeric',
@@ -33,8 +37,8 @@ export function seoulToday(now: Date = new Date()): string {
   return `${part('year')}-${pad(part('month'))}-${pad(part('day'))}`
 }
 
-// Years for the year box: this year (Asia/Seoul) down to the start year.
-export function yearOptions(today: string = seoulToday()): number[] {
+// Years for the year box: this year (TODAY_ZONE) down to the start year.
+export function yearOptions(today: string = serviceToday()): number[] {
   const years: number[] = []
   for (let y = Number(today.slice(0, 4)); y >= START_YEAR; y--) years.push(y)
   return years
@@ -43,7 +47,7 @@ export function yearOptions(today: string = seoulToday()): number[] {
 // Checks in the server's order: required, exists, future, too early.
 export function checkDate(
   { year, month, day }: DateParts,
-  today: string = seoulToday(),
+  today: string = serviceToday(),
 ): DateCheck {
   if (year === '' || month === '' || day === '') {
     return { code: 'DATE_REQUIRED' }
@@ -64,24 +68,31 @@ export function checkDate(
   return { date }
 }
 
-const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토']
+// en-CA names, written out so the words do not depend on the ICU version.
+export const MONTH_NAMES = (
+  'January February March April May June July August September October ' +
+  'November December'
+).split(' ')
+const WEEKDAYS =
+  'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.split(' ')
 
 // The weekday of a YYYY-MM-DD date, from the date alone (no time zone).
 export function weekday(date: string): string {
   const [y, m, d] = date.split('-').map(Number)
-  return `${WEEKDAYS[new Date(Date.UTC(y, m - 1, d)).getUTCDay()]}요일`
+  return WEEKDAYS[new Date(Date.UTC(y, m - 1, d)).getUTCDay()]
 }
 
-// "오후 3시 20분" from "15:20"; the minutes are left out when zero.
+// "3:20 p.m." from "15:20", en-CA style; zero minutes are kept ("9:00 a.m.").
 export function timeWording(time: string): string {
   const [h, min] = time.split(':').map(Number)
-  const hour = h === 12 ? 12 : h % 12
-  return `${h < 12 ? '오전' : '오후'} ${hour}시${min === 0 ? '' : ` ${min}분`}`
+  const hour = h % 12 === 0 ? 12 : h % 12
+  return `${hour}:${pad(min)} ${h < 12 ? 'a.m.' : 'p.m.'}`
 }
 
-// The opening's date part: "1988년 9월 17일 토요일", plus the time if given.
+// The opening's date part: "Saturday, February 13, 1988", plus
+// " at 3:20 p.m." if a time is given (decision S2-P2 (a)).
 export function openingDate(date: string, time?: string): string {
   const [y, m, d] = date.split('-').map(Number)
-  const day = `${y}년 ${m}월 ${d}일 ${weekday(date)}`
-  return time ? `${day} ${timeWording(time)}` : day
+  const day = `${weekday(date)}, ${MONTH_NAMES[m - 1]} ${d}, ${y}`
+  return time ? `${day} at ${timeWording(time)}` : day
 }

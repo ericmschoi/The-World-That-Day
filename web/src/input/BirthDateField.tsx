@@ -1,6 +1,7 @@
 import { useId, type Ref } from 'react'
 import {
   DATE_MESSAGES,
+  MONTH_NAMES,
   yearOptions,
   type DateCode,
   type DateParts,
@@ -25,14 +26,14 @@ export function BirthDateField({ value, onChange, error, ref }: Props) {
   const id = useId()
   const errorId = `${id}-error`
   const boxes = [
-    { key: 'year', label: '년', options: yearOptions() },
-    { key: 'month', label: '월', options: MONTHS },
-    { key: 'day', label: '일', options: DAYS },
+    { key: 'year', label: 'Year', options: yearOptions() },
+    { key: 'month', label: 'Month', options: MONTHS },
+    { key: 'day', label: 'Day', options: DAYS },
   ] as const
 
   return (
     <fieldset className={styles.field}>
-      <legend className={styles.label}>생년월일 (필수)</legend>
+      <legend className={styles.label}>Date of birth (required)</legend>
       <div className={styles.boxes}>
         {boxes.map(({ key, label, options }) => (
           <span key={key} className={styles.box}>
@@ -47,10 +48,10 @@ export function BirthDateField({ value, onChange, error, ref }: Props) {
                 onChange({ ...value, [key]: event.currentTarget.value })
               }
             >
-              <option value="">선택</option>
+              <option value="">Select</option>
               {options.map((n) => (
                 <option key={n} value={String(n)}>
-                  {n}
+                  {key === 'month' ? MONTH_NAMES[n - 1] : n}
                 </option>
               ))}
             </select>

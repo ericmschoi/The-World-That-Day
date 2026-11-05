@@ -1,11 +1,14 @@
-// Plan M2b T2 (1)·(2): the date rules. Dates are the demo dates (product brief
-// 12), boundary values and the start date only.
+// Plans M2b T2 (1)·(2) and C1 S2 T8a (2): the date rules. Dates are the
+// demo dates (Canada research decision 1 (b)), boundary values and the start
+// date only.
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   checkDate,
   openingDate,
-  seoulToday,
+  serviceToday,
+  START_DATE,
   timeWording,
+  TODAY_ZONE,
   weekday,
   yearOptions,
   type DateParts,
@@ -20,23 +23,27 @@ const parts = (date: string): DateParts => {
 
 describe('weekday', () => {
   it.each([
-    ['1988-09-17', '토요일'],
-    ['2002-06-22', '토요일'],
-    ['1995-03-15', '수요일'],
-    ['2000-02-29', '화요일'],
-    ['1950-01-01', '일요일'],
+    ['1988-02-13', 'Saturday'],
+    ['1976-07-17', 'Saturday'],
+    ['2010-02-12', 'Friday'],
+    ['1980-04-12', 'Saturday'],
+    ['2000-02-29', 'Tuesday'],
+    ['1950-01-01', 'Sunday'],
   ])('%s is %s', (date, day) => {
     expect(weekday(date)).toBe(day)
   })
 })
 
 describe('checkDate', () => {
-  it.each(['1988-09-17', '2002-06-22', '1995-03-15', '2000-02-29'])(
-    '%s passes',
-    (date) => {
-      expect(checkDate(parts(date), TODAY)).toEqual({ date })
-    },
-  )
+  it.each([
+    '1988-02-13',
+    '1976-07-17',
+    '2010-02-12',
+    '1980-04-12',
+    '2000-02-29',
+  ])('%s passes', (date) => {
+    expect(checkDate(parts(date), TODAY)).toEqual({ date })
+  })
 
   it('passes the start date 1950-01-01', () => {
     expect(checkDate(parts('1950-01-01'), TODAY)).toEqual({
@@ -50,7 +57,7 @@ describe('checkDate', () => {
     })
   })
 
-  it.each(['2001-02-29', '1988-02-30', '1995-04-31'])(
+  it.each(['2001-02-29', '1988-02-30', '1980-04-31'])(
     'refuses %s as DATE_NOT_EXIST',
     (date) => {
       expect(checkDate(parts(date), TODAY)).toEqual({ code: 'DATE_NOT_EXIST' })
@@ -58,9 +65,9 @@ describe('checkDate', () => {
   )
 
   it.each([
-    { year: '', month: '9', day: '17' },
-    { year: '1988', month: '', day: '17' },
-    { year: '1988', month: '9', day: '' },
+    { year: '', month: '2', day: '13' },
+    { year: '1988', month: '', day: '13' },
+    { year: '1988', month: '2', day: '' },
     { year: '', month: '', day: '' },
   ])('refuses a missing part as DATE_REQUIRED (%o)', (value) => {
     expect(checkDate(value, TODAY)).toEqual({ code: 'DATE_REQUIRED' })
@@ -74,31 +81,48 @@ describe('checkDate', () => {
   })
 })
 
-describe('today in Asia/Seoul (fake clock)', () => {
+// The same instants as the server's StoryDate tests (C1 S1 T5). St. John's
+// is UTC-3:30 in standard time and UTC-2:30 in daylight time.
+describe("today in St. John's (fake clock)", () => {
   afterEach(() => {
     vi.useRealTimers()
   })
 
-  it('at UTC 14:59 Seoul is still 2026-10-27: today passes, tomorrow not', () => {
-    vi.useFakeTimers({ toFake: ['Date'] })
-    vi.setSystemTime(new Date('2026-10-27T14:59:59Z'))
-    expect(seoulToday()).toBe('2026-10-27')
-    expect(checkDate(parts('2026-10-27'))).toEqual({ date: '2026-10-27' })
-    expect(checkDate(parts('2026-10-28'))).toEqual({ code: 'DATE_IN_FUTURE' })
+  it('uses the same zone and start date as the server StoryDate', () => {
+    expect(TODAY_ZONE).toBe('America/St_Johns')
+    expect(START_DATE).toBe('1950-01-01')
   })
 
-  it('at UTC 15:00 Seoul is 2026-10-28: that day passes, the next not', () => {
+  it.each([
+    ['standard time', '2026-01-15T03:29:59Z', '2026-01-14'],
+    ['daylight time', '2026-07-15T02:29:59Z', '2026-07-14'],
+  ])('in %s, at %s, the 15th is still in the future', (_, instant, today) => {
     vi.useFakeTimers({ toFake: ['Date'] })
-    vi.setSystemTime(new Date('2026-10-27T15:00:00Z'))
-    expect(seoulToday()).toBe('2026-10-28')
-    expect(checkDate(parts('2026-10-28'))).toEqual({ date: '2026-10-28' })
-    expect(checkDate(parts('2026-10-29'))).toEqual({ code: 'DATE_IN_FUTURE' })
+    vi.setSystemTime(new Date(instant))
+    const next = instant.slice(0, 10)
+    expect(serviceToday()).toBe(today)
+    expect(checkDate(parts(today))).toEqual({ date: today })
+    expect(checkDate(parts(next))).toEqual({ code: 'DATE_IN_FUTURE' })
   })
 
-  it('starts the year list with the Seoul year on New Year', () => {
+  it.each([
+    ['standard time', '2026-01-15T03:30:00Z'],
+    ['daylight time', '2026-07-15T02:30:00Z'],
+  ])('in %s, at %s, the 15th passes', (_, instant) => {
     vi.useFakeTimers({ toFake: ['Date'] })
-    vi.setSystemTime(new Date('2026-12-31T15:00:00Z'))
-    expect(yearOptions()[0]).toBe(2027)
+    vi.setSystemTime(new Date(instant))
+    const day = instant.slice(0, 10)
+    expect(serviceToday()).toBe(day)
+    expect(checkDate(parts(day))).toEqual({ date: day })
+  })
+
+  it.each([
+    ['2027-01-01T03:29:59Z', 2026],
+    ['2027-01-01T03:30:00Z', 2027],
+  ])("at %s the year list starts with the St. John's year %i", (at, year) => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date(at))
+    expect(yearOptions()[0]).toBe(year)
   })
 })
 
@@ -114,19 +138,32 @@ describe('yearOptions', () => {
 
 describe('opening wording', () => {
   it.each([
-    ['15:20', '오후 3시 20분'],
-    ['00:05', '오전 0시 5분'],
-    ['12:00', '오후 12시'],
-    ['09:00', '오전 9시'],
+    ['15:20', '3:20 p.m.'],
+    ['00:05', '12:05 a.m.'],
+    ['12:00', '12:00 p.m.'],
+    ['09:00', '9:00 a.m.'],
   ])('%s reads %s', (time, words) => {
     expect(timeWording(time)).toBe(words)
   })
 
   it.each([
-    ['1988-09-17', undefined, '1988년 9월 17일 토요일'],
-    ['2002-06-22', '15:20', '2002년 6월 22일 토요일 오후 3시 20분'],
-    ['1995-03-15', '00:05', '1995년 3월 15일 수요일 오전 0시 5분'],
+    ['1988-02-13', undefined, 'Saturday, February 13, 1988'],
+    ['1976-07-17', '15:20', 'Saturday, July 17, 1976 at 3:20 p.m.'],
+    ['2010-02-12', '00:05', 'Friday, February 12, 2010 at 12:05 a.m.'],
   ])('%s with time %s reads %s', (date, time, words) => {
     expect(openingDate(date, time)).toBe(words)
+  })
+
+  // dateRules.ts writes the en-CA words out by hand. ICU builds differ in
+  // the space characters they use, so only the spaces are made plain.
+  it('matches Intl en-CA for the date and time, spaces made plain', () => {
+    const intl = new Intl.DateTimeFormat('en-CA', {
+      dateStyle: 'full',
+      timeStyle: 'short',
+      timeZone: 'UTC',
+    })
+      .format(new Date(Date.UTC(1976, 6, 17, 15, 20)))
+      .replace(/\s/g, ' ')
+    expect(openingDate('1976-07-17', '15:20')).toBe(intl)
   })
 })

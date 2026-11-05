@@ -711,7 +711,9 @@ test.describe('before consent (plan T4 (3), 10.1 #23)', () => {
       page.getByRole('checkbox', { name: CONSENT_LABEL }),
     ).not.toBeChecked()
     await fillStory(page, DEMO_1988)
-    await page.getByRole('button', { name: '그날 보기' }).click({ force: true })
+    await page
+      .getByRole('button', { name: 'See that day' })
+      .click({ force: true })
     await page.waitForTimeout(500)
     await expect(world(page)).toHaveCount(0)
     await expect(page.locator('iframe')).toHaveCount(0)

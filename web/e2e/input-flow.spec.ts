@@ -1,7 +1,8 @@
-// Plan M2b T4 (4): the input form in a real Chromium. The demo inputs from
-// product brief 12 show the opening sentence and the world section without
-// changing the address, and the whole flow works with the keyboard alone.
-// Nothing reaches the network (e2e/network.ts).
+// Plans M2b T4 (4) and C1 S2 T8a: the input form in a real Chromium. The
+// four demo inputs (Canada research decision 1 (b)) show the opening sentence
+// and the world section without changing the address, and the whole flow
+// works with the keyboard alone. The world answer is a sample fixture, not
+// the demo date's. Nothing reaches the network (e2e/network.ts).
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import {
   world1988,
@@ -14,24 +15,41 @@ const CONSENT_LABEL = 'I agree to the privacy policy (required)'
 
 const DEMOS = [
   {
-    input: { date: '1988-09-17', place: '서울' },
+    input: { date: '1988-02-13', place: 'Calgary' },
     world: world1988,
-    words: '1988년 9월 17일 토요일, 서울',
+    words: 'Saturday, February 13, 1988, Calgary',
   },
   {
-    input: { date: '2002-06-22', place: '광주 서구 풍암동', time: '15:20' },
+    input: {
+      date: '1976-07-17',
+      place: 'Hochelaga-Maisonneuve, Montréal',
+      time: '15:20',
+    },
     world: world2002,
-    words: '2002년 6월 22일 토요일 오후 3시 20분, 광주 서구 풍암동',
+    words:
+      'Saturday, July 17, 1976 at 3:20 p.m., Hochelaga-Maisonneuve, Montréal',
   },
   {
-    input: { date: '1995-03-15', place: '서울대학교병원', time: '00:05' },
+    input: {
+      date: '2010-02-12',
+      place: 'Vancouver General Hospital',
+      time: '00:05',
+    },
     world: world1995,
-    words: '1995년 3월 15일 수요일 오전 0시 5분, 서울대학교병원',
+    words:
+      'Friday, February 12, 2010 at 12:05 a.m., Vancouver General Hospital',
+  },
+  {
+    input: { date: '1980-04-12', place: "St. John's" },
+    world: world1988,
+    words: "Saturday, April 12, 1980, St. John's",
   },
 ]
 
 const opening = (page: Page) =>
-  page.getByRole('region', { name: 'Opening' }).getByText(/요일/)
+  page
+    .getByRole('region', { name: 'Opening' })
+    .getByText(/^(Sun|Mon|Tues|Wednes|Thurs|Fri|Satur)day, /)
 const world = (page: Page) =>
   page.getByRole('region', { name: 'The world that day' })
 const isFocused = (locator: Locator) =>
@@ -56,9 +74,10 @@ for (const { input, world: answer, words } of DEMOS) {
     await page.goto('/')
     const start = page.url()
     await fillStory(page, input)
-    if (input.time) await page.getByLabel('출생 시각 (선택)').fill(input.time)
+    if (input.time)
+      await page.getByLabel('Time of birth (optional)').fill(input.time)
     await page.getByRole('checkbox', { name: CONSENT_LABEL }).check()
-    await page.getByRole('button', { name: '그날 보기' }).click()
+    await page.getByRole('button', { name: 'See that day' }).click()
 
     await expect(opening(page)).toHaveText(words)
     await expect(opening(page)).toBeFocused()
@@ -80,23 +99,23 @@ test('keyboard only: fill, agree, submit, and back to the title', async ({
   await interceptNetwork(context, world1988)
   await page.goto('/')
   const start = page.url()
-  const year = page.getByRole('combobox', { name: '년' })
+  const year = page.getByRole('combobox', { name: 'Year' })
 
   // Typing on a focused select picks the option that starts with the text.
   await tabTo(page, year)
   await page.keyboard.type('1988')
   await page.keyboard.press('Tab')
-  await page.keyboard.type('9')
+  await page.keyboard.type('February')
   await page.keyboard.press('Tab')
-  await page.keyboard.type('17')
+  await page.keyboard.type('13')
   await page.keyboard.press('Tab')
-  await page.keyboard.type('서울')
+  await page.keyboard.type('Calgary')
   await tabTo(page, page.getByRole('checkbox', { name: CONSENT_LABEL }))
   await page.keyboard.press('Space')
-  await tabTo(page, page.getByRole('button', { name: '그날 보기' }))
+  await tabTo(page, page.getByRole('button', { name: 'See that day' }))
   await page.keyboard.press('Enter')
 
-  await expect(opening(page)).toHaveText('1988년 9월 17일 토요일, 서울')
+  await expect(opening(page)).toHaveText('Saturday, February 13, 1988, Calgary')
   await expect(opening(page)).toBeFocused()
 
   await tabTo(page, page.getByRole('button', { name: 'Start over' }))
@@ -105,11 +124,11 @@ test('keyboard only: fill, agree, submit, and back to the title', async ({
     page.getByRole('heading', { level: 1, name: 'The World That Day' }),
   ).toBeFocused()
   await expect(year).toHaveValue('1988')
-  await expect(page.getByRole('combobox', { name: '월' })).toHaveValue('9')
-  await expect(page.getByRole('combobox', { name: '일' })).toHaveValue('17')
+  await expect(page.getByRole('combobox', { name: 'Month' })).toHaveValue('2')
+  await expect(page.getByRole('combobox', { name: 'Day' })).toHaveValue('13')
   await expect(
-    page.getByRole('textbox', { name: '태어난 장소 (필수)' }),
-  ).toHaveValue('서울')
+    page.getByRole('textbox', { name: 'Place of birth (required)' }),
+  ).toHaveValue('Calgary')
   await expect(
     page.getByRole('checkbox', { name: CONSENT_LABEL }),
   ).toBeChecked()

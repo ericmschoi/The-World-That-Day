@@ -71,7 +71,7 @@ describe('App', () => {
 
     expect(
       screen.getAllByRole('button').map((button) => button.textContent),
-    ).toEqual(['그날 보기'])
+    ).toEqual(['See that day'])
     expect(
       screen.queryByRole('button', { name: '빈 결과 화면 보기' }),
     ).not.toBeInTheDocument()
@@ -91,7 +91,7 @@ describe('App', () => {
       .filter((region) => region.id !== 'world')
     expect(others).toHaveLength(4)
     // M2b T4: the opening is filled now; the other three stay placeholders.
-    expect(others[0]).toHaveTextContent('1988년 9월 17일 토요일, 서울')
+    expect(others[0]).toHaveTextContent('Saturday, September 17, 1988, 서울')
     for (const region of others.slice(1)) {
       expect(region).toHaveTextContent('This section is coming soon.')
     }

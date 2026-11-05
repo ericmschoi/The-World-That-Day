@@ -57,21 +57,23 @@ export type StoryInput = { date: string; place: string }
 // Fills the input form on the current page, without agreeing or submitting.
 export async function fillStory(page: Page, { date, place }: StoryInput) {
   const [year, month, day] = date.split('-').map((part) => String(Number(part)))
-  await page.getByRole('combobox', { name: '년' }).selectOption(year)
-  await page.getByRole('combobox', { name: '월' }).selectOption(month)
-  await page.getByRole('combobox', { name: '일' }).selectOption(day)
-  await page.getByRole('textbox', { name: '태어난 장소 (필수)' }).fill(place)
+  await page.getByRole('combobox', { name: 'Year' }).selectOption(year)
+  await page.getByRole('combobox', { name: 'Month' }).selectOption(month)
+  await page.getByRole('combobox', { name: 'Day' }).selectOption(day)
+  await page
+    .getByRole('textbox', { name: 'Place of birth (required)' })
+    .fill(place)
 }
 
 // From the input screen to the story: the form (M2b), the privacy consent
-// (M3b3b), then 그날 보기.
+// (M3b3b), then See that day.
 export async function openStory(page: Page, input: StoryInput) {
   await page.goto('/')
   await fillStory(page, input)
   await page
     .getByRole('checkbox', { name: 'I agree to the privacy policy (required)' })
     .check()
-  await page.getByRole('button', { name: '그날 보기' }).click()
+  await page.getByRole('button', { name: 'See that day' }).click()
   await page
     .getByRole('region', { name: 'The world that day' })
     .and(page.locator(':not([aria-busy])'))

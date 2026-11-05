@@ -1,5 +1,6 @@
-// Plan M2b T4 (1)~(3): the opening sentence, focus moves between the screens
-// and the address and storage rules C1~C5. Demo pairs (product brief 12) only.
+// Plans M2b T4 (1)~(3) and C1 S2 T8a: the opening sentence, focus moves
+// between the screens and the address and storage rules C1~C5. Demo pairs
+// (Canada research decision 1 (b)) only.
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -17,19 +18,32 @@ import {
 } from './test/storyInput'
 
 const DEMOS: [StoryInputValues, string][] = [
-  [{ date: '1988-09-17', place: '서울' }, '1988년 9월 17일 토요일, 서울'],
   [
-    { date: '2002-06-22', place: '광주 서구 풍암동', time: '15:20' },
-    '2002년 6월 22일 토요일 오후 3시 20분, 광주 서구 풍암동',
+    { date: '1988-02-13', place: 'Calgary' },
+    'Saturday, February 13, 1988, Calgary',
   ],
   [
-    { date: '1995-03-15', place: '서울대학교병원', time: '00:05' },
-    '1995년 3월 15일 수요일 오전 0시 5분, 서울대학교병원',
+    {
+      date: '1976-07-17',
+      place: 'Hochelaga-Maisonneuve, Montréal',
+      time: '15:20',
+    },
+    'Saturday, July 17, 1976 at 3:20 p.m., Hochelaga-Maisonneuve, Montréal',
+  ],
+  [
+    { date: '2010-02-12', place: 'Vancouver General Hospital', time: '00:05' },
+    'Friday, February 12, 2010 at 12:05 a.m., Vancouver General Hospital',
+  ],
+  [
+    { date: '1980-04-12', place: "St. John's" },
+    "Saturday, April 12, 1980, St. John's",
   ],
 ]
 
 const opening = () =>
-  within(screen.getByRole('region', { name: 'Opening' })).getByText(/요일/)
+  within(screen.getByRole('region', { name: 'Opening' })).getByText(
+    /^(Sun|Mon|Tues|Wednes|Thurs|Fri|Satur)day, /,
+  )
 
 // Every request URL the app starts.
 let asked: string[] = []
@@ -61,11 +75,11 @@ describe('opening (T4 (1))', () => {
   })
 
   it.each([
-    ['12:00', '1988년 9월 17일 토요일 오후 12시, 서울'],
-    ['09:00', '1988년 9월 17일 토요일 오전 9시, 서울'],
-  ])('time %s leaves out zero minutes', async (time, words) => {
+    ['12:00', 'Saturday, February 13, 1988 at 12:00 p.m., Calgary'],
+    ['09:00', 'Saturday, February 13, 1988 at 9:00 a.m., Calgary'],
+  ])('time %s keeps zero minutes', async (time, words) => {
     const user = await start()
-    await openStory(user, { date: '1988-09-17', place: '서울', time })
+    await openStory(user, { date: '1988-02-13', place: 'Calgary', time })
     expect(opening()).toHaveTextContent(new RegExp(`^${words}$`))
   })
 })
@@ -81,10 +95,10 @@ describe('focus and kept values (T4 (2))', () => {
     expect(
       screen.getByRole('heading', { level: 1, name: 'The World That Day' }),
     ).toHaveFocus()
-    expect(yearBox()).toHaveValue('2002')
-    expect(screen.getByRole('combobox', { name: '월' })).toHaveValue('6')
-    expect(screen.getByRole('combobox', { name: '일' })).toHaveValue('22')
-    expect(placeBox()).toHaveValue('광주 서구 풍암동')
+    expect(yearBox()).toHaveValue('1976')
+    expect(screen.getByRole('combobox', { name: 'Month' })).toHaveValue('7')
+    expect(screen.getByRole('combobox', { name: 'Day' })).toHaveValue('17')
+    expect(placeBox()).toHaveValue('Hochelaga-Maisonneuve, Montréal')
     expect(screen.getByLabelText(TIME_LABEL)).toHaveValue('15:20')
     expect(consentBox()).toBeChecked()
 

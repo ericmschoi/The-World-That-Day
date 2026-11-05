@@ -5,8 +5,8 @@ export const PLACE_MAX = 50
 export type PlaceCode = 'PLACE_REQUIRED' | 'PLACE_TOO_LONG'
 
 export const PLACE_MESSAGES: Record<PlaceCode, string> = {
-  PLACE_REQUIRED: '태어난 장소를 입력해 주세요.',
-  PLACE_TOO_LONG: '장소는 50자까지 입력할 수 있습니다.',
+  PLACE_REQUIRED: 'Enter your place of birth.',
+  PLACE_TOO_LONG: 'The place can be up to 50 characters long.',
 }
 
 export function checkPlace(

@@ -54,10 +54,12 @@ export type WorldResponse = {
   partial: boolean
 }
 
-// The server's problem `code` values (ProblemDetail + `code`, plan M3a2).
+// The server's problem `code` values (ProblemDetail + `code`, plans M3a2
+// and C1 S1 T5 for DATE_TOO_EARLY).
 export type ApiProblemCode =
   | 'DATE_REQUIRED'
   | 'DATE_FORMAT'
   | 'DATE_NOT_EXIST'
   | 'DATE_IN_FUTURE'
+  | 'DATE_TOO_EARLY'
   | 'UPSTREAM_UNAVAILABLE'

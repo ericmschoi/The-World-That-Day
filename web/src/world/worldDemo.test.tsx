@@ -246,7 +246,7 @@ describe('failure isolation: only the world section fails (product brief 8)', ()
       'closing',
     ])
     // M2b T4: the opening is filled now; the other three stay placeholders.
-    expect(others[0]).toHaveTextContent('1988년 9월 17일 토요일, 서울')
+    expect(others[0]).toHaveTextContent('Saturday, September 17, 1988, 서울')
     for (const region of others) {
       if (region.id !== 'opening') {
         expect(region).toHaveTextContent(PLACEHOLDER)

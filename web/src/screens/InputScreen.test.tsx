@@ -1,5 +1,5 @@
-// Plan M2b T3 (1)·(2): the input form. Dates and places are the demo pairs
-// (product brief 12) and boundary values only.
+// Plans M2b T3 (1)·(2) and C1 S2 T8a: the input form. Dates and places are
+// the demo pairs (Canada research decision 1 (b)) and boundary values only.
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
@@ -38,14 +38,16 @@ describe('InputScreen', () => {
     const form = submitButton().closest('form')!
     expect(form).toHaveAttribute('novalidate')
     expect(form).toHaveAttribute('autocomplete', 'off')
-    expect(screen.getByRole('group', { name: '생년월일 (필수)' })).toBeVisible()
+    expect(
+      screen.getByRole('group', { name: 'Date of birth (required)' }),
+    ).toBeVisible()
     expect(placeBox()).toHaveAccessibleDescription(
-      '예: 서울, 광주 서구 풍암동, 서울대학교병원',
+      'e.g. Calgary; Hochelaga-Maisonneuve, Montréal; Vancouver General Hospital',
     )
     const time = screen.getByLabelText(TIME_LABEL)
     expect(time).toHaveAttribute('type', 'time')
     expect(time).toHaveAccessibleDescription(
-      '오프닝 문구에만 씁니다. 서버로 보내지 않습니다. 시와 분을 모두 넣어야 반영됩니다.',
+      'Used only in the opening line. It is never sent to the server. Enter both the hour and the minutes for the time to show.',
     )
     expect(submitButton()).toHaveAttribute('type', 'submit')
     expect(submitButton()).not.toHaveAttribute('disabled')
@@ -62,7 +64,7 @@ describe('InputScreen', () => {
     expect(yearBox()).toHaveAccessibleDescription(DATE_MESSAGES.DATE_REQUIRED)
     expect(placeBox()).toHaveAttribute('aria-invalid', 'true')
     expect(placeBox()).toHaveAccessibleDescription(
-      `${PLACE_MESSAGES.PLACE_REQUIRED} 예: 서울, 광주 서구 풍암동, 서울대학교병원`,
+      `${PLACE_MESSAGES.PLACE_REQUIRED} e.g. Calgary; Hochelaga-Maisonneuve, Montréal; Vancouver General Hospital`,
     )
     expect(screen.getByText(CONSENT_HINT)).toBeVisible()
     expect(consentBox()).toHaveAccessibleDescription(CONSENT_HINT)
@@ -72,7 +74,7 @@ describe('InputScreen', () => {
   it('refuses February 30 with DATE_NOT_EXIST', async () => {
     const { onSubmit, user } = setup()
     await agree(user)
-    await fillStory(user, { date: '1988-02-30', place: '서울' })
+    await fillStory(user, { date: '1988-02-30', place: 'Calgary' })
     await submitStory(user)
     expect(yearBox()).toHaveFocus()
     expect(screen.getByText(DATE_MESSAGES.DATE_NOT_EXIST)).toBeVisible()
@@ -83,7 +85,7 @@ describe('InputScreen', () => {
   it('refuses a 51-character place with PLACE_TOO_LONG', async () => {
     const { onSubmit, user } = setup()
     await agree(user)
-    await fillStory(user, { date: '1988-09-17', place: '가'.repeat(51) })
+    await fillStory(user, { date: '1988-02-13', place: 'é'.repeat(51) })
     await submitStory(user)
     expect(placeBox()).toHaveFocus()
     expect(placeBox()).toHaveAccessibleDescription(
@@ -95,7 +97,7 @@ describe('InputScreen', () => {
 
   it('without consent shows the hint and focuses the consent box', async () => {
     const { onSubmit, user } = setup()
-    await fillStory(user, { date: '1988-09-17', place: '서울' })
+    await fillStory(user, { date: '1988-02-13', place: 'Calgary' })
     await submitStory(user)
     expect(consentBox()).toHaveFocus()
     expect(consentBox()).toHaveAccessibleDescription(CONSENT_HINT)
@@ -104,12 +106,23 @@ describe('InputScreen', () => {
   })
 
   it.each([
-    [{ date: '1988-09-17', place: '서울' }, undefined],
+    [{ date: '1988-02-13', place: 'Calgary' }, undefined],
     [
-      { date: '2002-06-22', place: ' 광주 서구 풍암동 ', time: '15:20' },
+      {
+        date: '1976-07-17',
+        place: ' Hochelaga-Maisonneuve, Montréal ',
+        time: '15:20',
+      },
       '15:20',
     ],
-    [{ date: '1995-03-15', place: '서울대학교병원', time: '00:05' }, '00:05'],
+    [
+      {
+        date: '2010-02-12',
+        place: 'Vancouver General Hospital',
+        time: '00:05',
+      },
+      '00:05',
+    ],
   ])('hands over %o when all is right', async (input, time) => {
     const { onSubmit, user } = setup()
     await fillStory(user, input)
@@ -126,11 +139,11 @@ describe('InputScreen', () => {
   it('submits with Enter in the place box too', async () => {
     const { onSubmit, user } = setup()
     await agree(user)
-    await fillStory(user, { date: '1988-09-17', place: '서울' })
+    await fillStory(user, { date: '1988-02-13', place: 'Calgary' })
     await user.type(placeBox(), '{Enter}')
     expect(onSubmit).toHaveBeenCalledWith({
-      date: '1988-09-17',
-      place: '서울',
+      date: '1988-02-13',
+      place: 'Calgary',
       time: undefined,
     })
   })
@@ -140,18 +153,18 @@ describe('InputScreen', () => {
     const { onSubmit, user } = setup()
     const time = screen.getByLabelText(TIME_LABEL)
     expect(time).toHaveAccessibleDescription(
-      /시와 분을 모두 넣어야 반영됩니다\.$/,
+      /Enter both the hour and the minutes for the time to show\.$/,
     )
     await agree(user)
-    await fillStory(user, { date: '1988-09-17', place: '서울' })
+    await fillStory(user, { date: '1988-02-13', place: 'Calgary' })
     // Hour only: the browser reports an empty value, as here.
     await user.type(time, '15')
     expect(time).toHaveValue('')
     await submitStory(user)
     expect(time).not.toHaveAttribute('aria-invalid')
     expect(onSubmit).toHaveBeenCalledWith({
-      date: '1988-09-17',
-      place: '서울',
+      date: '1988-02-13',
+      place: 'Calgary',
       time: undefined,
     })
   })

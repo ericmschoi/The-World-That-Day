@@ -39,16 +39,9 @@ function everythingRead(): string {
   return [document.body.textContent ?? '', ...attributes].join('\n')
 }
 
-// C1 S2 T0 only: the M2b opening sentence stays Korean until T8a turns it
-// into English, so its words are left out of the check until then.
-function withoutOpening(text: string): string {
-  const opening = document.querySelector('#opening p')?.textContent ?? ''
-  return opening ? text.replace(opening, '') : text
-}
-
 function expectEnglishOnly(text: string) {
-  expect(withoutOpening(text)).not.toMatch(HANGUL)
-  expect(withoutOpening(text)).not.toMatch(US_SPELLING)
+  expect(text).not.toMatch(HANGUL)
+  expect(text).not.toMatch(US_SPELLING)
 }
 
 let sequence = 0

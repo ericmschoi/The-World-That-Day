@@ -19,7 +19,7 @@ const INPUTS = [
   { date: '1969-07-20', place: '서울' },
   { date: '1986-09-20', place: '서울' },
 ]
-const SUBMIT = '그날 보기'
+const SUBMIT = 'See that day'
 const LOCAL = new Set(['localhost', '127.0.0.1'])
 
 const consentBox = (page: Page) =>
@@ -122,11 +122,11 @@ test.describe('before agreeing', () => {
       if (now !== order.at(-1)) order.push(now)
     }
     expect(order).toEqual([
-      'select:년',
-      'select:월',
-      'select:일',
-      'input:태어난 장소 (필수)',
-      'input:출생 시각 (선택)',
+      'select:Year',
+      'select:Month',
+      'select:Day',
+      'input:Place of birth (required)',
+      'input:Time of birth (optional)',
       `input:${CONSENT_LABEL}`,
       'a:Read the privacy policy (opens in a new tab)',
       'a:YouTube Terms of Service (opens in a new tab)',

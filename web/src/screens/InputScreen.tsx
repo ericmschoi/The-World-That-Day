@@ -82,7 +82,7 @@ export function InputScreen({ initial, onSubmit }: Props) {
         />
         <div className={formStyles.field}>
           <label htmlFor={`${id}-place`} className={formStyles.label}>
-            태어난 장소 (필수)
+            Place of birth (required)
           </label>
           <input
             ref={placeBox}
@@ -101,12 +101,13 @@ export function InputScreen({ initial, onSubmit }: Props) {
             </p>
           )}
           <p id={`${id}-place-hint`} className={formStyles.hint}>
-            예: 서울, 광주 서구 풍암동, 서울대학교병원
+            e.g. Calgary; Hochelaga-Maisonneuve, Montréal; Vancouver General
+            Hospital
           </p>
         </div>
         <div className={formStyles.field}>
           <label htmlFor={`${id}-time`} className={formStyles.label}>
-            출생 시각 (선택)
+            Time of birth (optional)
           </label>
           <input
             id={`${id}-time`}
@@ -118,10 +119,10 @@ export function InputScreen({ initial, onSubmit }: Props) {
             onChange={(event) => setTime(event.currentTarget.value)}
           />
           <p id={`${id}-time-hint`} className={formStyles.hint}>
-            오프닝 문구에만 씁니다. 서버로 보내지 않습니다.
+            Used only in the opening line. It is never sent to the server.
           </p>
           <p id={`${id}-time-partial`} className={formStyles.hint}>
-            시와 분을 모두 넣어야 반영됩니다.
+            Enter both the hour and the minutes for the time to show.
           </p>
         </div>
         <ConsentNotice
@@ -134,7 +135,7 @@ export function InputScreen({ initial, onSubmit }: Props) {
           className={styles.button}
           aria-disabled={agreed ? undefined : true}
         >
-          그날 보기
+          See that day
         </button>
       </form>
     </>
