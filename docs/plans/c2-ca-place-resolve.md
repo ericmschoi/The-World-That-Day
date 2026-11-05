@@ -216,3 +216,9 @@ CSV 읽기는 Jackson CSV 모듈(Spring Boot가 판을 관리하는 `tools.jacks
 
 - **빌더 규칙 3가지 (계획 문구에 없던 것)**: (a) 그대로 둔다. (가) 같은 주에 접은 이름이 같은 CSD가 둘 이상이면 B1 `unique` 를 주지 않는다. (나) CSD 자기 대표점과 같은 CGNDB 항목은 동네로 넣지 않는다. (다) 두 CSD에 함께 걸리는 동네는 뺀다. 같은 좌표를 여러 CSD에 추측해 붙이지 않기 위해서다.
 - **CSD 이름과 같은 동네 (예: Caledon의 `Victoria`, Montréal 안의 `Montréal`)**: (a) C2b T4 매처에 규칙을 더한다 — 입력 전체가 CSD 이름과 맞으면 같은 이름의 동네 후보는 뺀다. 데모 기대값 "Victoria → CSD 5건"은 그대로 둔다.
+
+### PM 위임 결정 (2026-11-05, orchestrator) — C2a T2 보고 뒤
+
+- **T2 위임 판단 3개 승인**: PEI Victoria(Queens) 1102032 → BACOS 대체 유지, 주 별칭은 StatCan Table B 약어만, N.L.·NL처럼 코드와 같은 키로 접히는 별칭은 C2b 매처가 허용한다(같은 주 하나로 본다).
+- **SGC 표시 문구 날짜**: StatCan 오픈 라이선스 문구가 요구하는 "reference date"로 바꾼다(SGC 2021 → `2021`). 기록 수정일 2023-04-21은 README의 내려받은 판 정보로 남긴다.
+- **T2b 추가 (리스크 1 후속)**: content-curator가 2021년 인구조사 인구 10만 이상 CSD 가운데 좌표가 없는 곳(보고: Québec, Hamilton, Mississauga, Laval, Gatineau, Longueuil, Sherbrooke, Trois-Rivières, Saguenay, Lévis, Moncton 등)을 근거 URL과 함께 `overrides.csv` 로 채운다. 인구 근거는 StatCan 공식 표 주소를 README에 적는다. 다시 빌드한 결과만 `data/places/` 에 커밋한다.
