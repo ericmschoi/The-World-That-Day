@@ -118,7 +118,7 @@ describe('facts the PM decided, word for word (T1 (2))', () => {
   })
 
   it('states the effective date as the merge day, with no other date', () => {
-    expect(text).toContain('Effective date: October 27, 2026')
+    expect(text).toContain('Effective date: November 4, 2026')
     expect(text).not.toMatch(/Month D|YYYY/)
     expect(text.match(/\b\d{4}\b|\d{4}-\d{2}-\d{2}/g)).toEqual(['2026'])
   })
