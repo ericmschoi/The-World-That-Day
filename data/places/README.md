@@ -8,11 +8,11 @@ All three files were downloaded once on **2026-11-05** with the User-Agent `TheW
 
 | File | URL | Size, SHA-256 | Notes |
 |---|---|---|---|
-| SGC 2021 classification structure | https://www.statcan.gc.ca/en/statistical-programs/document/sgc-cgt-2021-structure-eng.csv | 239,897 bytes, `55f6eb915415b4aa911c6fce3cbaced641c4ed9af023bebc414b2929721a62d2` | ISO-8859-1, `\r\n`. No `Last-Modified` header. Dataset record https://open.canada.ca/data/en/dataset/1d815243-28ce-45e6-ad6b-58643327a253 (published 2022-02-09, record modified 2023-04-21) |
-| SGC 2021 elements | https://www.statcan.gc.ca/en/statistical-programs/document/sgc-cgt-2021-element-eng.csv | 1,829,851 bytes, `bf15e1655a06fdd03fba0da89fa3793def1915ebca89913694f81b1427f830b6` | Same encoding and record. Only `Place name(s)` rows of CSDs are used |
+| SGC 2021 classification structure | https://www.statcan.gc.ca/en/statistical-programs/document/sgc-cgt-2021-structure-eng.csv | 239,897 bytes, `55f6eb915415b4aa911c6fce3cbaced641c4ed9af023bebc414b2929721a62d2` | Windows-1252 (a superset of ISO-8859-1), `\r\n`. Read as ISO-8859-1, the byte `92` (’) becomes a control character, as in "Sambaa K’e" (6104006). No `Last-Modified` header. Dataset record https://open.canada.ca/data/en/dataset/1d815243-28ce-45e6-ad6b-58643327a253 (published 2022-02-09, record modified 2023-04-21) |
+| SGC 2021 elements | https://www.statcan.gc.ca/en/statistical-programs/document/sgc-cgt-2021-element-eng.csv | 1,829,851 bytes, `bf15e1655a06fdd03fba0da89fa3793def1915ebca89913694f81b1427f830b6` | Same encoding and record. Only `Place name(s)` rows of CSDs are used. Two rows are already garbled in the published file, even when it is read as Windows-1252: `YunesÌ‚it'in` (5941841 Stone 1) and `Ê”Esdilagh` (5941882 Alexandria). They are left as published. Neither CSD has a point, so neither name reaches `neighbourhoods.csv` |
 | CGNDB English CSV, national file | https://ftp.maps.canada.ca/pub/nrcan_rncan/vector/geobase_cgn_toponyme/prov_csv_eng/cgn_canada_csv_eng.zip | zip 16,265,828 bytes, `11cfb15659964c6b66cde57d2067e6e9c965e85f4420de67d20dc43b8ea80a6f`. Contains `cgn_canada_csv_eng.csv` (77,274,370 bytes, 366,235 data rows) | Server `Last-Modified` 2026-11-04 04:53:58 GMT. UTF-8 with byte order mark. Dataset record https://open.canada.ca/data/en/dataset/e27c6eba-3c5d-4051-9db2-082dc6411c2c (weekly extract) |
 
-The CGNDB download has **no status column**. It has `CGNDB ID, Geographical Name, ISO Language Code, Language, Syllabic Form, Generic Term, Generic Category, Concise Code, Toponymic Feature ID, Latitude, Longitude, Location, Province - Territory, Relevance at Scale, Decision Date, Source`. Every row was treated as a current official name. The builder skipped the 28 rows whose `Province - Territory` is `Undersea Feature`. All 13 province and territory names in the CGNDB file match the SGC English spelling, so no province was skipped.
+The CGNDB download has **no status column**. It has `CGNDB ID, Geographical Name, ISO Language Code, Language, Syllabic Form, Generic Term, Generic Category, Concise Code, Toponymic Feature ID, Latitude, Longitude, Location, Province - Territory, Relevance at Scale, Decision Date, Source`. Every row was treated as a current official name, because the dataset record (https://open.canada.ca/data/en/dataset/e27c6eba-3c5d-4051-9db2-082dc6411c2c, checked 2026-11-05) says the dataset "consists of current officially approved names". The builder skipped the 28 rows whose `Province - Territory` is `Undersea Feature`. All 13 province and territory names in the CGNDB file match the SGC English spelling, so no province was skipped.
 
 The CGNDB record warns that the database "contains historical terminology that is considered racist, offensive and derogatory". Names are kept exactly as published and are not edited here.
 
@@ -44,7 +44,7 @@ cd server && ./gradlew buildPlaceDictionary \
 The builder reads `overrides.csv` from the output folder and rewrites `regions.csv` and `neighbourhoods.csv`. It only reads local files. A second build on the same inputs gave byte-identical files (checked 2026-11-05). Printed result for this build:
 
 ```
-Place dictionary written: {neighbourhoods=12464, none=1942, override=14, shared=35, skipped: Undersea Feature=28, unique=3205}
+Place dictionary written: {neighbourhoods=12447, none=1942, override=14, shared=35, skipped: Undersea Feature=28, unique=3205}
 ```
 
 Rebuild when SGC 2026 is released, or when the CGNDB extract needs to be refreshed. Record the new download date and counts here.
@@ -56,8 +56,8 @@ All files are UTF-8 without a byte order mark, with `\n` line ends and a header 
 | File | Made by | Columns | Data rows | Bytes |
 |---|---|---|---|---|
 | `provinces.csv` | hand | `code,name,abbr,aliases,lat,lng,cgndb_id`. `aliases` split by `\|`. Coordinates are the CGNDB `PROV`/`TERR` row with the English SGC name | 13 | 742 |
-| `regions.csv` | builder | `csd_code,name,province_code,cd_name,lat,lng,cgndb_id,coord_rule`. `coord_rule` is `unique`, `override` or `none`; for `none` the last coordinates and id are empty | 5,161 | 335,012 |
-| `neighbourhoods.csv` | builder | `cgndb_id,name,csd_code,province_code,lat,lng` | 12,464 | 653,365 |
+| `regions.csv` | builder | `csd_code,name,province_code,cd_name,lat,lng,cgndb_id,coord_rule`. `coord_rule` is `unique`, `override` or `none`; for `none` the last coordinates and id are empty | 5,161 | 335,013 |
+| `neighbourhoods.csv` | builder | `cgndb_id,name,csd_code,province_code,lat,lng` | 12,447 | 652,409 |
 | `overrides.csv` | hand | `csd_code,cgndb_id,reason,evidence_url,reviewed_at` | 14 | 4,181 |
 | `README.md` | hand | — | — | this file |
 
@@ -68,7 +68,7 @@ Total size of the folder is under 1 MB (limit 4 MB, plan C2a T2).
 `fold` is `NameFold` in the server: accents dropped, lower case, curly apostrophes made straight, hyphens and dashes made spaces, `st`/`st.`/`saint` become `saint`, `ste`/`ste.`/`sainte` become `sainte`, other full stops removed, and spaces collapsed.
 
 - **B1, CSD point.** A CSD gets the CGNDB point when exactly one CGNDB name in its province has the same folded name and a `Concise Code` of `CITY`, `TOWN`, `VILG`, `HAM`, `UTM`, `LTM`, `STM`, `MUN1` or `MUN2`, and no other CSD in that province has the same folded name. Otherwise it gets the point from `overrides.csv`, or no point (`none`). Points are never guessed.
-- **B2, neighbourhood.** For each SGC `Place name(s)` row of a CSD with a point, take the CGNDB names in the same province with the same folded name, a `Concise Code` of `UNP`, `HAM` or `VILG`, and within **25 km** of the CSD point. If there is exactly one, and it is not the CSD's own point, it is a neighbourhood of that CSD. A name that would belong to two CSDs is left out (`shared`). The 25 km radius has no official basis. It is the constant `PlaceDictionaryBuilder.NEIGHBOURHOOD_RADIUS_KM`.
+- **B2, neighbourhood.** For each SGC `Place name(s)` row of a CSD with a point, take the CGNDB names in the same province with the same folded name, a `Concise Code` of `UNP`, `HAM` or `VILG`, and within **25 km** of the CSD point. If there is exactly one, and it is not the point of any CSD (`unique` or `override`), it is a neighbourhood of that CSD. A name that would belong to two CSDs is left out (`shared`). The 25 km radius has no official basis. It is the constant `PlaceDictionaryBuilder.NEIGHBOURHOOD_RADIUS_KM`.
 - **B3.** Rows are sorted by `csd_code`, then `cgndb_id`.
 
 Results for the 5,161 CSDs:
@@ -79,7 +79,7 @@ Results for the 5,161 CSDs:
 | `override` | 14 | `overrides.csv` |
 | `none` | 1,942 | 1,608 with no matching CGNDB name, 63 with two or more, 271 that share their folded name with another CSD of the province |
 
-Neighbourhoods: 12,464 rows, plus 35 names left out because they matched two CSDs.
+Neighbourhoods: 12,447 rows, plus 35 names left out because they matched two CSDs.
 
 All 56 CSDs with a 2021 Census population of 100,000 or more (Table 98-10-0002-01, above) have coordinates: 43 `unique` and 13 `override` (Montréal and the 12 added in T2b). Smaller CSDs with `none` resolve without coordinates. Moncton (1307022, 2021 population under 100,000) is one of them, and so is its same-name CSD 1307019.
 
@@ -109,6 +109,8 @@ Two groups of CSDs have overrides: the plan's demo and same-name CSDs, and every
 Where the Why column says "one `CITY` and ...", it lists the current names in the province that fold to the CSD name with a B1 code. The `CITY` row is the city itself.
 
 Placing these cities changed the neighbourhoods. 12 CSDs gained neighbourhoods. Laval's SGC place names include "Lachenaie" and "Montréal", so two names now fall in two CSDs and were left out: ERBYL Lachenaie (also Terrebonne) and EMBOX "Montréal" (a post office, also Montréal).
+
+The review fixes of 2026-11-05 changed the neighbourhoods again (12,464 to 12,447). 18 names were removed because each is another CSD's point (for example EMCEF Notre-Dame-des-Anges, the point of its own CSD, which had also been a neighbourhood of Québec). 1 name was added: ESLXX Le Coteau-des-Sœurs (2418045), whose œ (byte `9C`) is read correctly only as Windows-1252.
 
 ## Demo and same-name checks (plan C2, "demo expectations")
 

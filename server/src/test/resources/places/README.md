@@ -19,5 +19,5 @@ Not recorded:
 
 ## Licences and attribution
 
-- SGC 2021: Statistics Canada Open Licence, https://www.statcan.gc.ca/en/terms-conditions/open-licence. "Source: Statistics Canada, Standard Geographical Classification (SGC) 2021. Reproduced and distributed on an "as is" basis with the permission of Statistics Canada." Dataset record: https://open.canada.ca/data/en/dataset/1d815243-28ce-45e6-ad6b-58643327a253
+- SGC 2021: Statistics Canada Open Licence, https://www.statcan.gc.ca/en/terms-conditions/open-licence. "Source: Statistics Canada, Standard Geographical Classification (SGC) 2021, 2021. Reproduced and distributed on an "as is" basis with the permission of Statistics Canada." Dataset record: https://open.canada.ca/data/en/dataset/1d815243-28ce-45e6-ad6b-58643327a253
 - CGNDB: Open Government Licence – Canada, https://open.canada.ca/en/open-government-licence-canada. "Contains information licensed under the Open Government Licence – Canada." Dataset record: https://open.canada.ca/data/en/dataset/e27c6eba-3c5d-4051-9db2-082dc6411c2c. Names are kept exactly as published.
