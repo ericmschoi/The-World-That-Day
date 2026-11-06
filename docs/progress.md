@@ -371,3 +371,24 @@
 | 2026-10-29 | orchestrator | C1 S1 PR | PR #31 열림 | dd3a9c2 |
 | 2026-10-29 | PM | Canada 리서치 | PR #30 머지 | bea33b1 |
 | 2026-11-04 | frontend-dev | C1 S1 T3 시행일 (머지 날) | 완료, November 4, 2026, 웹 751·e2e 118 통과 (직전 실행 e2e 2건 시간 초과는 흔들림으로 봄) | 3fe26a6 |
+| 2026-11-04 | PM | C1 S1 영어 화면 | PR #31 머지 | cc9af18 |
+| 2026-11-04 | PM | 운영 방식: PR마다 보고하지 않고 배포 직전까지 자율 진행. 유료 호출·배포 금지(직전에 보고), 막히면 가장 타당한 안으로 진행, 5시간 한도 뒤 자동 재개, README 갱신 | 결정 | - |
+| 2026-11-04 | orchestrator | PM 위임 (추천안): T9 A1 (a) 1차 항목 1·2·3·6·11, 4·5·7·9·10은 결정 뒤 2차, 8 뺌 · A2 시작 1950-01-01 확정 · T1 D1~D5 (a) · T8 D4 (b) 나이 문장(13세 미만, 퀘벡 14세 미만, S2 T8b) · T6 D4 ECCC 라이선스 서비스 단위로 읽음 | 결정 | - |
+| 2026-11-05 | planner | C2 계획(장소 사전·resolve 계약, 서버 PR 3) · C3 계획(그때 vs 지금 항목 2·3, 서버 5 + 웹 1) | 완료 | c5d4653 |
+| 2026-11-05 | orchestrator | PM 위임 (추천안): C2-P1 (a) 데이터→매처→API 3 PR · C2-P2 (a) 파생 CSV만 커밋, 4 MB 상한 · C2-P3 (a) SGC Place name + CGNDB 25 km 정확히 1건 · C2-P4 (a) 좌표 null, 데모만 overrides · C2-P5 (a) PARTIAL · C3-P1 (a) 서버 5 + 웹 1 · C3-P2 (a) 메모리 캐시 · C3-P3 (a) province 코드 · C3-P4 (a) 빵·우유, 1995~ · C3-P5 (b) 근거 URL 고르기 파일 · C3-P6 (a) then-and-now 섹션 · C2-P6/C3-P7 (b) backend-dev | 결정 | - |
+| 2026-11-05 | planner | 로드맵 캐나다 C0~C8 다시 씀 · 정의서·CLAUDE.md·.claude/ 문구 제안서 1차·2차(brief-changes-canada.md) | 완료 | fbab8e0 |
+| 2026-11-05 | orchestrator | PM 위임 (추천안): C6·C7은 MVP 밖(C8은 머지된 만큼) · ★ S3b T2 backend-dev · S2 T9는 PR 연 뒤 머지 전 · 정의서 1차는 PM 검토 후 명시 위임 · "그때와 지금" 위치는 세계 앞(C3-P6도 맞춤) | 결정 | - |
+| 2026-11-05 | backend-dev | C2a T1 NameFold·PlaceDictionaryBuilder·buildPlaceDictionary(check 2302 통과, 제품 코드 400줄) | 완료 | 19445b4 |
+| 2026-11-05 | orchestrator | PM 위임 (추천안): 빌더 규칙 3가지 유지 · CSD 이름과 같은 동네는 C2b 매처에서 뺌 | 결정 | 4b55657 |
+| 2026-11-05 | content-curator | C2a T2 data/places 5개 파일(CSD 5,161, 좌표 3,207, 동네 12,003, 0.97 MB) | 완료 | 9bac41f |
+| 2026-11-05 | orchestrator | PM 위임 (추천안): T2 판단 3개 승인 · SGC 표시 날짜 reference date 2021 · T2b 인구 10만 이상 도시 overrides 추가 | 결정 | 4b3bcf6 |
+| 2026-11-05 | content-curator | C2a T2b 인구 10만 이상 CSD 56곳 모두 좌표(overrides 12개 추가), SGC 표시 날짜 2021 | 완료 | 14d5b64 |
+| 2026-11-05 | test-engineer | C2a T3 PlaceDataFilesTest 10개, check --rerun-tasks 2회(2312 통과) | 완료 | fcb9eb6 |
+| 2026-11-05 | code-reviewer | C2a 리뷰 수정 요청(필수 1: SGC가 Windows-1252라 regions.csv에 제어 문자 / 권장 6) | 수정 요청 1회 | fcb9eb6 |
+| 2026-11-05 | orchestrator | PM 위임 (추천안): Windows-1252로 읽기 · 규칙 (나) 넓힘 · 정렬·제어 문자 시험 · 리서치 문서 정정 · README 근거 | 결정 | bb00d85 |
+| 2026-11-05 | backend-dev | C2a 리뷰 필수 1: SGC Windows-1252로 읽기, 규칙 (나)를 모든 CSD 대표점(unique·override)으로 넓힘(check 2314, 제품 코드 400줄) | 완료 | 3969378 |
+| 2026-11-05 | content-curator | C2a 리뷰 반영 재빌드(제어 문자 0, 동네 12,447, README 인코딩·근거 인용·깨진 원본 2행) | 완료 | dc3d1bc |
+| 2026-11-05 | data-researcher | C2a 리뷰 권장 3: SGC CSV 인코딩을 Windows-1252로 정정(place-search 4곳, summary 2곳) | 완료 | 3efc7f9 |
+| 2026-11-05 | test-engineer | C2a 리뷰 시험: 제어 문자·B3 정렬 3개, check --rerun-tasks 2회 | 완료 | 4341639 |
+| 2026-11-06 | code-reviewer | C2a 재리뷰 승인(독립 재빌드 바이트 일치, check 2317 통과, 권장 2) | 승인 | 4341639 |
+| 2026-11-06 | orchestrator | PM 위임 (추천안): 계획 SGC 인코딩 정정 · 합자 œ/æ 접기는 C2b T4 | 결정 | 857fd2e |

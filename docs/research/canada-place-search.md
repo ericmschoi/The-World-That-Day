@@ -26,7 +26,7 @@
 | 1 | 같은 질문 | 도시 열린 데이터 | 토론토 "Neighbourhoods"(158개), 밴쿠버 "Local area boundary"(22개), 몽레알 "Quartiers de référence en habitation"(91개), 캘거리 "Community District Boundaries"(313개)가 경계 다각형이다. 전국 공통 기준이 없고 도시마다 이름·개수·정의가 다르다 | 확인됨 | [R14][R16][R15][R17] |
 | 2 | 프랑스어·영어 이름과 악센트 | CGNDB API | "Montreal" 과 "Montréal" 로 같은 질의를 보내면 23건씩 같은 결과가 왔다(악센트 무시). "Quebec" 과 "Québec" 도 같은 5건이었다. 주 `PROV` "Quebec" 과 시 `CITY` "Québec" 이 한 질의에 함께 온다. 약어도 맞춘다: "Saint John" 질의에 "Fort St. John" 이 걸렸다. 응답의 `language.code` 는 관찰한 항목에서 `und`(미정)나 `mis`(여러 언어)뿐이었고, 한 도시의 영어·프랑스어 이름을 쌍으로 주는지는 확인하지 못했다. 프랑스어 경로 `/fr/geonames` 가 따로 응답한다 | 확인됨 (관찰) | [R4][R3][R2] |
 | 2 | 같은 질문 | CGNDB 내려받기 | 영어판과 프랑스어판 CSV가 따로 있다. 영어 파일은 UTF-8(BOM 포함)이고 악센트가 유지된다("Québec"). 주 이름 약어는 `term` 에 있다(`QC`, `NL` 등) | 확인됨 | [1][7][R7][R11] |
-| 2 | 같은 질문 | SGC 2021 | 영어 이름 CSV는 ISO-8859-1(Latin-1) 인코딩이고 악센트가 있다("Montréal"). 프랑스어 파일도 있다. 구현은 인코딩을 명시해 읽어야 한다 | 확인됨 | [10][R10] |
+| 2 | 같은 질문 | SGC 2021 | 영어 이름 CSV는 Windows-1252(Latin-1 상위 집합) 인코딩이고 악센트가 있다("Montréal"). 프랑스어 파일도 있다. 구현은 인코딩을 명시해 읽어야 한다 | 확인됨 | [10][R10] |
 | 2 | 같은 질문 | Nominatim | `accept-language` 로 이름 언어를 고른다. "Hochelaga-Maisonneuve, Montréal" 질의가 1건을 돌려줬다. 악센트 없는 철자의 동작은 시험하지 않았다 | 부분 확인 | [29][R9] |
 | 3 | 같은 이름 후보를 목록으로 받나. 질문 장소: London, Victoria, Saint John | SGC 2021 | 이름이 정확히 같은 CSD 수: Victoria 5개(뉴펀들랜드 1, PEI 2, 매니토바 1, BC 1), London 1개(온타리오), Saint John 1개(뉴브런즈윅), St. John's 1개. 구획(CD) 이름도 Victoria 2개(NS, NB)가 있다 | 확인됨 | [R10] |
 | 3 | 같은 질문 | CGNDB API | `num` 기본 100, 최대 1,000, `skip` 으로 쪽을 넘긴다. 도시급만 걸러 쓰는 `concise` 필터가 된다. 기본 응답에는 예전 공식명(`category=H`)이 섞이므로 `category=O` 로 걸러야 한다. "London" + 시·읍 급 `concise` 필터 → 현재 공식 `CITY`(온타리오) 1건 + 예전 공식명 1건. "Victoria" 는 필터 없이 100건 중 `CITY`(BC) 1, `TOWN`(뉴펀들랜드) 1 외에 `UNP` 가 많다. 후보를 줄이려면 `concise` 필터가 필요하다. 응답에 `relevance` 숫자가 있으나 의미는 문서에 없다 | 확인됨 | [3][R1][R2] |
@@ -86,7 +86,8 @@
 - 요금·쿼터: 무료
 - 커버리지: 기준 연도 2021. 코드는 7자리(주 2 + 구획 2 + CSD 3) [8]. 예: Calgary 4806016, Montréal 2466023, Vancouver 5915022, St. John's 1001519, London 3539036, Saint John 1301006 [R10]. 2026 판은 찾지 못했다(공식 쪽은 2021이 현행) [8].
 - 날짜 정밀도: 해당 없음 — 날짜가 아닌 분류
-- 응답 메타데이터: 좌표 없음. 라이선스 필드는 파일에 없고 데이터셋 기록에 있다 [10]. 인코딩 ISO-8859-1 [R10].
+- 응답 메타데이터: 좌표 없음. 라이선스 필드는 파일에 없고 데이터셋 기록에 있다 [10]. 인코딩 Windows-1252(Latin-1 상위 집합) [R10].
+  - 정정(2026-11-05): 이전 판은 이 인코딩을 ISO-8859-1로 적었다. C2a 리뷰에서 내려받은 두 SGC CSV의 바이트를 확인했더니 Windows-1252에만 있는 바이트(0x92 ’, 0x9C œ, 0x82, 0x94; 예: "Sambaa K’e", "Le Sacré-Cœur")가 들어 있어 Windows-1252로 바로잡았다. 본문 다른 곳의 같은 표기도 함께 고쳤다.
 - 라이선스·약관 핵심:
   - 화면 표시, 캐싱·저장, 변경(가공), 재배포: Statistics Canada Open Licence가 이용·복제·게시·배포·판매와 가공해 새 제품을 만드는 것을 허용한다 [13].
   - 상업 이용: 허용(같은 라이선스) [13][14].
@@ -689,7 +690,7 @@ curl -sS -X POST "https://places.googleapis.com/v1/places:searchText" \
 4. **Nominatim 공개 서버는 보장이 없다.** 용량이 작고 접근이 철회될 수 있으며 [28], ODbL 파생 데이터베이스 해석이 남아 있다(10절 D2). 공개 배포 전에 재검토해야 한다.
 5. **SGC와 CGNDB를 잇는 열이 없다.** (주, 이름)으로 맞추면 CSD 5,161개 중 3,329개가 유일하게 맞았지만(리서처 간이 계산, 공식 문서 아님), 170개는 여러 건이 걸렸고 1,662개는 안 맞았다(번호형 이름 등). 대표 도시만 먼저 연결하고 나머지는 큐레이션이나 점-다각형(경계 파일)으로 해결해야 한다.
 6. **`UNP` 안에 동네와 시골 마을이 섞여 있다.** 동네 사전을 만들 때 큐레이션이 필요하다. 전부 `NEIGHBORHOOD` 로 취급하면 "Victoria Road" 같은 도로 이름이 동네로 나온다 [R1].
-7. **인코딩이 서로 다르다.** SGC CSV는 ISO-8859-1 [R10], CGNDB CSV는 UTF-8(BOM 포함) [R11]. 읽을 때 인코딩을 명시하지 않으면 "Montréal" 이 깨진다.
+7. **인코딩이 서로 다르다.** SGC CSV는 Windows-1252(Latin-1 상위 집합) [R10], CGNDB CSV는 UTF-8(BOM 포함) [R11]. 읽을 때 인코딩을 명시하지 않으면 "Montréal" 이 깨진다.
 8. **대표 좌표가 출처마다 다르다.** St. John's: CGNDB 47.4822, -52.7971 / Nominatim 47.5647, -52.7067 / GeoNames 47.5649, -52.7093 [R3][R9][R12]. 지도를 쓰지 않는 장소 해석에는 문제가 없으나 T2의 항공사진이나 날씨 관측소 선택의 입력이 되면 거리가 중요해진다.
 9. **밴쿠버·캘거리 약관을 읽지 못했다.** 두 도시의 경계 자료는 이용 조건이 `미확인` 이라 구현에 쓰지 않는다. 필요하면 B2, B3를 PM이 본다.
 10. **Google 서비스 약관 본문을 읽지 못했다.** 위도·경도 캐시 기간과 상업 이용 조항이 미확인이다(B1).
@@ -824,7 +825,7 @@ curl -sS -X POST "https://places.googleapis.com/v1/places:searchText" \
 | R7 | `…/geonames/en/codes/concise.json`, `…/codes/province.json` | concise 50개 코드(병원 코드 없음). province 15개: 10 NL, 11 PE, 12 NS, 13 NB, 24 QC, 35 ON, 46 MB, 47 SK, 48 AB, 59 BC, 60 YT, 61 NT, 62 NU, 72 UF, 73 IW |
 | R8 | `GET https://geogratis.gc.ca/services/geolocation/en/locate?q=Calgary`(옛), `GET https://geolocator.api.geo.ca/?q=London&lang=en`, `…?q=Vancouver General Hospital`, `…?q=Paris France` | 옛: 응답 헤더 `Cache-Control: no-store`, 항목 `title`, `qualifier`, `type`, `bbox`, `geometry`. 새: 항목 `key`, `name`, `province`, `category`, `lat`, `lng`, `bbox`, `tag`. VGH 질의에서 `nominatim` 항목이 맨 앞. Paris France 질의는 캐나다 지명만 반환 |
 | R9 | `GET https://nominatim.openstreetmap.org/search?q=<질의>&format=jsonv2&addressdetails=1&limit=10&accept-language=en&countrycodes=ca` (London은 `countrycodes` 있는 판과 없는 판) | London ca 2건 / 필터 없음 3건. Victoria 4건. Saint John 2건. "Vancouver General Hospital" 1건 `amenity/hospital` (49.2618, -123.1227). "Hochelaga-Maisonneuve, Montréal" 1건 `boundary/neighbourhood` (45.5515, -73.5400). "St. John's" 1건 city (47.5647, -52.7067). "Calgary" 1건 city (51.0456, -114.0575). "Calgary General Hospital" 1건 "Peter Lougheed Centre" `amenity/hospital`. 응답 필드: `place_id`, `osm_type`, `osm_id`, `lat`, `lon`, `category`, `type`, `place_rank`, `importance`, `addresstype`, `name`, `display_name`, `boundingbox`, `address`, `licence` |
-| R10 | `GET https://www.statcan.gc.ca/en/statistical-programs/document/sgc-cgt-2021-structure-eng.csv`, `…/sgc-cgt-2021-element-eng.csv` | 구조 CSV: 레벨 1 6행, 레벨 2 13행, 레벨 3 293행, 레벨 4 5,161행. 요소 CSV: "Place name(s)" 34,285행(CSD 코드별: Montréal 88, Calgary 180, Vancouver 27, St. John's 35). 이름이 같은 CSD: Victoria 5, London 1, Saint John 1, St. John's 1. 인코딩 ISO-8859-1 |
+| R10 | `GET https://www.statcan.gc.ca/en/statistical-programs/document/sgc-cgt-2021-structure-eng.csv`, `…/sgc-cgt-2021-element-eng.csv` | 구조 CSV: 레벨 1 6행, 레벨 2 13행, 레벨 3 293행, 레벨 4 5,161행. 요소 CSV: "Place name(s)" 34,285행(CSD 코드별: Montréal 88, Calgary 180, Vancouver 27, St. John's 35). 이름이 같은 CSD: Victoria 5, London 1, Saint John 1, St. John's 1. 인코딩 Windows-1252(Latin-1 상위 집합) |
 | R11 | `GET https://ftp.maps.canada.ca/pub/nrcan_rncan/vector/geobase_cgn_toponyme/prov_csv_eng/cgn_nl_csv_eng.zip` | 33,150행, 열 16개(UTF-8 BOM). `TOWN` 270, `CITY` 3, `UNP` 1,358. 같은 폴더의 전국 합본 `cgn_canada_csv_eng.zip`(내려받기 약 16 MB, 압축 해제 약 77 MB)도 받아 366,235행을 확인: `CITY` 396, `TOWN` 859, `VILG` 1,502, `HAM` 261, `MUN1` 355, `MUN2` 1,643, `UNP` 26,869. SGC CSD 5,161개와 (주, 이름)으로 맞춘 결과 3,329 유일 / 170 복수 / 1,662 없음(리서처 간이 계산) |
 | R12 | `GET https://download.geonames.org/export/dump/CA.zip` | 317,133행. 시간대 id 40종. `HSP`(병원) 12행. Calgary `America/Edmonton`, St. John's `America/St_Johns`, Montréal·London `America/Toronto`, Victoria BC `America/Vancouver`, Saint John `America/Moncton` |
 | R13 | `GET https://www150.statcan.gc.ca/n1/pub/13-26-0001/2020001/ODHF_v1.1.zip` | 7,033행: `Hospitals` 1,140(좌표 있음 1,047), `Ambulatory health care services` 2,227, `Nursing and residential care facilities` 3,666. 이름에 "general hospital" 포함 90행. "Vancouver General Hospital" 의 `CSDuid` 5915022 |

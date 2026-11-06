@@ -24,6 +24,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
     implementation("org.flywaydb:flyway-database-postgresql")
+    // CSV for the place dictionary (plan C2): the builder reads the SGC and CGNDB files, and C2b
+    // reads data/places/. Boot 4.1 manages the version (Jackson 3 BOM).
+    implementation("tools.jackson.dataformat:jackson-dataformat-csv")
     runtimeOnly("org.postgresql:postgresql")
 
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
@@ -45,6 +48,19 @@ tasks.withType<Test> {
     useJUnitPlatform()
     // An exported YOUTUBE_API_KEY would override the empty test key (relaxed binding).
     environment.remove("YOUTUBE_API_KEY")
+}
+
+// Plan C2: writes regions.csv and neighbourhoods.csv into -PplacesOut (which holds the curated
+// overrides.csv) from the downloaded source files, never committed. Paths are relative to server/.
+tasks.register<JavaExec>("buildPlaceDictionary") {
+    description = "Builds data/places/ from the SGC 2021 and CGNDB CSV files (reads files only)."
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass = "io.github.ericmschoi.theworldthatday.place.PlaceDictionaryBuilder"
+    val names = listOf("sgcStructure", "sgcElements", "cgndb", "placesOut")
+    val paths = names.map { providers.gradleProperty(it) }
+    argumentProviders.add(CommandLineArgumentProvider {
+        names.zip(paths).map { (name, path) -> file(path.orNull ?: throw GradleException("Missing -P$name")).path }
+    })
 }
 
 spotless {

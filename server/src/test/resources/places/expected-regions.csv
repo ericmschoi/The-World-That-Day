@@ -1,0 +1,15 @@
+csd_code,name,province_code,cd_name,lat,lng,cgndb_id,coord_rule
+1001365,Victoria,10,Division No. 1,47.7712500,-53.2380778,AAWMU,unique
+1001519,St. John's,10,Division No. 1,47.4821970,-52.7970690,ABEFS,unique
+1102032,Victoria,11,Queens,,,,none
+1103068,Victoria,11,Prince,,,,none
+1301006,Saint John,13,Saint John,45.2591670,-66.0388890,DAEGW,unique
+2466023,Montréal,24,Montréal,45.5088220,-73.5540770,EHHUN,override
+3521024,Caledon,35,Peel,43.8660500,-79.8590100,FAYKX,unique
+3539036,London,35,Middlesex,42.9675000,-81.2325000,FCAEN,unique
+4608042,Victoria,46,Division No. 8,49.6641670,-98.8955560,GBCRB,unique
+4806016,Calgary,48,Division No. 6,51.0458333,-114.0574999,IAKID,unique
+5915022,Vancouver,59,Greater Vancouver,49.2611110,-123.1138890,JBRIK,unique
+5917034,Victoria,59,Capital,48.4283330,-123.3647220,JBOBQ,unique
+5955034,Fort St. John,59,Peace River,56.2525000,-120.8466670,JAGPB,unique
+6104006,Sambaa K’e,61,Region 4,,,,none
