@@ -24,7 +24,7 @@
 
 | 출처 | 확신도 | 쓰는 방식 | 지킬 조건 |
 |---|---|---|---|
-| SGC 2021 구조 CSV·요소 CSV ([T1 3절](../research/canada-place-search.md#3-출처-카드), 근거 [11][12]) | 확인됨 | 한 번 내려받아 파생 파일을 만든다 | Statistics Canada Open Licence. 가공했으므로 "Adapted from Statistics Canada, Standard Geographical Classification (SGC) 2021, <기록 수정일>. This does not constitute an endorsement by Statistics Canada of this product." CSV는 ISO-8859-1 |
+| SGC 2021 구조 CSV·요소 CSV ([T1 3절](../research/canada-place-search.md#3-출처-카드), 근거 [11][12]) | 확인됨 | 한 번 내려받아 파생 파일을 만든다 | Statistics Canada Open Licence. 가공했으므로 "Adapted from Statistics Canada, Standard Geographical Classification (SGC) 2021, <기록 수정일>. This does not constitute an endorsement by Statistics Canada of this product." CSV는 Windows-1252(Latin-1 상위 집합, 2026-11-05 리뷰에서 정정) |
 | CGNDB 내려받기 CSV, 전국 합본 `cgn_canada_csv_eng.zip` ([T1 3절](../research/canada-place-search.md#3-출처-카드), 근거 [1][7], R11) | 확인됨 | 같음 | OGL-Canada v2.0. "Contains information licensed under the Open Government Licence – Canada." + 라이선스 링크. UTF-8 BOM. 공식 보증 암시 금지. 옛 용어 경고가 있으므로 이름을 고치지 않고 그대로 둔다 |
 
 `확인됨` 이 아닌 출처는 쓰지 않는다. 내려받기와 녹화의 User-Agent는 `TheWorldThatDay/0.1 (https://github.com/ericmschoi/The-World-That-Day)` 하나뿐이고, 이메일은 어디에도 넣지 않는다.
@@ -231,3 +231,8 @@ CSV 읽기는 Jackson CSV 모듈(Spring Boot가 판을 관리하는 `tools.jacks
 - **권장 3 (리서치 문서 인코딩 정정)**: data-researcher가 `canada-place-search.md` 의 "ISO-8859-1"을 "Windows-1252(Latin-1 상위 집합)"로 고친다.
 - **권장 4·5 (README 근거 인용, 시험 README 표시 날짜)**: content-curator가 고친다.
 - **권장 6**: 그대로 둔다.
+
+### PM 위임 결정 (2026-11-06, orchestrator) — C2a 재리뷰 승인 뒤
+
+- 재리뷰 권장 1: 위 "사용할 외부 출처" 표의 SGC 인코딩을 Windows-1252로 고쳤다.
+- 재리뷰 권장 2 → **C2b T4에 더한다**: `NameFold` 가 합자 `œ`→`oe`, `æ`→`ae`(대문자 포함)로 접는다. "Coteau-des-Soeurs" 입력이 `Le Coteau-des-Sœurs` 와 맞아야 한다. 시험을 둔다. C2a 제품 코드가 400줄이라 C2a에는 더하지 않는다.
