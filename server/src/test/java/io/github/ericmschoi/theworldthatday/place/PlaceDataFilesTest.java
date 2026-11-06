@@ -173,6 +173,51 @@ class PlaceDataFilesTest {
     }
   }
 
+  @Test
+  void noTextColumnContainsControlCharacters() throws IOException {
+    Pattern control = Pattern.compile("\\p{Cc}");
+    for (String file : FILES) {
+      for (Row r : rows(file)) {
+        for (String column : columns(file)) {
+          assertThat(control.matcher(r.get(column)).find())
+              .as("control character in %s column %s, line %d", file, column, r.line())
+              .isFalse();
+        }
+      }
+    }
+  }
+
+  @Test
+  void regionsAreSortedByCsdCode() throws IOException {
+    String previous = null;
+    for (Row r : rows("regions.csv")) {
+      String csd = r.get("csd_code");
+      if (previous != null) {
+        assertThat(csd).as("order at line %d", r.line()).isGreaterThan(previous);
+      }
+      previous = csd;
+    }
+  }
+
+  @Test
+  void neighbourhoodsAreSortedByCsdCodeThenCgndbId() throws IOException {
+    String prevCsd = null;
+    String prevId = null;
+    for (Row r : rows("neighbourhoods.csv")) {
+      String csd = r.get("csd_code");
+      String id = r.get("cgndb_id");
+      if (prevCsd != null) {
+        int byCsd = csd.compareTo(prevCsd);
+        assertThat(byCsd).as("csd_code order at line %d", r.line()).isGreaterThanOrEqualTo(0);
+        if (byCsd == 0) {
+          assertThat(id).as("cgndb_id order at line %d", r.line()).isGreaterThan(prevId);
+        }
+      }
+      prevCsd = csd;
+      prevId = id;
+    }
+  }
+
   // demo expectations from the plan
 
   static Row region(String csd) throws IOException {
